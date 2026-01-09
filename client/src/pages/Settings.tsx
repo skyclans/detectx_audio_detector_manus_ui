@@ -1,8 +1,23 @@
+/**
+ * Settings Page
+ * 
+ * v1.0 FINAL:
+ * - Profile section with user info
+ * - Account actions (sign out)
+ * - About section with version info
+ * - System information panel
+ */
+
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
-import { LogIn, Settings as SettingsIcon, User } from "lucide-react";
+import { LogIn, User, Info, Shield, Cpu } from "lucide-react";
+
+// Version constants - v1.0 FINAL
+const APP_VERSION = "1.0.0";
+const BUILD_DATE = "2025-01-10";
+const ENGINE_VERSION = "CR-G v1.0";
 
 export default function Settings() {
   const { user, loading: authLoading, isAuthenticated, logout } = useAuth();
@@ -36,7 +51,10 @@ export default function Settings() {
       <div className="max-w-2xl space-y-6">
         {/* Profile Section */}
         <div className="forensic-panel">
-          <div className="forensic-panel-header">Profile</div>
+          <div className="forensic-panel-header">
+            <User className="w-4 h-4 mr-2 inline" />
+            Profile
+          </div>
           <div className="forensic-panel-content">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
@@ -83,7 +101,10 @@ export default function Settings() {
 
         {/* Account Actions */}
         <div className="forensic-panel">
-          <div className="forensic-panel-header">Account Actions</div>
+          <div className="forensic-panel-header">
+            <Shield className="w-4 h-4 mr-2 inline" />
+            Account Actions
+          </div>
           <div className="forensic-panel-content">
             <Button
               variant="destructive"
@@ -95,28 +116,84 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* About */}
+        {/* System Information - v1.0 FINAL */}
         <div className="forensic-panel">
-          <div className="forensic-panel-header">About</div>
+          <div className="forensic-panel-header">
+            <Cpu className="w-4 h-4 mr-2 inline" />
+            System Information
+          </div>
           <div className="forensic-panel-content">
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                  Application
+                  Application Version
                 </span>
-                <span className="text-sm text-foreground">DetectX Audio</span>
+                <span className="text-sm font-mono text-forensic-cyan font-semibold">
+                  v{APP_VERSION}
+                </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
                 <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                  Version
+                  Build Date
                 </span>
-                <span className="text-sm font-mono text-foreground">1.0.0</span>
+                <span className="text-sm font-mono text-foreground">
+                  {BUILD_DATE}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                  Analysis Engine
+                </span>
+                <span className="text-sm font-mono text-foreground">
+                  {ENGINE_VERSION}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                  Supported Formats
+                </span>
+                <span className="text-sm font-mono text-foreground">
+                  WAV, MP3, FLAC, OGG, M4A
+                </span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-4">
-              DetectX Audio is a forensic audio verification platform for
-              detecting AI-generated content through structural signal analysis.
-            </p>
+          </div>
+        </div>
+
+        {/* About */}
+        <div className="forensic-panel">
+          <div className="forensic-panel-header">
+            <Info className="w-4 h-4 mr-2 inline" />
+            About DetectX Audio
+          </div>
+          <div className="forensic-panel-content">
+            <div className="space-y-4">
+              <p className="text-sm text-foreground">
+                DetectX Audio is a forensic audio verification platform for
+                detecting AI-generated content through structural signal analysis.
+              </p>
+              
+              <div className="bg-muted/20 rounded p-3 border border-border/30">
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-foreground">Evidence-Only Approach:</strong>{" "}
+                  This system provides structural signal evidence only. It does not 
+                  estimate probability, attribute authorship, or reference any specific 
+                  AI model names. All verdicts are based on CR-G (Computational 
+                  Reproducibility Geometry) analysis.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-border/30">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    © 2025 DetectX
+                  </span>
+                  <span className="text-xs font-mono text-muted-foreground">
+                    v{APP_VERSION}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

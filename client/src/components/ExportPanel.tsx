@@ -8,10 +8,14 @@
  * - CSV must be encoded as UTF-8 with BOM
  * - XLS/XLSX must preserve full Unicode support
  * - Filenames in Korean, Japanese, Chinese, and all non-Latin scripts must not break
+ * 
+ * v1.0 FINAL:
+ * - Download All button downloads all reports as single ZIP archive
  */
 
 import { Button } from "@/components/ui/button";
-import { FileJson, FileSpreadsheet, FileText, FileType } from "lucide-react";
+import { FileJson, FileSpreadsheet, FileText, FileType, Download } from "lucide-react";
+import JSZip from "jszip";
 
 interface ExportData {
   fileName: string;
@@ -281,17 +285,6 @@ function downloadFile(content: string, filename: string, mimeType: string, addBO
 }
 
 export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
-  const handleExportPDF = () => {
-    if (!data) return;
-    const content = generatePDFContent(data);
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(content);
-      printWindow.document.close();
-      printWindow.print();
-    }
-  };
-
   /**
    * Safely extract base filename for export
    * Handles Unicode filenames (Korean, Japanese, Chinese, etc.)
@@ -313,6 +306,17 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
     // Remove characters that might cause issues in filenames
     // but preserve Unicode letters and numbers
     return fileName.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
+  };
+
+  const handleExportPDF = () => {
+    if (!data) return;
+    const content = generatePDFContent(data);
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(content);
+      printWindow.document.close();
+      printWindow.print();
+    }
   };
 
   const handleExportJSON = () => {
@@ -337,12 +341,59 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
     downloadFile(content, `${baseName}_report.md`, "text/markdown");
   };
 
+  /**
+   * Download All - Bundle all reports as single ZIP archive
+   * v1.0 FINAL: No confirmation dialog required
+   */
+  const handleDownloadAll = async () => {
+    if (!data) return;
+    
+    const baseName = sanitizeFileName(getBaseFileName(data.fileName));
+    const zip = new JSZip();
+    
+    // Add all report formats to ZIP
+    const htmlContent = generatePDFContent(data);
+    zip.file(`${baseName}_report.html`, htmlContent);
+    
+    const jsonContent = generateJSON(data);
+    zip.file(`${baseName}_report.json`, jsonContent);
+    
+    // CSV with UTF-8 BOM
+    const csvContent = "\uFEFF" + generateCSV(data);
+    zip.file(`${baseName}_report.csv`, csvContent);
+    
+    const mdContent = generateMarkdown(data);
+    zip.file(`${baseName}_report.md`, mdContent);
+    
+    // Generate and download ZIP
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${baseName}_detectx_reports.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const isDisabled = disabled || !data || !data.verdict;
 
   return (
     <div className="forensic-panel">
       <div className="forensic-panel-header">Export Report</div>
       <div className="forensic-panel-content">
+        {/* Download All Button - Prominent placement */}
+        <Button
+          variant="default"
+          className="w-full mb-4 bg-forensic-cyan hover:bg-forensic-cyan/90 text-black font-medium"
+          onClick={handleDownloadAll}
+          disabled={isDisabled}
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Download All (ZIP)
+        </Button>
+
         <div className="grid grid-cols-2 gap-3">
           <Button
             variant="outline"

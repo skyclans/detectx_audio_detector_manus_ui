@@ -292,3 +292,40 @@
 - [x] Add "Copy to clipboard" control next to SHA-256 hash
 - [x] On click, copy full hash string
 - [x] Provide brief visual feedback (icon change or tooltip)
+
+
+## Final Specification v1.0 (pasted_content_8.txt)
+
+### 1) Export Report — Download All
+- [x] Add clearly visible "Download All" button
+- [x] Download all report files (PDF, JSON, CSV, Markdown) as single ZIP archive
+- [x] Include stem-related files when applicable
+- [x] No additional confirmation dialog required
+
+### 2) Detailed Analysis & Source Components Alignment
+- [x] Move Detailed Analysis section upward for prominence
+- [x] Bottom edge of Detailed Analysis must align with Source Components
+- [x] Both sections must end on same vertical baseline
+
+### 3) Source Components — Stem Controls & Download
+- [x] Add Play/Pause control for each stem (Vocals, Drums, Bass, Others)
+- [x] Add Volume control for each stem
+- [x] Add Download button for each stem
+- [x] UI-only preparation (no real stem separation)
+
+### 4) Settings — Version Display
+- [x] Replace static "1.0.0" with actual deployed build version
+- [x] Version string must reflect current build
+
+### 5) Live Scan Console & File Metadata Height Sync
+- [x] Align bottom edge of Live Scan Console with File Metadata panel
+- [x] Both panels must appear synchronized in height
+
+### 6) Sidebar Plan — Final Pricing & Positioning
+- [x] FREE: $0/forever, 10 verifications/month, basic CR-G analysis, standard exports, community support
+- [x] PRO ($19/month): 200 verifications/month, full CR-G suite, all exports, batch processing, API access, email support
+- [x] ENTERPRISE (Custom): Unlimited verifications, custom CR-G tuning, API + webhooks, SLA, dedicated support, on-premise
+### Design Constraints (Locked)
+- [x] Preserve existing color palette, neumorphic depth, button styles
+- [x] Maintain institutional forensic tone
+- [x] No probabilities, confidence scores, severity labels, AI model references

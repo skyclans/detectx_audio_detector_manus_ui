@@ -766,19 +766,22 @@ export default function Home() {
     <ForensicLayout>
       {/* Top section - Upload, Metadata, Waveform */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column - Upload and Metadata */}
-        <div className="space-y-6">
+        {/* Left column - Upload and Metadata with height sync */}
+        <div className="flex flex-col gap-6">
           <AudioUploadPanel
             onFileSelect={handleFileSelect}
             onVerify={handleVerify}
             isVerifying={isVerifying}
             disabled={false} // Always enabled - no login required
           />
-          <MetadataPanel metadata={metadata} />
+          {/* File Metadata - flex-1 to fill remaining space and sync with Live Scan Console */}
+          <div className="flex-1 min-h-[200px]">
+            <MetadataPanel metadata={metadata} />
+          </div>
         </div>
 
         {/* Center column - Waveform, Player, and Live Scan Console as single analysis block */}
-        <div className="lg:col-span-2 space-y-0">
+        <div className="lg:col-span-2 flex flex-col gap-0">
           <WaveformVisualization
             audioBuffer={audioBuffer}
             currentTime={currentTime}
@@ -800,12 +803,14 @@ export default function Home() {
             onVolumeChange={handleVolumeChange}
             disabled={!audioBuffer}
           />
-          {/* Live Scan Console - directly BELOW waveform with SAME width */}
-          <LiveScanConsole
-            isVerifying={isVerifying}
-            isComplete={scanComplete}
-            logs={scanLogs}
-          />
+          {/* Live Scan Console - directly BELOW waveform with SAME width, height syncs with Metadata */}
+          <div className="flex-1 min-h-[160px]">
+            <LiveScanConsole
+              isVerifying={isVerifying}
+              isComplete={scanComplete}
+              logs={scanLogs}
+            />
+          </div>
         </div>
       </div>
 

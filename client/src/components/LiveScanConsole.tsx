@@ -60,7 +60,7 @@ export function LiveScanConsole({
   };
 
   return (
-    <div className="forensic-panel w-full mt-0">
+    <div className="forensic-panel w-full mt-0 h-full flex flex-col">
       <div className="forensic-panel-header flex items-center gap-2">
         <Terminal className="w-4 h-4" />
         <span>Live Scan Console</span>

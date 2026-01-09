@@ -1,22 +1,20 @@
 /**
  * Source Components Section
  * 
- * Displays identified source component analysis from backend.
- * This component remains IDLE until backend data is received.
+ * v1.0 FINAL:
+ * - Stem controls with Solo (S) and Mute (M) buttons
+ * - Volume slider per stem
+ * - Horizontal amplitude waveform visualization
+ * - UI-only layout for future backend integration
+ * 
  * NO mock data, NO simulated results, NO placeholder judgments.
  * NO AI model names, NO probability, NO confidence scores.
- * 
- * LAYOUT OVERRIDE:
- * - Positioned directly BELOW Live Scan Console
- * - Same width as Live Scan Console (waveform block)
- * - Includes stem playback controls (UI-only, no real stem separation)
- * - Stems: Vocals, Drums, Bass, Others
- * - Waveform style: horizontal amplitude bars (NOT vertical bars)
  */
 
 import { useState, useCallback, useMemo } from "react";
 import { Play, Pause, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 
 interface SourceComponentData {
   components: {
@@ -50,7 +48,6 @@ function generateStemWaveform(stemId: string, pointCount: number = 100): number[
   const waveform: number[] = [];
   
   for (let i = 0; i < pointCount; i++) {
-    // Generate pseudo-random amplitude based on seed and position
     const noise = Math.sin(seed * 0.1 + i * 0.3) * 0.3 + 
                   Math.sin(seed * 0.05 + i * 0.7) * 0.2 +
                   Math.sin(seed * 0.02 + i * 1.1) * 0.15;
@@ -61,73 +58,125 @@ function generateStemWaveform(stemId: string, pointCount: number = 100): number[
   return waveform;
 }
 
+interface StemState {
+  isPlaying: boolean;
+  isSolo: boolean;
+  isMuted: boolean;
+  volume: number;
+}
+
 /**
  * Stem Control Component (UI-Only)
  * 
- * This is a UI-only layout component for future backend integration.
- * NO real stem separation is performed.
- * NO Demucs or audio processing.
- * 
- * WAVEFORM STYLE: Horizontal amplitude bars (mirrored top/bottom)
+ * v1.0 FINAL:
+ * - Play/Pause button
+ * - Solo (S) button - exclusive playback
+ * - Mute (M) button - silence this stem
+ * - Volume slider
+ * - Horizontal amplitude waveform
  */
 function StemControl({ 
   stem, 
-  isPlaying, 
-  onToggle,
+  state,
+  onTogglePlay,
+  onToggleSolo,
+  onToggleMute,
+  onVolumeChange,
   waveformData,
 }: { 
   stem: typeof STEMS[number]; 
-  isPlaying: boolean;
-  onToggle: () => void;
+  state: StemState;
+  onTogglePlay: () => void;
+  onToggleSolo: () => void;
+  onToggleMute: () => void;
+  onVolumeChange: (value: number) => void;
   waveformData: number[];
 }) {
+  const { isPlaying, isSolo, isMuted, volume } = state;
+  const isActive = isPlaying && !isMuted;
+
   return (
-    <div className="flex items-center gap-3 py-2 px-3 bg-muted/10 rounded border border-border/20 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
+    <div className={cn(
+      "flex items-center gap-2 py-2 px-3 bg-muted/10 rounded border border-border/20",
+      "shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]",
+      isMuted && "opacity-50"
+    )}>
       {/* Play/Pause button */}
       <button
-        onClick={onToggle}
+        onClick={onTogglePlay}
         className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-0",
+          "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-0",
           "bg-muted/30 hover:bg-muted/50 border border-border/30",
           isPlaying && "bg-primary/20 border-primary/50"
         )}
         title={isPlaying ? `Pause ${stem.name}` : `Play ${stem.name}`}
       >
         {isPlaying ? (
-          <Pause className="w-3.5 h-3.5 text-foreground" />
+          <Pause className="w-3 h-3 text-foreground" />
         ) : (
-          <Play className="w-3.5 h-3.5 text-foreground ml-0.5" />
+          <Play className="w-3 h-3 text-foreground ml-0.5" />
         )}
       </button>
       
+      {/* Solo button */}
+      <button
+        onClick={onToggleSolo}
+        className={cn(
+          "w-6 h-6 rounded text-[10px] font-bold flex items-center justify-center transition-all duration-0",
+          "border",
+          isSolo 
+            ? "bg-forensic-amber text-black border-forensic-amber" 
+            : "bg-muted/20 text-muted-foreground border-border/30 hover:bg-muted/40"
+        )}
+        title={isSolo ? "Unsolo" : "Solo"}
+      >
+        S
+      </button>
+      
+      {/* Mute button */}
+      <button
+        onClick={onToggleMute}
+        className={cn(
+          "w-6 h-6 rounded text-[10px] font-bold flex items-center justify-center transition-all duration-0",
+          "border",
+          isMuted 
+            ? "bg-red-500 text-white border-red-500" 
+            : "bg-muted/20 text-muted-foreground border-border/30 hover:bg-muted/40"
+        )}
+        title={isMuted ? "Unmute" : "Mute"}
+      >
+        M
+      </button>
+      
       {/* Stem name */}
-      <div className="flex-shrink-0 w-16">
+      <div className="flex-shrink-0 w-14">
         <span className="text-xs font-medium text-foreground">{stem.name}</span>
       </div>
       
-      {/* Horizontal amplitude waveform (mirrored style like main waveform) */}
-      <div className="flex-1 h-10 bg-muted/20 rounded overflow-hidden relative">
+      {/* Horizontal amplitude waveform */}
+      <div className="flex-1 h-8 bg-muted/20 rounded overflow-hidden relative">
         <svg
           width="100%"
           height="100%"
           preserveAspectRatio="none"
           className="absolute inset-0"
+          viewBox="0 0 100 40"
         >
           {/* Upper half waveform */}
           <path
             d={(() => {
-              const height = 20; // Half of container height (40px / 2)
-              const width = 100; // Percentage width
+              const height = 20;
+              const width = 100;
               const points = waveformData.map((amp, i) => {
                 const x = (i / (waveformData.length - 1)) * width;
-                const y = height - (amp * height * 0.9);
+                const y = height - (amp * height * 0.85 * (isMuted ? 0.3 : 1));
                 return `${x},${y}`;
               });
               return `M0,${height} L${points.join(' L')} L${width},${height} Z`;
             })()}
             fill={`var(--${stem.color})`}
-            fillOpacity={isPlaying ? 0.6 : 0.35}
-            className="transition-opacity duration-150"
+            fillOpacity={isActive ? 0.6 : 0.3}
+            className="transition-opacity duration-100"
           />
           {/* Lower half waveform (mirrored) */}
           <path
@@ -136,14 +185,14 @@ function StemControl({
               const width = 100;
               const points = waveformData.map((amp, i) => {
                 const x = (i / (waveformData.length - 1)) * width;
-                const y = height + (amp * height * 0.9);
+                const y = height + (amp * height * 0.85 * (isMuted ? 0.3 : 1));
                 return `${x},${y}`;
               });
               return `M0,${height} L${points.join(' L')} L${width},${height} Z`;
             })()}
             fill={`var(--${stem.color})`}
-            fillOpacity={isPlaying ? 0.6 : 0.35}
-            className="transition-opacity duration-150"
+            fillOpacity={isActive ? 0.6 : 0.3}
+            className="transition-opacity duration-100"
           />
           {/* Center line */}
           <line
@@ -157,32 +206,32 @@ function StemControl({
             vectorEffect="non-scaling-stroke"
           />
         </svg>
-        
-        {/* Playback position indicator (UI-only) */}
-        {isPlaying && (
-          <div 
-            className="absolute top-0 bottom-0 w-0.5 bg-white/80"
-            style={{ 
-              left: "30%",
-              animation: "none" // No animation - deterministic
-            }}
-          />
-        )}
       </div>
       
-      {/* Volume indicator */}
-      <Volume2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+      {/* Volume slider */}
+      <div className="flex items-center gap-1.5 w-24">
+        <Volume2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+        <Slider
+          value={[volume]}
+          min={0}
+          max={100}
+          step={1}
+          onValueChange={([v]) => onVolumeChange(v)}
+          className="flex-1"
+          disabled={isMuted}
+        />
+      </div>
     </div>
   );
 }
 
 export function SourceComponents({ data, isProcessing = false }: SourceComponentsProps) {
-  // UI-only stem playback state
-  const [playingStems, setPlayingStems] = useState<Record<string, boolean>>({
-    vocals: false,
-    drums: false,
-    bass: false,
-    others: false,
+  // UI-only stem state
+  const [stemStates, setStemStates] = useState<Record<string, StemState>>({
+    vocals: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
+    drums: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
+    bass: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
+    others: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
   });
 
   // Generate deterministic waveform data for each stem
@@ -193,16 +242,45 @@ export function SourceComponents({ data, isProcessing = false }: SourceComponent
     others: generateStemWaveform("others", 80),
   }), []);
 
-  const toggleStem = useCallback((stemId: string) => {
-    setPlayingStems(prev => ({
+  const togglePlay = useCallback((stemId: string) => {
+    setStemStates(prev => ({
       ...prev,
-      [stemId]: !prev[stemId],
+      [stemId]: { ...prev[stemId], isPlaying: !prev[stemId].isPlaying },
+    }));
+  }, []);
+
+  const toggleSolo = useCallback((stemId: string) => {
+    setStemStates(prev => {
+      const newSolo = !prev[stemId].isSolo;
+      // If enabling solo, disable solo on all others
+      if (newSolo) {
+        const updated: Record<string, StemState> = {};
+        for (const id of Object.keys(prev)) {
+          updated[id] = { ...prev[id], isSolo: id === stemId };
+        }
+        return updated;
+      }
+      return { ...prev, [stemId]: { ...prev[stemId], isSolo: false } };
+    });
+  }, []);
+
+  const toggleMute = useCallback((stemId: string) => {
+    setStemStates(prev => ({
+      ...prev,
+      [stemId]: { ...prev[stemId], isMuted: !prev[stemId].isMuted },
+    }));
+  }, []);
+
+  const changeVolume = useCallback((stemId: string, volume: number) => {
+    setStemStates(prev => ({
+      ...prev,
+      [stemId]: { ...prev[stemId], volume },
     }));
   }, []);
 
   if (isProcessing) {
     return (
-      <div className="forensic-panel">
+      <div className="forensic-panel h-full">
         <div className="forensic-panel-header">Source Components</div>
         <div className="forensic-panel-content">
           <div className="flex flex-col items-center justify-center py-8">
@@ -217,27 +295,30 @@ export function SourceComponents({ data, isProcessing = false }: SourceComponent
   // IDLE state - show stem controls with placeholder waveforms
   if (!data) {
     return (
-      <div className="forensic-panel">
+      <div className="forensic-panel h-full">
         <div className="forensic-panel-header">Source Components</div>
-        <div className="forensic-panel-content space-y-4">
+        <div className="forensic-panel-content space-y-3">
           {/* Stem playback controls (UI-only) */}
           <div className="space-y-2">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Stem Separation (UI Preview)
             </div>
             {STEMS.map((stem) => (
               <StemControl
                 key={stem.id}
                 stem={stem}
-                isPlaying={playingStems[stem.id]}
-                onToggle={() => toggleStem(stem.id)}
+                state={stemStates[stem.id]}
+                onTogglePlay={() => togglePlay(stem.id)}
+                onToggleSolo={() => toggleSolo(stem.id)}
+                onToggleMute={() => toggleMute(stem.id)}
+                onVolumeChange={(v) => changeVolume(stem.id, v)}
                 waveformData={stemWaveforms[stem.id]}
               />
             ))}
           </div>
           
           {/* Idle notice */}
-          <div className="pt-4 border-t border-border/30">
+          <div className="pt-3 border-t border-border/30">
             <p className="text-xs text-muted-foreground text-center">
               Awaiting verification data for component analysis
             </p>
@@ -248,27 +329,30 @@ export function SourceComponents({ data, isProcessing = false }: SourceComponent
   }
 
   return (
-    <div className="forensic-panel">
+    <div className="forensic-panel h-full">
       <div className="forensic-panel-header">Source Components</div>
-      <div className="forensic-panel-content space-y-4">
+      <div className="forensic-panel-content space-y-3">
         {/* Stem playback controls (UI-only) */}
         <div className="space-y-2">
-          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
+          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
             Stem Separation
           </div>
           {STEMS.map((stem) => (
             <StemControl
               key={stem.id}
               stem={stem}
-              isPlaying={playingStems[stem.id]}
-              onToggle={() => toggleStem(stem.id)}
+              state={stemStates[stem.id]}
+              onTogglePlay={() => togglePlay(stem.id)}
+              onToggleSolo={() => toggleSolo(stem.id)}
+              onToggleMute={() => toggleMute(stem.id)}
+              onVolumeChange={(v) => changeVolume(stem.id, v)}
               waveformData={stemWaveforms[stem.id]}
             />
           ))}
         </div>
         
         {/* Summary */}
-        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border/30">
+        <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/30">
           <div className="py-2 px-3 bg-muted/10 rounded border border-border/20 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
             <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
               Layer Count
@@ -289,29 +373,22 @@ export function SourceComponents({ data, isProcessing = false }: SourceComponent
             <div className="text-xs text-muted-foreground uppercase tracking-wider">
               Identified Components ({data.components.length})
             </div>
-            <div className="space-y-1 max-h-32 overflow-y-auto">
+            <div className="space-y-1 max-h-24 overflow-y-auto">
               {data.components.map((component) => (
                 <div
                   key={component.id}
-                  className="py-2 px-3 bg-muted/10 rounded border border-border/20 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]"
+                  className="py-1.5 px-2 bg-muted/10 rounded border border-border/20 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]"
                 >
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center justify-between">
                     <span className="text-xs font-mono text-forensic-cyan">{component.id}</span>
                     <span className="text-[10px] text-muted-foreground uppercase">
                       {component.type}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{component.description}</p>
                 </div>
               ))}
             </div>
           </div>
-        )}
-
-        {data.components.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center">
-            No distinct source components identified
-          </p>
         )}
       </div>
     </div>

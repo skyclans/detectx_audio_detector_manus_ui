@@ -118,7 +118,14 @@ export const appRouter = router({
           analysisData: analysisResult.analysisData,
         });
 
-        return { success: true };
+        // Return the analysis results
+        return {
+          success: true,
+          verdict: analysisResult.verdict,
+          crgStatus: analysisResult.crgStatus,
+          primaryExceededAxis: analysisResult.primaryExceededAxis,
+          timelineMarkers: analysisResult.timelineMarkers,
+        };
       }),
 
     // Delete a verification

@@ -455,3 +455,32 @@
 ### 5) Scope Verification
 - [x] Changes scoped exclusively to Audio verification flow
 - [x] Homepage and other product pages unaffected
+
+
+## Optimized Audio Playback Implementation (Performance-Critical)
+
+### 1) AudioRuntime Class
+- [x] Create client/src/lib/audioRuntime.ts
+- [x] Implement play(), pause(), seek(), stop() methods
+- [x] Implement setVolume() with gain.setTargetAtTime for smooth transitions
+- [x] Implement getCurrentTime() for ref-based time tracking
+
+### 2) Playhead-only Rendering
+- [x] Create client/src/lib/waveformPlayhead.ts
+- [x] Implement drawPlayhead() function for playhead-only canvas updates
+- [x] Separate playhead canvas from waveform canvas
+
+### 3) Time Loop (React State Separation)
+- [x] Create client/src/lib/timeLoop.ts
+- [x] Implement startTimeLoop() with ref-based callbacks
+- [x] Avoid React setState on every animation frame
+
+### 4) WaveformVisualization Update
+- [x] Add separate playhead canvas layer
+- [x] Use ref-based time updates instead of prop-based
+- [x] Waveform canvas only re-renders on audioBuffer change
+
+### 5) Home.tsx Refactoring
+- [x] Replace inline audio logic with AudioRuntime class
+- [x] Use ref-based time tracking instead of useState for currentTime during playback
+- [x] Only update React state on user interactions or playback stop

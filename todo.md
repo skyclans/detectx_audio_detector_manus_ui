@@ -427,3 +427,31 @@
 - [x] All text is informational only
 - [x] No intermediate verdicts implied
 - [x] No probability, likelihood, or confidence language
+
+
+## Audio Verification Page (verify-audio) Forensic Specifications
+
+### 1) FILE METADATA Panel
+- [x] Verify panel is labeled "FILE METADATA"
+- [x] Verify subline: "Forensic input record (pre-analysis, pre-normalization)"
+- [x] Ensure no estimation or normalization in displayed values
+
+### 2) Live Scan Console
+- [x] Verify deterministic non-probabilistic status messages
+- [x] Ensure no probability, likelihood, or confidence language
+- [x] Verify geometry-only detection authority messaging
+
+### 3) Verdict Section
+- [x] Restrict to fixed evidence-only statements
+- [x] No authorship inference language
+- [x] No similarity language
+- [x] Only two allowed verdicts: "observed" or "not_observed"
+
+### 4) Geometry-only Analysis Sections
+- [x] Verify all analysis sections use geometry-based terminology
+- [x] No probabilistic inference in any analysis output
+- [x] Ensure human-safe boundaries are enforced
+
+### 5) Scope Verification
+- [x] Changes scoped exclusively to Audio verification flow
+- [x] Homepage and other product pages unaffected

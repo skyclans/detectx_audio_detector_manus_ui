@@ -1,14 +1,22 @@
 /**
  * Live Scan Console ("Hacker Terminal") Component
  * 
- * REQUIREMENTS (MANDATORY):
- * - Visible as part of the workflow (not removed)
- * - Placed directly BELOW waveform visualization
- * - Must have EXACTLY same width as waveform container
- * - Treat waveform + console as single continuous analysis block
- * - Console log must be append-only and auto-scroll to newest line
- * - While idle: show "Waiting for VERIFY AUDIO…"
- * - Must NOT claim verdict unless from backend
+ * CANONICAL INTENT:
+ * The Live Scan Console exists to communicate process, restraint, and forensic posture,
+ * not to persuade, predict, or accuse.
+ * 
+ * It reflects:
+ * - Geometry-only detection authority
+ * - Human-safe boundaries
+ * - Deterministic, reproducible execution
+ * - Explicit support for negative (no-evidence) outcomes
+ * 
+ * IMPLEMENTATION RULES (AUTHORITATIVE):
+ * - All text is informational only
+ * - No intermediate verdicts are implied
+ * - Console output must not change verdict logic
+ * - Messages may be displayed as static blocks or sequential logs
+ * - No probability, likelihood, or confidence language is permitted
  * 
  * DESIGN CONSTRAINTS:
  * - Keep existing colors, card styles, buttons, typography
@@ -21,7 +29,7 @@ import { Terminal } from "lucide-react";
 interface ScanLogEntry {
   timestamp: string;
   message: string;
-  type: "info" | "process" | "complete" | "warning";
+  type: "info" | "process" | "complete" | "warning" | "constraint" | "philosophy";
 }
 
 interface LiveScanConsoleProps {
@@ -54,8 +62,23 @@ export function LiveScanConsole({
         return "text-forensic-green";
       case "warning":
         return "text-forensic-amber";
+      case "constraint":
+        return "text-muted-foreground/80";
+      case "philosophy":
+        return "text-forensic-cyan/70";
       default:
         return "text-muted-foreground";
+    }
+  };
+
+  const getLogPrefix = (type: ScanLogEntry["type"]) => {
+    switch (type) {
+      case "constraint":
+        return "⊘";
+      case "philosophy":
+        return "◈";
+      default:
+        return "$";
     }
   };
 
@@ -67,7 +90,9 @@ export function LiveScanConsole({
         {isVerifying && (
           <span className="ml-auto flex items-center gap-1.5">
             <span className="w-2 h-2 bg-forensic-cyan rounded-full animate-pulse" />
-            <span className="text-[10px] text-forensic-cyan">SCANNING</span>
+            <span className="text-[10px] text-forensic-cyan uppercase tracking-wider">
+              Forensic Signal Observation in Progress
+            </span>
           </span>
         )}
         {isComplete && !isVerifying && (
@@ -90,7 +115,9 @@ export function LiveScanConsole({
             logs.map((log, index) => (
               <div key={index} className={`${getLogColor(log.type)} leading-relaxed`}>
                 <span className="text-muted-foreground/60">[{log.timestamp}]</span>{" "}
-                <span className="text-forensic-cyan">$</span>{" "}
+                <span className={log.type === "constraint" ? "text-muted-foreground/60" : "text-forensic-cyan"}>
+                  {getLogPrefix(log.type)}
+                </span>{" "}
                 {log.message}
               </div>
             ))
@@ -111,23 +138,130 @@ export function LiveScanConsole({
 
 /**
  * Generate scan log entries for verification process
- * These are UI-only status messages, NOT verdicts
+ * 
+ * AUTHORITATIVE TEXT SET:
+ * - All text is informational only
+ * - No intermediate verdicts are implied
+ * - No probability, likelihood, or confidence language is permitted
  */
 export function generateScanLogs(stage: string): ScanLogEntry {
   const timestamp = new Date().toLocaleTimeString();
   
   const stageMessages: Record<string, { message: string; type: ScanLogEntry["type"] }> = {
-    init: { message: "Initializing forensic scan engine...", type: "info" },
-    upload: { message: "Uploading audio file to secure storage...", type: "process" },
-    decode: { message: "Decoding audio stream...", type: "process" },
-    spectral: { message: "Analyzing spectral characteristics...", type: "process" },
-    temporal: { message: "Processing temporal patterns...", type: "process" },
-    geometry: { message: "Running geometry scan trace...", type: "process" },
-    crg: { message: "Evaluating CR-G status...", type: "process" },
-    finalize: { message: "Finalizing analysis results...", type: "process" },
-    complete: { message: "Scan complete. Results ready.", type: "complete" },
+    // Core Status / Engine Philosophy
+    init: { 
+      message: "Real-time structural signal observation", 
+      type: "philosophy" 
+    },
+    engine: { 
+      message: "Geometry-primary verification engine active", 
+      type: "philosophy" 
+    },
+    baseline: { 
+      message: "Human baseline geometry enforced", 
+      type: "philosophy" 
+    },
+    deterministic: { 
+      message: "Deterministic execution under fixed conditions", 
+      type: "philosophy" 
+    },
+    
+    // Scan Process (Observation Log)
+    pipeline: { 
+      message: "Initializing forensic scan pipeline", 
+      type: "process" 
+    },
+    lock: { 
+      message: "Locking analysis parameters", 
+      type: "process" 
+    },
+    upload: { 
+      message: "Uploading audio file to secure storage", 
+      type: "process" 
+    },
+    decode: { 
+      message: "Establishing normalization coordinate space", 
+      type: "process" 
+    },
+    spectral: { 
+      message: "Observing residual structure", 
+      type: "process" 
+    },
+    temporal: { 
+      message: "Monitoring residual persistence", 
+      type: "process" 
+    },
+    geometry: { 
+      message: "Evaluating cross-stem geometry", 
+      type: "process" 
+    },
+    crg: { 
+      message: "Comparing against human geometry envelope", 
+      type: "process" 
+    },
+    
+    // Constraints & Ethics (Non-Negotiable)
+    constraint_prob: { 
+      message: "No probabilistic inference is performed", 
+      type: "constraint" 
+    },
+    constraint_author: { 
+      message: "No authorship or intent is inferred", 
+      type: "constraint" 
+    },
+    constraint_style: { 
+      message: "No similarity or style comparison is used", 
+      type: "constraint" 
+    },
+    constraint_classify: { 
+      message: "This system does not classify or predict", 
+      type: "constraint" 
+    },
+    constraint_absence: { 
+      message: "Absence of evidence is a valid outcome", 
+      type: "constraint" 
+    },
+    
+    // Pre-Verdict State (Completion Gate)
+    finalize: { 
+      message: "Final geometry evaluation pending", 
+      type: "process" 
+    },
+    complete: { 
+      message: "Results will be disclosed after full scan completion", 
+      type: "complete" 
+    },
   };
 
   const entry = stageMessages[stage] || { message: stage, type: "info" as const };
   return { timestamp, ...entry };
+}
+
+/**
+ * Generate the full sequence of scan logs for a complete verification
+ * Returns an array of stage keys to be processed sequentially
+ */
+export function getFullScanSequence(): string[] {
+  return [
+    // Engine Philosophy (shown at start)
+    "init",
+    "engine",
+    "baseline",
+    "deterministic",
+    // Scan Process
+    "pipeline",
+    "lock",
+    "upload",
+    "decode",
+    "spectral",
+    "temporal",
+    "geometry",
+    "crg",
+    // Constraints (shown during processing)
+    "constraint_prob",
+    "constraint_author",
+    // Completion
+    "finalize",
+    "complete",
+  ];
 }

@@ -620,13 +620,21 @@ export default function Home() {
     setReportPreview(null);
 
     // Initialize scan logs IMMEDIATELY - user sees instant console activity
-    setScanLogs([generateScanLogs("init")]);
+    // Engine Philosophy messages shown at start
+    setScanLogs([
+      generateScanLogs("init"),
+      generateScanLogs("engine"),
+      generateScanLogs("baseline"),
+      generateScanLogs("deterministic"),
+    ]);
     
     // PHASE 2: ASYNC BACKEND PROCESSING
     // All async work happens after UI is updated
 
     try {
-      // Add log: upload
+      // Scan Process: Initialize pipeline
+      setScanLogs(prev => [...prev, generateScanLogs("pipeline")]);
+      setScanLogs(prev => [...prev, generateScanLogs("lock")]);
       setScanLogs(prev => [...prev, generateScanLogs("upload")]);
 
       // Convert file to base64
@@ -638,7 +646,7 @@ export default function Home() {
         )
       );
 
-      // Add log: decode
+      // Establishing normalization coordinate space
       setScanLogs(prev => [...prev, generateScanLogs("decode")]);
 
       // Upload file and extract forensic metadata via ffprobe
@@ -666,13 +674,17 @@ export default function Home() {
         }));
       }
 
-      // Add log: spectral
+      // Observing residual structure
       setScanLogs(prev => [...prev, generateScanLogs("spectral")]);
 
       // Create verification record (only if authenticated)
       if (isAuthenticated) {
-        // Add log: temporal
+        // Monitoring residual persistence
         setScanLogs(prev => [...prev, generateScanLogs("temporal")]);
+        
+        // Add constraint messages (non-negotiable)
+        setScanLogs(prev => [...prev, generateScanLogs("constraint_prob")]);
+        setScanLogs(prev => [...prev, generateScanLogs("constraint_author")]);
 
         // Use server-extracted metadata for verification record
         const finalMetadata = serverMetadata || metadata;
@@ -693,19 +705,22 @@ export default function Home() {
 
         setVerificationId(id);
 
-        // Add log: geometry
+        // Evaluating cross-stem geometry
         setScanLogs(prev => [...prev, generateScanLogs("geometry")]);
 
         // Process verification
         await processMutation.mutateAsync({ id });
 
-        // Add log: crg
+        // Comparing against human geometry envelope
         setScanLogs(prev => [...prev, generateScanLogs("crg")]);
+        
+        // Additional constraints
+        setScanLogs(prev => [...prev, generateScanLogs("constraint_absence")]);
 
         // Fetch result
         const result = await getByIdQuery.refetch();
 
-        // Add log: finalize
+        // Final geometry evaluation pending
         setScanLogs(prev => [...prev, generateScanLogs("finalize")]);
 
         if (result.data) {
@@ -721,20 +736,33 @@ export default function Home() {
           // NO mock data, NO simulated results - this is a forensic tool
         }
 
-        // Add log: complete
+        // Results will be disclosed after full scan completion
         setScanLogs(prev => [...prev, generateScanLogs("complete")]);
         setScanComplete(true);
       } else {
         // Guest mode - process without saving
-        // Add logs for guest mode
+        // Add logs for guest mode with full forensic posture
         setScanLogs(prev => [...prev, generateScanLogs("temporal")]);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        // Constraint messages (non-negotiable)
+        setScanLogs(prev => [...prev, generateScanLogs("constraint_prob")]);
+        setScanLogs(prev => [...prev, generateScanLogs("constraint_author")]);
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
         setScanLogs(prev => [...prev, generateScanLogs("geometry")]);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
         setScanLogs(prev => [...prev, generateScanLogs("crg")]);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Additional constraints
+        setScanLogs(prev => [...prev, generateScanLogs("constraint_absence")]);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         setScanLogs(prev => [...prev, generateScanLogs("finalize")]);
         await new Promise(resolve => setTimeout(resolve, 300));
+        
         // For now, show idle state until backend integration is complete
         // NO mock data, NO simulated results
         setScanLogs(prev => [...prev, generateScanLogs("complete")]);

@@ -390,3 +390,40 @@
 - [x] Call metadata extraction API on file upload
 - [x] Display metadata before verification starts
 - [x] Ensure metadata reflects pre-analysis state only
+
+
+## Live Scan Console Final Text Set Implementation
+
+### 1) Header (Fixed)
+- [x] Update header to "Forensic Signal Observation in Progress"
+
+### 2) Core Status / Engine Philosophy Messages
+- [x] "Real-time structural signal observation"
+- [x] "Geometry-primary verification engine active"
+- [x] "Human baseline geometry enforced"
+- [x] "Deterministic execution under fixed conditions"
+
+### 3) Scan Process (Observation Log)
+- [x] "Initializing forensic scan pipeline"
+- [x] "Locking analysis parameters"
+- [x] "Establishing normalization coordinate space"
+- [x] "Observing residual structure"
+- [x] "Monitoring residual persistence"
+- [x] "Evaluating cross-stem geometry"
+- [x] "Comparing against human geometry envelope"
+
+### 4) Constraints & Ethics (Non-Negotiable)
+- [x] "No probabilistic inference is performed"
+- [x] "No authorship or intent is inferred"
+- [x] "No similarity or style comparison is used"
+- [x] "This system does not classify or predict"
+- [x] "Absence of evidence is a valid outcome"
+
+### 5) Pre-Verdict State (Completion Gate)
+- [x] "Final geometry evaluation pending"
+- [x] "Results will be disclosed after full scan completion"
+
+### 6) Implementation Rules
+- [x] All text is informational only
+- [x] No intermediate verdicts implied
+- [x] No probability, likelihood, or confidence language

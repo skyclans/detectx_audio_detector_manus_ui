@@ -12,10 +12,21 @@ interface WaveformVisualizationProps {
   markers?: TimelineMarker[];
   onSeek?: (time: number) => void;
   isPlaying?: boolean;
+  /**
+   * PERFORMANCE: Indicates audio is being decoded asynchronously
+   * When true, shows "Decoding audio..." placeholder instead of empty state
+   */
+  isDecoding?: boolean;
 }
 
 /**
  * Forensic Waveform Visualization Component
+ * 
+ * PERFORMANCE-FIRST ARCHITECTURE (CRITICAL):
+ * - UI feedback must occur FIRST (0ms perceived delay)
+ * - Waveform rendering is NEVER blocking
+ * - Two-phase rendering: instant placeholder → async detailed waveform
+ * - Main thread is NEVER blocked by waveform processing
  * 
  * FILENAME INDEPENDENCE (CRITICAL - MANDATORY):
  * - Waveform rendering must NEVER depend on filename content
@@ -42,6 +53,7 @@ export function WaveformVisualization({
   markers = [],
   onSeek,
   isPlaying = false,
+  isDecoding = false,
 }: WaveformVisualizationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -130,6 +142,75 @@ export function WaveformVisualization({
     ctx.fillText("Awaiting audio file", width / 2, centerY);
   }, []);
 
+  /**
+   * PERFORMANCE: Draw "Decoding audio..." placeholder
+   * This provides immediate visual feedback while audio is being decoded
+   */
+  const drawDecodingPlaceholder = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Clear canvas with dark background
+    ctx.fillStyle = "oklch(0.16 0.01 260)";
+    ctx.fillRect(0, 0, width, height);
+
+    const centerY = height / 2;
+
+    // Draw subtle grid lines
+    ctx.strokeStyle = "oklch(0.22 0.01 260)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 4]);
+    
+    // Horizontal grid lines
+    for (let y = height * 0.25; y < height; y += height * 0.25) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Vertical grid lines
+    for (let x = width * 0.1; x < width; x += width * 0.1) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Draw animated loading waveform pattern
+    ctx.strokeStyle = "oklch(0.55 0.10 195 / 60%)"; // Forensic cyan
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    
+    const time = Date.now() / 1000;
+    for (let x = 0; x < width; x++) {
+      const normalizedX = x / width;
+      // Create a subtle animated pattern
+      const amplitude = height * 0.2 * (0.4 + 0.6 * Math.sin(normalizedX * Math.PI));
+      const y = centerY + Math.sin(normalizedX * 15 + time * 2) * amplitude;
+      
+      if (x === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+
+    // Draw center line
+    ctx.strokeStyle = "oklch(0.30 0.01 260)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(width, centerY);
+    ctx.stroke();
+
+    // Draw "Decoding audio..." text
+    ctx.fillStyle = "oklch(0.65 0.10 195)"; // Forensic cyan
+    ctx.font = "12px 'Inter', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Decoding audio...", width / 2, centerY);
+  }, []);
+
   // Draw waveform
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -146,7 +227,13 @@ export function WaveformVisualization({
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    // If no audio buffer, draw placeholder
+    // PERFORMANCE: Show decoding placeholder immediately
+    if (isDecoding && !audioBuffer) {
+      drawDecodingPlaceholder(ctx, width, height);
+      return;
+    }
+
+    // If no audio buffer and not decoding, draw placeholder
     if (!audioBuffer) {
       drawPlaceholderWaveform(ctx, width, height);
       return;
@@ -263,7 +350,34 @@ export function WaveformVisualization({
     ctx.moveTo(0, centerY);
     ctx.lineTo(width, centerY);
     ctx.stroke();
-  }, [audioBuffer, dimensions, currentTime, duration, markers, drawPlaceholderWaveform]);
+  }, [audioBuffer, dimensions, currentTime, duration, markers, isDecoding, drawPlaceholderWaveform, drawDecodingPlaceholder]);
+
+  // Animation loop for decoding placeholder
+  useEffect(() => {
+    if (!isDecoding || audioBuffer) return;
+    
+    let animationId: number;
+    const animate = () => {
+      const canvas = canvasRef.current;
+      if (!canvas || dimensions.width === 0) return;
+      
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      
+      const { width, height } = dimensions;
+      const dpr = window.devicePixelRatio || 1;
+      
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+      
+      drawDecodingPlaceholder(ctx, width, height);
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, [isDecoding, audioBuffer, dimensions, drawDecodingPlaceholder]);
 
   /**
    * Handle waveform click for seeking
@@ -299,7 +413,15 @@ export function WaveformVisualization({
 
   return (
     <div className="forensic-panel">
-      <div className="forensic-panel-header">Waveform Analysis</div>
+      <div className="forensic-panel-header flex items-center justify-between">
+        <span>Waveform Analysis</span>
+        {isDecoding && (
+          <span className="text-[10px] text-forensic-cyan flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-forensic-cyan rounded-full animate-pulse" />
+            DECODING
+          </span>
+        )}
+      </div>
       <div className="p-0">
         <div
           ref={containerRef}
@@ -309,7 +431,7 @@ export function WaveformVisualization({
             ref={canvasRef}
             className={`w-full h-full ${audioBuffer ? 'cursor-pointer' : 'cursor-default'}`}
             onClick={handleClick}
-            title={audioBuffer ? "Click to seek" : "Upload audio file to begin"}
+            title={audioBuffer ? "Click to seek" : isDecoding ? "Decoding audio..." : "Upload audio file to begin"}
           />
         </div>
         {/* Timeline labels */}

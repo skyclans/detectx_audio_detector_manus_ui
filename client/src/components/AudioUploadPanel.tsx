@@ -36,6 +36,15 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
+/**
+ * PERFORMANCE-FIRST AUDIO UPLOAD PANEL
+ * 
+ * CRITICAL REQUIREMENTS:
+ * - File selection must provide IMMEDIATE UI feedback (0ms)
+ * - Audio decoding happens ASYNCHRONOUSLY
+ * - VERIFY AUDIO button must respond INSTANTLY
+ * - NO blocking operations on user interactions
+ */
 export function AudioUploadPanel({
   onFileSelect,
   onVerify,
@@ -45,9 +54,16 @@ export function AudioUploadPanel({
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<AudioFileInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
+  /**
+   * PERFORMANCE-FIRST FILE PROCESSING
+   * 
+   * PHASE 1: Immediate UI update with file info
+   * PHASE 2: Async audio decoding for metadata
+   */
   const processFile = useCallback(
-    async (file: File) => {
+    (file: File) => {
       setError(null);
 
       // Validate file type
@@ -61,39 +77,49 @@ export function AudioUploadPanel({
         return;
       }
 
-      // Get audio metadata
-      const audioContext = new AudioContext();
-      const arrayBuffer = await file.arrayBuffer();
+      // PHASE 1: IMMEDIATE UI UPDATE (0ms)
+      // Show file info immediately without waiting for audio decoding
+      const preliminaryFileInfo: AudioFileInfo = {
+        file,
+        name: file.name,
+        size: file.size,
+        duration: null, // Will be updated async
+        sampleRate: null, // Will be updated async
+        type: file.type || "audio/unknown",
+      };
 
-      try {
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        const fileInfo: AudioFileInfo = {
-          file,
-          name: file.name,
-          size: file.size,
-          duration: audioBuffer.duration,
-          sampleRate: audioBuffer.sampleRate,
-          type: file.type || "audio/unknown",
-        };
-
-        setSelectedFile(fileInfo);
-        onFileSelect(fileInfo);
-      } catch {
-        // If decoding fails, still allow the file but without metadata
-        const fileInfo: AudioFileInfo = {
-          file,
-          name: file.name,
-          size: file.size,
-          duration: null,
-          sampleRate: null,
-          type: file.type || "audio/unknown",
-        };
-
-        setSelectedFile(fileInfo);
-        onFileSelect(fileInfo);
-      } finally {
-        audioContext.close();
-      }
+      setSelectedFile(preliminaryFileInfo);
+      setIsProcessing(true);
+      
+      // Notify parent immediately - parent handles async decoding
+      onFileSelect(preliminaryFileInfo);
+      
+      // PHASE 2: ASYNC METADATA EXTRACTION (non-blocking)
+      // This updates local state only - parent already has the file
+      (async () => {
+        try {
+          const audioContext = new AudioContext();
+          const arrayBuffer = await file.arrayBuffer();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          // Update local state with decoded metadata
+          setSelectedFile({
+            file,
+            name: file.name,
+            size: file.size,
+            duration: audioBuffer.duration,
+            sampleRate: audioBuffer.sampleRate,
+            type: file.type || "audio/unknown",
+          });
+          
+          audioContext.close();
+        } catch {
+          // Decoding failed - keep preliminary info
+          // File is still valid for verification
+        } finally {
+          setIsProcessing(false);
+        }
+      })();
     },
     [onFileSelect]
   );
@@ -137,7 +163,19 @@ export function AudioUploadPanel({
   const clearFile = useCallback(() => {
     setSelectedFile(null);
     setError(null);
+    setIsProcessing(false);
   }, []);
+
+  /**
+   * PERFORMANCE-FIRST VERIFY BUTTON HANDLER
+   * 
+   * Button click must provide IMMEDIATE visual feedback.
+   * The actual verification is handled by parent component.
+   */
+  const handleVerifyClick = useCallback(() => {
+    // Call parent handler immediately - no blocking operations
+    onVerify();
+  }, [onVerify]);
 
   return (
     <div className="forensic-panel">
@@ -186,52 +224,70 @@ export function AudioUploadPanel({
           </div>
         ) : (
           <div className="space-y-4">
-            {/* File info */}
-            <div className="flex items-start gap-4 p-4 bg-muted/30 rounded-md">
-              <div className="w-12 h-12 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <FileAudio className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {selectedFile.name}
-                </p>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground font-mono">
-                  <span>Size: {formatFileSize(selectedFile.size)}</span>
-                  {selectedFile.duration !== null && (
-                    <span>Duration: {formatDuration(selectedFile.duration)}</span>
-                  )}
-                  {selectedFile.sampleRate !== null && (
-                    <span>Sample Rate: {selectedFile.sampleRate} Hz</span>
-                  )}
+            {/* File info card */}
+            <div className="bg-muted/30 rounded-md p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center">
+                    <FileAudio className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate max-w-[200px]">
+                      {selectedFile.name}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                      <span>{formatFileSize(selectedFile.size)}</span>
+                      {selectedFile.duration !== null && (
+                        <>
+                          <span>•</span>
+                          <span>{formatDuration(selectedFile.duration)}</span>
+                        </>
+                      )}
+                      {selectedFile.sampleRate !== null && (
+                        <>
+                          <span>•</span>
+                          <span>{(selectedFile.sampleRate / 1000).toFixed(1)} kHz</span>
+                        </>
+                      )}
+                      {isProcessing && (
+                        <>
+                          <span>•</span>
+                          <span className="text-forensic-cyan">Decoding...</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
+                <button
+                  onClick={clearFile}
+                  className="p-1 hover:bg-muted rounded transition-colors"
+                  disabled={isVerifying}
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={clearFile}
-                disabled={isVerifying}
-              >
-                <X className="w-4 h-4" />
-              </Button>
             </div>
 
-            {/* Verify button */}
+            {/* Verify button - IMMEDIATE RESPONSE */}
             <Button
-              className="w-full h-12 text-sm font-semibold uppercase tracking-wider"
-              onClick={onVerify}
-              disabled={disabled || isVerifying}
+              onClick={handleVerifyClick}
+              disabled={isVerifying || disabled}
+              className={cn(
+                "w-full h-12 font-semibold text-sm tracking-wide transition-all duration-0",
+                "bg-forensic-cyan hover:bg-forensic-cyan/90 text-background",
+                isVerifying && "opacity-70"
+              )}
             >
               {isVerifying ? (
-                <>
-                  <AudioLines className="w-4 h-4 mr-2 animate-pulse" />
-                  Processing...
-                </>
+                <span className="flex items-center gap-2">
+                  <AudioLines className="w-4 h-4 animate-pulse" />
+                  VERIFYING...
+                </span>
               ) : (
-                <>
-                  <AudioLines className="w-4 h-4 mr-2" />
-                  Verify Audio
-                </>
+                <span className="flex items-center gap-2">
+                  <AudioLines className="w-4 h-4" />
+                  VERIFY AUDIO
+                </span>
               )}
             </Button>
           </div>
@@ -239,7 +295,7 @@ export function AudioUploadPanel({
 
         {error && (
           <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-            <p className="text-sm text-destructive">{error}</p>
+            <p className="text-xs text-destructive">{error}</p>
           </div>
         )}
       </div>

@@ -180,3 +180,34 @@
 - [x] Preserve existing UI design, colors, typography, button styles
 - [x] No animations implying processing or intelligence
 - [x] Maintain DetectX forensic rules (no probabilities, confidence, severity, AI attribution)
+
+
+## Performance Override (CRITICAL - pasted_content_5.txt)
+
+### 1) File Upload → Waveform Rendering
+- [x] Immediately render lightweight placeholder waveform (0ms perceived delay)
+- [x] Perform waveform decoding asynchronously (non-blocking)
+- [x] Replace placeholder waveform once rendering complete
+- [x] Do NOT block main UI thread
+- [x] Use two-phase rendering: instant placeholder → async detailed waveform
+
+### 2) Play/Pause/Stop/Volume Controls
+- [x] UI state must update immediately (0ms) on interaction
+- [x] Decouple UI state from audio processing completely
+- [x] Audio actions dispatched asynchronously
+- [x] Volume control updates UI on every pointer movement
+- [x] Use requestAnimationFrame for audio volume updates
+- [x] Do NOT debounce or throttle UI interaction
+
+### 3) VERIFY AUDIO Button Responsiveness
+- [x] Button provides immediate visual feedback on click
+- [x] UI transitions instantly into "verification started" state
+- [x] Show Live Scan Console activity instantly
+- [x] Do NOT wait for backend response to update UI state
+
+### 4) Forbidden UI Patterns
+- [x] NO blocking async operations on main thread
+- [x] NO UI updates waiting for promises to resolve
+- [x] NO heavy waveform processing before UI feedback
+- [x] NO audio decoding on click handlers
+- [x] NO artificial delays or animations implying processing

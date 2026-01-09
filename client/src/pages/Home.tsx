@@ -113,6 +113,14 @@ export default function Home() {
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   const [metadata, setMetadata] = useState<FileMetadata | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  /**
+   * PERFORMANCE: Two-phase waveform rendering state
+   * - isDecodingAudio: true while async audio decoding is in progress
+   * - UI shows placeholder waveform immediately (0ms)
+   * - Detailed waveform replaces placeholder when decoding completes
+   */
+  const [isDecodingAudio, setIsDecodingAudio] = useState(false);
 
   // Player state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -165,14 +173,24 @@ export default function Home() {
     { enabled: !!verificationId && isVerifying }
   );
 
-  // Handle file selection
-  const handleFileSelect = useCallback(async (fileInfo: AudioFileInfo) => {
+  /**
+   * PERFORMANCE-FIRST FILE SELECTION HANDLER
+   * 
+   * CRITICAL REQUIREMENTS:
+   * - UI feedback must occur FIRST (0ms perceived delay)
+   * - Audio decoding happens ASYNCHRONOUSLY
+   * - Main thread is NEVER blocked
+   * - Two-phase rendering: instant placeholder → async detailed waveform
+   */
+  const handleFileSelect = useCallback((fileInfo: AudioFileInfo) => {
     // Generate new session ID for this file
     // This ensures waveform rendering never depends on filename content
     sessionIdRef.current = crypto.randomUUID();
     
-    // Reset all state
+    // PHASE 1: IMMEDIATE UI UPDATE (0ms)
+    // Reset all state synchronously - UI updates instantly
     stopPlayback();
+    setAudioBuffer(null); // Clear previous buffer
     setVerificationResult(null);
     setVerificationId(null);
     setTimelineAnalysis(null);
@@ -181,46 +199,68 @@ export default function Home() {
     setSourceComponents(null);
     setGeometryScanTrace(null);
     setReportPreview(null);
-
+    setScanLogs([]);
+    setScanComplete(false);
+    
+    // Set file immediately - UI shows "loading" placeholder waveform
     setSelectedFile(fileInfo.file);
-
-    // Compute hash
-    const hash = await computeFileHash(fileInfo.file);
-
-    // Decode audio
-    const audioContext = new AudioContext();
-    const arrayBuffer = await fileInfo.file.arrayBuffer();
-
-    try {
-      const buffer = await audioContext.decodeAudioData(arrayBuffer);
-      setAudioBuffer(buffer);
-      setDuration(buffer.duration);
-
-      // Set metadata
-      setMetadata({
-        fileName: fileInfo.name,
-        duration: buffer.duration * 1000,
-        sampleRate: buffer.sampleRate,
-        bitDepth: 16,
-        channels: buffer.numberOfChannels,
-        codec: getCodecFromType(fileInfo.type),
-        fileHash: hash,
-        fileSize: fileInfo.size,
-      });
-
-      audioContextRef.current = audioContext;
-    } catch {
-      setMetadata({
-        fileName: fileInfo.name,
-        duration: fileInfo.duration ? fileInfo.duration * 1000 : null,
-        sampleRate: fileInfo.sampleRate,
-        bitDepth: null,
-        channels: null,
-        codec: getCodecFromType(fileInfo.type),
-        fileHash: hash,
-        fileSize: fileInfo.size,
-      });
+    setIsDecodingAudio(true);
+    
+    // Set preliminary metadata immediately (before decoding)
+    setMetadata({
+      fileName: fileInfo.name,
+      duration: fileInfo.duration ? fileInfo.duration * 1000 : null,
+      sampleRate: fileInfo.sampleRate,
+      bitDepth: null,
+      channels: null,
+      codec: getCodecFromType(fileInfo.type),
+      fileHash: null, // Will be computed async
+      fileSize: fileInfo.size,
+    });
+    
+    // Set preliminary duration if available
+    if (fileInfo.duration) {
+      setDuration(fileInfo.duration);
     }
+    
+    // PHASE 2: ASYNC AUDIO DECODING (non-blocking)
+    // This runs in the background while UI remains responsive
+    (async () => {
+      try {
+        // Compute hash asynchronously
+        const hashPromise = computeFileHash(fileInfo.file);
+        
+        // Decode audio asynchronously
+        const audioContext = new AudioContext();
+        const arrayBuffer = await fileInfo.file.arrayBuffer();
+        const buffer = await audioContext.decodeAudioData(arrayBuffer);
+        const hash = await hashPromise;
+        
+        // Update state with decoded data
+        setAudioBuffer(buffer);
+        setDuration(buffer.duration);
+        setMetadata({
+          fileName: fileInfo.name,
+          duration: buffer.duration * 1000,
+          sampleRate: buffer.sampleRate,
+          bitDepth: 16,
+          channels: buffer.numberOfChannels,
+          codec: getCodecFromType(fileInfo.type),
+          fileHash: hash,
+          fileSize: fileInfo.size,
+        });
+        audioContextRef.current = audioContext;
+      } catch {
+        // Even on error, update metadata with available info
+        const hash = await computeFileHash(fileInfo.file).catch(() => null);
+        setMetadata(prev => prev ? {
+          ...prev,
+          fileHash: hash,
+        } : null);
+      } finally {
+        setIsDecodingAudio(false);
+      }
+    })();
   }, []);
 
   // Get codec from MIME type
@@ -238,133 +278,269 @@ export default function Home() {
     return codecMap[type] || "Unknown";
   }
 
-  // Playback controls
+  /**
+   * PERFORMANCE-FIRST PLAYBACK CONTROLS
+   * 
+   * CRITICAL REQUIREMENTS:
+   * - UI state (icon, highlight) must update IMMEDIATELY (0ms)
+   * - Audio playback follows ASYNCHRONOUSLY
+   * - UI must NEVER be tied to audio state resolution
+   * - NO blocking operations on click handlers
+   */
+  
   const startPlayback = useCallback(() => {
-    if (!audioBuffer || !audioContextRef.current) return;
-
-    const ctx = audioContextRef.current;
-    if (ctx.state === "suspended") {
-      ctx.resume();
-    }
-
-    const source = ctx.createBufferSource();
-    source.buffer = audioBuffer;
-
-    const gain = ctx.createGain();
-    gain.gain.value = volume;
-
-    source.connect(gain);
-    gain.connect(ctx.destination);
-
-    const offset = pauseTimeRef.current;
-    source.start(0, offset);
-
-    sourceNodeRef.current = source;
-    gainNodeRef.current = gain;
-    startTimeRef.current = ctx.currentTime - offset;
-
+    // PHASE 1: IMMEDIATE UI UPDATE (0ms)
     setIsPlaying(true);
+    
+    // PHASE 2: ASYNC AUDIO PROCESSING
+    // Audio setup happens after UI is updated
+    requestAnimationFrame(() => {
+      if (!audioBuffer || !audioContextRef.current) {
+        setIsPlaying(false); // Revert if no audio
+        return;
+      }
 
-    const updateTime = () => {
-      if (audioContextRef.current && sourceNodeRef.current) {
-        const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
-        setCurrentTime(Math.min(elapsed, duration));
+      const ctx = audioContextRef.current;
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
 
-        if (elapsed < duration) {
-          animationFrameRef.current = requestAnimationFrame(updateTime);
-        } else {
-          stopPlayback();
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+
+      source.connect(gain);
+      gain.connect(ctx.destination);
+
+      const offset = pauseTimeRef.current;
+      source.start(0, offset);
+
+      sourceNodeRef.current = source;
+      gainNodeRef.current = gain;
+      startTimeRef.current = ctx.currentTime - offset;
+
+      const updateTime = () => {
+        if (audioContextRef.current && sourceNodeRef.current) {
+          const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
+          setCurrentTime(Math.min(elapsed, duration));
+
+          if (elapsed < duration) {
+            animationFrameRef.current = requestAnimationFrame(updateTime);
+          } else {
+            stopPlayback();
+          }
         }
-      }
-    };
-    animationFrameRef.current = requestAnimationFrame(updateTime);
+      };
+      animationFrameRef.current = requestAnimationFrame(updateTime);
 
-    source.onended = () => {
-      if (isPlaying) {
+      source.onended = () => {
         stopPlayback();
-      }
-    };
-  }, [audioBuffer, volume, duration, isPlaying]);
+      };
+    });
+  }, [audioBuffer, volume, duration]);
 
   const pausePlayback = useCallback(() => {
-    if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
-      sourceNodeRef.current.disconnect();
-      sourceNodeRef.current = null;
-    }
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    pauseTimeRef.current = currentTime;
+    // PHASE 1: IMMEDIATE UI UPDATE (0ms)
     setIsPlaying(false);
+    pauseTimeRef.current = currentTime;
+    
+    // PHASE 2: ASYNC AUDIO CLEANUP
+    requestAnimationFrame(() => {
+      if (sourceNodeRef.current) {
+        try {
+          sourceNodeRef.current.stop();
+          sourceNodeRef.current.disconnect();
+        } catch {
+          // Ignore errors if already stopped
+        }
+        sourceNodeRef.current = null;
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    });
   }, [currentTime]);
 
   const stopPlayback = useCallback(() => {
-    if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
-      sourceNodeRef.current.disconnect();
-      sourceNodeRef.current = null;
-    }
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    pauseTimeRef.current = 0;
-    setCurrentTime(0);
+    // PHASE 1: IMMEDIATE UI UPDATE (0ms)
     setIsPlaying(false);
+    setCurrentTime(0);
+    pauseTimeRef.current = 0;
+    
+    // PHASE 2: ASYNC AUDIO CLEANUP
+    requestAnimationFrame(() => {
+      if (sourceNodeRef.current) {
+        try {
+          sourceNodeRef.current.stop();
+          sourceNodeRef.current.disconnect();
+        } catch {
+          // Ignore errors if already stopped
+        }
+        sourceNodeRef.current = null;
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    });
   }, []);
 
   const seekBackward = useCallback(() => {
+    // PHASE 1: IMMEDIATE UI UPDATE (0ms)
     const newTime = Math.max(0, currentTime - 10);
-    pauseTimeRef.current = newTime;
     setCurrentTime(newTime);
-    if (isPlaying) {
-      pausePlayback();
-      setTimeout(startPlayback, 50);
-    }
-  }, [currentTime, isPlaying, pausePlayback, startPlayback]);
-
-  const seekForward = useCallback(() => {
-    const newTime = Math.min(duration, currentTime + 10);
     pauseTimeRef.current = newTime;
-    setCurrentTime(newTime);
-    if (isPlaying) {
-      pausePlayback();
-      setTimeout(startPlayback, 50);
-    }
-  }, [currentTime, duration, isPlaying, pausePlayback, startPlayback]);
-
-  /**
-   * Handle seek from waveform click or other sources
-   * 
-   * CRITICAL BUG FIX:
-   * - Must NEVER reset to 0:00
-   * - While playing: seek immediately and continue playback from new position
-   * - While paused: seek immediately and remain paused
-   * - Pause must preserve currentTime
-   */
-  const handleSeek = useCallback(
-    (time: number) => {
-      // Clamp time to valid range
-      const clampedTime = Math.max(0, Math.min(time, duration));
-      
-      // Update pause time reference and current time immediately
-      pauseTimeRef.current = clampedTime;
-      setCurrentTime(clampedTime);
-      
-      // If currently playing, restart playback from new position
-      if (isPlaying && sourceNodeRef.current) {
-        // Stop current source
-        sourceNodeRef.current.stop();
-        sourceNodeRef.current.disconnect();
-        sourceNodeRef.current = null;
-        
+    
+    // PHASE 2: ASYNC AUDIO RESTART (if playing)
+    if (isPlaying && audioBuffer && audioContextRef.current) {
+      requestAnimationFrame(() => {
+        // Stop current playback
+        if (sourceNodeRef.current) {
+          try {
+            sourceNodeRef.current.stop();
+            sourceNodeRef.current.disconnect();
+          } catch {
+            // Ignore errors
+          }
+          sourceNodeRef.current = null;
+        }
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
         
-        // Immediately restart from new position (no setTimeout delay)
-        if (audioBuffer && audioContextRef.current) {
-          const ctx = audioContextRef.current;
+        // Start from new position
+        const ctx = audioContextRef.current!;
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        
+        const gain = ctx.createGain();
+        gain.gain.value = volume;
+        
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        source.start(0, newTime);
+        
+        sourceNodeRef.current = source;
+        gainNodeRef.current = gain;
+        startTimeRef.current = ctx.currentTime - newTime;
+        
+        const updateTime = () => {
+          if (audioContextRef.current && sourceNodeRef.current) {
+            const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
+            setCurrentTime(Math.min(elapsed, duration));
+            if (elapsed < duration) {
+              animationFrameRef.current = requestAnimationFrame(updateTime);
+            } else {
+              stopPlayback();
+            }
+          }
+        };
+        animationFrameRef.current = requestAnimationFrame(updateTime);
+        
+        source.onended = () => stopPlayback();
+      });
+    }
+  }, [currentTime, isPlaying, audioBuffer, volume, duration, stopPlayback]);
+
+  const seekForward = useCallback(() => {
+    // PHASE 1: IMMEDIATE UI UPDATE (0ms)
+    const newTime = Math.min(duration, currentTime + 10);
+    setCurrentTime(newTime);
+    pauseTimeRef.current = newTime;
+    
+    // PHASE 2: ASYNC AUDIO RESTART (if playing)
+    if (isPlaying && audioBuffer && audioContextRef.current) {
+      requestAnimationFrame(() => {
+        // Stop current playback
+        if (sourceNodeRef.current) {
+          try {
+            sourceNodeRef.current.stop();
+            sourceNodeRef.current.disconnect();
+          } catch {
+            // Ignore errors
+          }
+          sourceNodeRef.current = null;
+        }
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        
+        // Start from new position
+        const ctx = audioContextRef.current!;
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        
+        const gain = ctx.createGain();
+        gain.gain.value = volume;
+        
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        source.start(0, newTime);
+        
+        sourceNodeRef.current = source;
+        gainNodeRef.current = gain;
+        startTimeRef.current = ctx.currentTime - newTime;
+        
+        const updateTime = () => {
+          if (audioContextRef.current && sourceNodeRef.current) {
+            const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
+            setCurrentTime(Math.min(elapsed, duration));
+            if (elapsed < duration) {
+              animationFrameRef.current = requestAnimationFrame(updateTime);
+            } else {
+              stopPlayback();
+            }
+          }
+        };
+        animationFrameRef.current = requestAnimationFrame(updateTime);
+        
+        source.onended = () => stopPlayback();
+      });
+    }
+  }, [currentTime, duration, isPlaying, audioBuffer, volume, stopPlayback]);
+
+  /**
+   * PERFORMANCE-FIRST SEEK HANDLER
+   * 
+   * CRITICAL REQUIREMENTS:
+   * - UI state must update IMMEDIATELY (0ms)
+   * - Must NEVER reset to 0:00
+   * - While playing: seek immediately and continue playback from new position
+   * - While paused: seek immediately and remain paused
+   * - Audio processing happens ASYNCHRONOUSLY
+   */
+  const handleSeek = useCallback(
+    (time: number) => {
+      // PHASE 1: IMMEDIATE UI UPDATE (0ms)
+      // Clamp time to valid range
+      const clampedTime = Math.max(0, Math.min(time, duration));
+      
+      // Update UI state synchronously - user sees immediate feedback
+      pauseTimeRef.current = clampedTime;
+      setCurrentTime(clampedTime);
+      
+      // PHASE 2: ASYNC AUDIO PROCESSING
+      // If currently playing, restart playback from new position asynchronously
+      if (isPlaying && audioBuffer && audioContextRef.current) {
+        requestAnimationFrame(() => {
+          // Stop current source
+          if (sourceNodeRef.current) {
+            try {
+              sourceNodeRef.current.stop();
+              sourceNodeRef.current.disconnect();
+            } catch {
+              // Ignore errors if already stopped
+            }
+            sourceNodeRef.current = null;
+          }
+          
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+          }
+          
+          // Restart from new position
+          const ctx = audioContextRef.current!;
           if (ctx.state === "suspended") {
             ctx.resume();
           }
@@ -404,9 +580,9 @@ export default function Home() {
               stopPlayback();
             }
           };
-        }
+        });
       }
-      // If paused, just update the position (already done above)
+      // If paused, just update the position (already done synchronously above)
     },
     [isPlaying, duration, audioBuffer, volume, stopPlayback]
   );
@@ -418,10 +594,21 @@ export default function Home() {
     }
   }, []);
 
-  // Verification - requires authentication for saving
+  /**
+   * PERFORMANCE-FIRST VERIFICATION HANDLER
+   * 
+   * CRITICAL REQUIREMENTS:
+   * - Button must provide IMMEDIATE visual feedback (0ms)
+   * - UI must transition INSTANTLY into "verification started" state
+   * - Live Scan Console must show activity IMMEDIATELY
+   * - Backend verification runs ASYNCHRONOUSLY
+   * - NO blocking operations before UI feedback
+   */
   const handleVerify = useCallback(async () => {
     if (!selectedFile || !metadata) return;
 
+    // PHASE 1: IMMEDIATE UI UPDATE (0ms)
+    // All UI state changes happen synchronously BEFORE any async work
     setIsVerifying(true);
     setScanComplete(false);
     setVerificationResult(null);
@@ -432,8 +619,11 @@ export default function Home() {
     setGeometryScanTrace(null);
     setReportPreview(null);
 
-    // Initialize scan logs
+    // Initialize scan logs IMMEDIATELY - user sees instant console activity
     setScanLogs([generateScanLogs("init")]);
+    
+    // PHASE 2: ASYNC BACKEND PROCESSING
+    // All async work happens after UI is updated
 
     try {
       // Add log: upload
@@ -595,6 +785,7 @@ export default function Home() {
             duration={duration}
             markers={verificationResult?.timelineMarkers || []}
             onSeek={handleSeek}
+            isDecoding={isDecodingAudio}
           />
           <AudioPlayerBar
             isPlaying={isPlaying}

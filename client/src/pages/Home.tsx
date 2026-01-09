@@ -1,43 +1,35 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { AudioPlayerBar } from "@/components/AudioPlayerBar";
-import { AudioUploadPanel } from "@/components/AudioUploadPanel";
-import { DetailedAnalysis } from "@/components/DetailedAnalysis";
-import { ExportPanel } from "@/components/ExportPanel";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { ForensicLayout } from "@/components/ForensicLayout";
-import { GeometryScanTrace } from "@/components/GeometryScanTrace";
-import { LiveScanConsole, generateScanLogs, getFullScanSequence } from "@/components/LiveScanConsole";
+import { AudioUploadPanel } from "@/components/AudioUploadPanel";
 import { MetadataPanel } from "@/components/MetadataPanel";
-import { ReportPreview } from "@/components/ReportPreview";
-import { SourceComponents } from "@/components/SourceComponents";
-import { TemporalAnalysis } from "@/components/TemporalAnalysis";
-import { TimelineAnalysis } from "@/components/TimelineAnalysis";
-import { TimelineContext } from "@/components/TimelineContext";
-import { VerdictPanel } from "@/components/VerdictPanel";
 import { WaveformVisualization } from "@/components/WaveformVisualization";
+import { AudioPlayerBar } from "@/components/AudioPlayerBar";
+import { LiveScanConsole, type ScanLogEntry } from "@/components/LiveScanConsole";
+import { VerdictPanel } from "@/components/VerdictPanel";
+import { TimelineAnalysis } from "@/components/TimelineAnalysis";
+import { TemporalAnalysis } from "@/components/TemporalAnalysis";
+import { DetailedAnalysis } from "@/components/DetailedAnalysis";
+import { SourceComponents } from "@/components/SourceComponents";
+import { GeometryScanTrace } from "@/components/GeometryScanTrace";
+import { ExportPanel } from "@/components/ExportPanel";
+import { ReportPreview } from "@/components/ReportPreview";
+import { trpc } from "@/lib/trpc";
 import { AudioRuntime } from "@/lib/audioRuntime";
 import { startDualTimeLoop } from "@/lib/timeLoop";
-import { trpc } from "@/lib/trpc";
-import { useCallback, useEffect, useRef, useState } from "react";
+import type { DetectXVerdictText, DetectXVerificationResult } from "@shared/detectx-verification";
 
 /**
- * DetectX Audio Verification Workspace
+ * ANONYMOUS STATELESS VERIFICATION FLOW
  * 
- * PERFORMANCE-OPTIMIZED ARCHITECTURE:
- * - AudioRuntime class for audio playback (no inline audio logic)
- * - Ref-based time tracking during playback (no React state on every frame)
- * - Dual time loop: fast (playhead canvas) + slow (React state)
- * - Waveform canvas separated from playhead canvas
+ * NON-NEGOTIABLE CONSTRAINTS:
+ * 1) No login/authentication required
+ * 2) No file storage - files are transient
+ * 3) No upload history or session-based access control
+ * 4) DetectX server is sole authority for processing and results
+ * 5) Manus acts only as UI layer and request forwarder
  */
 
-interface AudioFileInfo {
-  file: File;
-  name: string;
-  size: number;
-  duration: number | null;
-  sampleRate: number | null;
-  type: string;
-}
-
+// File metadata interface (forensic input record)
 interface FileMetadata {
   fileName: string;
   duration: number | null;
@@ -49,122 +41,90 @@ interface FileMetadata {
   fileSize: number;
 }
 
-/**
- * DetectX Verification Result Contract (LOCKED - DO NOT MODIFY)
- */
-type DetectXVerdictText =
-  | "AI signal evidence was observed."
-  | "AI signal evidence was not observed.";
-
-interface DetectXVerificationResult {
-  verdict: DetectXVerdictText;
-  authority: "CR-G";
-  exceeded_axes: string[];
-}
-
-interface VerificationResult {
+// Verification result interface
+interface VerdictResult {
   verdict: DetectXVerificationResult | null;
-  crgStatus: string | null;
-  primaryExceededAxis: string | null;
+  crgStatus?: string;
+  primaryExceededAxis?: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
 }
 
-interface TimelineAnalysisData {
-  segments: { startTime: number; endTime: number; label: string }[];
-  totalDuration: number;
+// Scan sequence stages
+type ScanStage = 
+  | "init" | "lock" | "normalize" | "residual" | "persistence" 
+  | "cross_stem" | "geometry" | "constraint_1" | "constraint_2" 
+  | "constraint_3" | "philosophy_1" | "philosophy_2" | "philosophy_3" 
+  | "philosophy_4" | "pre_verdict_1" | "pre_verdict_2" | "complete";
+
+// Alias for ScanLog type
+type ScanLog = ScanLogEntry;
+
+// Generate scan log from stage
+function generateScanLogs(stage: ScanStage): ScanLog {
+  const timestamp = new Date().toLocaleTimeString("en-US", { hour12: false });
+  
+  const stageMessages: Record<ScanStage, { message: string; type: ScanLog["type"] }> = {
+    init: { message: "Initializing forensic scan pipeline", type: "process" },
+    lock: { message: "Locking analysis parameters", type: "process" },
+    normalize: { message: "Establishing normalization coordinate space", type: "process" },
+    residual: { message: "Observing residual structure", type: "process" },
+    persistence: { message: "Monitoring residual persistence", type: "process" },
+    cross_stem: { message: "Evaluating cross-stem geometry", type: "process" },
+    geometry: { message: "Comparing against human geometry envelope", type: "process" },
+    constraint_1: { message: "No probabilistic inference is performed", type: "constraint" },
+    constraint_2: { message: "No authorship or intent is inferred", type: "constraint" },
+    constraint_3: { message: "Absence of evidence is a valid outcome", type: "constraint" },
+    philosophy_1: { message: "Real-time structural signal observation", type: "philosophy" },
+    philosophy_2: { message: "Geometry-primary verification engine active", type: "philosophy" },
+    philosophy_3: { message: "Human baseline geometry enforced", type: "philosophy" },
+    philosophy_4: { message: "Deterministic execution under fixed conditions", type: "philosophy" },
+    pre_verdict_1: { message: "Final geometry evaluation pending", type: "info" },
+    pre_verdict_2: { message: "Results will be disclosed after full scan completion", type: "info" },
+    complete: { message: "Scan complete", type: "complete" },
+  };
+  
+  const { message, type } = stageMessages[stage];
+  return { timestamp, message, type };
 }
 
-interface TemporalAnalysisData {
-  patterns: { type: string; interval: number; count: number }[];
-  consistency: string;
-  anomalyRegions: { start: number; end: number }[];
-}
-
-interface DetailedAnalysisData {
-  spectralFeatures: { name: string; value: string }[];
-  structuralMetrics: { name: string; value: string }[];
-  observations: string[];
-}
-
-interface SourceComponentData {
-  components: { id: string; type: string; description: string }[];
-  layerCount: number;
-  compositionType: string;
-}
-
-interface GeometryScanTraceData {
-  scanPoints: { x: number; y: number; label: string }[];
-  boundaryStatus: string;
-  axisData: { axis: string; status: string }[];
-  traceComplete: boolean;
-}
-
-interface ReportPreviewData {
-  summary: string;
-  sections: { title: string; content: string }[];
-  generatedAt: string;
-  fileHash: string;
-}
-
-async function computeFileHash(file: File): Promise<string> {
-  const buffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+// Full scan sequence
+function getFullScanSequence(): ScanStage[] {
+  return [
+    "philosophy_1", "philosophy_2", "philosophy_3", "philosophy_4",
+    "init", "lock", "normalize", "residual", "persistence", "cross_stem", "geometry",
+    "constraint_1", "constraint_2", "constraint_3",
+    "pre_verdict_1", "pre_verdict_2",
+    "complete"
+  ];
 }
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
-
+  // File state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [metadata, setMetadata] = useState<FileMetadata | null>(null);
+  
   // Audio state
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
-  const [metadata, setMetadata] = useState<FileMetadata | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isDecodingAudio, setIsDecodingAudio] = useState(false);
-
-  // Player state (React state for UI display)
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
-
+  
   // Verification state
   const [isVerifying, setIsVerifying] = useState(false);
-  const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
-  const [verificationId, setVerificationId] = useState<number | null>(null);
-
-  // Extended analysis data
-  const [timelineAnalysis, setTimelineAnalysis] = useState<TimelineAnalysisData | null>(null);
-  const [temporalAnalysis, setTemporalAnalysis] = useState<TemporalAnalysisData | null>(null);
-  const [detailedAnalysis, setDetailedAnalysis] = useState<DetailedAnalysisData | null>(null);
-  const [sourceComponents, setSourceComponents] = useState<SourceComponentData | null>(null);
-  const [geometryScanTrace, setGeometryScanTrace] = useState<GeometryScanTraceData | null>(null);
-  const [reportPreview, setReportPreview] = useState<ReportPreviewData | null>(null);
-
-  // Live Scan Console logs
-  const [scanLogs, setScanLogs] = useState<ReturnType<typeof generateScanLogs>[]>([]);
+  const [scanLogs, setScanLogs] = useState<ScanLog[]>([]);
   const [scanComplete, setScanComplete] = useState(false);
-
-  // AudioRuntime ref (performance-optimized audio engine)
-  const audioRuntimeRef = useRef<AudioRuntime | null>(null);
+  const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
+  
+  // Refs
   const audioContextRef = useRef<AudioContext | null>(null);
-  
-  // Waveform visualization is now stateless - no ref needed
-  
-  // Time loop cleanup ref
+  const audioRuntimeRef = useRef<AudioRuntime | null>(null);
   const timeLoopCleanupRef = useRef<(() => void) | null>(null);
-  
-  // Session ID for audio/waveform bindings
-  const sessionIdRef = useRef<string>(crypto.randomUUID());
+  const fileDataRef = useRef<string | null>(null); // Store base64 data for processing
 
-  // tRPC mutations
+  // tRPC mutations - ANONYMOUS (no auth required)
   const uploadMutation = trpc.verification.upload.useMutation();
-  const createMutation = trpc.verification.create.useMutation();
   const processMutation = trpc.verification.process.useMutation();
-  const getByIdQuery = trpc.verification.getById.useQuery(
-    { id: verificationId! },
-    { enabled: !!verificationId && isVerifying }
-  );
 
   // Initialize AudioRuntime on mount
   useEffect(() => {
@@ -186,223 +146,155 @@ export default function Home() {
       if (timeLoopCleanupRef.current) {
         timeLoopCleanupRef.current();
       }
-      audioRuntimeRef.current?.dispose();
+      audioRuntimeRef.current?.stop();
+      ctx.close();
     };
   }, []);
 
-  // Get codec from MIME type
-  function getCodecFromType(type: string): string {
-    const codecMap: Record<string, string> = {
-      "audio/wav": "PCM/WAV",
-      "audio/mpeg": "MP3",
-      "audio/mp3": "MP3",
-      "audio/flac": "FLAC",
-      "audio/ogg": "OGG Vorbis",
-      "audio/m4a": "AAC",
-      "audio/x-m4a": "AAC",
-      "audio/mp4": "AAC",
-    };
-    return codecMap[type] || "Unknown";
-  }
-
   /**
-   * PERFORMANCE-FIRST FILE SELECTION HANDLER
+   * FILE SELECTION HANDLER
    */
-  const handleFileSelect = useCallback((fileInfo: AudioFileInfo) => {
-    sessionIdRef.current = crypto.randomUUID();
-    
-    // Stop any current playback
-    if (audioRuntimeRef.current) {
-      audioRuntimeRef.current.reset();
-    }
-    if (timeLoopCleanupRef.current) {
-      timeLoopCleanupRef.current();
-      timeLoopCleanupRef.current = null;
-    }
-    
-    // Reset all state
-    setAudioBuffer(null);
+  const handleFileSelect = useCallback(async (file: File) => {
+    setSelectedFile(file);
     setVerificationResult(null);
-    setVerificationId(null);
-    setTimelineAnalysis(null);
-    setTemporalAnalysis(null);
-    setDetailedAnalysis(null);
-    setSourceComponents(null);
-    setGeometryScanTrace(null);
-    setReportPreview(null);
     setScanLogs([]);
     setScanComplete(false);
-    setIsPlaying(false);
-    setCurrentTime(0);
     
-    setSelectedFile(fileInfo.file);
-    setIsDecodingAudio(true);
-    
-    // Set preliminary metadata
+    // Set initial metadata from file object
     setMetadata({
-      fileName: fileInfo.name,
-      duration: fileInfo.duration ? fileInfo.duration * 1000 : null,
-      sampleRate: fileInfo.sampleRate,
+      fileName: file.name,
+      duration: null,
+      sampleRate: null,
       bitDepth: null,
       channels: null,
-      codec: getCodecFromType(fileInfo.type),
+      codec: null,
       fileHash: null,
-      fileSize: fileInfo.size,
+      fileSize: file.size,
     });
     
-    if (fileInfo.duration) {
-      setDuration(fileInfo.duration);
-    }
+    // Decode audio for playback
+    const arrayBuffer = await file.arrayBuffer();
     
-    // Async audio decoding
-    (async () => {
+    // Store base64 data for later processing (transient, not stored)
+    const base64Data = btoa(
+      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+    fileDataRef.current = base64Data;
+    
+    if (audioContextRef.current) {
       try {
-        const hashPromise = computeFileHash(fileInfo.file);
-        
-        const audioContext = audioContextRef.current || new AudioContext();
-        if (!audioContextRef.current) {
-          audioContextRef.current = audioContext;
-          audioRuntimeRef.current = new AudioRuntime(audioContext);
-        }
-        
-        const arrayBuffer = await fileInfo.file.arrayBuffer();
-        const buffer = await audioContext.decodeAudioData(arrayBuffer);
-        const hash = await hashPromise;
-        
+        const buffer = await audioContextRef.current.decodeAudioData(arrayBuffer.slice(0));
         setAudioBuffer(buffer);
         setDuration(buffer.duration);
-        setMetadata({
-          fileName: fileInfo.name,
-          duration: buffer.duration * 1000,
-          sampleRate: buffer.sampleRate,
-          bitDepth: 16,
-          channels: buffer.numberOfChannels,
-          codec: getCodecFromType(fileInfo.type),
-          fileHash: hash,
-          fileSize: fileInfo.size,
+        setCurrentTime(0);
+        
+        // Extract metadata via server (ffprobe) - NO STORAGE
+        const uploadResult = await uploadMutation.mutateAsync({
+          fileName: file.name,
+          fileData: base64Data,
+          contentType: file.type,
         });
-      } catch {
-        const hash = await computeFileHash(fileInfo.file).catch(() => null);
-        setMetadata(prev => prev ? { ...prev, fileHash: hash } : null);
-      } finally {
-        setIsDecodingAudio(false);
+        
+        // Update metadata from server response
+        setMetadata({
+          fileName: uploadResult.metadata.filename,
+          duration: uploadResult.metadata.duration,
+          sampleRate: uploadResult.metadata.sampleRate,
+          bitDepth: uploadResult.metadata.bitDepth,
+          channels: uploadResult.metadata.channels,
+          codec: uploadResult.metadata.codec,
+          fileHash: uploadResult.metadata.sha256,
+          fileSize: uploadResult.metadata.fileSize,
+        });
+      } catch (error) {
+        console.error("Failed to decode audio:", error);
       }
-    })();
-  }, []);
+    }
+  }, [uploadMutation]);
 
   /**
-   * PERFORMANCE-OPTIMIZED PLAYBACK CONTROLS
-   * Using AudioRuntime class for audio management
+   * PLAYBACK CONTROLS
    */
-  
-  const startPlayback = useCallback(() => {
+  const handlePlay = useCallback(() => {
     if (!audioBuffer || !audioRuntimeRef.current) return;
     
-    // Immediate UI update
+    audioRuntimeRef.current.play(audioBuffer);
     setIsPlaying(true);
     
-    // Start audio playback
-    audioRuntimeRef.current.play(audioBuffer);
+    // Start time loop for UI updates
+    if (timeLoopCleanupRef.current) {
+      timeLoopCleanupRef.current();
+    }
     
-    // Start dual time loop: fast (playhead) + slow (React state)
     timeLoopCleanupRef.current = startDualTimeLoop(
       audioRuntimeRef.current,
       duration,
-      // Fast callback: no-op (playhead now controlled by currentTime prop)
-      () => {},
-      // Slow callback: update React state (every 100ms)
-      (t) => {
-        setCurrentTime(t);
-      },
-      100 // Update React state every 100ms
+      () => {}, // Fast callback - not used in stateless mode
+      (t) => setCurrentTime(t), // Slow callback - update React state
+      100 // Update interval
     );
   }, [audioBuffer, duration]);
 
-  const pausePlayback = useCallback(() => {
-    // Immediate UI update
+  const handlePause = useCallback(() => {
+    if (!audioRuntimeRef.current) return;
+    
+    audioRuntimeRef.current.pause();
     setIsPlaying(false);
     
-    // Stop time loop
     if (timeLoopCleanupRef.current) {
       timeLoopCleanupRef.current();
       timeLoopCleanupRef.current = null;
     }
-    
-    // Pause audio
-    if (audioRuntimeRef.current) {
-      const time = audioRuntimeRef.current.getCurrentTime();
-      audioRuntimeRef.current.pause();
-      setCurrentTime(time);
-    }
   }, []);
 
-  const stopPlayback = useCallback(() => {
-    // Immediate UI update
+  const handleStop = useCallback(() => {
+    if (!audioRuntimeRef.current) return;
+    
+    audioRuntimeRef.current.stop();
     setIsPlaying(false);
     setCurrentTime(0);
     
-    // Stop time loop
     if (timeLoopCleanupRef.current) {
       timeLoopCleanupRef.current();
       timeLoopCleanupRef.current = null;
     }
-    
-    // Reset audio
-    if (audioRuntimeRef.current) {
-      audioRuntimeRef.current.reset();
-    }
-    
-    // Playhead is now controlled by currentTime prop
   }, []);
 
-  const seekBackward = useCallback(() => {
-    const newTime = Math.max(0, currentTime - 10);
-    setCurrentTime(newTime);
+  const handleSeek = useCallback((time: number) => {
+    if (!audioBuffer || !audioRuntimeRef.current) return;
     
-    if (audioRuntimeRef.current && audioBuffer) {
-      audioRuntimeRef.current.seek(newTime, audioBuffer);
-    }
-  }, [currentTime, audioBuffer]);
-
-  const seekForward = useCallback(() => {
-    const newTime = Math.min(duration, currentTime + 10);
-    setCurrentTime(newTime);
+    const clampedTime = Math.max(0, Math.min(time, duration));
+    setCurrentTime(clampedTime);
     
-    if (audioRuntimeRef.current && audioBuffer) {
-      audioRuntimeRef.current.seek(newTime, audioBuffer);
+    if (isPlaying) {
+      audioRuntimeRef.current.seek(clampedTime, audioBuffer);
+    } else {
+      audioRuntimeRef.current.setOffset(clampedTime);
     }
-  }, [currentTime, duration, audioBuffer]);
+  }, [audioBuffer, duration, isPlaying]);
 
-  /**
-   * PERFORMANCE-FIRST SEEK HANDLER
-   */
-  const handleSeek = useCallback(
-    (time: number) => {
-      const clampedTime = Math.max(0, Math.min(time, duration));
-      
-      // Immediate UI update - playhead controlled by currentTime prop
-      setCurrentTime(clampedTime);
-      
-      // Seek audio
-      if (audioRuntimeRef.current && audioBuffer) {
-        audioRuntimeRef.current.seek(clampedTime, audioBuffer);
-      }
-    },
-    [duration, audioBuffer]
-  );
+  const handleSeekForward = useCallback(() => {
+    handleSeek(currentTime + 10);
+  }, [currentTime, handleSeek]);
 
-  const handleVolumeChange = useCallback((newVolume: number) => {
-    setVolume(newVolume);
-    if (audioRuntimeRef.current) {
-      audioRuntimeRef.current.setVolume(newVolume);
-    }
+  const handleSeekBackward = useCallback(() => {
+    handleSeek(currentTime - 10);
+  }, [currentTime, handleSeek]);
+
+  const handleVolumeChange = useCallback((v: number) => {
+    setVolume(v);
+    audioRuntimeRef.current?.setVolume(v);
   }, []);
 
   /**
-   * VERIFICATION HANDLER
+   * VERIFICATION HANDLER - ANONYMOUS, STATELESS
+   * 
+   * No authentication required.
+   * No file storage - file data is sent directly for processing.
+   * No database records created.
    */
   const handleVerify = useCallback(async () => {
-    if (!selectedFile || !metadata) return;
+    if (!selectedFile || !metadata || !fileDataRef.current) return;
     
     // Immediate UI update
     setIsVerifying(true);
@@ -419,54 +311,26 @@ export default function Home() {
     }
     
     try {
-      // Upload file
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      
-      // Convert file to base64 for upload
-      const arrayBuffer = await selectedFile.arrayBuffer();
-      const base64Data = btoa(
-        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-      
-      const uploadResult = await uploadMutation.mutateAsync({
+      // Process verification directly - NO STORAGE, NO DATABASE
+      const result = await processMutation.mutateAsync({
         fileName: metadata.fileName,
-        fileData: base64Data,
-        contentType: selectedFile.type,
-      });
-      
-      // Create verification record
-      const verification = await createMutation.mutateAsync({
-        fileName: metadata.fileName,
+        fileData: fileDataRef.current,
         fileSize: metadata.fileSize,
-        fileUrl: uploadResult.url,
-        fileKey: uploadResult.fileKey,
         duration: metadata.duration || undefined,
         sampleRate: metadata.sampleRate || undefined,
-        bitDepth: metadata.bitDepth || undefined,
-        channels: metadata.channels || undefined,
-        codec: metadata.codec || undefined,
-        fileHash: metadata.fileHash || undefined,
-      });
-      
-      setVerificationId(verification.id);
-      
-      // Process verification
-      const result = await processMutation.mutateAsync({
-        id: verification.id,
       });
       
       // Update result - convert to VerdictResult format
-      const verdictText = result.verdict === "observed" 
-        ? "AI signal evidence was observed." as const
+      const verdictText: DetectXVerdictText | null = result.verdict === "observed" 
+        ? "AI signal evidence was observed."
         : result.verdict === "not_observed"
-        ? "AI signal evidence was not observed." as const
+        ? "AI signal evidence was not observed."
         : null;
       
       setVerificationResult({
         verdict: verdictText ? {
           verdict: verdictText,
-          authority: "CR-G" as const,
+          authority: "CR-G",
           exceeded_axes: result.primaryExceededAxis ? [result.primaryExceededAxis] : [],
         } : null,
         crgStatus: result.crgStatus,
@@ -481,35 +345,7 @@ export default function Home() {
     } finally {
       setIsVerifying(false);
     }
-  }, [selectedFile, metadata, uploadMutation, createMutation, processMutation]);
-
-  // Poll for verification result
-  useEffect(() => {
-    if (getByIdQuery.data && isVerifying) {
-      const data = getByIdQuery.data;
-      if (data.status === "completed") {
-        // Convert to VerdictResult format
-        const verdictText = data.verdict === "observed" 
-          ? "AI signal evidence was observed." as const
-          : data.verdict === "not_observed"
-          ? "AI signal evidence was not observed." as const
-          : null;
-        
-        setVerificationResult({
-          verdict: verdictText ? {
-            verdict: verdictText,
-            authority: "CR-G" as const,
-            exceeded_axes: data.primaryExceededAxis ? [data.primaryExceededAxis] : [],
-          } : null,
-          crgStatus: data.crgStatus,
-          primaryExceededAxis: data.primaryExceededAxis,
-          timelineMarkers: [],
-        });
-        setIsVerifying(false);
-        setScanComplete(true);
-      }
-    }
-  }, [getByIdQuery.data, isVerifying]);
+  }, [selectedFile, metadata, processMutation]);
 
   // Debug: Log verification result changes
   useEffect(() => {
@@ -525,45 +361,39 @@ export default function Home() {
         {/* Left column - Upload and Metadata */}
         <div className="flex flex-col gap-6">
           <AudioUploadPanel
-            onFileSelect={handleFileSelect}
+            onFileSelect={(fileInfo) => handleFileSelect(fileInfo.file)}
             onVerify={handleVerify}
             isVerifying={isVerifying}
-            disabled={false}
           />
-          <div className="flex-1 min-h-[200px]">
-            <MetadataPanel metadata={metadata} />
-          </div>
+          <MetadataPanel metadata={metadata} />
         </div>
-
-        {/* Center column - Waveform, Player, and Live Scan Console */}
-        <div className="lg:col-span-2 flex flex-col gap-0">
+        
+        {/* Right column - Waveform and Player */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
           <WaveformVisualization
             audioBuffer={audioBuffer}
             currentTime={currentTime}
             duration={duration}
+            isDecoding={false}
             onSeek={handleSeek}
-            isDecoding={isDecodingAudio}
           />
           <AudioPlayerBar
             isPlaying={isPlaying}
             currentTime={currentTime}
             duration={duration}
             volume={volume}
-            onPlay={startPlayback}
-            onPause={pausePlayback}
-            onStop={stopPlayback}
-            onSeekBackward={seekBackward}
-            onSeekForward={seekForward}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onStop={handleStop}
+            onSeekForward={handleSeekForward}
+            onSeekBackward={handleSeekBackward}
             onVolumeChange={handleVolumeChange}
-            disabled={!audioBuffer}
           />
-          <div className="flex-1 min-h-[160px]">
-            <LiveScanConsole
-              isVerifying={isVerifying}
-              isComplete={scanComplete}
-              logs={scanLogs}
-            />
-          </div>
+          <LiveScanConsole
+            logs={scanLogs}
+            isVerifying={isVerifying}
+            isComplete={scanComplete}
+          />
         </div>
       </div>
 
@@ -578,70 +408,63 @@ export default function Home() {
       {/* Extended analysis sections */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="flex flex-col gap-6">
-          <TimelineAnalysis
-            data={timelineAnalysis}
+          <TimelineAnalysis 
+            data={null}
             isProcessing={isVerifying}
           />
-          <TemporalAnalysis
-            data={temporalAnalysis}
-            isProcessing={isVerifying}
-          />
-          <DetailedAnalysis
-            data={detailedAnalysis}
+          <TemporalAnalysis 
+            data={null}
             isProcessing={isVerifying}
           />
         </div>
-
-        <div className="lg:col-span-2 flex flex-col justify-end">
-          <SourceComponents
-            data={sourceComponents}
+        <div className="flex flex-col gap-6">
+          <DetailedAnalysis 
+            data={null}
+            isProcessing={isVerifying}
+          />
+        </div>
+        <div className="flex flex-col gap-6">
+          <SourceComponents 
+            data={null}
             isProcessing={isVerifying}
           />
         </div>
       </div>
 
-      {/* Geometry & Timeline Context */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-2">
-          <GeometryScanTrace
-            data={geometryScanTrace}
-            isProcessing={isVerifying}
-            expanded={true}
-          />
-        </div>
-        <TimelineContext
-          markers={verificationResult?.timelineMarkers || []}
-          duration={duration}
-        />
-      </div>
-
-      {/* Report Preview & Export */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <ReportPreview
-          verdict={verificationResult?.verdict ?? null}
-          crgStatus={verificationResult?.crgStatus ?? null}
-          primaryExceededAxis={verificationResult?.primaryExceededAxis ?? null}
-          fileName={metadata?.fileName ?? null}
-          fileHash={metadata?.fileHash ?? null}
+      {/* Geometry Scan Trace */}
+      <div className="mt-6">
+        <GeometryScanTrace 
+          data={null}
           isProcessing={isVerifying}
         />
-        <ExportPanel
-          data={metadata && verificationResult ? {
-            fileName: metadata.fileName,
-            fileSize: metadata.fileSize,
-            duration: metadata.duration,
-            sampleRate: metadata.sampleRate,
-            bitDepth: metadata.bitDepth,
-            channels: metadata.channels,
-            codec: metadata.codec,
-            fileHash: metadata.fileHash,
-            verdict: verificationResult.verdict,
-            crgStatus: verificationResult.crgStatus,
-            primaryExceededAxis: verificationResult.primaryExceededAxis,
-            timelineMarkers: verificationResult.timelineMarkers,
+      </div>
+
+      {/* Export section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <ExportPanel 
+          data={{
+            fileName: metadata?.fileName || "",
+            fileSize: metadata?.fileSize || 0,
+            duration: metadata?.duration || null,
+            sampleRate: metadata?.sampleRate || null,
+            bitDepth: metadata?.bitDepth || null,
+            channels: metadata?.channels || null,
+            codec: metadata?.codec || null,
+            fileHash: metadata?.fileHash || null,
+            verdict: verificationResult?.verdict ?? null,
+            crgStatus: verificationResult?.crgStatus || null,
+            primaryExceededAxis: verificationResult?.primaryExceededAxis || null,
+            timelineMarkers: verificationResult?.timelineMarkers || [],
             analysisTimestamp: new Date().toISOString(),
-          } : null}
-          disabled={!verificationResult}
+          }}
+        />
+        <ReportPreview 
+          verdict={verificationResult?.verdict ?? null}
+          crgStatus={verificationResult?.crgStatus || null}
+          primaryExceededAxis={verificationResult?.primaryExceededAxis || null}
+          fileName={metadata?.fileName || null}
+          fileHash={metadata?.fileHash || null}
+          isProcessing={isVerifying}
         />
       </div>
     </ForensicLayout>

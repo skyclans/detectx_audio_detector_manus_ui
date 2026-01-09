@@ -110,6 +110,13 @@ export class AudioRuntime {
   }
 
   /**
+   * Set offset without starting playback
+   */
+  setOffset(time: number) {
+    this.offset = Math.max(0, time);
+  }
+
+  /**
    * Set volume with smooth transition (no clicks/pops)
    * Uses exponential ramp for natural-sounding volume changes
    */

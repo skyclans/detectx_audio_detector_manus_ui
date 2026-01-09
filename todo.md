@@ -555,3 +555,25 @@
 - [x] Pass state directly into VerdictPanel as result prop
 - [x] Ensure isProcessing is set to false once result is available
 - [x] Console log verificationResult before rendering to confirm non-null
+
+
+## Anonymous Stateless Verification Flow
+
+### Authentication Bypass
+- [x] Change verification procedures from protectedProcedure to publicProcedure
+- [x] Remove login requirement before verification
+- [x] Disable auth gate in UI
+
+### Storage Bypass
+- [x] Do NOT store uploaded files in Manus storage
+- [x] Treat uploaded files as transient
+- [x] Forward files directly to DetectX server (or process in-memory)
+
+### Session/History Removal
+- [x] No upload history
+- [x] No file retention
+- [x] No session-based access control
+
+### Authority
+- [x] DetectX server is sole authority for processing and results
+- [x] Manus acts only as UI layer and request forwarder

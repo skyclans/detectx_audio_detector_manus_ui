@@ -1,6 +1,25 @@
+/**
+ * FILE METADATA - Forensic Intake Record
+ * 
+ * This section is NOT an analysis feature and must NOT influence detection or verdicts.
+ * It exists solely as a forensic intake record for auditability, reproducibility,
+ * and file identity verification.
+ * 
+ * All values reflect the state of the file BEFORE analysis and BEFORE normalization.
+ * No inference, estimation, correction, or normalization is allowed at this layer.
+ * 
+ * Metadata is context, not evidence.
+ */
+
 import { useState, useCallback } from "react";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Info } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MetadataItem {
   label: string;
@@ -8,6 +27,7 @@ interface MetadataItem {
   mono?: boolean;
   copyable?: boolean;
   fullValue?: string; // Full value for copying (e.g., full hash)
+  tooltip?: string; // Tooltip text for additional context
 }
 
 interface MetadataPanelProps {
@@ -18,19 +38,26 @@ interface MetadataPanelProps {
     bitDepth?: number | null;
     channels?: number | null;
     codec?: string | null;
-    fileHash?: string | null;
+    fileHash?: string | null; // SHA-256 hash
     fileSize?: number;
   } | null;
 }
 
-function formatDuration(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
+/**
+ * Format duration from seconds to MM:SS.mmm
+ * Duration comes from ffprobe in seconds
+ */
+function formatDuration(seconds: number): string {
+  const totalSeconds = Math.floor(seconds);
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
-  const milliseconds = ms % 1000;
+  const milliseconds = Math.round((seconds - totalSeconds) * 1000);
   return `${mins}:${secs.toString().padStart(2, "0")}.${milliseconds.toString().padStart(3, "0")}`;
 }
 
+/**
+ * Format file size in human-readable format
+ */
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 B";
   const k = 1024;
@@ -39,7 +66,17 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
-function MetadataRow({ label, value, mono = false, copyable = false, fullValue }: MetadataItem) {
+/**
+ * Format sample rate in kHz
+ */
+function formatSampleRate(hz: number): string {
+  if (hz >= 1000) {
+    return `${(hz / 1000).toFixed(hz % 1000 === 0 ? 0 : 1)} kHz`;
+  }
+  return `${hz} Hz`;
+}
+
+function MetadataRow({ label, value, mono = false, copyable = false, fullValue, tooltip }: MetadataItem) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -52,14 +89,28 @@ function MetadataRow({ label, value, mono = false, copyable = false, fullValue }
         duration: 2000,
       });
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       toast.error("Failed to copy to clipboard");
     }
   }, [value, fullValue, label]);
 
   return (
     <div className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
-      <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
+        {tooltip && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-3 h-3 text-muted-foreground/50 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-xs text-xs">
+                {tooltip}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
       <div className="flex items-center gap-2">
         <span className={`text-sm text-foreground ${mono ? "font-mono" : ""}`}>
           {value ?? "—"}
@@ -85,9 +136,9 @@ function MetadataRow({ label, value, mono = false, copyable = false, fullValue }
 export function MetadataPanel({ metadata }: MetadataPanelProps) {
   if (!metadata) {
     return (
-      <div className="forensic-panel">
-        <div className="forensic-panel-header">File Metadata</div>
-        <div className="forensic-panel-content">
+      <div className="forensic-panel h-full">
+        <div className="forensic-panel-header">FILE METADATA</div>
+        <div className="forensic-panel-content flex flex-col justify-center">
           <p className="text-sm text-muted-foreground text-center py-8">
             No file selected
           </p>
@@ -96,37 +147,47 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
     );
   }
 
+  // Field list in FIXED ORDER as specified
+  // If a value is unavailable → display "—"
+  // Do NOT calculate, estimate, or infer missing values
   const items: MetadataItem[] = [
-    { label: "Filename", value: metadata.fileName },
+    { 
+      label: "Filename", 
+      value: metadata.fileName || null,
+    },
     {
       label: "Duration",
-      value: metadata.duration ? formatDuration(metadata.duration) : null,
+      value: metadata.duration != null ? formatDuration(metadata.duration) : null,
       mono: true,
     },
     {
       label: "Sample Rate",
-      value: metadata.sampleRate ? `${metadata.sampleRate} Hz` : null,
+      value: metadata.sampleRate != null ? formatSampleRate(metadata.sampleRate) : null,
       mono: true,
     },
     {
       label: "Bit Depth",
-      value: metadata.bitDepth ? `${metadata.bitDepth}-bit` : null,
+      value: metadata.bitDepth != null ? `${metadata.bitDepth}-bit` : null,
       mono: true,
+      tooltip: "Bit depth is reported from the source file encoding metadata. For lossless formats, this reflects the original PCM depth. For lossy formats, this reflects container declaration only. This value is not used for analysis or normalization.",
     },
     {
       label: "Channels",
-      value: metadata.channels
+      value: metadata.channels != null
         ? metadata.channels === 1
           ? "Mono"
           : metadata.channels === 2
           ? "Stereo"
-          : `${metadata.channels} channels`
+          : `${metadata.channels} ch`
         : null,
     },
-    { label: "Codec", value: metadata.codec },
+    { 
+      label: "Codec", 
+      value: metadata.codec || null,
+    },
     {
       label: "File Size",
-      value: metadata.fileSize ? formatFileSize(metadata.fileSize) : null,
+      value: metadata.fileSize != null ? formatFileSize(metadata.fileSize) : null,
       mono: true,
     },
     {
@@ -135,13 +196,19 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
       mono: true,
       copyable: true,
       fullValue: metadata.fileHash || undefined,
+      tooltip: "SHA-256 hash is calculated from the original uploaded file and is used solely for file identity verification and audit reproducibility.",
     },
   ];
 
   return (
-    <div className="forensic-panel">
-      <div className="forensic-panel-header">File Metadata</div>
+    <div className="forensic-panel h-full">
+      {/* Title: FILE METADATA (exact text) */}
+      <div className="forensic-panel-header">FILE METADATA</div>
       <div className="forensic-panel-content">
+        {/* Subline: Forensic input record (pre-analysis, pre-normalization) */}
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3 pb-2 border-b border-border/30">
+          Forensic input record (pre-analysis, pre-normalization)
+        </p>
         {items.map((item) => (
           <MetadataRow key={item.label} {...item} />
         ))}

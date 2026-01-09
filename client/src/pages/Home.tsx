@@ -641,12 +641,30 @@ export default function Home() {
       // Add log: decode
       setScanLogs(prev => [...prev, generateScanLogs("decode")]);
 
-      // Upload file
-      const { url, fileKey } = await uploadMutation.mutateAsync({
+      // Upload file and extract forensic metadata via ffprobe
+      const uploadResult = await uploadMutation.mutateAsync({
         fileName: selectedFile.name,
         fileData: base64,
         contentType: selectedFile.type || "audio/mpeg",
       });
+
+      const { url, fileKey, metadata: serverMetadata } = uploadResult;
+
+      // Update metadata with server-extracted values (ffprobe container-level inspection)
+      // These values are forensic intake records - pre-analysis, pre-normalization
+      if (serverMetadata) {
+        setMetadata(prev => ({
+          fileName: serverMetadata.filename || prev?.fileName || selectedFile.name,
+          // Duration from ffprobe is in seconds, convert to milliseconds for UI
+          duration: serverMetadata.duration != null ? serverMetadata.duration * 1000 : prev?.duration ?? null,
+          sampleRate: serverMetadata.sampleRate ?? prev?.sampleRate ?? null,
+          bitDepth: serverMetadata.bitDepth ?? prev?.bitDepth ?? null,
+          channels: serverMetadata.channels ?? prev?.channels ?? null,
+          codec: serverMetadata.codec ?? prev?.codec ?? null,
+          fileHash: serverMetadata.sha256 ?? prev?.fileHash ?? null,
+          fileSize: serverMetadata.fileSize ?? prev?.fileSize ?? selectedFile.size,
+        }));
+      }
 
       // Add log: spectral
       setScanLogs(prev => [...prev, generateScanLogs("spectral")]);
@@ -656,17 +674,21 @@ export default function Home() {
         // Add log: temporal
         setScanLogs(prev => [...prev, generateScanLogs("temporal")]);
 
+        // Use server-extracted metadata for verification record
+        const finalMetadata = serverMetadata || metadata;
         const { id } = await createMutation.mutateAsync({
-          fileName: metadata.fileName,
-          fileSize: metadata.fileSize,
+          fileName: serverMetadata?.filename || metadata.fileName,
+          fileSize: serverMetadata?.fileSize || metadata.fileSize,
           fileUrl: url,
           fileKey: fileKey,
-          duration: metadata.duration ?? undefined,
-          sampleRate: metadata.sampleRate ?? undefined,
-          bitDepth: metadata.bitDepth ?? undefined,
-          channels: metadata.channels ?? undefined,
-          codec: metadata.codec ?? undefined,
-          fileHash: metadata.fileHash ?? undefined,
+          duration: serverMetadata?.duration != null 
+            ? serverMetadata.duration * 1000 
+            : (metadata.duration ?? undefined),
+          sampleRate: serverMetadata?.sampleRate ?? metadata.sampleRate ?? undefined,
+          bitDepth: serverMetadata?.bitDepth ?? metadata.bitDepth ?? undefined,
+          channels: serverMetadata?.channels ?? metadata.channels ?? undefined,
+          codec: serverMetadata?.codec ?? metadata.codec ?? undefined,
+          fileHash: serverMetadata?.sha256 ?? metadata.fileHash ?? undefined,
         });
 
         setVerificationId(id);

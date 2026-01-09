@@ -364,3 +364,29 @@
 - [x] FREE: $0/forever, 5 verifications/month, Basic CR-G, PDF & JSON export, Standard queue, Community support, NO API/batch/priority
 - [x] PROFESSIONAL: $29/month, 50 verifications/month, Full CR-G, All export formats, UI-based batch, Priority support, NO API/automation/webhooks
 - [x] ENTERPRISE: Custom pricing, Unlimited verifications, Full API, Webhooks, Unlimited batch, SLA 99.9%, On-premise option, Custom integrations
+
+
+## FILE METADATA Forensic Input Record Implementation
+
+### 1) Server-side ffprobe Metadata Extraction
+- [x] Install ffprobe/ffmpeg in server environment
+- [x] Create tRPC procedure for audio metadata extraction
+- [x] Extract: filename, duration, sample_rate, bit_depth, channels, codec, file_size
+- [x] Use container-level inspection only (no decoding/normalization)
+
+### 2) SHA-256 Hash Calculation
+- [x] Calculate SHA-256 from original uploaded file
+- [x] Compute before any analysis or normalization
+- [x] Use for file identity verification and audit reproducibility only
+
+### 3) FILE METADATA UI Component Update
+- [x] Title: "FILE METADATA"
+- [x] Subline: "Forensic input record (pre-analysis, pre-normalization)"
+- [x] Display fields in fixed order: Filename, Duration, Sample Rate, Bit Depth, Channels, Codec, File Size, SHA-256
+- [x] Show "—" for unavailable values (no estimation/inference)
+- [x] Add Bit Depth tooltip with exact specified text
+
+### 4) Integration with Home.tsx
+- [x] Call metadata extraction API on file upload
+- [x] Display metadata before verification starts
+- [x] Ensure metadata reflects pre-analysis state only

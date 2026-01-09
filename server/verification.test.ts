@@ -78,6 +78,20 @@ vi.mock("./storage", () => ({
   }),
 }));
 
+// Mock audioMetadata extraction (ffprobe)
+vi.mock("./audioMetadata", () => ({
+  extractAudioMetadata: vi.fn().mockResolvedValue({
+    filename: "test.mp3",
+    duration: 60.5,
+    sampleRate: 44100,
+    bitDepth: null,
+    channels: 2,
+    codec: "MP3",
+    fileSize: 1024,
+    sha256: "abc123def456789012345678901234567890123456789012345678901234",
+  }),
+}));
+
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 function createAuthContext(userId = 1, role: "user" | "admin" = "user"): TrpcContext {
@@ -241,7 +255,7 @@ describe("verification.delete", () => {
 });
 
 describe("verification.upload", () => {
-  it("uploads file and returns URL", async () => {
+  it("uploads file and returns URL with forensic metadata", async () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
@@ -257,6 +271,17 @@ describe("verification.upload", () => {
     expect(result).toHaveProperty("url");
     expect(result).toHaveProperty("fileKey");
     expect(result.url).toContain("storage.example.com");
+    
+    // Verify forensic metadata is returned
+    expect(result).toHaveProperty("metadata");
+    expect(result.metadata).toHaveProperty("filename");
+    expect(result.metadata).toHaveProperty("duration");
+    expect(result.metadata).toHaveProperty("sampleRate");
+    expect(result.metadata).toHaveProperty("bitDepth");
+    expect(result.metadata).toHaveProperty("channels");
+    expect(result.metadata).toHaveProperty("codec");
+    expect(result.metadata).toHaveProperty("fileSize");
+    expect(result.metadata).toHaveProperty("sha256");
   });
 });
 

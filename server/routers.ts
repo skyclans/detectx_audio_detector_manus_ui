@@ -14,6 +14,7 @@ import {
 import { storagePut } from "./storage";
 import { nanoid } from "nanoid";
 import { TRPCError } from "@trpc/server";
+import { extractAudioMetadata } from "./audioMetadata";
 
 // Timeline marker type for evidence-based markers only
 const TimelineMarkerSchema = z.object({
@@ -142,7 +143,7 @@ export const appRouter = router({
         return { success: true };
       }),
 
-    // Upload file endpoint
+    // Upload file endpoint with forensic metadata extraction
     upload: protectedProcedure
       .input(
         z.object({
@@ -155,9 +156,27 @@ export const appRouter = router({
         const fileBuffer = Buffer.from(input.fileData, "base64");
         const fileKey = `audio/${ctx.user.id}/${nanoid()}-${input.fileName}`;
 
+        // Extract forensic metadata using ffprobe (container-level inspection)
+        // This occurs BEFORE any analysis or normalization
+        const metadata = await extractAudioMetadata(fileBuffer, input.fileName);
+
         const { url } = await storagePut(fileKey, fileBuffer, input.contentType);
 
-        return { url, fileKey };
+        return {
+          url,
+          fileKey,
+          // Forensic intake record - immutable properties of original file
+          metadata: {
+            filename: metadata.filename,
+            duration: metadata.duration,
+            sampleRate: metadata.sampleRate,
+            bitDepth: metadata.bitDepth,
+            channels: metadata.channels,
+            codec: metadata.codec,
+            fileSize: metadata.fileSize,
+            sha256: metadata.sha256,
+          },
+        };
       }),
   }),
 });

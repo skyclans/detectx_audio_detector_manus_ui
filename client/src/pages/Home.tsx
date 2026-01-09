@@ -533,7 +533,11 @@ export default function Home() {
           isProcessing={isVerifying}
         />
         <ReportPreview
-          data={reportPreview}
+          verdict={verificationResult?.verdict ?? null}
+          crgStatus={verificationResult?.crgStatus ?? null}
+          primaryExceededAxis={verificationResult?.primaryExceededAxis ?? null}
+          fileName={metadata?.fileName ?? null}
+          fileHash={metadata?.fileHash ?? null}
           isProcessing={isVerifying}
         />
       </div>

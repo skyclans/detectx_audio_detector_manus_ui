@@ -1,3 +1,15 @@
+/**
+ * Export Panel Component
+ * 
+ * EXPORT FORMAT REQUIREMENTS (MANDATORY):
+ * - CSV/XLS headers must be horizontal (column-based)
+ * - One analysis = one row of metadata values
+ * - Timeline events may be appended as additional rows if needed
+ * - CSV must be encoded as UTF-8 with BOM
+ * - XLS/XLSX must preserve full Unicode support
+ * - Filenames in Korean, Japanese, Chinese, and all non-Latin scripts must not break
+ */
+
 import { Button } from "@/components/ui/button";
 import { FileJson, FileSpreadsheet, FileText, FileType } from "lucide-react";
 
@@ -22,7 +34,7 @@ interface ExportPanelProps {
   disabled?: boolean;
 }
 
-// ONLY allowed verdict texts
+// ONLY allowed verdict texts - NO probabilities, confidence scores, or AI model names
 const VERDICT_TEXTS = {
   observed: "AI signal evidence was observed.",
   not_observed: "AI signal evidence was not observed.",
@@ -36,7 +48,6 @@ function formatDuration(ms: number): string {
 }
 
 function generatePDFContent(data: ExportData): string {
-  // Generate HTML content for PDF
   const verdictText = data.verdict ? VERDICT_TEXTS[data.verdict] : "Pending";
 
   return `
@@ -131,27 +142,68 @@ function generateJSON(data: ExportData): string {
   return JSON.stringify(report, null, 2);
 }
 
+/**
+ * Generate CSV with horizontal headers (column-based)
+ * MANDATORY: UTF-8 with BOM encoding
+ * One analysis = one row of metadata values
+ */
 function generateCSV(data: ExportData): string {
-  const lines = [
-    "Field,Value",
-    `Filename,"${data.fileName}"`,
-    `File Size,${data.fileSize}`,
-    `Duration,${data.duration || ""}`,
-    `Sample Rate,${data.sampleRate || ""}`,
-    `Bit Depth,${data.bitDepth || ""}`,
-    `Channels,${data.channels || ""}`,
-    `Codec,"${data.codec || ""}"`,
-    `Hash,"${data.fileHash || ""}"`,
-    `Verdict,"${data.verdict ? VERDICT_TEXTS[data.verdict] : ""}"`,
-    `CR-G Status,"${data.crgStatus || ""}"`,
-    `Primary Exceeded Axis,"${data.primaryExceededAxis || ""}"`,
-    `Analysis Timestamp,"${data.analysisTimestamp}"`,
-    "",
-    "Timeline Events",
-    "Index,Type,Timestamp (ms)",
-    ...data.timelineMarkers.map((m, i) => `${i + 1},"${m.type}",${m.timestamp}`),
+  // Escape CSV values properly for Unicode support
+  const escapeCSV = (value: string | number | null | undefined): string => {
+    if (value === null || value === undefined) return "";
+    const str = String(value);
+    // Always quote strings that might contain special characters
+    if (str.includes(",") || str.includes('"') || str.includes("\n") || /[^\x00-\x7F]/.test(str)) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  // Horizontal headers (column-based)
+  const headers = [
+    "Filename",
+    "File Size (bytes)",
+    "Duration (ms)",
+    "Sample Rate (Hz)",
+    "Bit Depth",
+    "Channels",
+    "Codec",
+    "SHA-256 Hash",
+    "Verdict",
+    "CR-G Status",
+    "Primary Exceeded Axis",
+    "Analysis Timestamp",
   ];
-  return lines.join("\n");
+
+  // One row of metadata values
+  const values = [
+    escapeCSV(data.fileName),
+    data.fileSize,
+    data.duration || "",
+    data.sampleRate || "",
+    data.bitDepth || "",
+    data.channels || "",
+    escapeCSV(data.codec),
+    escapeCSV(data.fileHash),
+    escapeCSV(data.verdict ? VERDICT_TEXTS[data.verdict] : ""),
+    escapeCSV(data.crgStatus),
+    escapeCSV(data.primaryExceededAxis),
+    escapeCSV(data.analysisTimestamp),
+  ];
+
+  let csv = headers.join(",") + "\n" + values.join(",");
+
+  // Append timeline events as additional rows if present
+  if (data.timelineMarkers.length > 0) {
+    csv += "\n\n";
+    csv += "Timeline Events\n";
+    csv += "Index,Event Type,Timestamp (ms)\n";
+    data.timelineMarkers.forEach((marker, idx) => {
+      csv += `${idx + 1},${escapeCSV(marker.type)},${marker.timestamp}\n`;
+    });
+  }
+
+  return csv;
 }
 
 function generateMarkdown(data: ExportData): string {
@@ -205,8 +257,19 @@ ${data.timelineMarkers.map((m, i) => `| ${i + 1} | ${m.type} | ${formatDuration(
   return md;
 }
 
-function downloadFile(content: string, filename: string, mimeType: string) {
-  const blob = new Blob([content], { type: mimeType });
+/**
+ * Download file with proper encoding
+ * CSV uses UTF-8 with BOM for Excel compatibility
+ */
+function downloadFile(content: string, filename: string, mimeType: string, addBOM: boolean = false) {
+  let finalContent = content;
+  
+  // Add UTF-8 BOM for CSV files to ensure Excel opens with correct encoding
+  if (addBOM) {
+    finalContent = "\uFEFF" + content;
+  }
+  
+  const blob = new Blob([finalContent], { type: `${mimeType};charset=utf-8` });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -221,7 +284,6 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
   const handleExportPDF = () => {
     if (!data) return;
     const content = generatePDFContent(data);
-    // Open in new window for printing
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(content);
@@ -241,7 +303,8 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
     if (!data) return;
     const content = generateCSV(data);
     const baseName = data.fileName.replace(/\.[^/.]+$/, "");
-    downloadFile(content, `${baseName}_report.csv`, "text/csv");
+    // Add UTF-8 BOM for CSV to ensure proper encoding in Excel
+    downloadFile(content, `${baseName}_report.csv`, "text/csv", true);
   };
 
   const handleExportMarkdown = () => {

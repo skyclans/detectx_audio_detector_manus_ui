@@ -78,3 +78,35 @@
 - [x] Ensure all result panels remain idle until backend data received
 - [x] No demo, mock, or placeholder AI judgments
 - [x] Increase DetectX logo size to brand scale
+
+
+## Specification Implementation (Mandatory)
+
+### Waveform Interaction Fixes
+- [x] Clicking waveform seeks to corresponding timestamp
+- [x] Waveform click must NOT reset playback to 0:00
+- [x] Waveform bidirectionally linked to audio currentTime
+
+### Playback Control Fixes
+- [x] Pause preserves current playback position
+- [x] Play after pause resumes from paused position
+- [x] Playback resets only on explicit stop or file reload
+
+### Initial Load State (UX)
+- [x] Display neutral placeholder waveform before file upload
+- [x] Show skeleton placeholders for all analysis panels
+- [x] Clearly indicate "Awaiting verification data"
+- [x] No verdicts, events, or analysis results on initial load
+
+### Report Preview Panel
+- [x] Display current verdict text if available
+- [x] Show CR-G status and structural findings summary
+- [x] Clearly labeled as preview
+- [x] No probabilities, confidence scores, or AI attribution
+
+### Export Format Fixes
+- [x] CSV/XLS headers horizontal (column-based)
+- [x] One analysis = one row of metadata values
+- [x] CSV encoded as UTF-8 with BOM
+- [x] XLS/XLSX preserve full Unicode support
+- [x] Non-Latin script filenames must not break

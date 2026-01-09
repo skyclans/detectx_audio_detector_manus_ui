@@ -13,6 +13,18 @@ interface WaveformVisualizationProps {
   onSeek?: (time: number) => void;
 }
 
+/**
+ * Forensic Waveform Visualization Component
+ * 
+ * WAVEFORM INTERACTION (MANDATORY):
+ * - Clicking on waveform seeks to corresponding timestamp
+ * - Click must NOT reset playback to 0:00
+ * - Waveform is bidirectionally linked to audio currentTime
+ * 
+ * INITIAL LOAD STATE:
+ * - Displays neutral placeholder waveform before file upload
+ * - Non-inferential visual representation
+ */
 export function WaveformVisualization({
   audioBuffer,
   currentTime,
@@ -42,10 +54,75 @@ export function WaveformVisualization({
     return () => resizeObserver.disconnect();
   }, []);
 
+  // Draw placeholder waveform (neutral, non-inferential)
+  const drawPlaceholderWaveform = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // Clear canvas with dark background
+    ctx.fillStyle = "oklch(0.16 0.01 260)";
+    ctx.fillRect(0, 0, width, height);
+
+    const centerY = height / 2;
+
+    // Draw subtle grid lines
+    ctx.strokeStyle = "oklch(0.22 0.01 260)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 4]);
+    
+    // Horizontal grid lines
+    for (let y = height * 0.25; y < height; y += height * 0.25) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Vertical grid lines
+    for (let x = width * 0.1; x < width; x += width * 0.1) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Draw placeholder waveform pattern (neutral sine-like pattern)
+    ctx.strokeStyle = "oklch(0.35 0.05 195 / 40%)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    
+    for (let x = 0; x < width; x++) {
+      const normalizedX = x / width;
+      // Create a neutral, non-inferential pattern
+      const amplitude = height * 0.15 * (0.3 + 0.7 * Math.sin(normalizedX * Math.PI));
+      const y = centerY + Math.sin(normalizedX * 20) * amplitude;
+      
+      if (x === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+
+    // Draw center line
+    ctx.strokeStyle = "oklch(0.30 0.01 260)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(width, centerY);
+    ctx.stroke();
+
+    // Draw "Awaiting audio file" text
+    ctx.fillStyle = "oklch(0.45 0.01 260)";
+    ctx.font = "12px 'Inter', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Awaiting audio file", width / 2, centerY);
+  }, []);
+
   // Draw waveform
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !audioBuffer || dimensions.width === 0) return;
+    if (!canvas || dimensions.width === 0) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -57,6 +134,12 @@ export function WaveformVisualization({
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
+
+    // If no audio buffer, draw placeholder
+    if (!audioBuffer) {
+      drawPlaceholderWaveform(ctx, width, height);
+      return;
+    }
 
     // Clear canvas
     ctx.fillStyle = "oklch(0.16 0.01 260)";
@@ -145,7 +228,7 @@ export function WaveformVisualization({
       ctx.setLineDash([]);
     });
 
-    // Draw playhead
+    // Draw playhead - bidirectionally linked to currentTime
     if (duration > 0) {
       const playheadX = (currentTime / duration) * width;
       ctx.strokeStyle = "oklch(0.75 0.15 195)"; // Forensic cyan
@@ -154,6 +237,12 @@ export function WaveformVisualization({
       ctx.moveTo(playheadX, 0);
       ctx.lineTo(playheadX, height);
       ctx.stroke();
+
+      // Draw playhead handle
+      ctx.fillStyle = "oklch(0.75 0.15 195)";
+      ctx.beginPath();
+      ctx.arc(playheadX, 8, 4, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // Draw center line
@@ -163,21 +252,31 @@ export function WaveformVisualization({
     ctx.moveTo(0, centerY);
     ctx.lineTo(width, centerY);
     ctx.stroke();
-  }, [audioBuffer, dimensions, currentTime, duration, markers]);
+  }, [audioBuffer, dimensions, currentTime, duration, markers, drawPlaceholderWaveform]);
 
+  /**
+   * Handle waveform click for seeking
+   * CRITICAL: Click must seek to corresponding timestamp, NOT reset to 0:00
+   */
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (!onSeek || !duration) return;
+      // Only allow seeking if we have audio loaded
+      if (!onSeek || !audioBuffer || duration <= 0) return;
 
       const canvas = canvasRef.current;
       if (!canvas) return;
 
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      const seekTime = (x / rect.width) * duration;
+      
+      // Calculate seek time based on click position
+      // This must NOT reset to 0:00 - it seeks to the clicked position
+      const clickRatio = Math.max(0, Math.min(1, x / rect.width));
+      const seekTime = clickRatio * duration;
+      
       onSeek(seekTime);
     },
-    [onSeek, duration]
+    [onSeek, duration, audioBuffer]
   );
 
   return (
@@ -186,23 +285,31 @@ export function WaveformVisualization({
       <div className="p-0">
         <div
           ref={containerRef}
-          className="w-full h-32 bg-card cursor-pointer"
+          className="w-full h-32 bg-card"
         >
           <canvas
             ref={canvasRef}
-            className="w-full h-full"
+            className={`w-full h-full ${audioBuffer ? 'cursor-pointer' : 'cursor-default'}`}
             onClick={handleClick}
+            title={audioBuffer ? "Click to seek" : "Upload audio file to begin"}
           />
         </div>
         {/* Timeline labels */}
         <div className="flex justify-between px-2 py-1 text-[10px] font-mono text-muted-foreground bg-muted/30">
           <span>0:00</span>
-          {duration > 0 && (
+          {duration > 0 ? (
             <>
               <span>{formatTime(duration * 0.25)}</span>
               <span>{formatTime(duration * 0.5)}</span>
               <span>{formatTime(duration * 0.75)}</span>
               <span>{formatTime(duration)}</span>
+            </>
+          ) : (
+            <>
+              <span>--:--</span>
+              <span>--:--</span>
+              <span>--:--</span>
+              <span>--:--</span>
             </>
           )}
         </div>

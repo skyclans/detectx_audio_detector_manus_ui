@@ -522,3 +522,27 @@
 ### 7) Full Layout Component Integration
 - [ ] Create VerifyAudioPage layout component
 - [ ] Wire all stateless components to DetectXAudioState/Actions interfaces
+
+
+## Verification Result Execution Contract (LOCKED)
+
+### Absolute Constraints
+- [x] Do NOT infer, derive, reinterpret, normalize, or reason about any data
+- [x] Do NOT reimplement, refactor, simplify, or modify any DetectX-provided code
+- [x] Do NOT add helper logic, mapping logic, fallback logic, or convenience abstractions
+- [x] Use ONLY the code, types, and data structures explicitly provided by DetectX
+
+### Type Definition (DetectX-provided, DO NOT MODIFY)
+- [x] Apply DetectXVerdictText type: "AI signal evidence was observed." | "AI signal evidence was not observed."
+- [x] Apply DetectXVerificationResult interface with verdict, authority, exceeded_axes
+
+### Runtime Rules
+- [x] Render verdict text verbatim (no derivation)
+- [x] Display exceeded_axes as contextual information only
+- [x] Null result → "no result yet" state
+- [x] Processing → "inspecting structural signals" state
+- [x] LiveScanConsole and Verification Result must remain fully decoupled
+
+### Execution Testing
+- [x] Test with Observed sample data
+- [x] Test with Not Observed sample data

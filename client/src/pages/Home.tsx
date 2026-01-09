@@ -49,14 +49,21 @@ interface FileMetadata {
   fileSize: number;
 }
 
-interface VerdictResult {
-  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+/**
+ * DetectX Verification Result Contract (LOCKED - DO NOT MODIFY)
+ */
+type DetectXVerdictText =
+  | "AI signal evidence was observed."
+  | "AI signal evidence was not observed.";
+
+interface DetectXVerificationResult {
+  verdict: DetectXVerdictText;
   authority: "CR-G";
   exceeded_axes: string[];
 }
 
 interface VerificationResult {
-  verdict: VerdictResult | null;
+  verdict: DetectXVerificationResult | null;
   crgStatus: string | null;
   primaryExceededAxis: string | null;
   timelineMarkers: { timestamp: number; type: string }[];

@@ -1,34 +1,46 @@
+import React from "react";
+
 /**
- * VerdictPanel - Stateless Presentation Component
+ * VerdictPanel - Forensic Evidence Viewer
  * 
- * INTEGRATION RULES (MANDATORY):
- * - Must display the provided verdict text verbatim
- * - No verdict derivation or interpretation
- * - Accept verdict object from props only
- * - All verdict authority provided externally by DetectX
+ * ABSOLUTE CONSTRAINTS (MUST BE FOLLOWED):
+ * 1) Do NOT infer, derive, reinterpret, normalize, or reason about any data.
+ * 2) Do NOT reimplement, refactor, simplify, or modify any DetectX-provided code.
+ * 3) Do NOT add helper logic, mapping logic, fallback logic, or convenience abstractions.
+ * 4) Use ONLY the code, types, and data structures explicitly provided by DetectX, exactly as-is.
+ * 5) Any deviation from DetectX-provided code or contracts is prohibited.
  * 
- * ALLOWED VERDICT TEXTS (ONLY TWO):
- * - "AI signal evidence was observed."
- * - "AI signal evidence was not observed."
+ * RUNTIME RULES:
+ * - The verdict value is already finalized by DetectX.
+ * - The UI must render the verdict text verbatim.
+ * - The UI must not derive verdicts from exceeded_axes or any other fields.
+ * - The UI must not compute probabilities, scores, confidence levels, or classifications.
+ * - The UI must not implement or simulate CR-G logic, thresholds, or decision rules.
+ * - exceeded_axes may be displayed only as contextual information and must not affect behavior.
  * 
- * NO probability, NO confidence, NO severity, NO AI model attribution.
- * This is a forensic evidence viewer, not an AI classifier.
+ * This UI is a forensic evidence viewer only.
+ * It must not explain, analyze, justify, or reason about the verdict.
+ * It must only display the provided result.
  */
 
 import { cn } from "@/lib/utils";
 
 /**
- * Verdict result interface (matches DetectXAudioState.verdict)
+ * DetectX Verification Result Contract (LOCKED - DO NOT MODIFY)
  */
-interface VerdictResult {
-  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+type DetectXVerdictText =
+  | "AI signal evidence was observed."
+  | "AI signal evidence was not observed.";
+
+interface DetectXVerificationResult {
+  verdict: DetectXVerdictText;
   authority: "CR-G";
   exceeded_axes: string[];
 }
 
 interface VerdictPanelProps {
-  /** Verdict result from CR-G analysis (injected) */
-  verdict: VerdictResult | null;
+  /** DetectX verification result - render verbatim */
+  verdict: DetectXVerificationResult | null;
   /** Whether verification is in progress */
   isProcessing?: boolean;
 }
@@ -36,15 +48,14 @@ interface VerdictPanelProps {
 /**
  * VerdictPanel Component
  * 
- * Stateless presentation component that displays verdict results.
- * No verdict derivation, interpretation, or calculation.
- * All verdict authority is provided externally by DetectX.
+ * Displays DetectX verification result verbatim.
+ * No derivation, interpretation, or calculation.
  */
 export function VerdictPanel({
   verdict,
   isProcessing = false,
 }: VerdictPanelProps) {
-  // Processing state
+  // Processing state - neutral "inspecting structural signals" state
   if (isProcessing) {
     return (
       <div className="forensic-panel">
@@ -61,8 +72,8 @@ export function VerdictPanel({
     );
   }
 
-  // No verdict yet
-  if (!verdict || !verdict.verdict) {
+  // Null result - neutral "no result yet" state
+  if (!verdict) {
     return (
       <div className="forensic-panel">
         <div className="forensic-panel-header">Verification Result</div>
@@ -75,14 +86,14 @@ export function VerdictPanel({
     );
   }
 
-  // Determine display style based on verdict text
+  // Display style based on verdict text (visual only, does not affect behavior)
   const isObserved = verdict.verdict === "AI signal evidence was observed.";
 
   return (
     <div className="forensic-panel">
       <div className="forensic-panel-header">Verification Result</div>
       <div className="forensic-panel-content space-y-6">
-        {/* Main verdict - displayed verbatim from props */}
+        {/* Main verdict - rendered verbatim from DetectX */}
         <div
           className={cn(
             "p-4 rounded-md border-l-4",
@@ -101,7 +112,7 @@ export function VerdictPanel({
           </p>
         </div>
 
-        {/* CR-G Status information - structural data only */}
+        {/* Authority - displayed verbatim */}
         <div className="space-y-3">
           <div className="flex justify-between items-center py-2 border-b border-border/50">
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -112,6 +123,7 @@ export function VerdictPanel({
             </span>
           </div>
 
+          {/* Exceeded axes - contextual information only, does not affect behavior */}
           {verdict.exceeded_axes.length > 0 && (
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-xs text-muted-foreground uppercase tracking-wider">

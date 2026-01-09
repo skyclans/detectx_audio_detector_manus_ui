@@ -577,3 +577,57 @@
 ### Authority
 - [x] DetectX server is sole authority for processing and results
 - [x] Manus acts only as UI layer and request forwarder
+
+
+## DetectX Audio Analysis UI Copy (FINAL / LOCKED)
+
+### 1) Timeline Analysis
+- [ ] Header: "Timeline Analysis"
+- [ ] Subheader: "Detected structural events along the audio timeline"
+- [ ] Row Labels: Time, Event Type, Axis, Note
+- [ ] Event Types: Structural Event, Signal Anomaly, Pattern Break, Spectral Shift
+- [ ] Tooltip: "Timeline markers indicate points of interest detected by the verification engine. They do not represent conclusions or judgments."
+- [ ] Empty State: "No timeline events detected" / "No structural events were reported for this audio."
+
+### 2) Detailed Analysis
+- [ ] Header: "Detailed Analysis"
+- [ ] Subheader: "Axis-level geometry metrics reported by the verification engine"
+- [ ] Axis Cards: G1-A (Residual Trajectory Curvature), G1-B (Residual Persistence Length), G2-A (Cross-Stem Coupling), G2-B (Residual Symmetry), G3-A (Band Geometry)
+- [ ] G1-A note: "Observational axis (does not influence verdict)"
+- [ ] Status Labels: "Status: Exceeded" / "Status: Within bounds"
+- [ ] Empty Axis State: "No data available for this axis"
+
+### 3) Temporal Analysis
+- [ ] Header: "Temporal Analysis"
+- [ ] Subheader: "Time-structured geometry series (if provided by the server)"
+- [ ] Empty State: "No temporal series available" / "This analysis requires time-series data which was not provided for this scan."
+- [ ] Tooltip: "Temporal analysis is displayed only when time-series geometry data is explicitly provided by the server."
+
+### 4) Source Components
+- [ ] Header: "Source Components"
+- [ ] Subheader: "Analytical stem components derived during verification"
+- [ ] Column Labels: Component, Level, Download
+- [ ] Component States: Available / Not available
+- [ ] Volume Tooltip: "Adjusts playback level for inspection only. Does not affect analysis or verdict."
+- [ ] Download Tooltip: "Downloads the analytical stem component provided by the server."
+- [ ] Empty State: "No source components available" / "Stem components were not provided for this verification."
+
+### 5) Geometry Scan Trace
+- [ ] Header: "Geometry Scan Trace"
+- [ ] Subheader: "Execution trace of geometry checks performed by the verification engine"
+- [ ] Row Labels: Axis, Exceeded, Metrics
+- [ ] Exceeded Display: Yes / No
+- [ ] Expand Label: "View metrics" / "Hide metrics"
+- [ ] Fixed Disclaimer: "This trace is display-only. No analysis or interpretation is performed in the UI."
+- [ ] Empty State: "No geometry trace available" / "No geometry trace data was returned for this scan."
+
+### 6) Global Empty/Waiting States
+- [ ] Before Verification: "Awaiting verification" / "Upload an audio file and start verification to view results."
+- [ ] During Verification: "Inspecting structural signals…" / "Verification is in progress."
+
+### 7) Global UX Notes
+- [ ] All timestamps use MM:SS.mmm
+- [ ] All numeric values are monospaced
+- [ ] No percentages, confidence scores, or severity indicators
+- [ ] No narrative conclusions or summaries
+- [ ] Clicking timeline items must seek audio playback

@@ -1,105 +1,199 @@
 /**
  * Timeline Analysis Section
  * 
- * Displays temporal signal analysis data from backend.
- * This component remains IDLE until backend data is received.
- * NO mock data, NO simulated results, NO placeholder judgments.
+ * UI displays data only. No interpretation.
+ * All text is verbatim from DetectX specification.
  */
 
-interface TimelineAnalysisData {
-  segments: {
-    startTime: number;
-    endTime: number;
-    label: string;
-  }[];
-  totalDuration: number;
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// Event types (fixed mapping from specification)
+type EventType = "Structural Event" | "Signal Anomaly" | "Pattern Break" | "Spectral Shift";
+
+interface TimelineEvent {
+  time: number; // milliseconds
+  eventType: EventType;
+  axis: string;
+  note?: string;
 }
 
 interface TimelineAnalysisProps {
-  data: TimelineAnalysisData | null;
+  events: TimelineEvent[] | null;
   isProcessing?: boolean;
+  onSeek?: (time: number) => void;
 }
 
+// Format time as MM:SS.mmm (specification requirement)
 function formatTime(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+  const millis = ms % 1000;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}.${millis.toString().padStart(3, "0")}`;
 }
 
-export function TimelineAnalysis({ data, isProcessing = false }: TimelineAnalysisProps) {
+export function TimelineAnalysis({ events, isProcessing = false, onSeek }: TimelineAnalysisProps) {
+  // During Verification state
   if (isProcessing) {
     return (
       <div className="forensic-panel">
-        <div className="forensic-panel-header">Timeline Analysis</div>
+        <div className="forensic-panel-header flex items-center justify-between">
+          <span>Timeline Analysis</span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">
+                  Timeline markers indicate points of interest detected by the verification engine.
+                  They do not represent conclusions or judgments.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Detected structural events along the audio timeline
+        </p>
         <div className="forensic-panel-content">
           <div className="flex flex-col items-center justify-center py-6">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-xs text-muted-foreground">Analyzing timeline structure...</p>
+            <p className="text-sm text-muted-foreground">Inspecting structural signals…</p>
+            <p className="text-xs text-muted-foreground mt-1">Verification is in progress.</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // IDLE state - waiting for backend data
-  if (!data) {
+  // Before Verification / Empty state
+  if (!events) {
     return (
       <div className="forensic-panel">
-        <div className="forensic-panel-header">Timeline Analysis</div>
+        <div className="forensic-panel-header flex items-center justify-between">
+          <span>Timeline Analysis</span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">
+                  Timeline markers indicate points of interest detected by the verification engine.
+                  They do not represent conclusions or judgments.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Detected structural events along the audio timeline
+        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-6">
-            Awaiting verification data
+            Awaiting verification
+          </p>
+          <p className="text-xs text-muted-foreground text-center">
+            Upload an audio file and start verification to view results.
           </p>
         </div>
       </div>
     );
   }
 
+  // Empty events state (no markers)
+  if (events.length === 0) {
+    return (
+      <div className="forensic-panel">
+        <div className="forensic-panel-header flex items-center justify-between">
+          <span>Timeline Analysis</span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">
+                  Timeline markers indicate points of interest detected by the verification engine.
+                  They do not represent conclusions or judgments.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Detected structural events along the audio timeline
+        </p>
+        <div className="forensic-panel-content">
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No timeline events detected
+          </p>
+          <p className="text-xs text-muted-foreground text-center">
+            No structural events were reported for this audio.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Data available state
   return (
     <div className="forensic-panel">
-      <div className="forensic-panel-header">Timeline Analysis</div>
-      <div className="forensic-panel-content space-y-4">
-        {/* Timeline visualization */}
-        <div className="relative h-6 bg-muted/30 rounded overflow-hidden">
-          {data.segments.map((segment, idx) => {
-            const startPercent = (segment.startTime / data.totalDuration) * 100;
-            const widthPercent = ((segment.endTime - segment.startTime) / data.totalDuration) * 100;
-            return (
-              <div
-                key={idx}
-                className="absolute top-0 bottom-0 bg-forensic-cyan/30 border-l border-r border-forensic-cyan/50"
-                style={{
-                  left: `${startPercent}%`,
-                  width: `${widthPercent}%`,
-                }}
-                title={`${segment.label}: ${formatTime(segment.startTime)} - ${formatTime(segment.endTime)}`}
-              />
-            );
-          })}
+      <div className="forensic-panel-header flex items-center justify-between">
+        <span>Timeline Analysis</span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs max-w-xs">
+                Timeline markers indicate points of interest detected by the verification engine.
+                They do not represent conclusions or judgments.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">
+        Detected structural events along the audio timeline
+      </p>
+      <div className="forensic-panel-content">
+        {/* Table header */}
+        <div className="grid grid-cols-4 gap-2 text-xs font-medium text-muted-foreground border-b border-border pb-2 mb-2">
+          <span>Time</span>
+          <span>Event Type</span>
+          <span>Axis</span>
+          <span>Note</span>
         </div>
 
-        {/* Segment list */}
-        <div className="space-y-1 max-h-32 overflow-y-auto">
-          {data.segments.map((segment, idx) => (
+        {/* Event rows */}
+        <div className="space-y-1 max-h-40 overflow-y-auto">
+          {events.map((event, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between text-xs py-1.5 px-2 bg-muted/20 rounded"
+              className="grid grid-cols-4 gap-2 text-xs py-1.5 px-1 bg-muted/20 rounded cursor-pointer hover:bg-muted/40 transition-colors"
+              onClick={() => onSeek?.(event.time)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && onSeek?.(event.time)}
             >
-              <span className="text-foreground">{segment.label}</span>
-              <span className="font-mono text-muted-foreground">
-                {formatTime(segment.startTime)} — {formatTime(segment.endTime)}
-              </span>
+              <span className="font-mono text-forensic-cyan">{formatTime(event.time)}</span>
+              <span className="text-foreground">{event.eventType}</span>
+              <span className="text-muted-foreground">{event.axis}</span>
+              <span className="text-muted-foreground truncate">{event.note || "—"}</span>
             </div>
           ))}
         </div>
-
-        {data.segments.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center">
-            No timeline segments identified
-          </p>
-        )}
       </div>
     </div>
   );
 }
+
+export type { TimelineEvent, EventType };

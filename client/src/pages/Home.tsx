@@ -409,7 +409,7 @@ export default function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="flex flex-col gap-6">
           <TimelineAnalysis 
-            data={null}
+            events={null}
             isProcessing={isVerifying}
           />
           <TemporalAnalysis 
@@ -419,15 +419,18 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-6">
           <DetailedAnalysis 
-            data={null}
+            axes={null}
             isProcessing={isVerifying}
           />
         </div>
         <div className="flex flex-col gap-6">
-          <SourceComponents 
-            data={null}
-            isProcessing={isVerifying}
-          />
+<SourceComponents 
+              data={null}
+              isProcessing={isVerifying}
+              stemVolumes={{}}
+              onVolumeChange={(stemId, volume) => console.log(`Volume change: ${stemId} = ${volume}`)}
+              onDownload={(stemId) => console.log(`Download: ${stemId}`)}
+            />
         </div>
       </div>
 

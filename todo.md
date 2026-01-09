@@ -148,3 +148,35 @@
 ### F) Design Constraints (Locked)
 - [x] Preserve existing colors, card styles, buttons, typography
 - [x] Keep DetectX evidence-only rules
+
+
+## Specification Fixes (pasted_content_4.txt)
+
+### 1) Live Scan Console Position & Width
+- [x] Move Live Scan Console directly BELOW waveform visualization
+- [x] Console must have EXACTLY same width as waveform container
+- [x] Treat waveform + console as single continuous analysis block
+
+### 2) Waveform Failure with Special Characters (Critical Bug)
+- [x] Fix waveform not rendering for filenames like "__01 Ballad Pour Adeline.wav"
+- [x] Waveform rendering must NEVER depend on filename content
+- [x] Filenames must NOT be used as DOM IDs, CSS selectors, JS keys, Canvas/SVG identifiers
+- [x] Generate safe internal session ID (UUID) for all waveform/audio bindings
+- [x] Treat filename strictly as display-only Unicode text
+### 3) Japanese & Global Language Support (I18N)
+- [x] Japanese filenames must correctly trigger waveform rendering
+- [x] Support all languages: Japanese, Korean, Chinese, Arabic, Cyrillic, accented Latin
+- [x] Full Unicode support across entire UI
+- [x] Use internal IDs for logic, Unicode only for display
+
+### 4) Volume Control Responsiveness (Final Fix)
+- [x] Volume UI must update immediately on pointer down/move (0ms)
+- [x] Update volume UI state synchronously on every interaction event
+- [x] Apply audio.volume updates using requestAnimationFrame
+- [x] Do NOT debounce volume updates
+- [x] Volume control must feel as responsive as hardware audio knob
+
+### Design Constraints (Locked)
+- [x] Preserve existing UI design, colors, typography, button styles
+- [x] No animations implying processing or intelligence
+- [x] Maintain DetectX forensic rules (no probabilities, confidence, severity, AI attribution)

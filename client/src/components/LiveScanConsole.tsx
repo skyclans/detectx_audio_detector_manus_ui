@@ -3,8 +3,9 @@
  * 
  * REQUIREMENTS (MANDATORY):
  * - Visible as part of the workflow (not removed)
- * - Placed directly ABOVE Geometry & Timeline Context section
- * - Appears after user clicks VERIFY AUDIO or begins verification
+ * - Placed directly BELOW waveform visualization
+ * - Must have EXACTLY same width as waveform container
+ * - Treat waveform + console as single continuous analysis block
  * - Console log must be append-only and auto-scroll to newest line
  * - While idle: show "Waiting for VERIFY AUDIO…"
  * - Must NOT claim verdict unless from backend
@@ -59,7 +60,7 @@ export function LiveScanConsole({
   };
 
   return (
-    <div className="forensic-panel">
+    <div className="forensic-panel w-full mt-0">
       <div className="forensic-panel-header flex items-center gap-2">
         <Terminal className="w-4 h-4" />
         <span>Live Scan Console</span>

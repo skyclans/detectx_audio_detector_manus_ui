@@ -17,6 +17,13 @@ interface WaveformVisualizationProps {
 /**
  * Forensic Waveform Visualization Component
  * 
+ * FILENAME INDEPENDENCE (CRITICAL - MANDATORY):
+ * - Waveform rendering must NEVER depend on filename content
+ * - Filenames must NOT be used as DOM IDs, CSS selectors, JS keys, Canvas/SVG identifiers
+ * - All bindings use AudioBuffer reference directly (no filename parsing)
+ * - Supports ALL Unicode filenames: Japanese, Korean, Chinese, Arabic, Cyrillic, etc.
+ * - Filenames with special characters ("__01", symbols, numbers) work correctly
+ * 
  * WAVEFORM INTERACTION (CRITICAL - MANDATORY):
  * - Clicking on waveform ALWAYS seeks to the clicked timestamp
  * - Click must NEVER reset playback to 0:00

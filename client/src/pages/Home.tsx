@@ -144,6 +144,17 @@ export default function Home() {
   const startTimeRef = useRef<number>(0);
   const pauseTimeRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
+  
+  /**
+   * Internal session ID for audio/waveform bindings
+   * CRITICAL: Filenames must NEVER be used as:
+   * - DOM element IDs
+   * - CSS selectors
+   * - JavaScript keys
+   * - Canvas/SVG identifiers
+   * Use this safe internal ID instead.
+   */
+  const sessionIdRef = useRef<string>(crypto.randomUUID());
 
   // tRPC mutations
   const uploadMutation = trpc.verification.upload.useMutation();
@@ -156,6 +167,10 @@ export default function Home() {
 
   // Handle file selection
   const handleFileSelect = useCallback(async (fileInfo: AudioFileInfo) => {
+    // Generate new session ID for this file
+    // This ensures waveform rendering never depends on filename content
+    sessionIdRef.current = crypto.randomUUID();
+    
     // Reset all state
     stopPlayback();
     setVerificationResult(null);
@@ -572,7 +587,7 @@ export default function Home() {
           <MetadataPanel metadata={metadata} />
         </div>
 
-        {/* Center column - Waveform and Player */}
+        {/* Center column - Waveform, Player, and Live Scan Console as single analysis block */}
         <div className="lg:col-span-2 space-y-0">
           <WaveformVisualization
             audioBuffer={audioBuffer}
@@ -593,6 +608,12 @@ export default function Home() {
             onSeekForward={seekForward}
             onVolumeChange={handleVolumeChange}
             disabled={!audioBuffer}
+          />
+          {/* Live Scan Console - directly BELOW waveform with SAME width */}
+          <LiveScanConsole
+            isVerifying={isVerifying}
+            isComplete={scanComplete}
+            logs={scanLogs}
           />
         </div>
       </div>
@@ -627,15 +648,6 @@ export default function Home() {
         <SourceComponents
           data={sourceComponents}
           isProcessing={isVerifying}
-        />
-      </div>
-
-      {/* Live Scan Console - placed ABOVE Geometry & Timeline Context */}
-      <div className="mt-6">
-        <LiveScanConsole
-          isVerifying={isVerifying}
-          isComplete={scanComplete}
-          logs={scanLogs}
         />
       </div>
 

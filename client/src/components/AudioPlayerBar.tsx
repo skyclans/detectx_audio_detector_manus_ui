@@ -10,7 +10,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 
 interface AudioPlayerBarProps {
   isPlaying: boolean;
@@ -34,6 +34,14 @@ function formatTime(seconds: number): string {
 
 /**
  * Forensic Audio Player Control Bar
+ * 
+ * VOLUME CONTROL RESPONSIVENESS (CRITICAL - MANDATORY):
+ * - Volume UI must update immediately on pointer down/move (perceptual 0ms)
+ * - Update volume UI state synchronously on every interaction event
+ * - Apply audio.volume updates using requestAnimationFrame
+ * - Do NOT debounce volume updates
+ * - Do NOT wait for audio playback state or processing to update UI
+ * - Volume control must feel as responsive as a hardware audio knob
  * 
  * Design principles:
  * - Immediate visual feedback (0ms delay) for all button interactions
@@ -59,7 +67,16 @@ export function AudioPlayerBar({
   // Local UI state for immediate visual feedback
   const [activeButton, setActiveButton] = useState<string | null>(null);
   const [localVolume, setLocalVolume] = useState(volume);
-  const volumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const pendingVolumeRef = useRef<number | null>(null);
+
+  // Sync local volume when prop changes from parent
+  useEffect(() => {
+    // Only sync if not actively dragging
+    if (pendingVolumeRef.current === null) {
+      setLocalVolume(volume);
+    }
+  }, [volume]);
 
   // Immediate visual feedback handlers
   const handleButtonPress = useCallback((buttonId: string) => {
@@ -116,20 +133,49 @@ export function AudioPlayerBar({
     });
   }, [onSeekForward, handleButtonPress, handleButtonRelease]);
 
-  // Volume with immediate UI update, debounced audio update
+  /**
+   * Volume control with IMMEDIATE UI update
+   * 
+   * CRITICAL: No debouncing - UI must update synchronously
+   * Audio volume is applied via requestAnimationFrame for smooth updates
+   * without blocking UI responsiveness
+   */
   const handleVolumeChange = useCallback(
     (value: number[]) => {
       const newVolume = value[0] / 100;
-      // Immediate UI update
+      
+      // IMMEDIATE UI update - synchronous, no delay
       setLocalVolume(newVolume);
-
-      // Debounced audio update
-      if (volumeTimeoutRef.current) {
-        clearTimeout(volumeTimeoutRef.current);
+      
+      // Store pending volume for RAF
+      pendingVolumeRef.current = newVolume;
+      
+      // Apply audio volume via requestAnimationFrame
+      // This ensures smooth updates without blocking UI
+      if (rafRef.current === null) {
+        rafRef.current = requestAnimationFrame(() => {
+          if (pendingVolumeRef.current !== null) {
+            onVolumeChange(pendingVolumeRef.current);
+            pendingVolumeRef.current = null;
+          }
+          rafRef.current = null;
+        });
       }
-      volumeTimeoutRef.current = setTimeout(() => {
-        onVolumeChange(newVolume);
-      }, 16); // ~1 frame delay for audio
+    },
+    [onVolumeChange]
+  );
+
+  /**
+   * Handle volume change complete (pointer up)
+   * Ensures final volume value is applied
+   */
+  const handleVolumeCommit = useCallback(
+    (value: number[]) => {
+      const newVolume = value[0] / 100;
+      setLocalVolume(newVolume);
+      // Apply immediately on commit
+      onVolumeChange(newVolume);
+      pendingVolumeRef.current = null;
     },
     [onVolumeChange]
   );
@@ -141,10 +187,14 @@ export function AudioPlayerBar({
     onVolumeChange(newVolume);
   }, [localVolume, onVolumeChange]);
 
-  // Sync local volume when prop changes (e.g., from parent)
-  if (Math.abs(localVolume - volume) > 0.01 && activeButton !== "volume") {
-    setLocalVolume(volume);
-  }
+  // Cleanup RAF on unmount
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
 
   // Button active state class
   const getButtonClass = (buttonId: string) =>
@@ -238,7 +288,7 @@ export function AudioPlayerBar({
             </span>
           </div>
 
-          {/* Volume - immediate UI feedback */}
+          {/* Volume - IMMEDIATE UI feedback, no debounce */}
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -259,6 +309,7 @@ export function AudioPlayerBar({
               step={1}
               className="w-20"
               onValueChange={handleVolumeChange}
+              onValueCommit={handleVolumeCommit}
               disabled={disabled}
             />
             <span className="text-xs font-mono text-muted-foreground w-8 tabular-nums">

@@ -1,11 +1,10 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, audioVerifications, InsertAudioVerification, AudioVerification } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -89,4 +88,49 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Audio Verification Queries
+
+export async function createVerification(data: InsertAudioVerification): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(audioVerifications).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getVerificationById(id: number): Promise<AudioVerification | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(audioVerifications).where(eq(audioVerifications.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getVerificationsByUserId(userId: number, limit = 50): Promise<AudioVerification[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(audioVerifications)
+    .where(eq(audioVerifications.userId, userId))
+    .orderBy(desc(audioVerifications.createdAt))
+    .limit(limit);
+}
+
+export async function updateVerification(
+  id: number,
+  data: Partial<Omit<AudioVerification, "id" | "createdAt" | "updatedAt">>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(audioVerifications).set(data).where(eq(audioVerifications.id, id));
+}
+
+export async function deleteVerification(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(audioVerifications).where(eq(audioVerifications.id, id));
+}

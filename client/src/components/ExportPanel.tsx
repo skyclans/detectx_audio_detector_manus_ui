@@ -391,7 +391,7 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
           disabled={isDisabled}
         >
           <Download className="w-4 h-4 mr-2" />
-          Download All (ZIP)
+          Download All & Stems (ZIP)
         </Button>
 
         <div className="grid grid-cols-2 gap-3">

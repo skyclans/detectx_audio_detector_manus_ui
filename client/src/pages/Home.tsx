@@ -825,10 +825,11 @@ export default function Home() {
       </div>
 
       {/* Extended analysis sections - MANDATORY */}
-      {/* Source Components and Detailed Analysis aligned at bottom edge */}
+      {/* Consistent spacing rhythm: all sections use same gap-6 (24px) */}
+      {/* Detailed Analysis and Source Components aligned at bottom edge */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        {/* Left column - Timeline and Temporal Analysis */}
-        <div className="space-y-6">
+        {/* Left column - Timeline, Temporal, and Detailed Analysis */}
+        <div className="flex flex-col gap-6">
           <TimelineAnalysis
             data={timelineAnalysis}
             isProcessing={isVerifying}
@@ -837,27 +838,19 @@ export default function Home() {
             data={temporalAnalysis}
             isProcessing={isVerifying}
           />
-        </div>
-
-        {/* Right column (2 cols) - Source Components */}
-        <div className="lg:col-span-2">
-          <SourceComponents
-            data={sourceComponents}
-            isProcessing={isVerifying}
-          />
-        </div>
-      </div>
-
-      {/* Detailed Analysis - full width row for visual balance */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div>
           <DetailedAnalysis
             data={detailedAnalysis}
             isProcessing={isVerifying}
           />
         </div>
-        <div className="lg:col-span-2">
-          {/* Empty space to maintain grid alignment */}
+
+        {/* Right column (2 cols) - Source Components */}
+        {/* flex-col with justify-end ensures bottom edge alignment with Detailed Analysis */}
+        <div className="lg:col-span-2 flex flex-col justify-end">
+          <SourceComponents
+            data={sourceComponents}
+            isProcessing={isVerifying}
+          />
         </div>
       </div>
 

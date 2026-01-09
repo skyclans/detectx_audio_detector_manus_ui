@@ -2,17 +2,21 @@
  * Source Components Section
  * 
  * v1.0 FINAL:
- * - Stem controls with Solo (S) and Mute (M) buttons
  * - Volume slider per stem
+ * - Download button per stem
  * - Horizontal amplitude waveform visualization
  * - UI-only layout for future backend integration
+ * 
+ * REMOVED (per final spec):
+ * - Solo (S) button
+ * - Mute (M) button
  * 
  * NO mock data, NO simulated results, NO placeholder judgments.
  * NO AI model names, NO probability, NO confidence scores.
  */
 
 import { useState, useCallback, useMemo } from "react";
-import { Play, Pause, Volume2 } from "lucide-react";
+import { Play, Pause, Volume2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
@@ -60,46 +64,41 @@ function generateStemWaveform(stemId: string, pointCount: number = 100): number[
 
 interface StemState {
   isPlaying: boolean;
-  isSolo: boolean;
-  isMuted: boolean;
   volume: number;
 }
 
 /**
  * Stem Control Component (UI-Only)
  * 
- * v1.0 FINAL:
+ * v1.0 FINAL (Simplified):
  * - Play/Pause button
- * - Solo (S) button - exclusive playback
- * - Mute (M) button - silence this stem
  * - Volume slider
+ * - Download button
  * - Horizontal amplitude waveform
+ * 
+ * REMOVED: Solo (S) and Mute (M) buttons
  */
 function StemControl({ 
   stem, 
   state,
   onTogglePlay,
-  onToggleSolo,
-  onToggleMute,
   onVolumeChange,
+  onDownload,
   waveformData,
 }: { 
   stem: typeof STEMS[number]; 
   state: StemState;
   onTogglePlay: () => void;
-  onToggleSolo: () => void;
-  onToggleMute: () => void;
   onVolumeChange: (value: number) => void;
+  onDownload: () => void;
   waveformData: number[];
 }) {
-  const { isPlaying, isSolo, isMuted, volume } = state;
-  const isActive = isPlaying && !isMuted;
+  const { isPlaying, volume } = state;
 
   return (
     <div className={cn(
       "flex items-center gap-2 py-2 px-3 bg-muted/10 rounded border border-border/20",
-      "shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]",
-      isMuted && "opacity-50"
+      "shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]"
     )}>
       {/* Play/Pause button */}
       <button
@@ -116,36 +115,6 @@ function StemControl({
         ) : (
           <Play className="w-3 h-3 text-foreground ml-0.5" />
         )}
-      </button>
-      
-      {/* Solo button */}
-      <button
-        onClick={onToggleSolo}
-        className={cn(
-          "w-6 h-6 rounded text-[10px] font-bold flex items-center justify-center transition-all duration-0",
-          "border",
-          isSolo 
-            ? "bg-forensic-amber text-black border-forensic-amber" 
-            : "bg-muted/20 text-muted-foreground border-border/30 hover:bg-muted/40"
-        )}
-        title={isSolo ? "Unsolo" : "Solo"}
-      >
-        S
-      </button>
-      
-      {/* Mute button */}
-      <button
-        onClick={onToggleMute}
-        className={cn(
-          "w-6 h-6 rounded text-[10px] font-bold flex items-center justify-center transition-all duration-0",
-          "border",
-          isMuted 
-            ? "bg-red-500 text-white border-red-500" 
-            : "bg-muted/20 text-muted-foreground border-border/30 hover:bg-muted/40"
-        )}
-        title={isMuted ? "Unmute" : "Mute"}
-      >
-        M
       </button>
       
       {/* Stem name */}
@@ -169,13 +138,13 @@ function StemControl({
               const width = 100;
               const points = waveformData.map((amp, i) => {
                 const x = (i / (waveformData.length - 1)) * width;
-                const y = height - (amp * height * 0.85 * (isMuted ? 0.3 : 1));
+                const y = height - (amp * height * 0.85);
                 return `${x},${y}`;
               });
               return `M0,${height} L${points.join(' L')} L${width},${height} Z`;
             })()}
             fill={`var(--${stem.color})`}
-            fillOpacity={isActive ? 0.6 : 0.3}
+            fillOpacity={isPlaying ? 0.6 : 0.3}
             className="transition-opacity duration-100"
           />
           {/* Lower half waveform (mirrored) */}
@@ -185,13 +154,13 @@ function StemControl({
               const width = 100;
               const points = waveformData.map((amp, i) => {
                 const x = (i / (waveformData.length - 1)) * width;
-                const y = height + (amp * height * 0.85 * (isMuted ? 0.3 : 1));
+                const y = height + (amp * height * 0.85);
                 return `${x},${y}`;
               });
               return `M0,${height} L${points.join(' L')} L${width},${height} Z`;
             })()}
             fill={`var(--${stem.color})`}
-            fillOpacity={isActive ? 0.6 : 0.3}
+            fillOpacity={isPlaying ? 0.6 : 0.3}
             className="transition-opacity duration-100"
           />
           {/* Center line */}
@@ -209,7 +178,7 @@ function StemControl({
       </div>
       
       {/* Volume slider */}
-      <div className="flex items-center gap-1.5 w-24">
+      <div className="flex items-center gap-1.5 w-20">
         <Volume2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
         <Slider
           value={[volume]}
@@ -218,20 +187,32 @@ function StemControl({
           step={1}
           onValueChange={([v]) => onVolumeChange(v)}
           className="flex-1"
-          disabled={isMuted}
         />
       </div>
+      
+      {/* Download button */}
+      <button
+        onClick={onDownload}
+        className={cn(
+          "w-7 h-7 rounded flex items-center justify-center transition-all duration-0",
+          "bg-muted/30 hover:bg-muted/50 border border-border/30",
+          "hover:border-forensic-cyan/50 hover:text-forensic-cyan"
+        )}
+        title={`Download ${stem.name} stem`}
+      >
+        <Download className="w-3.5 h-3.5" />
+      </button>
     </div>
   );
 }
 
 export function SourceComponents({ data, isProcessing = false }: SourceComponentsProps) {
-  // UI-only stem state
+  // UI-only stem state (simplified - no solo/mute)
   const [stemStates, setStemStates] = useState<Record<string, StemState>>({
-    vocals: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
-    drums: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
-    bass: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
-    others: { isPlaying: false, isSolo: false, isMuted: false, volume: 80 },
+    vocals: { isPlaying: false, volume: 80 },
+    drums: { isPlaying: false, volume: 80 },
+    bass: { isPlaying: false, volume: 80 },
+    others: { isPlaying: false, volume: 80 },
   });
 
   // Generate deterministic waveform data for each stem
@@ -249,33 +230,17 @@ export function SourceComponents({ data, isProcessing = false }: SourceComponent
     }));
   }, []);
 
-  const toggleSolo = useCallback((stemId: string) => {
-    setStemStates(prev => {
-      const newSolo = !prev[stemId].isSolo;
-      // If enabling solo, disable solo on all others
-      if (newSolo) {
-        const updated: Record<string, StemState> = {};
-        for (const id of Object.keys(prev)) {
-          updated[id] = { ...prev[id], isSolo: id === stemId };
-        }
-        return updated;
-      }
-      return { ...prev, [stemId]: { ...prev[stemId], isSolo: false } };
-    });
-  }, []);
-
-  const toggleMute = useCallback((stemId: string) => {
-    setStemStates(prev => ({
-      ...prev,
-      [stemId]: { ...prev[stemId], isMuted: !prev[stemId].isMuted },
-    }));
-  }, []);
-
   const changeVolume = useCallback((stemId: string, volume: number) => {
     setStemStates(prev => ({
       ...prev,
       [stemId]: { ...prev[stemId], volume },
     }));
+  }, []);
+
+  const handleDownload = useCallback((stemId: string) => {
+    // UI-only: Show toast or placeholder action
+    // In production, this would trigger actual stem file download
+    console.log(`Download stem: ${stemId}`);
   }, []);
 
   if (isProcessing) {
@@ -309,9 +274,8 @@ export function SourceComponents({ data, isProcessing = false }: SourceComponent
                 stem={stem}
                 state={stemStates[stem.id]}
                 onTogglePlay={() => togglePlay(stem.id)}
-                onToggleSolo={() => toggleSolo(stem.id)}
-                onToggleMute={() => toggleMute(stem.id)}
                 onVolumeChange={(v) => changeVolume(stem.id, v)}
+                onDownload={() => handleDownload(stem.id)}
                 waveformData={stemWaveforms[stem.id]}
               />
             ))}
@@ -343,9 +307,8 @@ export function SourceComponents({ data, isProcessing = false }: SourceComponent
               stem={stem}
               state={stemStates[stem.id]}
               onTogglePlay={() => togglePlay(stem.id)}
-              onToggleSolo={() => toggleSolo(stem.id)}
-              onToggleMute={() => toggleMute(stem.id)}
               onVolumeChange={(v) => changeVolume(stem.id, v)}
+              onDownload={() => handleDownload(stem.id)}
               waveformData={stemWaveforms[stem.id]}
             />
           ))}

@@ -207,7 +207,7 @@ function Header({ title, subtitle }: HeaderProps) {
             href={link.href}
             className={cn(
               "text-base font-medium transition-colors",
-              "text-foreground/70 hover:text-foreground",
+              "text-white hover:text-forensic-cyan",
               "tracking-wide"
             )}
           >

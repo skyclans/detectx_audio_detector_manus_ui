@@ -329,3 +329,38 @@
 - [x] Preserve existing color palette, neumorphic depth, button styles
 - [x] Maintain institutional forensic tone
 - [x] No probabilities, confidence scores, severity labels, AI model references
+
+
+## Final Master Specification v1.0 (pasted_content_9.txt)
+
+### 1) Export Report — Download Label Fix
+- [x] Change "Download All (ZIP)" to "Download All & Stems (ZIP)"
+
+### 2) Source Components — Control Cleanup
+- [x] Remove Solo button from each stem
+- [x] Remove Mute (M) button from each stem
+- [x] Keep volume control
+- [x] Keep Download button next to volume control
+
+### 3) Analysis Section Spacing Normalization
+- [x] Ensure vertical spacing between Timeline Analysis and Temporal Analysis equals spacing between Detailed Analysis and Temporal Analysis
+- [x] Apply consistent spacing rhythm to all analysis sections
+
+### 4) Detailed Analysis & Source Components Bottom Alignment
+- [x] Align bottom edge of Detailed Analysis with bottom edge of Source Components exactly
+- [x] No visual mismatch or drift allowed
+
+### 5) Header Navigation Text Visibility (Critical)
+- [x] Change header menu text to bright white
+- [x] Ensure strong contrast against header background
+- [x] Remove muted, dimmed, or low-opacity styling
+
+### 6) Plan Badge Alignment & Consistency
+- [x] Horizontally align all plan badges (Current Plan, Upgrade to Professional, Contact Sales)
+- [x] Ensure same vertical position for all badges
+- [x] Use consistent sizing and visual weight
+
+### 7) Pricing Plans — Final Configuration
+- [x] FREE: $0/forever, 5 verifications/month, Basic CR-G, PDF & JSON export, Standard queue, Community support, NO API/batch/priority
+- [x] PROFESSIONAL: $29/month, 50 verifications/month, Full CR-G, All export formats, UI-based batch, Priority support, NO API/automation/webhooks
+- [x] ENTERPRISE: Custom pricing, Unlimited verifications, Full API, Webhooks, Unlimited batch, SLA 99.9%, On-premise option, Custom integrations

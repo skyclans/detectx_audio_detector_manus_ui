@@ -2,7 +2,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { cn } from "@/lib/utils";
 import {
-  AudioLines,
   ChevronRight,
   Clock,
   CreditCard,
@@ -12,6 +11,7 @@ import {
   Type,
   Sparkles,
   User,
+  AudioLines,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -93,10 +93,12 @@ function Sidebar() {
     <aside className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Brand */}
       <div className="h-16 flex items-center px-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
-            <AudioLines className="w-5 h-5 text-primary" />
-          </div>
+        <div className="flex items-center gap-3">
+          <img
+            src="/detectx-logo.png"
+            alt="DetectX"
+            className="w-8 h-8 object-contain"
+          />
           <span className="text-lg font-semibold text-sidebar-foreground">DetectX</span>
         </div>
       </div>

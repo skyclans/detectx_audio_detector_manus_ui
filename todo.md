@@ -46,3 +46,21 @@
 - [x] Settings page - account configuration
 - [x] Plan page - subscription management
 - [x] Coming Soon pages for Image/Text/Anime
+
+
+## Logo & Branding Update
+- [x] Replace sidebar logo with official DetectX logo
+- [x] Remove placeholder icons and alternative logo symbols
+- [x] Ensure brand name appears exactly as "DetectX"
+
+## Evidence-Only Language Compliance
+- [x] Remove all probabilities, confidence scores, severity labels, percentages
+- [x] Remove all AI model names from UI
+- [x] Ensure CR-G status strictly controls final verdict text
+- [x] Make all sections descriptive and structural only
+
+## Audio Control Responsiveness
+- [x] Implement immediate visual feedback for Play/Pause/Stop buttons (0ms delay)
+- [x] Decouple UI state changes from audio processing
+- [x] Volume control updates UI state immediately
+- [x] Ensure controls feel precise and deterministic

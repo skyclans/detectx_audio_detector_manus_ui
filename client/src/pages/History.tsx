@@ -125,7 +125,7 @@ export default function History() {
                             : "bg-forensic-green/20 text-forensic-green"
                         }`}
                       >
-                        {v.verdict === "observed" ? "AI Detected" : "No AI Detected"}
+                        {v.verdict === "observed" ? "Signal Observed" : "No Signal"}
                       </div>
                     ) : v.status === "processing" ? (
                       <div className="text-xs px-2 py-1 rounded bg-primary/20 text-primary">

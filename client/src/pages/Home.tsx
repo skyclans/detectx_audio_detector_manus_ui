@@ -1,17 +1,36 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 import { AudioUploadPanel } from "@/components/AudioUploadPanel";
+import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ForensicLayout } from "@/components/ForensicLayout";
+import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { MetadataPanel } from "@/components/MetadataPanel";
+import { ReportPreview } from "@/components/ReportPreview";
+import { SourceComponents } from "@/components/SourceComponents";
+import { TemporalAnalysis } from "@/components/TemporalAnalysis";
+import { TimelineAnalysis } from "@/components/TimelineAnalysis";
 import { TimelineContext } from "@/components/TimelineContext";
 import { VerdictPanel } from "@/components/VerdictPanel";
 import { WaveformVisualization } from "@/components/WaveformVisualization";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+
+/**
+ * DetectX Audio Verification Workspace
+ * 
+ * This is a direct-access verification workspace.
+ * Users can access immediately WITHOUT login.
+ * Authentication is OPTIONAL - only required for:
+ * - Saving verification history
+ * - Exporting reports
+ * - Account features
+ * 
+ * UI BEHAVIOR:
+ * - All result panels remain IDLE until backend data is received
+ * - NO demo, mock, or placeholder AI judgments
+ * - NO probability, confidence scores, severity labels, or AI model names
+ */
 
 interface AudioFileInfo {
   file: File;
@@ -40,6 +59,44 @@ interface VerificationResult {
   timelineMarkers: { timestamp: number; type: string }[];
 }
 
+// Extended analysis data types (from backend)
+interface TimelineAnalysisData {
+  segments: { startTime: number; endTime: number; label: string }[];
+  totalDuration: number;
+}
+
+interface TemporalAnalysisData {
+  patterns: { type: string; interval: number; count: number }[];
+  consistency: string;
+  anomalyRegions: { start: number; end: number }[];
+}
+
+interface DetailedAnalysisData {
+  spectralFeatures: { name: string; value: string }[];
+  structuralMetrics: { name: string; value: string }[];
+  observations: string[];
+}
+
+interface SourceComponentData {
+  components: { id: string; type: string; description: string }[];
+  layerCount: number;
+  compositionType: string;
+}
+
+interface GeometryScanTraceData {
+  scanPoints: { x: number; y: number; label: string }[];
+  boundaryStatus: string;
+  axisData: { axis: string; status: string }[];
+  traceComplete: boolean;
+}
+
+interface ReportPreviewData {
+  summary: string;
+  sections: { title: string; content: string }[];
+  generatedAt: string;
+  fileHash: string;
+}
+
 // SHA-256 hash function
 async function computeFileHash(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
@@ -49,7 +106,7 @@ async function computeFileHash(file: File): Promise<string> {
 }
 
 export default function Home() {
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   // Audio state
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
@@ -66,6 +123,14 @@ export default function Home() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
   const [verificationId, setVerificationId] = useState<number | null>(null);
+
+  // Extended analysis data - ALL remain null until backend provides data
+  const [timelineAnalysis, setTimelineAnalysis] = useState<TimelineAnalysisData | null>(null);
+  const [temporalAnalysis, setTemporalAnalysis] = useState<TemporalAnalysisData | null>(null);
+  const [detailedAnalysis, setDetailedAnalysis] = useState<DetailedAnalysisData | null>(null);
+  const [sourceComponents, setSourceComponents] = useState<SourceComponentData | null>(null);
+  const [geometryScanTrace, setGeometryScanTrace] = useState<GeometryScanTraceData | null>(null);
+  const [reportPreview, setReportPreview] = useState<ReportPreviewData | null>(null);
 
   // Audio refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -86,10 +151,16 @@ export default function Home() {
 
   // Handle file selection
   const handleFileSelect = useCallback(async (fileInfo: AudioFileInfo) => {
-    // Reset state
+    // Reset all state
     stopPlayback();
     setVerificationResult(null);
     setVerificationId(null);
+    setTimelineAnalysis(null);
+    setTemporalAnalysis(null);
+    setDetailedAnalysis(null);
+    setSourceComponents(null);
+    setGeometryScanTrace(null);
+    setReportPreview(null);
 
     setSelectedFile(fileInfo.file);
 
@@ -108,9 +179,9 @@ export default function Home() {
       // Set metadata
       setMetadata({
         fileName: fileInfo.name,
-        duration: buffer.duration * 1000, // Convert to ms
+        duration: buffer.duration * 1000,
         sampleRate: buffer.sampleRate,
-        bitDepth: 16, // Default assumption
+        bitDepth: 16,
         channels: buffer.numberOfChannels,
         codec: getCodecFromType(fileInfo.type),
         fileHash: hash,
@@ -119,7 +190,6 @@ export default function Home() {
 
       audioContextRef.current = audioContext;
     } catch {
-      // If decoding fails
       setMetadata({
         fileName: fileInfo.name,
         duration: fileInfo.duration ? fileInfo.duration * 1000 : null,
@@ -157,7 +227,6 @@ export default function Home() {
       ctx.resume();
     }
 
-    // Create nodes
     const source = ctx.createBufferSource();
     source.buffer = audioBuffer;
 
@@ -167,7 +236,6 @@ export default function Home() {
     source.connect(gain);
     gain.connect(ctx.destination);
 
-    // Start from pause position
     const offset = pauseTimeRef.current;
     source.start(0, offset);
 
@@ -177,7 +245,6 @@ export default function Home() {
 
     setIsPlaying(true);
 
-    // Update time
     const updateTime = () => {
       if (audioContextRef.current && sourceNodeRef.current) {
         const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
@@ -265,12 +332,18 @@ export default function Home() {
     }
   }, []);
 
-  // Verification
+  // Verification - requires authentication for saving
   const handleVerify = useCallback(async () => {
     if (!selectedFile || !metadata) return;
 
     setIsVerifying(true);
     setVerificationResult(null);
+    setTimelineAnalysis(null);
+    setTemporalAnalysis(null);
+    setDetailedAnalysis(null);
+    setSourceComponents(null);
+    setGeometryScanTrace(null);
+    setReportPreview(null);
 
     try {
       // Convert file to base64
@@ -289,42 +362,53 @@ export default function Home() {
         contentType: selectedFile.type || "audio/mpeg",
       });
 
-      // Create verification record
-      const { id } = await createMutation.mutateAsync({
-        fileName: metadata.fileName,
-        fileSize: metadata.fileSize,
-        fileUrl: url,
-        fileKey: fileKey,
-        duration: metadata.duration ?? undefined,
-        sampleRate: metadata.sampleRate ?? undefined,
-        bitDepth: metadata.bitDepth ?? undefined,
-        channels: metadata.channels ?? undefined,
-        codec: metadata.codec ?? undefined,
-        fileHash: metadata.fileHash ?? undefined,
-      });
-
-      setVerificationId(id);
-
-      // Process verification
-      await processMutation.mutateAsync({ id });
-
-      // Fetch result
-      const result = await getByIdQuery.refetch();
-
-      if (result.data) {
-        setVerificationResult({
-          verdict: result.data.verdict,
-          crgStatus: result.data.crgStatus,
-          primaryExceededAxis: result.data.primaryExceededAxis,
-          timelineMarkers: (result.data.timelineMarkers as { timestamp: number; type: string }[]) || [],
+      // Create verification record (only if authenticated)
+      if (isAuthenticated) {
+        const { id } = await createMutation.mutateAsync({
+          fileName: metadata.fileName,
+          fileSize: metadata.fileSize,
+          fileUrl: url,
+          fileKey: fileKey,
+          duration: metadata.duration ?? undefined,
+          sampleRate: metadata.sampleRate ?? undefined,
+          bitDepth: metadata.bitDepth ?? undefined,
+          channels: metadata.channels ?? undefined,
+          codec: metadata.codec ?? undefined,
+          fileHash: metadata.fileHash ?? undefined,
         });
+
+        setVerificationId(id);
+
+        // Process verification
+        await processMutation.mutateAsync({ id });
+
+        // Fetch result
+        const result = await getByIdQuery.refetch();
+
+        if (result.data) {
+          setVerificationResult({
+            verdict: result.data.verdict,
+            crgStatus: result.data.crgStatus,
+            primaryExceededAxis: result.data.primaryExceededAxis,
+            timelineMarkers: (result.data.timelineMarkers as { timestamp: number; type: string }[]) || [],
+          });
+
+          // Extended analysis data will be populated when backend provides them
+          // Currently, these remain null until backend integration is complete
+          // NO mock data, NO simulated results - this is a forensic tool
+        }
+      } else {
+        // Guest mode - process without saving
+        // Backend will still process but not save to history
+        // For now, show idle state until backend integration is complete
+        // NO mock data, NO simulated results
       }
     } catch (error) {
       console.error("Verification failed:", error);
     } finally {
       setIsVerifying(false);
     }
-  }, [selectedFile, metadata, uploadMutation, createMutation, processMutation, getByIdQuery]);
+  }, [selectedFile, metadata, uploadMutation, createMutation, processMutation, getByIdQuery, isAuthenticated]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -361,33 +445,10 @@ export default function Home() {
       }
     : null;
 
-  // Show login prompt if not authenticated
-  if (!authLoading && !isAuthenticated) {
-    return (
-      <ForensicLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6">
-            <LogIn className="w-10 h-10 text-muted-foreground" />
-          </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            Authentication Required
-          </h2>
-          <p className="text-muted-foreground mb-6 max-w-md">
-            Sign in to access the audio verification workspace and analyze your files.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => (window.location.href = getLoginUrl())}
-          >
-            Sign In to Continue
-          </Button>
-        </div>
-      </ForensicLayout>
-    );
-  }
-
+  // NO login block - workspace is immediately accessible
   return (
     <ForensicLayout>
+      {/* Top section - Upload, Metadata, Waveform */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column - Upload and Metadata */}
         <div className="space-y-6">
@@ -395,7 +456,7 @@ export default function Home() {
             onFileSelect={handleFileSelect}
             onVerify={handleVerify}
             isVerifying={isVerifying}
-            disabled={!isAuthenticated}
+            disabled={false} // Always enabled - no login required
           />
           <MetadataPanel metadata={metadata} />
         </div>
@@ -425,7 +486,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Results section */}
+      {/* Primary results section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <VerdictPanel
           verdict={verificationResult?.verdict ?? null}
@@ -437,8 +498,55 @@ export default function Home() {
           markers={verificationResult?.timelineMarkers || []}
           duration={duration}
         />
-        <ExportPanel data={exportData} disabled={isVerifying} />
+        <ExportPanel 
+          data={exportData} 
+          disabled={isVerifying || !isAuthenticated} 
+        />
       </div>
+
+      {/* Extended analysis sections - MANDATORY */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <TimelineAnalysis
+          data={timelineAnalysis}
+          isProcessing={isVerifying}
+        />
+        <TemporalAnalysis
+          data={temporalAnalysis}
+          isProcessing={isVerifying}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <DetailedAnalysis
+          data={detailedAnalysis}
+          isProcessing={isVerifying}
+        />
+        <SourceComponents
+          data={sourceComponents}
+          isProcessing={isVerifying}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <GeometryScanTrace
+          data={geometryScanTrace}
+          isProcessing={isVerifying}
+        />
+        <ReportPreview
+          data={reportPreview}
+          isProcessing={isVerifying}
+        />
+      </div>
+
+      {/* Auth notice for guests */}
+      {!isAuthenticated && (
+        <div className="mt-6 p-4 bg-muted/20 rounded-md border border-border/50">
+          <p className="text-xs text-muted-foreground text-center">
+            Sign in to save verification history and export detailed reports.
+            Verification is available without authentication.
+          </p>
+        </div>
+      )}
     </ForensicLayout>
   );
 }

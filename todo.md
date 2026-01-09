@@ -64,3 +64,17 @@
 - [x] Decouple UI state changes from audio processing
 - [x] Volume control updates UI state immediately
 - [x] Ensure controls feel precise and deterministic
+
+
+## Workspace Access & Sections Update
+- [x] Remove login requirement for initial workspace access
+- [x] Authentication only required for history, export, account features
+- [x] Add Timeline Analysis section
+- [x] Add Temporal Analysis section
+- [x] Add Detailed Analysis section
+- [x] Add Source Components section
+- [x] Add Geometry Scan Trace section
+- [x] Add Report Preview section
+- [x] Ensure all result panels remain idle until backend data received
+- [x] No demo, mock, or placeholder AI judgments
+- [x] Increase DetectX logo size to brand scale

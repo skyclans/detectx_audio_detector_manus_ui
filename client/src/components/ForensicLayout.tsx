@@ -91,15 +91,15 @@ function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
-      {/* Brand */}
-      <div className="h-16 flex items-center px-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
+      {/* Brand - Logo as primary brand element */}
+      <div className="h-20 flex items-center px-6 border-b border-sidebar-border">
+        <div className="flex items-center gap-4">
           <img
             src="/detectx-logo.png"
             alt="DetectX"
-            className="w-8 h-8 object-contain"
+            className="w-10 h-10 object-contain"
           />
-          <span className="text-lg font-semibold text-sidebar-foreground">DetectX</span>
+          <span className="text-xl font-semibold text-sidebar-foreground tracking-tight">DetectX</span>
         </div>
       </div>
 

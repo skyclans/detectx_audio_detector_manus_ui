@@ -58,6 +58,9 @@ export function WaveformVisualization({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  
+  // Amplitude scale control (1x to 4x)
+  const [amplitudeScale, setAmplitudeScale] = useState(1);
 
   // Handle resize
   useEffect(() => {
@@ -253,7 +256,8 @@ export function WaveformVisualization({
     ctx.lineWidth = 1;
 
     const centerY = height / 2;
-    const amplitude = height * 0.4;
+    // Apply amplitude scale (1x to 4x)
+    const amplitude = height * 0.4 * amplitudeScale;
 
     for (let x = 0; x < width; x++) {
       const startSample = x * samplesPerPixel;
@@ -350,7 +354,7 @@ export function WaveformVisualization({
     ctx.moveTo(0, centerY);
     ctx.lineTo(width, centerY);
     ctx.stroke();
-  }, [audioBuffer, dimensions, currentTime, duration, markers, isDecoding, drawPlaceholderWaveform, drawDecodingPlaceholder]);
+  }, [audioBuffer, dimensions, currentTime, duration, markers, isDecoding, amplitudeScale, drawPlaceholderWaveform, drawDecodingPlaceholder]);
 
   // Animation loop for decoding placeholder
   useEffect(() => {
@@ -415,12 +419,34 @@ export function WaveformVisualization({
     <div className="forensic-panel">
       <div className="forensic-panel-header flex items-center justify-between">
         <span>Waveform Analysis</span>
-        {isDecoding && (
-          <span className="text-[10px] text-forensic-cyan flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-forensic-cyan rounded-full animate-pulse" />
-            DECODING
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {/* Amplitude Scale Control */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground uppercase">Amp</span>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4].map((scale) => (
+                <button
+                  key={scale}
+                  onClick={() => setAmplitudeScale(scale)}
+                  className={`w-5 h-5 text-[10px] font-mono rounded transition-colors ${
+                    amplitudeScale === scale
+                      ? "bg-forensic-cyan/30 text-forensic-cyan border border-forensic-cyan/50"
+                      : "bg-muted/30 text-muted-foreground border border-border/30 hover:bg-muted/50"
+                  }`}
+                  title={`${scale}x amplitude scale`}
+                >
+                  {scale}x
+                </button>
+              ))}
+            </div>
+          </div>
+          {isDecoding && (
+            <span className="text-[10px] text-forensic-cyan flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-forensic-cyan rounded-full animate-pulse" />
+              DECODING
+            </span>
+          )}
+        </div>
       </div>
       <div className="p-0">
         <div

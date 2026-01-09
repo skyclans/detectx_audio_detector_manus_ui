@@ -9,6 +9,7 @@ import {
   getVerificationsByUserId,
   updateVerification,
   deleteVerification,
+  deleteAllVerificationsByUserId,
 } from "./db";
 import { storagePut } from "./storage";
 import { nanoid } from "nanoid";
@@ -131,6 +132,13 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
         }
         await deleteVerification(input.id);
+        return { success: true };
+      }),
+
+    // Delete all verifications for current user
+    deleteAll: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        await deleteAllVerificationsByUserId(ctx.user.id);
         return { success: true };
       }),
 

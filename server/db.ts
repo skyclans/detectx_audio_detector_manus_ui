@@ -134,3 +134,10 @@ export async function deleteVerification(id: number): Promise<void> {
 
   await db.delete(audioVerifications).where(eq(audioVerifications.id, id));
 }
+
+export async function deleteAllVerificationsByUserId(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(audioVerifications).where(eq(audioVerifications.userId, userId));
+}

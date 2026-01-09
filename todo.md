@@ -243,3 +243,52 @@
 - [x] Increase navigation font size for improved readability
 - [x] Improve contrast for high visibility
 - [x] Navigation must feel clear, deliberate, and professional
+
+
+## UI Override (pasted_content_7.txt)
+
+### 1) Source Components Height Alignment
+- [x] Align bottom edge of Source Components to EXACTLY match Detailed Analysis bottom edge
+- [x] No uneven bottom spacing
+- [x] Layout must feel visually balanced and intentional
+
+### 2) Sidebar Verify Cleanup
+- [x] Remove Image, Text, and Anime from Verify menu
+- [x] Leave ONLY Audio in Verify section
+- [x] This workspace is audio-only
+
+### 3) History — Calendar-Based Search
+- [x] Add date picker / calendar UI to History
+- [x] Allow users to filter verification history by date range
+- [x] Calendar must control history list dynamically
+
+### 4) History — Delete All Function
+- [x] Add "Delete All" function to Recent Verifications
+- [x] Provide confirmation step before deletion
+- [x] After deletion, history list must reset to empty state
+
+### 5) History — Multi-Format Download Per File
+- [x] Add PDF, JSON, CSV, Markdown export options per history item
+- [x] Each file entry must expose download options directly
+- [x] Do NOT hide exports behind global menu
+
+### 6) Waveform ↔ Source Components Decoupling
+- [x] Main waveform playback must NOT animate or affect Source Components
+- [x] Source Components must remain visually stable unless explicitly interacted with
+- [x] No synchronized motion, pulsing, or amplitude animation
+
+### 7) Source Components Waveform Style
+- [x] Replace bar-style visualizations with waveform-style visuals
+- [x] Use same waveform language as main waveform (scaled down)
+- [x] Preserve existing color palette
+
+### 8) Waveform Amplitude Scale Control
+- [x] Add amplitude scale buttons (1x, 2x, 3x, 4x) in waveform header
+- [x] Clicking buttons scales waveform amplitude visually
+- [x] Audio volume does NOT change
+- [x] This is forensic visualization control only
+
+### 9) SHA-256 Copy to Clipboard
+- [x] Add "Copy to clipboard" control next to SHA-256 hash
+- [x] On click, copy full hash string
+- [x] Provide brief visual feedback (icon change or tooltip)

@@ -5,11 +5,8 @@ import {
   ChevronRight,
   Clock,
   CreditCard,
-  Image,
   LogOut,
   Settings,
-  Type,
-  Sparkles,
   User,
   AudioLines,
 } from "lucide-react";
@@ -35,9 +32,6 @@ const navSections: NavSection[] = [
     title: "Verify",
     items: [
       { label: "Audio", href: "/", icon: <AudioLines className="w-4 h-4" /> },
-      { label: "Image", href: "/image", icon: <Image className="w-4 h-4" />, comingSoon: true },
-      { label: "Text", href: "/text", icon: <Type className="w-4 h-4" />, comingSoon: true },
-      { label: "Anime", href: "/anime", icon: <Sparkles className="w-4 h-4" />, comingSoon: true },
     ],
   },
   {

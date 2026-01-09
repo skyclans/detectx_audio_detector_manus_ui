@@ -1,7 +1,13 @@
+import { useState, useCallback } from "react";
+import { Copy, Check } from "lucide-react";
+import { toast } from "sonner";
+
 interface MetadataItem {
   label: string;
   value: string | number | null | undefined;
   mono?: boolean;
+  copyable?: boolean;
+  fullValue?: string; // Full value for copying (e.g., full hash)
 }
 
 interface MetadataPanelProps {
@@ -33,13 +39,45 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
-function MetadataRow({ label, value, mono = false }: MetadataItem) {
+function MetadataRow({ label, value, mono = false, copyable = false, fullValue }: MetadataItem) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    const textToCopy = fullValue || String(value);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      toast.success("Copied to clipboard", {
+        description: label,
+        duration: 2000,
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error("Failed to copy to clipboard");
+    }
+  }, [value, fullValue, label]);
+
   return (
     <div className="flex justify-between items-center py-2 border-b border-border/50 last:border-0">
       <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
-      <span className={`text-sm text-foreground ${mono ? "font-mono" : ""}`}>
-        {value ?? "—"}
-      </span>
+      <div className="flex items-center gap-2">
+        <span className={`text-sm text-foreground ${mono ? "font-mono" : ""}`}>
+          {value ?? "—"}
+        </span>
+        {copyable && value && (
+          <button
+            onClick={handleCopy}
+            className="p-1 rounded hover:bg-muted/50 transition-colors"
+            title={`Copy ${label}`}
+          >
+            {copied ? (
+              <Check className="w-3.5 h-3.5 text-forensic-green" />
+            ) : (
+              <Copy className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -95,6 +133,8 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
       label: "SHA-256",
       value: metadata.fileHash ? `${metadata.fileHash.substring(0, 16)}...` : null,
       mono: true,
+      copyable: true,
+      fullValue: metadata.fileHash || undefined,
     },
   ];
 

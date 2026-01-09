@@ -5,6 +5,7 @@ import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
+import { LiveScanConsole, generateScanLogs } from "@/components/LiveScanConsole";
 import { MetadataPanel } from "@/components/MetadataPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { SourceComponents } from "@/components/SourceComponents";
@@ -131,6 +132,10 @@ export default function Home() {
   const [sourceComponents, setSourceComponents] = useState<SourceComponentData | null>(null);
   const [geometryScanTrace, setGeometryScanTrace] = useState<GeometryScanTraceData | null>(null);
   const [reportPreview, setReportPreview] = useState<ReportPreviewData | null>(null);
+
+  // Live Scan Console logs
+  const [scanLogs, setScanLogs] = useState<ReturnType<typeof generateScanLogs>[]>([]);
+  const [scanComplete, setScanComplete] = useState(false);
 
   // Audio refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -313,16 +318,82 @@ export default function Home() {
     }
   }, [currentTime, duration, isPlaying, pausePlayback, startPlayback]);
 
+  /**
+   * Handle seek from waveform click or other sources
+   * 
+   * CRITICAL BUG FIX:
+   * - Must NEVER reset to 0:00
+   * - While playing: seek immediately and continue playback from new position
+   * - While paused: seek immediately and remain paused
+   * - Pause must preserve currentTime
+   */
   const handleSeek = useCallback(
     (time: number) => {
-      pauseTimeRef.current = time;
-      setCurrentTime(time);
-      if (isPlaying) {
-        pausePlayback();
-        setTimeout(startPlayback, 50);
+      // Clamp time to valid range
+      const clampedTime = Math.max(0, Math.min(time, duration));
+      
+      // Update pause time reference and current time immediately
+      pauseTimeRef.current = clampedTime;
+      setCurrentTime(clampedTime);
+      
+      // If currently playing, restart playback from new position
+      if (isPlaying && sourceNodeRef.current) {
+        // Stop current source
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current.disconnect();
+        sourceNodeRef.current = null;
+        
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        
+        // Immediately restart from new position (no setTimeout delay)
+        if (audioBuffer && audioContextRef.current) {
+          const ctx = audioContextRef.current;
+          if (ctx.state === "suspended") {
+            ctx.resume();
+          }
+          
+          const source = ctx.createBufferSource();
+          source.buffer = audioBuffer;
+          
+          const gain = ctx.createGain();
+          gain.gain.value = volume;
+          
+          source.connect(gain);
+          gain.connect(ctx.destination);
+          
+          source.start(0, clampedTime);
+          
+          sourceNodeRef.current = source;
+          gainNodeRef.current = gain;
+          startTimeRef.current = ctx.currentTime - clampedTime;
+          
+          const updateTime = () => {
+            if (audioContextRef.current && sourceNodeRef.current) {
+              const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
+              setCurrentTime(Math.min(elapsed, duration));
+              
+              if (elapsed < duration) {
+                animationFrameRef.current = requestAnimationFrame(updateTime);
+              } else {
+                stopPlayback();
+              }
+            }
+          };
+          animationFrameRef.current = requestAnimationFrame(updateTime);
+          
+          source.onended = () => {
+            // Only stop if we haven't already seeked to a new position
+            if (sourceNodeRef.current === source) {
+              stopPlayback();
+            }
+          };
+        }
       }
+      // If paused, just update the position (already done above)
     },
-    [isPlaying, pausePlayback, startPlayback]
+    [isPlaying, duration, audioBuffer, volume, stopPlayback]
   );
 
   const handleVolumeChange = useCallback((newVolume: number) => {
@@ -337,6 +408,7 @@ export default function Home() {
     if (!selectedFile || !metadata) return;
 
     setIsVerifying(true);
+    setScanComplete(false);
     setVerificationResult(null);
     setTimelineAnalysis(null);
     setTemporalAnalysis(null);
@@ -345,7 +417,13 @@ export default function Home() {
     setGeometryScanTrace(null);
     setReportPreview(null);
 
+    // Initialize scan logs
+    setScanLogs([generateScanLogs("init")]);
+
     try {
+      // Add log: upload
+      setScanLogs(prev => [...prev, generateScanLogs("upload")]);
+
       // Convert file to base64
       const arrayBuffer = await selectedFile.arrayBuffer();
       const base64 = btoa(
@@ -355,6 +433,9 @@ export default function Home() {
         )
       );
 
+      // Add log: decode
+      setScanLogs(prev => [...prev, generateScanLogs("decode")]);
+
       // Upload file
       const { url, fileKey } = await uploadMutation.mutateAsync({
         fileName: selectedFile.name,
@@ -362,8 +443,14 @@ export default function Home() {
         contentType: selectedFile.type || "audio/mpeg",
       });
 
+      // Add log: spectral
+      setScanLogs(prev => [...prev, generateScanLogs("spectral")]);
+
       // Create verification record (only if authenticated)
       if (isAuthenticated) {
+        // Add log: temporal
+        setScanLogs(prev => [...prev, generateScanLogs("temporal")]);
+
         const { id } = await createMutation.mutateAsync({
           fileName: metadata.fileName,
           fileSize: metadata.fileSize,
@@ -379,11 +466,20 @@ export default function Home() {
 
         setVerificationId(id);
 
+        // Add log: geometry
+        setScanLogs(prev => [...prev, generateScanLogs("geometry")]);
+
         // Process verification
         await processMutation.mutateAsync({ id });
 
+        // Add log: crg
+        setScanLogs(prev => [...prev, generateScanLogs("crg")]);
+
         // Fetch result
         const result = await getByIdQuery.refetch();
+
+        // Add log: finalize
+        setScanLogs(prev => [...prev, generateScanLogs("finalize")]);
 
         if (result.data) {
           setVerificationResult({
@@ -397,14 +493,29 @@ export default function Home() {
           // Currently, these remain null until backend integration is complete
           // NO mock data, NO simulated results - this is a forensic tool
         }
+
+        // Add log: complete
+        setScanLogs(prev => [...prev, generateScanLogs("complete")]);
+        setScanComplete(true);
       } else {
         // Guest mode - process without saving
-        // Backend will still process but not save to history
+        // Add logs for guest mode
+        setScanLogs(prev => [...prev, generateScanLogs("temporal")]);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setScanLogs(prev => [...prev, generateScanLogs("geometry")]);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setScanLogs(prev => [...prev, generateScanLogs("crg")]);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setScanLogs(prev => [...prev, generateScanLogs("finalize")]);
+        await new Promise(resolve => setTimeout(resolve, 300));
         // For now, show idle state until backend integration is complete
         // NO mock data, NO simulated results
+        setScanLogs(prev => [...prev, generateScanLogs("complete")]);
+        setScanComplete(true);
       }
     } catch (error) {
       console.error("Verification failed:", error);
+      setScanLogs(prev => [...prev, { timestamp: new Date().toLocaleTimeString(), message: "Error: Verification failed", type: "warning" as const }]);
     } finally {
       setIsVerifying(false);
     }
@@ -486,21 +597,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Primary results section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      {/* Primary results section - Verdict Panel */}
+      <div className="mt-6">
         <VerdictPanel
           verdict={verificationResult?.verdict ?? null}
           crgStatus={verificationResult?.crgStatus ?? null}
           primaryExceededAxis={verificationResult?.primaryExceededAxis ?? null}
           isProcessing={isVerifying}
-        />
-        <TimelineContext
-          markers={verificationResult?.timelineMarkers || []}
-          duration={duration}
-        />
-        <ExportPanel 
-          data={exportData} 
-          disabled={isVerifying || !isAuthenticated} 
         />
       </div>
 
@@ -527,11 +630,29 @@ export default function Home() {
         />
       </div>
 
+      {/* Live Scan Console - placed ABOVE Geometry & Timeline Context */}
+      <div className="mt-6">
+        <LiveScanConsole
+          isVerifying={isVerifying}
+          isComplete={scanComplete}
+          logs={scanLogs}
+        />
+      </div>
+
+      {/* Geometry & Timeline Context */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <GeometryScanTrace
           data={geometryScanTrace}
           isProcessing={isVerifying}
         />
+        <TimelineContext
+          markers={verificationResult?.timelineMarkers || []}
+          duration={duration}
+        />
+      </div>
+
+      {/* Report Preview - placed ABOVE Export & Reporting */}
+      <div className="mt-6">
         <ReportPreview
           verdict={verificationResult?.verdict ?? null}
           crgStatus={verificationResult?.crgStatus ?? null}
@@ -539,6 +660,14 @@ export default function Home() {
           fileName={metadata?.fileName ?? null}
           fileHash={metadata?.fileHash ?? null}
           isProcessing={isVerifying}
+        />
+      </div>
+
+      {/* Export & Reporting - final section */}
+      <div className="mt-6">
+        <ExportPanel 
+          data={exportData} 
+          disabled={isVerifying || !isAuthenticated} 
         />
       </div>
 

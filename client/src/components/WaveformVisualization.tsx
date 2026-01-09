@@ -11,14 +11,17 @@ interface WaveformVisualizationProps {
   duration: number;
   markers?: TimelineMarker[];
   onSeek?: (time: number) => void;
+  isPlaying?: boolean;
 }
 
 /**
  * Forensic Waveform Visualization Component
  * 
- * WAVEFORM INTERACTION (MANDATORY):
- * - Clicking on waveform seeks to corresponding timestamp
- * - Click must NOT reset playback to 0:00
+ * WAVEFORM INTERACTION (CRITICAL - MANDATORY):
+ * - Clicking on waveform ALWAYS seeks to the clicked timestamp
+ * - Click must NEVER reset playback to 0:00
+ * - While playing: seek immediately and continue playback from that position
+ * - While paused: seek immediately and remain paused
  * - Waveform is bidirectionally linked to audio currentTime
  * 
  * INITIAL LOAD STATE:
@@ -31,6 +34,7 @@ export function WaveformVisualization({
   duration,
   markers = [],
   onSeek,
+  isPlaying = false,
 }: WaveformVisualizationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -256,7 +260,12 @@ export function WaveformVisualization({
 
   /**
    * Handle waveform click for seeking
-   * CRITICAL: Click must seek to corresponding timestamp, NOT reset to 0:00
+   * 
+   * CRITICAL BUG FIX:
+   * - Clicking waveform must ALWAYS seek to clicked timestamp
+   * - Must NEVER reset to 0:00
+   * - While playing: seek immediately and continue playback
+   * - While paused: seek immediately and remain paused
    */
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -267,14 +276,16 @@ export function WaveformVisualization({
       if (!canvas) return;
 
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
+      const clickX = e.clientX - rect.left;
       
       // Calculate seek time based on click position
-      // This must NOT reset to 0:00 - it seeks to the clicked position
-      const clickRatio = Math.max(0, Math.min(1, x / rect.width));
-      const seekTime = clickRatio * duration;
+      // Formula: targetTime = (clickX / waveformWidth) * audioDuration
+      const clickRatio = Math.max(0, Math.min(1, clickX / rect.width));
+      const targetTime = clickRatio * duration;
       
-      onSeek(seekTime);
+      // Call onSeek with the target time
+      // The parent component handles whether to continue playing or stay paused
+      onSeek(targetTime);
     },
     [onSeek, duration, audioBuffer]
   );

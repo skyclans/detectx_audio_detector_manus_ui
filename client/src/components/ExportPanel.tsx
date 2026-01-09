@@ -292,17 +292,40 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
     }
   };
 
+  /**
+   * Safely extract base filename for export
+   * Handles Unicode filenames (Korean, Japanese, Chinese, etc.)
+   */
+  const getBaseFileName = (fileName: string): string => {
+    // Remove extension while preserving Unicode characters
+    const lastDotIndex = fileName.lastIndexOf(".");
+    if (lastDotIndex > 0) {
+      return fileName.substring(0, lastDotIndex);
+    }
+    return fileName;
+  };
+
+  /**
+   * Sanitize filename for safe download
+   * Preserves Unicode but removes potentially problematic characters
+   */
+  const sanitizeFileName = (fileName: string): string => {
+    // Remove characters that might cause issues in filenames
+    // but preserve Unicode letters and numbers
+    return fileName.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
+  };
+
   const handleExportJSON = () => {
     if (!data) return;
     const content = generateJSON(data);
-    const baseName = data.fileName.replace(/\.[^/.]+$/, "");
+    const baseName = sanitizeFileName(getBaseFileName(data.fileName));
     downloadFile(content, `${baseName}_report.json`, "application/json");
   };
 
   const handleExportCSV = () => {
     if (!data) return;
     const content = generateCSV(data);
-    const baseName = data.fileName.replace(/\.[^/.]+$/, "");
+    const baseName = sanitizeFileName(getBaseFileName(data.fileName));
     // Add UTF-8 BOM for CSV to ensure proper encoding in Excel
     downloadFile(content, `${baseName}_report.csv`, "text/csv", true);
   };
@@ -310,7 +333,7 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
   const handleExportMarkdown = () => {
     if (!data) return;
     const content = generateMarkdown(data);
-    const baseName = data.fileName.replace(/\.[^/.]+$/, "");
+    const baseName = sanitizeFileName(getBaseFileName(data.fileName));
     downloadFile(content, `${baseName}_report.md`, "text/markdown");
   };
 

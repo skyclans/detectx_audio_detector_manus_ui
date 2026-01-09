@@ -15,8 +15,14 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { FileText, AlertCircle, CheckCircle } from "lucide-react";
 
+interface VerdictResult {
+  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+  authority: "CR-G";
+  exceeded_axes: string[];
+}
+
 interface ReportPreviewProps {
-  verdict: "observed" | "not_observed" | null;
+  verdict: VerdictResult | null;
   crgStatus: string | null;
   primaryExceededAxis: string | null;
   fileName: string | null;
@@ -26,17 +32,11 @@ interface ReportPreviewProps {
 }
 
 /**
- * Get verdict text based on CR-G status
+ * Get verdict text - displayed verbatim from props
  * CR-G is the SOLE verdict authority
  */
-function getVerdictText(verdict: "observed" | "not_observed" | null): string {
-  if (verdict === "observed") {
-    return "AI signal evidence was observed.";
-  }
-  if (verdict === "not_observed") {
-    return "AI signal evidence was not observed.";
-  }
-  return "";
+function getVerdictText(verdict: VerdictResult | null): string {
+  return verdict?.verdict || "";
 }
 
 export function ReportPreview({
@@ -85,7 +85,7 @@ export function ReportPreview({
   }
 
   const verdictText = getVerdictText(verdict);
-  const isAIDetected = verdict === "observed";
+  const isAIDetected = verdict?.verdict === "AI signal evidence was observed.";
 
   return (
     <div className="forensic-panel">

@@ -1,3 +1,13 @@
+/**
+ * AudioPlayerBar - Stateless Presentation Component
+ * 
+ * INTEGRATION RULES (MANDATORY):
+ * - Must NOT create audio contexts or decide volume
+ * - Provides immediate UI feedback only
+ * - All state injected via props
+ * - All actions dispatched via callbacks
+ */
+
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -10,22 +20,36 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 
 interface AudioPlayerBarProps {
+  /** Whether audio is currently playing (injected) */
   isPlaying: boolean;
+  /** Current playback position in seconds (injected) */
   currentTime: number;
+  /** Total audio duration in seconds (injected) */
   duration: number;
+  /** Current volume level 0-1 (injected) */
   volume: number;
+  /** Callback to start playback */
   onPlay: () => void;
+  /** Callback to pause playback */
   onPause: () => void;
+  /** Callback to stop playback */
   onStop: () => void;
+  /** Callback to seek backward */
   onSeekBackward: () => void;
+  /** Callback to seek forward */
   onSeekForward: () => void;
+  /** Callback to change volume */
   onVolumeChange: (volume: number) => void;
+  /** Whether controls are disabled */
   disabled?: boolean;
 }
 
+/**
+ * Format time in MM:SS format
+ */
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -33,21 +57,11 @@ function formatTime(seconds: number): string {
 }
 
 /**
- * Forensic Audio Player Control Bar
+ * AudioPlayerBar Component
  * 
- * VOLUME CONTROL RESPONSIVENESS (CRITICAL - MANDATORY):
- * - Volume UI must update immediately on pointer down/move (perceptual 0ms)
- * - Update volume UI state synchronously on every interaction event
- * - Apply audio.volume updates using requestAnimationFrame
- * - Do NOT debounce volume updates
- * - Do NOT wait for audio playback state or processing to update UI
- * - Volume control must feel as responsive as a hardware audio knob
- * 
- * Design principles:
- * - Immediate visual feedback (0ms delay) for all button interactions
- * - UI state changes are decoupled from audio processing
- * - Controls feel precise and deterministic
- * - No animations that imply processing or intelligence
+ * Stateless presentation component that provides playback controls.
+ * No audio context creation, volume calculation, or timing logic.
+ * Only immediate UI feedback.
  */
 export function AudioPlayerBar({
   isPlaying,
@@ -64,19 +78,8 @@ export function AudioPlayerBar({
 }: AudioPlayerBarProps) {
   const remaining = Math.max(0, duration - currentTime);
 
-  // Local UI state for immediate visual feedback
+  // Local UI state for immediate visual feedback only
   const [activeButton, setActiveButton] = useState<string | null>(null);
-  const [localVolume, setLocalVolume] = useState(volume);
-  const rafRef = useRef<number | null>(null);
-  const pendingVolumeRef = useRef<number | null>(null);
-
-  // Sync local volume when prop changes from parent
-  useEffect(() => {
-    // Only sync if not actively dragging
-    if (pendingVolumeRef.current === null) {
-      setLocalVolume(volume);
-    }
-  }, [volume]);
 
   // Immediate visual feedback handlers
   const handleButtonPress = useCallback((buttonId: string) => {
@@ -90,116 +93,56 @@ export function AudioPlayerBar({
   // Play with immediate UI feedback
   const handlePlay = useCallback(() => {
     handleButtonPress("play");
-    // UI updates immediately, audio follows
-    requestAnimationFrame(() => {
-      onPlay();
-      handleButtonRelease();
-    });
+    onPlay();
+    requestAnimationFrame(() => handleButtonRelease());
   }, [onPlay, handleButtonPress, handleButtonRelease]);
 
   // Pause with immediate UI feedback
   const handlePause = useCallback(() => {
     handleButtonPress("pause");
-    requestAnimationFrame(() => {
-      onPause();
-      handleButtonRelease();
-    });
+    onPause();
+    requestAnimationFrame(() => handleButtonRelease());
   }, [onPause, handleButtonPress, handleButtonRelease]);
 
   // Stop with immediate UI feedback
   const handleStop = useCallback(() => {
     handleButtonPress("stop");
-    requestAnimationFrame(() => {
-      onStop();
-      handleButtonRelease();
-    });
+    onStop();
+    requestAnimationFrame(() => handleButtonRelease());
   }, [onStop, handleButtonPress, handleButtonRelease]);
 
   // Seek backward with immediate UI feedback
   const handleSeekBackward = useCallback(() => {
     handleButtonPress("backward");
-    requestAnimationFrame(() => {
-      onSeekBackward();
-      handleButtonRelease();
-    });
+    onSeekBackward();
+    requestAnimationFrame(() => handleButtonRelease());
   }, [onSeekBackward, handleButtonPress, handleButtonRelease]);
 
   // Seek forward with immediate UI feedback
   const handleSeekForward = useCallback(() => {
     handleButtonPress("forward");
-    requestAnimationFrame(() => {
-      onSeekForward();
-      handleButtonRelease();
-    });
+    onSeekForward();
+    requestAnimationFrame(() => handleButtonRelease());
   }, [onSeekForward, handleButtonPress, handleButtonRelease]);
 
-  /**
-   * Volume control with IMMEDIATE UI update
-   * 
-   * CRITICAL: No debouncing - UI must update synchronously
-   * Audio volume is applied via requestAnimationFrame for smooth updates
-   * without blocking UI responsiveness
-   */
+  // Volume change - immediate callback dispatch
   const handleVolumeChange = useCallback(
     (value: number[]) => {
       const newVolume = value[0] / 100;
-      
-      // IMMEDIATE UI update - synchronous, no delay
-      setLocalVolume(newVolume);
-      
-      // Store pending volume for RAF
-      pendingVolumeRef.current = newVolume;
-      
-      // Apply audio volume via requestAnimationFrame
-      // This ensures smooth updates without blocking UI
-      if (rafRef.current === null) {
-        rafRef.current = requestAnimationFrame(() => {
-          if (pendingVolumeRef.current !== null) {
-            onVolumeChange(pendingVolumeRef.current);
-            pendingVolumeRef.current = null;
-          }
-          rafRef.current = null;
-        });
-      }
-    },
-    [onVolumeChange]
-  );
-
-  /**
-   * Handle volume change complete (pointer up)
-   * Ensures final volume value is applied
-   */
-  const handleVolumeCommit = useCallback(
-    (value: number[]) => {
-      const newVolume = value[0] / 100;
-      setLocalVolume(newVolume);
-      // Apply immediately on commit
       onVolumeChange(newVolume);
-      pendingVolumeRef.current = null;
     },
     [onVolumeChange]
   );
 
-  // Mute toggle with immediate feedback
+  // Mute toggle
   const handleMuteToggle = useCallback(() => {
-    const newVolume = localVolume > 0 ? 0 : 1;
-    setLocalVolume(newVolume);
-    onVolumeChange(newVolume);
-  }, [localVolume, onVolumeChange]);
-
-  // Cleanup RAF on unmount
-  useEffect(() => {
-    return () => {
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, []);
+    onVolumeChange(volume > 0 ? 0 : 1);
+  }, [volume, onVolumeChange]);
 
   // Button active state class
   const getButtonClass = (buttonId: string) =>
     cn(
-      "h-9 w-9 transition-none", // No transition for instant feedback
+      "h-9 w-9 transition-none",
       activeButton === buttonId && "bg-accent scale-95"
     );
 
@@ -288,7 +231,7 @@ export function AudioPlayerBar({
             </span>
           </div>
 
-          {/* Volume - IMMEDIATE UI feedback, no debounce */}
+          {/* Volume */}
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -297,23 +240,22 @@ export function AudioPlayerBar({
               onClick={handleMuteToggle}
               disabled={disabled}
             >
-              {localVolume === 0 ? (
+              {volume === 0 ? (
                 <VolumeX className="w-4 h-4" />
               ) : (
                 <Volume2 className="w-4 h-4" />
               )}
             </Button>
             <Slider
-              value={[localVolume * 100]}
+              value={[volume * 100]}
               max={100}
               step={1}
               className="w-20"
               onValueChange={handleVolumeChange}
-              onValueCommit={handleVolumeCommit}
               disabled={disabled}
             />
             <span className="text-xs font-mono text-muted-foreground w-8 tabular-nums">
-              {Math.round(localVolume * 100)}%
+              {Math.round(volume * 100)}%
             </span>
           </div>
         </div>

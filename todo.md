@@ -484,3 +484,41 @@
 - [x] Replace inline audio logic with AudioRuntime class
 - [x] Use ref-based time tracking instead of useState for currentTime during playback
 - [x] Only update React state on user interactions or playback stop
+
+
+## DetectX Audio Runtime Interface Integration (Stateless UI)
+
+### 1) Runtime Interface Types
+- [ ] Create shared/detectx-runtime.ts with DetectXAudioState interface
+- [ ] Create shared/detectx-runtime.ts with DetectXAudioActions interface
+- [ ] Export all types for UI consumption
+
+### 2) WaveformVisualization Stateless Refactor
+- [ ] Remove internal RAF loop
+- [ ] Remove internal time calculation
+- [ ] Accept audioBuffer, currentTime, duration, isDecoding from props
+- [ ] Accept onSeek callback only
+
+### 3) AudioPlayerBar Stateless Refactor
+- [ ] Remove internal audio context creation
+- [ ] Remove internal volume state management
+- [ ] Accept isPlaying, currentTime, duration, volume from props
+- [ ] Accept play, pause, stop, seek, seekForward, seekBackward, setVolume callbacks
+
+### 4) MetadataPanel Stateless Verification
+- [ ] Verify displays injected metadata only
+- [ ] No calculation or estimation allowed
+
+### 5) LiveScanConsole Stateless Refactor
+- [ ] Remove internal log generation
+- [ ] Remove timing logic
+- [ ] Accept scanLogs array from props only
+
+### 6) VerdictPanel Stateless Refactor
+- [ ] Remove verdict derivation logic
+- [ ] Display provided verdict text verbatim
+- [ ] Accept verdict object from props only
+
+### 7) Full Layout Component Integration
+- [ ] Create VerifyAudioPage layout component
+- [ ] Wire all stateless components to DetectXAudioState/Actions interfaces

@@ -1,5 +1,11 @@
 /**
- * Live Scan Console ("Hacker Terminal") Component
+ * LiveScanConsole - Stateless Presentation Component
+ * 
+ * INTEGRATION RULES (MANDATORY):
+ * - Renders injected logs only
+ * - No stage generation or timing logic
+ * - No internal log generation
+ * - All scan logs provided externally by DetectX
  * 
  * CANONICAL INTENT:
  * The Live Scan Console exists to communicate process, restraint, and forensic posture,
@@ -17,27 +23,36 @@
  * - Console output must not change verdict logic
  * - Messages may be displayed as static blocks or sequential logs
  * - No probability, likelihood, or confidence language is permitted
- * 
- * DESIGN CONSTRAINTS:
- * - Keep existing colors, card styles, buttons, typography
- * - Keep DetectX evidence-only rules
  */
 
 import { useEffect, useRef } from "react";
 import { Terminal } from "lucide-react";
 
-interface ScanLogEntry {
+/**
+ * Scan log entry type (exported for external use)
+ */
+export interface ScanLogEntry {
   timestamp: string;
   message: string;
   type: "info" | "process" | "complete" | "warning" | "constraint" | "philosophy";
 }
 
 interface LiveScanConsoleProps {
+  /** Whether verification is in progress (injected) */
   isVerifying: boolean;
+  /** Whether verification is complete (injected) */
   isComplete: boolean;
+  /** Scan logs to display (injected) */
   logs: ScanLogEntry[];
 }
 
+/**
+ * LiveScanConsole Component
+ * 
+ * Stateless presentation component that renders scan logs.
+ * No internal log generation, timing logic, or stage management.
+ * All logs are provided externally by DetectX.
+ */
 export function LiveScanConsole({
   isVerifying,
   isComplete,
@@ -137,100 +152,41 @@ export function LiveScanConsole({
 }
 
 /**
- * Generate scan log entries for verification process
+ * DEPRECATED: These functions are kept for backward compatibility only.
+ * In stateless integration, all log generation should be handled externally by DetectX.
  * 
- * AUTHORITATIVE TEXT SET:
- * - All text is informational only
- * - No intermediate verdicts are implied
- * - No probability, likelihood, or confidence language is permitted
+ * @deprecated Use externally provided logs instead
  */
 export function generateScanLogs(stage: string): ScanLogEntry {
   const timestamp = new Date().toLocaleTimeString();
   
   const stageMessages: Record<string, { message: string; type: ScanLogEntry["type"] }> = {
     // Core Status / Engine Philosophy
-    init: { 
-      message: "Real-time structural signal observation", 
-      type: "philosophy" 
-    },
-    engine: { 
-      message: "Geometry-primary verification engine active", 
-      type: "philosophy" 
-    },
-    baseline: { 
-      message: "Human baseline geometry enforced", 
-      type: "philosophy" 
-    },
-    deterministic: { 
-      message: "Deterministic execution under fixed conditions", 
-      type: "philosophy" 
-    },
+    init: { message: "Real-time structural signal observation", type: "philosophy" },
+    engine: { message: "Geometry-primary verification engine active", type: "philosophy" },
+    baseline: { message: "Human baseline geometry enforced", type: "philosophy" },
+    deterministic: { message: "Deterministic execution under fixed conditions", type: "philosophy" },
     
     // Scan Process (Observation Log)
-    pipeline: { 
-      message: "Initializing forensic scan pipeline", 
-      type: "process" 
-    },
-    lock: { 
-      message: "Locking analysis parameters", 
-      type: "process" 
-    },
-    upload: { 
-      message: "Uploading audio file to secure storage", 
-      type: "process" 
-    },
-    decode: { 
-      message: "Establishing normalization coordinate space", 
-      type: "process" 
-    },
-    spectral: { 
-      message: "Observing residual structure", 
-      type: "process" 
-    },
-    temporal: { 
-      message: "Monitoring residual persistence", 
-      type: "process" 
-    },
-    geometry: { 
-      message: "Evaluating cross-stem geometry", 
-      type: "process" 
-    },
-    crg: { 
-      message: "Comparing against human geometry envelope", 
-      type: "process" 
-    },
+    pipeline: { message: "Initializing forensic scan pipeline", type: "process" },
+    lock: { message: "Locking analysis parameters", type: "process" },
+    upload: { message: "Uploading audio file to secure storage", type: "process" },
+    decode: { message: "Establishing normalization coordinate space", type: "process" },
+    spectral: { message: "Observing residual structure", type: "process" },
+    temporal: { message: "Monitoring residual persistence", type: "process" },
+    geometry: { message: "Evaluating cross-stem geometry", type: "process" },
+    crg: { message: "Comparing against human geometry envelope", type: "process" },
     
     // Constraints & Ethics (Non-Negotiable)
-    constraint_prob: { 
-      message: "No probabilistic inference is performed", 
-      type: "constraint" 
-    },
-    constraint_author: { 
-      message: "No authorship or intent is inferred", 
-      type: "constraint" 
-    },
-    constraint_style: { 
-      message: "No similarity or style comparison is used", 
-      type: "constraint" 
-    },
-    constraint_classify: { 
-      message: "This system does not classify or predict", 
-      type: "constraint" 
-    },
-    constraint_absence: { 
-      message: "Absence of evidence is a valid outcome", 
-      type: "constraint" 
-    },
+    constraint_prob: { message: "No probabilistic inference is performed", type: "constraint" },
+    constraint_author: { message: "No authorship or intent is inferred", type: "constraint" },
+    constraint_style: { message: "No similarity or style comparison is used", type: "constraint" },
+    constraint_classify: { message: "This system does not classify or predict", type: "constraint" },
+    constraint_absence: { message: "Absence of evidence is a valid outcome", type: "constraint" },
     
     // Pre-Verdict State (Completion Gate)
-    finalize: { 
-      message: "Final geometry evaluation pending", 
-      type: "process" 
-    },
-    complete: { 
-      message: "Results will be disclosed after full scan completion", 
-      type: "complete" 
-    },
+    finalize: { message: "Final geometry evaluation pending", type: "process" },
+    complete: { message: "Results will be disclosed after full scan completion", type: "complete" },
   };
 
   const entry = stageMessages[stage] || { message: stage, type: "info" as const };
@@ -238,30 +194,16 @@ export function generateScanLogs(stage: string): ScanLogEntry {
 }
 
 /**
- * Generate the full sequence of scan logs for a complete verification
- * Returns an array of stage keys to be processed sequentially
+ * DEPRECATED: Use externally provided logs instead.
+ * 
+ * @deprecated All log generation should be handled externally by DetectX
  */
 export function getFullScanSequence(): string[] {
   return [
-    // Engine Philosophy (shown at start)
-    "init",
-    "engine",
-    "baseline",
-    "deterministic",
-    // Scan Process
-    "pipeline",
-    "lock",
-    "upload",
-    "decode",
-    "spectral",
-    "temporal",
-    "geometry",
-    "crg",
-    // Constraints (shown during processing)
-    "constraint_prob",
-    "constraint_author",
-    // Completion
-    "finalize",
-    "complete",
+    "init", "engine", "baseline", "deterministic",
+    "pipeline", "lock", "upload", "decode",
+    "spectral", "temporal", "geometry", "crg",
+    "constraint_prob", "constraint_author",
+    "finalize", "complete",
   ];
 }

@@ -17,6 +17,12 @@ import { Button } from "@/components/ui/button";
 import { FileJson, FileSpreadsheet, FileText, FileType, Download } from "lucide-react";
 import JSZip from "jszip";
 
+interface VerdictResult {
+  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+  authority: "CR-G";
+  exceeded_axes: string[];
+}
+
 interface ExportData {
   fileName: string;
   fileSize: number;
@@ -26,7 +32,7 @@ interface ExportData {
   channels: number | null;
   codec: string | null;
   fileHash: string | null;
-  verdict: "observed" | "not_observed" | null;
+  verdict: VerdictResult | null;
   crgStatus: string | null;
   primaryExceededAxis: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
@@ -38,11 +44,10 @@ interface ExportPanelProps {
   disabled?: boolean;
 }
 
-// ONLY allowed verdict texts - NO probabilities, confidence scores, or AI model names
-const VERDICT_TEXTS = {
-  observed: "AI signal evidence was observed.",
-  not_observed: "AI signal evidence was not observed.",
-} as const;
+// Helper to get verdict text from VerdictResult
+function getVerdictText(verdict: VerdictResult | null): string {
+  return verdict?.verdict || "";
+}
 
 function formatDuration(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
@@ -52,7 +57,7 @@ function formatDuration(ms: number): string {
 }
 
 function generatePDFContent(data: ExportData): string {
-  const verdictText = data.verdict ? VERDICT_TEXTS[data.verdict] : "Pending";
+  const verdictText = getVerdictText(data.verdict) || "Pending";
 
   return `
 <!DOCTYPE html>
@@ -89,7 +94,7 @@ function generatePDFContent(data: ExportData): string {
   </table>
   
   <h2>Verification Result</h2>
-  <div class="verdict ${data.verdict === "observed" ? "observed" : ""}">
+  <div class="verdict ${data.verdict?.verdict === "AI signal evidence was observed." ? "observed" : ""}">
     ${verdictText}
   </div>
   
@@ -136,8 +141,8 @@ function generateJSON(data: ExportData): string {
       hash: data.fileHash,
     },
     verification: {
-      verdict: data.verdict ? VERDICT_TEXTS[data.verdict] : null,
-      verdictCode: data.verdict,
+      verdict: getVerdictText(data.verdict),
+      verdictCode: data.verdict?.verdict || null,
       crgStatus: data.crgStatus,
       primaryExceededAxis: data.primaryExceededAxis,
     },
@@ -189,7 +194,7 @@ function generateCSV(data: ExportData): string {
     data.channels || "",
     escapeCSV(data.codec),
     escapeCSV(data.fileHash),
-    escapeCSV(data.verdict ? VERDICT_TEXTS[data.verdict] : ""),
+    escapeCSV(getVerdictText(data.verdict)),
     escapeCSV(data.crgStatus),
     escapeCSV(data.primaryExceededAxis),
     escapeCSV(data.analysisTimestamp),
@@ -211,7 +216,7 @@ function generateCSV(data: ExportData): string {
 }
 
 function generateMarkdown(data: ExportData): string {
-  const verdictText = data.verdict ? VERDICT_TEXTS[data.verdict] : "Pending";
+  const verdictText = getVerdictText(data.verdict) || "Pending";
 
   let md = `# DetectX Audio Verification Report
 

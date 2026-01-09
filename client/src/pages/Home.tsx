@@ -13,7 +13,7 @@ import { TemporalAnalysis } from "@/components/TemporalAnalysis";
 import { TimelineAnalysis } from "@/components/TimelineAnalysis";
 import { TimelineContext } from "@/components/TimelineContext";
 import { VerdictPanel } from "@/components/VerdictPanel";
-import { WaveformVisualization, WaveformVisualizationRef } from "@/components/WaveformVisualization";
+import { WaveformVisualization } from "@/components/WaveformVisualization";
 import { AudioRuntime } from "@/lib/audioRuntime";
 import { startDualTimeLoop } from "@/lib/timeLoop";
 import { trpc } from "@/lib/trpc";
@@ -49,8 +49,14 @@ interface FileMetadata {
   fileSize: number;
 }
 
+interface VerdictResult {
+  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+  authority: "CR-G";
+  exceeded_axes: string[];
+}
+
 interface VerificationResult {
-  verdict: "observed" | "not_observed" | null;
+  verdict: VerdictResult | null;
   crgStatus: string | null;
   primaryExceededAxis: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
@@ -136,8 +142,7 @@ export default function Home() {
   const audioRuntimeRef = useRef<AudioRuntime | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   
-  // Waveform visualization ref for playhead updates
-  const waveformRef = useRef<WaveformVisualizationRef>(null);
+  // Waveform visualization is now stateless - no ref needed
   
   // Time loop cleanup ref
   const timeLoopCleanupRef = useRef<(() => void) | null>(null);
@@ -296,10 +301,8 @@ export default function Home() {
     timeLoopCleanupRef.current = startDualTimeLoop(
       audioRuntimeRef.current,
       duration,
-      // Fast callback: update playhead canvas via ref (every frame)
-      (t) => {
-        waveformRef.current?.updatePlayhead(t);
-      },
+      // Fast callback: no-op (playhead now controlled by currentTime prop)
+      () => {},
       // Slow callback: update React state (every 100ms)
       (t) => {
         setCurrentTime(t);
@@ -342,8 +345,7 @@ export default function Home() {
       audioRuntimeRef.current.reset();
     }
     
-    // Clear playhead
-    waveformRef.current?.updatePlayhead(0);
+    // Playhead is now controlled by currentTime prop
   }, []);
 
   const seekBackward = useCallback(() => {
@@ -352,7 +354,6 @@ export default function Home() {
     
     if (audioRuntimeRef.current && audioBuffer) {
       audioRuntimeRef.current.seek(newTime, audioBuffer);
-      waveformRef.current?.updatePlayhead(newTime);
     }
   }, [currentTime, audioBuffer]);
 
@@ -362,7 +363,6 @@ export default function Home() {
     
     if (audioRuntimeRef.current && audioBuffer) {
       audioRuntimeRef.current.seek(newTime, audioBuffer);
-      waveformRef.current?.updatePlayhead(newTime);
     }
   }, [currentTime, duration, audioBuffer]);
 
@@ -373,9 +373,8 @@ export default function Home() {
     (time: number) => {
       const clampedTime = Math.max(0, Math.min(time, duration));
       
-      // Immediate UI update
+      // Immediate UI update - playhead controlled by currentTime prop
       setCurrentTime(clampedTime);
-      waveformRef.current?.updatePlayhead(clampedTime);
       
       // Seek audio
       if (audioRuntimeRef.current && audioBuffer) {
@@ -450,9 +449,19 @@ export default function Home() {
         id: verification.id,
       });
       
-      // Update result
+      // Update result - convert to VerdictResult format
+      const verdictText = result.verdict === "observed" 
+        ? "AI signal evidence was observed." as const
+        : result.verdict === "not_observed"
+        ? "AI signal evidence was not observed." as const
+        : null;
+      
       setVerificationResult({
-        verdict: result.verdict as "observed" | "not_observed" | null,
+        verdict: verdictText ? {
+          verdict: verdictText,
+          authority: "CR-G" as const,
+          exceeded_axes: result.primaryExceededAxis ? [result.primaryExceededAxis] : [],
+        } : null,
         crgStatus: result.crgStatus,
         primaryExceededAxis: result.primaryExceededAxis,
         timelineMarkers: result.timelineMarkers || [],
@@ -472,8 +481,19 @@ export default function Home() {
     if (getByIdQuery.data && isVerifying) {
       const data = getByIdQuery.data;
       if (data.status === "completed") {
+        // Convert to VerdictResult format
+        const verdictText = data.verdict === "observed" 
+          ? "AI signal evidence was observed." as const
+          : data.verdict === "not_observed"
+          ? "AI signal evidence was not observed." as const
+          : null;
+        
         setVerificationResult({
-          verdict: data.verdict as "observed" | "not_observed" | null,
+          verdict: verdictText ? {
+            verdict: verdictText,
+            authority: "CR-G" as const,
+            exceeded_axes: data.primaryExceededAxis ? [data.primaryExceededAxis] : [],
+          } : null,
           crgStatus: data.crgStatus,
           primaryExceededAxis: data.primaryExceededAxis,
           timelineMarkers: [],
@@ -504,13 +524,10 @@ export default function Home() {
         {/* Center column - Waveform, Player, and Live Scan Console */}
         <div className="lg:col-span-2 flex flex-col gap-0">
           <WaveformVisualization
-            ref={waveformRef}
             audioBuffer={audioBuffer}
             currentTime={currentTime}
             duration={duration}
-            markers={verificationResult?.timelineMarkers || []}
             onSeek={handleSeek}
-            isPlaying={isPlaying}
             isDecoding={isDecodingAudio}
           />
           <AudioPlayerBar
@@ -540,8 +557,6 @@ export default function Home() {
       <div className="mt-6">
         <VerdictPanel
           verdict={verificationResult?.verdict ?? null}
-          crgStatus={verificationResult?.crgStatus ?? null}
-          primaryExceededAxis={verificationResult?.primaryExceededAxis ?? null}
           isProcessing={isVerifying}
         />
       </div>

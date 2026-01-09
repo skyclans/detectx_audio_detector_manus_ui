@@ -1,57 +1,50 @@
+/**
+ * VerdictPanel - Stateless Presentation Component
+ * 
+ * INTEGRATION RULES (MANDATORY):
+ * - Must display the provided verdict text verbatim
+ * - No verdict derivation or interpretation
+ * - Accept verdict object from props only
+ * - All verdict authority provided externally by DetectX
+ * 
+ * ALLOWED VERDICT TEXTS (ONLY TWO):
+ * - "AI signal evidence was observed."
+ * - "AI signal evidence was not observed."
+ * 
+ * NO probability, NO confidence, NO severity, NO AI model attribution.
+ * This is a forensic evidence viewer, not an AI classifier.
+ */
+
 import { cn } from "@/lib/utils";
 
+/**
+ * Verdict result interface (matches DetectXAudioState.verdict)
+ */
+interface VerdictResult {
+  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+  authority: "CR-G";
+  exceeded_axes: string[];
+}
+
 interface VerdictPanelProps {
-  verdict: "observed" | "not_observed" | null;
-  crgStatus: string | null;
-  primaryExceededAxis: string | null;
+  /** Verdict result from CR-G analysis (injected) */
+  verdict: VerdictResult | null;
+  /** Whether verification is in progress */
   isProcessing?: boolean;
 }
 
 /**
- * VERDICT DETERMINATION LOGIC
+ * VerdictPanel Component
  * 
- * The verdict is strictly controlled by CR-G status:
- * - CR-G_exceeded → "AI signal evidence was observed."
- * - CR-G_within_bounds → "AI signal evidence was not observed."
- * 
- * NO probability, NO confidence, NO severity scoring.
- * This is a forensic evidence viewer, not an AI classifier.
+ * Stateless presentation component that displays verdict results.
+ * No verdict derivation, interpretation, or calculation.
+ * All verdict authority is provided externally by DetectX.
  */
-const VERDICT_TEXTS = {
-  observed: "AI signal evidence was observed.",
-  not_observed: "AI signal evidence was not observed.",
-} as const;
-
-/**
- * Derives verdict strictly from CR-G status.
- * CR-G status is the single source of truth for verdict determination.
- */
-function deriveVerdictFromCRG(
-  crgStatus: string | null,
-  providedVerdict: "observed" | "not_observed" | null
-): "observed" | "not_observed" | null {
-  if (!crgStatus) return providedVerdict;
-  
-  // CR-G status strictly controls verdict
-  if (crgStatus.includes("exceeded")) {
-    return "observed";
-  }
-  if (crgStatus.includes("within_bounds") || crgStatus.includes("normal")) {
-    return "not_observed";
-  }
-  
-  return providedVerdict;
-}
-
 export function VerdictPanel({
   verdict,
-  crgStatus,
-  primaryExceededAxis,
   isProcessing = false,
 }: VerdictPanelProps) {
-  // Derive verdict strictly from CR-G status
-  const derivedVerdict = deriveVerdictFromCRG(crgStatus, verdict);
-
+  // Processing state
   if (isProcessing) {
     return (
       <div className="forensic-panel">
@@ -68,7 +61,8 @@ export function VerdictPanel({
     );
   }
 
-  if (!derivedVerdict) {
+  // No verdict yet
+  if (!verdict || !verdict.verdict) {
     return (
       <div className="forensic-panel">
         <div className="forensic-panel-header">Verification Result</div>
@@ -81,15 +75,18 @@ export function VerdictPanel({
     );
   }
 
+  // Determine display style based on verdict text
+  const isObserved = verdict.verdict === "AI signal evidence was observed.";
+
   return (
     <div className="forensic-panel">
       <div className="forensic-panel-header">Verification Result</div>
       <div className="forensic-panel-content space-y-6">
-        {/* Main verdict - NO icons, NO confidence score, NO percentage */}
+        {/* Main verdict - displayed verbatim from props */}
         <div
           className={cn(
             "p-4 rounded-md border-l-4",
-            derivedVerdict === "observed"
+            isObserved
               ? "bg-forensic-amber/10 border-forensic-amber"
               : "bg-forensic-green/10 border-forensic-green"
           )}
@@ -97,10 +94,10 @@ export function VerdictPanel({
           <p
             className={cn(
               "text-lg font-medium",
-              derivedVerdict === "observed" ? "text-forensic-amber" : "text-forensic-green"
+              isObserved ? "text-forensic-amber" : "text-forensic-green"
             )}
           >
-            {VERDICT_TEXTS[derivedVerdict]}
+            {verdict.verdict}
           </p>
         </div>
 
@@ -108,20 +105,20 @@ export function VerdictPanel({
         <div className="space-y-3">
           <div className="flex justify-between items-center py-2 border-b border-border/50">
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              CR-G Status
+              Authority
             </span>
             <span className="text-sm font-mono text-foreground">
-              {crgStatus || "—"}
+              {verdict.authority}
             </span>
           </div>
 
-          {primaryExceededAxis && (
+          {verdict.exceeded_axes.length > 0 && (
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                Primary Exceeded Axis
+                Exceeded Axes
               </span>
               <span className="text-sm font-mono text-foreground">
-                {primaryExceededAxis}
+                {verdict.exceeded_axes.join(", ")}
               </span>
             </div>
           )}

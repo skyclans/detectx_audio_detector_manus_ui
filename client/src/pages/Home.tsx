@@ -511,6 +511,13 @@ export default function Home() {
     }
   }, [getByIdQuery.data, isVerifying]);
 
+  // Debug: Log verification result changes
+  useEffect(() => {
+    console.log("[DEBUG] verificationResult changed:", verificationResult);
+    console.log("[DEBUG] verificationResult.verdict:", verificationResult?.verdict);
+    console.log("[DEBUG] isVerifying:", isVerifying);
+  }, [verificationResult, isVerifying]);
+
   return (
     <ForensicLayout>
       {/* Top section - Upload, Metadata, Waveform */}

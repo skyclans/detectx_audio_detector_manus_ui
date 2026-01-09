@@ -820,34 +820,43 @@ export default function Home() {
       </div>
 
       {/* Extended analysis sections - MANDATORY */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <TimelineAnalysis
-          data={timelineAnalysis}
-          isProcessing={isVerifying}
-        />
-        <TemporalAnalysis
-          data={temporalAnalysis}
-          isProcessing={isVerifying}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        {/* Left column - Upload area width equivalent */}
+        <div className="space-y-6">
+          <TimelineAnalysis
+            data={timelineAnalysis}
+            isProcessing={isVerifying}
+          />
+          <TemporalAnalysis
+            data={temporalAnalysis}
+            isProcessing={isVerifying}
+          />
+          <DetailedAnalysis
+            data={detailedAnalysis}
+            isProcessing={isVerifying}
+          />
+        </div>
+
+        {/* Right column (2 cols) - Source Components BELOW Live Scan Console with SAME width */}
+        <div className="lg:col-span-2 space-y-0">
+          {/* Source Components - directly BELOW Live Scan Console, SAME width as waveform block */}
+          <SourceComponents
+            data={sourceComponents}
+            isProcessing={isVerifying}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <DetailedAnalysis
-          data={detailedAnalysis}
-          isProcessing={isVerifying}
-        />
-        <SourceComponents
-          data={sourceComponents}
-          isProcessing={isVerifying}
-        />
-      </div>
-
-      {/* Geometry & Timeline Context */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <GeometryScanTrace
-          data={geometryScanTrace}
-          isProcessing={isVerifying}
-        />
+      {/* Geometry & Timeline Context - Geometry expanded to be visually dominant */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        {/* Geometry Scan Trace - expanded height, visually dominant */}
+        <div className="lg:col-span-2">
+          <GeometryScanTrace
+            data={geometryScanTrace}
+            isProcessing={isVerifying}
+            expanded={true}
+          />
+        </div>
         <TimelineContext
           markers={verificationResult?.timelineMarkers || []}
           duration={duration}

@@ -45,6 +45,7 @@
   --color-forensic-cyan-dim: var(--forensic-cyan-dim);
   --color-forensic-green: var(--forensic-green);
   --color-forensic-amber: var(--forensic-amber);
+  --color-forensic-purple: var(--forensic-purple);
 }
 
 :root {
@@ -83,6 +84,7 @@
   --forensic-cyan-dim: oklch(0.55 0.10 195);
   --forensic-green: oklch(0.70 0.15 145);
   --forensic-amber: oklch(0.75 0.15 85);
+  --forensic-purple: oklch(0.65 0.15 300);
   /* Charts */
   --chart-1: oklch(0.75 0.15 195);
   --chart-2: oklch(0.65 0.12 195);
@@ -123,6 +125,7 @@
   --forensic-cyan-dim: oklch(0.55 0.10 195);
   --forensic-green: oklch(0.70 0.15 145);
   --forensic-amber: oklch(0.75 0.15 85);
+  --forensic-purple: oklch(0.65 0.15 300);
   --chart-1: oklch(0.75 0.15 195);
   --chart-2: oklch(0.65 0.12 195);
   --chart-3: oklch(0.55 0.10 195);

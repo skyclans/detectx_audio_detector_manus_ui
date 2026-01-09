@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
 import { Skeleton } from "./ui/skeleton";
 
 interface NavItem {
@@ -85,6 +84,12 @@ function NavItemComponent({ item, isActive }: { item: NavItem; isActive: boolean
   );
 }
 
+/**
+ * SIDEBAR BRAND HEIGHT: h-20 (80px)
+ * Header must EXACTLY match this height for visual alignment
+ */
+const BRAND_HEIGHT = "h-20"; // 80px - shared between sidebar brand and header
+
 function Sidebar() {
   const [location] = useLocation();
   const { user, loading, logout } = useAuth();
@@ -92,7 +97,7 @@ function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Brand - Logo as primary brand element */}
-      <div className="h-20 flex items-center px-6 border-b border-sidebar-border">
+      <div className={cn(BRAND_HEIGHT, "flex items-center px-6 border-b border-sidebar-border")}>
         <div className="flex items-center gap-4">
           <img
             src="/detectx-logo.png"
@@ -175,6 +180,13 @@ interface HeaderProps {
   subtitle: string;
 }
 
+/**
+ * HEADER LAYOUT OVERRIDE:
+ * - Height EXACTLY matches sidebar brand area (h-20 = 80px)
+ * - Navigation font size increased for improved readability
+ * - Improved contrast for high visibility
+ * - Navigation feels clear, deliberate, and professional
+ */
 function Header({ title, subtitle }: HeaderProps) {
   const headerLinks = [
     { label: "Home", href: "#" },
@@ -186,17 +198,24 @@ function Header({ title, subtitle }: HeaderProps) {
   ];
 
   return (
-    <header className="h-16 bg-sidebar border-b border-border flex items-center justify-between px-6">
+    <header className={cn(
+      BRAND_HEIGHT, // EXACTLY match sidebar brand height
+      "bg-sidebar border-b border-border flex items-center justify-between px-8"
+    )}>
       <div>
-        <h1 className="text-lg font-semibold text-foreground">{title}</h1>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
+        <h1 className="text-xl font-semibold text-foreground tracking-tight">{title}</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
       </div>
-      <nav className="flex items-center gap-6">
+      <nav className="flex items-center gap-8">
         {headerLinks.map((link) => (
           <a
             key={link.label}
             href={link.href}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className={cn(
+              "text-base font-medium transition-colors",
+              "text-foreground/70 hover:text-foreground",
+              "tracking-wide"
+            )}
           >
             {link.label}
           </a>

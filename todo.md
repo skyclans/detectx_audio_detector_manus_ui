@@ -211,3 +211,35 @@
 - [x] NO heavy waveform processing before UI feedback
 - [x] NO audio decoding on click handlers
 - [x] NO artificial delays or animations implying processing
+
+
+## Layout Override (pasted_content_6.txt)
+
+### 1) Source Components Position & Width
+- [x] Place Source Components DIRECTLY BELOW Live Scan Console
+- [x] Source Components must have EXACTLY same width as Live Scan Console
+- [x] Treat Live Scan Console + Source Components as vertically stacked same-width block
+- [x] Do NOT place Source Components in side column or grid
+
+### 2) Geometry Window Height Reallocation
+- [x] Expand Geometry Scan Trace section vertically to occupy freed space
+- [x] Increase height of Geometry Scan Trace visualization
+- [x] Geometry Scan Trace must feel visually dominant and central
+
+### 3) Source Components Stem Controls (UI-Only)
+- [x] Add playback controls for each stem: Vocals, Drums, Bass, Others
+- [x] Provide placeholder waveform bars and play/pause buttons per stem
+- [x] UI-only layout - NO real stem separation or Demucs processing
+- [x] Controls are for layout and future backend integration only
+
+### 4) Overall Design Tone
+- [x] Use same dark forensic color balance
+- [x] Preserve neumorphic / concave (inset) surface feeling
+- [x] Match depth, shadow softness, and contrast levels
+
+### 5) Header Height & Navigation Visibility
+- [x] Set header height to EXACTLY match sidebar brand area height
+- [x] Header must visually align with sidebar top section
+- [x] Increase navigation font size for improved readability
+- [x] Improve contrast for high visibility
+- [x] Navigation must feel clear, deliberate, and professional

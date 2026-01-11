@@ -631,3 +631,19 @@
 - [ ] No percentages, confidence scores, or severity indicators
 - [ ] No narrative conclusions or summaries
 - [ ] Clicking timeline items must seek audio playback
+
+
+## DetectX Homepage Landing Page Design
+- [x] Create Homepage component with forensic, technical tone
+- [x] Hero Section: title, supporting lines, CTA, subtext (exact copy)
+- [x] Core Section: DetectX Audio description and key principles
+- [x] How It Works: 4-step process with deterministic note
+- [x] Clear Verdict Semantics: two possible outcomes only
+- [x] Mid-Page Action: secondary entry point to Verify Audio
+- [x] Protecting Human Creativity section
+- [x] Who Uses DetectX Audio: professional contexts list
+- [x] Other Detection Modalities: muted/secondary section
+- [x] Newsletter Signup: email input near footer
+- [x] Footer Principle: "DetectX does not determine authorship" statement
+- [x] Header navigation: Technology, Research, Updates, Blog, About, Contact, Verify Audio
+- [x] Calm, restrained, text-first design (no illustrations, no hype)

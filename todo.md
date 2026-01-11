@@ -647,3 +647,17 @@
 - [x] Footer Principle: "DetectX does not determine authorship" statement
 - [x] Header navigation: Technology, Research, Updates, Blog, About, Contact, Verify Audio
 - [x] Calm, restrained, text-first design (no illustrations, no hype)
+
+
+## Homepage Redesign with Images (Jan 11)
+- [x] Copy section images to public/images folder
+- [x] Implement dark/light mode CSS variables
+- [x] Add theme toggle button in header
+- [x] Hero Section: text left, image right (herosection.png)
+- [x] Core Section: image left, text right (coresection.png)
+- [x] How It Works Section: text left, image right (howitworkssection.png)
+- [x] Clear Verdict Semantics: image left, text right (ClearVerdictSemanticssection.png)
+- [x] Protecting Human Creativity: text left, image right (ProtectingHumanCreativitysection.png)
+- [x] Who Uses DetectX Audio: image left, text right (WhoUsesDetectXAudiosection.png)
+- [x] Light mode: clean, neutral, low-contrast design
+- [x] Calm, technical, forensic tone (not SaaS/marketing)

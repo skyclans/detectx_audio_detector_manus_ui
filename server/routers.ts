@@ -95,22 +95,60 @@ export const appRouter = router({
         // Process file in-memory - no storage
         const fileBuffer = Buffer.from(input.fileData, "base64");
 
-        // Simulate analysis (in production, forward to DetectX server)
-        // Generate deterministic, evidence-based results
-        const analysisResult = simulateForensicAnalysis({
-          duration: input.duration,
-          sampleRate: input.sampleRate,
-          fileSize: input.fileSize,
-        });
+        try {
+          // Forward to DetectX Audio Server
+          const DETECTX_SERVER_URL = process.env.DETECTX_SERVER_URL || "http://localhost:8000";
 
-        // Return results immediately - no database storage
-        return {
-          success: true,
-          verdict: analysisResult.verdict,
-          crgStatus: analysisResult.crgStatus,
-          primaryExceededAxis: analysisResult.primaryExceededAxis,
-          timelineMarkers: analysisResult.timelineMarkers,
-        };
+          const FormData = (await import("form-data")).default;
+          const axios = (await import("axios")).default;
+
+          const formData = new FormData();
+          formData.append("file", fileBuffer, {
+            filename: input.fileName,
+            contentType: "audio/mpeg", // Will be auto-detected by server
+          });
+
+          const response = await axios.post(
+            `${DETECTX_SERVER_URL}/verify-audio`,
+            formData,
+            {
+              headers: formData.getHeaders(),
+              maxBodyLength: 200 * 1024 * 1024, // 200MB max
+              timeout: 300000, // 5 minutes timeout
+            }
+          );
+
+          const detectxResult = response.data;
+
+          // Map DetectX response to Manus format
+          const verdict: "observed" | "not_observed" =
+            detectxResult.verdict === "AI signal evidence was observed."
+              ? "observed"
+              : "not_observed";
+
+          const crgStatus = verdict === "observed" ? "CR-G_exceeded" : "CR-G_within_HDB-G";
+          const primaryExceededAxis =
+            detectxResult.exceeded_axes && detectxResult.exceeded_axes.length > 0
+              ? detectxResult.exceeded_axes[0]
+              : null;
+
+          // Return results immediately - no database storage
+          return {
+            success: true,
+            verdict,
+            crgStatus,
+            primaryExceededAxis,
+            timelineMarkers: [], // DetectX doesn't provide timeline markers yet
+          };
+        } catch (error: any) {
+          console.error("DetectX Audio Server error:", error.message);
+
+          // If DetectX server is unavailable, throw error
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `DetectX Audio Server error: ${error.message}`,
+          });
+        }
       }),
   }),
 });

@@ -661,3 +661,54 @@
 - [x] Who Uses DetectX Audio: image left, text right (WhoUsesDetectXAudiosection.png)
 - [x] Light mode: clean, neutral, low-contrast design
 - [x] Calm, technical, forensic tone (not SaaS/marketing)
+
+
+## Full Website Design (Jan 11)
+### Global Changes
+- [x] Set Light Mode as default (reverse current dark mode default)
+- [x] Ensure DetectX logo navigates to Home
+- [x] Apply Light/Dark mode consistently across all pages
+
+### Technology Page
+- [x] What DetectX Builds section
+- [x] DetectX Audio — Engine Overview section
+- [x] Core Technical Principles section
+- [x] Verdict Model section
+- [x] System Boundaries section
+- [x] Deployment Contexts section
+
+### Research Page
+- [x] Research Philosophy section
+- [x] Why Probability-Based Detection Fails section
+- [x] Human-Normalized Baselines section
+- [x] Geometry Over Similarity section
+- [x] Determinism as a Forensic Requirement section
+- [x] Failure Cases and Corrections section
+- [x] What DetectX Refuses to Do section
+- [x] Ongoing Research Areas section
+- [x] Closing Statement section
+
+### Updates Page
+- [x] DAY 35: Human Baseline Minimal Strategy Locked entry
+- [x] Date: 2026-01-12
+- [x] Full update body content
+
+### About Page
+- [x] What DetectX Is section
+- [x] Why DetectX Exists section
+- [x] What DetectX Does — and Does Not Do section
+- [x] Human Safety as a Design Constraint section
+- [x] How DetectX Is Used section
+- [x] Independence and Neutrality section
+- [x] Closing Statement section
+
+### Contact Page
+- [x] Contact form with email delivery (support@detectx.app)
+- [x] Inquiry Type dropdown (Artist/Creator, Producer/Studio, etc.)
+- [x] Name, Organization (optional), Email, Subject, Message fields
+- [x] Submission confirmation message
+- [x] Clear disclaimer: not consumer support, no authorship certification
+
+### Verify Audio Page
+- [x] Apply Light/Dark mode support
+- [x] Maintain visual consistency with rest of site

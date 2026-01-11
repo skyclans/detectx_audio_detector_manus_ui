@@ -11,7 +11,7 @@ import { Sun, Moon } from "lucide-react";
  * Design Principles:
  * - Calm, restrained, factual, technical tone
  * - Alternating image-text layout for clarity
- * - Dark mode default, light mode clean/neutral/low-contrast
+ * - Light mode default, dark mode calm/forensic/low-contrast
  * - No hype, buzzwords, slogans
  * - Forensic system entry point, not marketing site
  * - All copy used verbatim from specification

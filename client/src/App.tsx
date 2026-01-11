@@ -10,6 +10,11 @@ import History from "./pages/History";
 import Settings from "./pages/Settings";
 import Plan from "./pages/Plan";
 import ComingSoon from "./pages/ComingSoon";
+import Technology from "./pages/Technology";
+import Research from "./pages/Research";
+import Updates from "./pages/Updates";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 function Router() {
   return (
@@ -30,13 +35,13 @@ function Router() {
       <Route path="/text" component={ComingSoon} />
       <Route path="/anime" component={ComingSoon} />
       
-      {/* Static pages (placeholder) */}
-      <Route path="/technology" component={ComingSoon} />
-      <Route path="/research" component={ComingSoon} />
-      <Route path="/updates" component={ComingSoon} />
+      {/* Static pages */}
+      <Route path="/technology" component={Technology} />
+      <Route path="/research" component={Research} />
+      <Route path="/updates" component={Updates} />
       <Route path="/blog" component={ComingSoon} />
-      <Route path="/about" component={ComingSoon} />
-      <Route path="/contact" component={ComingSoon} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
@@ -47,7 +52,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark" switchable={true}>
+      <ThemeProvider defaultTheme="light" switchable={true}>
         <TooltipProvider>
           <Toaster />
           <Router />

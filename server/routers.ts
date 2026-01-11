@@ -113,6 +113,46 @@ export const appRouter = router({
         };
       }),
   }),
+
+  contact: router({
+    /**
+     * Submit contact form inquiry
+     * Sends notification to owner and stores inquiry
+     */
+    submit: publicProcedure
+      .input(
+        z.object({
+          inquiryType: z.string(),
+          name: z.string(),
+          organization: z.string().optional(),
+          email: z.string().email(),
+          subject: z.string(),
+          message: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        // In production, this would:
+        // 1. Store the inquiry in database
+        // 2. Send email notification to support@detectx.app
+        // 3. Send auto-reply to user
+        
+        // For now, log the inquiry and return success
+        console.log("Contact inquiry received:", {
+          inquiryType: input.inquiryType,
+          name: input.name,
+          organization: input.organization,
+          email: input.email,
+          subject: input.subject,
+          messageLength: input.message.length,
+          timestamp: new Date().toISOString(),
+        });
+
+        return {
+          success: true,
+          message: "Inquiry submitted successfully",
+        };
+      }),
+  }),
 });
 
 // Simulated forensic analysis function

@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   ChevronRight,
   Clock,
@@ -9,6 +10,9 @@ import {
   Settings,
   User,
   AudioLines,
+  Sun,
+  Moon,
+  Home,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -31,7 +35,7 @@ const navSections: NavSection[] = [
   {
     title: "Verify",
     items: [
-      { label: "Audio", href: "/", icon: <AudioLines className="w-4 h-4" /> },
+      { label: "Audio", href: "/verify-audio", icon: <AudioLines className="w-4 h-4" /> },
     ],
   },
   {
@@ -87,19 +91,37 @@ const BRAND_HEIGHT = "h-20"; // 80px - shared between sidebar brand and header
 function Sidebar() {
   const [location] = useLocation();
   const { user, loading, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Brand - Logo as primary brand element */}
-      <div className={cn(BRAND_HEIGHT, "flex items-center px-6 border-b border-sidebar-border")}>
-        <div className="flex items-center gap-4">
+      <div className={cn(BRAND_HEIGHT, "flex items-center justify-between px-6 border-b border-sidebar-border")}>
+        <Link href="/" className="flex items-center gap-4">
           <img
             src="/detectx-logo.png"
             alt="DetectX"
             className="w-10 h-10 object-contain"
           />
           <span className="text-xl font-semibold text-sidebar-foreground tracking-tight">DetectX</span>
-        </div>
+        </Link>
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* Back to Home Link */}
+      <div className="px-3 pt-4">
+        <Link href="/">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
+            <Home className="w-4 h-4" />
+            <span>Back to Home</span>
+          </div>
+        </Link>
       </div>
 
       {/* Navigation */}
@@ -183,12 +205,11 @@ interface HeaderProps {
  */
 function Header({ title, subtitle }: HeaderProps) {
   const headerLinks = [
-    { label: "Home", href: "#" },
-    { label: "Technology", href: "#" },
-    { label: "Methodology", href: "#" },
-    { label: "Use Cases", href: "#" },
-    { label: "Contact", href: "#" },
-    { label: "About Us", href: "#" },
+    { label: "Technology", href: "/technology" },
+    { label: "Research", href: "/research" },
+    { label: "Updates", href: "/updates" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
   ];
 
   return (
@@ -200,19 +221,18 @@ function Header({ title, subtitle }: HeaderProps) {
         <h1 className="text-xl font-semibold text-foreground tracking-tight">{title}</h1>
         <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
       </div>
-      <nav className="flex items-center gap-8">
+      <nav className="hidden lg:flex items-center gap-8">
         {headerLinks.map((link) => (
-          <a
+          <Link
             key={link.label}
             href={link.href}
             className={cn(
-              "text-base font-medium transition-colors",
-              "text-white hover:text-forensic-cyan",
-              "tracking-wide"
+              "text-sm font-medium transition-colors",
+              "text-muted-foreground hover:text-foreground"
             )}
           >
             {link.label}
-          </a>
+          </Link>
         ))}
       </nav>
     </header>

@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { extractAudioMetadata } from "./audioMetadata";
+import { sendContactEmail } from "./_core/email";
 
 /**
  * Anonymous Stateless Verification Flow
@@ -131,13 +132,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
-        // In production, this would:
-        // 1. Store the inquiry in database
-        // 2. Send email notification to support@detectx.app
-        // 3. Send auto-reply to user
-        
-        // For now, log the inquiry and return success
-        console.log("Contact inquiry received:", {
+        console.log("[Contact] Inquiry received:", {
           inquiryType: input.inquiryType,
           name: input.name,
           organization: input.organization,
@@ -146,6 +141,22 @@ export const appRouter = router({
           messageLength: input.message.length,
           timestamp: new Date().toISOString(),
         });
+
+        // Send email to support@detectx.app
+        const emailResult = await sendContactEmail({
+          inquiryType: input.inquiryType,
+          name: input.name,
+          organization: input.organization,
+          email: input.email,
+          subject: input.subject,
+          message: input.message,
+        });
+
+        if (!emailResult.success) {
+          console.error("[Contact] Failed to send email:", emailResult.error);
+          // Still return success to user - inquiry was received
+          // Email failure is logged but doesn't block submission
+        }
 
         return {
           success: true,

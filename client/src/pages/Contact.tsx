@@ -189,25 +189,33 @@ export default function Contact() {
               {/* Name and Organization */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-foreground mb-2">
                     Name <span className="text-red-500">*</span>
                   </label>
                   <Input
+                    id="contact-name"
+                    name="name"
                     type="text"
+                    autoComplete="name"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    onInput={(e) => handleChange("name", (e.target as HTMLInputElement).value)}
                     placeholder="Your name"
                     className="bg-background"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="contact-organization" className="block text-sm font-medium text-foreground mb-2">
                     Organization <span className="text-muted-foreground text-xs">(optional)</span>
                   </label>
                   <Input
+                    id="contact-organization"
+                    name="organization"
                     type="text"
+                    autoComplete="organization"
                     value={formData.organization}
                     onChange={(e) => handleChange("organization", e.target.value)}
+                    onInput={(e) => handleChange("organization", (e.target as HTMLInputElement).value)}
                     placeholder="Your organization"
                     className="bg-background"
                   />
@@ -216,13 +224,17 @@ export default function Contact() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="contact-email" className="block text-sm font-medium text-foreground mb-2">
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <Input
+                  id="contact-email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
+                  onInput={(e) => handleChange("email", (e.target as HTMLInputElement).value)}
                   placeholder="your@email.com"
                   className="bg-background"
                 />
@@ -230,13 +242,17 @@ export default function Contact() {
 
               {/* Subject */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="contact-subject" className="block text-sm font-medium text-foreground mb-2">
                   Subject <span className="text-red-500">*</span>
                 </label>
                 <Input
+                  id="contact-subject"
+                  name="subject"
                   type="text"
+                  autoComplete="off"
                   value={formData.subject}
                   onChange={(e) => handleChange("subject", e.target.value)}
+                  onInput={(e) => handleChange("subject", (e.target as HTMLInputElement).value)}
                   placeholder="Brief description of your inquiry"
                   className="bg-background"
                 />
@@ -244,12 +260,16 @@ export default function Contact() {
 
               {/* Message */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="contact-message" className="block text-sm font-medium text-foreground mb-2">
                   Message <span className="text-red-500">*</span>
                 </label>
                 <Textarea
+                  id="contact-message"
+                  name="message"
+                  autoComplete="off"
                   value={formData.message}
                   onChange={(e) => handleChange("message", e.target.value)}
+                  onInput={(e) => handleChange("message", (e.target as HTMLTextAreaElement).value)}
                   placeholder="Describe your inquiry in detail"
                   rows={6}
                   className="bg-background resize-none"

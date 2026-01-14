@@ -43,12 +43,52 @@ interface FileMetadata {
   fileSize: number;
 }
 
+// Detailed analysis types from server
+interface AxisMetric {
+  name: string;
+  value: string;
+}
+
+interface AxisDetail {
+  id: string;
+  name: string;
+  status: "exceeded" | "within_bounds";
+  metrics: AxisMetric[];
+}
+
+interface TimelineEventData {
+  time: number;
+  eventType: string;
+  axis: string;
+  note: string | null;
+}
+
+interface StemComponentData {
+  id: string;
+  name: string;
+  available: boolean;
+}
+
+interface GeometryTraceAxisData {
+  axis: string;
+  exceeded: boolean;
+  metrics: AxisMetric[];
+}
+
+interface DetailedAnalysisData {
+  axes: AxisDetail[];
+  timelineEvents: TimelineEventData[];
+  stemComponents: StemComponentData[];
+  geometryTrace: GeometryTraceAxisData[];
+}
+
 // Verification result interface
 interface VerdictResult {
   verdict: DetectXVerificationResult | null;
   crgStatus?: string;
   primaryExceededAxis?: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
+  detailedAnalysis?: DetailedAnalysisData | null;
 }
 
 // Scan sequence stages
@@ -386,6 +426,7 @@ export default function Home() {
         crgStatus: result.crgStatus,
         primaryExceededAxis: result.primaryExceededAxis,
         timelineMarkers: result.timelineMarkers || [],
+        detailedAnalysis: result.detailedAnalysis || null,
       });
       
       setScanComplete(true);
@@ -473,36 +514,57 @@ export default function Home() {
       {/* Extended analysis sections */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="flex flex-col gap-6">
-          <TimelineAnalysis 
-            events={null}
+          <TimelineAnalysis
+            events={verificationResult?.detailedAnalysis?.timelineEvents?.map((e: TimelineEventData) => ({
+              time: e.time,
+              eventType: e.eventType as "Structural Event" | "Signal Anomaly" | "Pattern Break" | "Spectral Shift",
+              axis: e.axis,
+              note: e.note || undefined,
+            })) || null}
             isProcessing={isVerifying}
           />
-          <TemporalAnalysis 
+          <TemporalAnalysis
             data={null}
             isProcessing={isVerifying}
           />
         </div>
         <div className="flex flex-col gap-6">
-          <DetailedAnalysis 
-            axes={null}
+          <DetailedAnalysis
+            axes={verificationResult?.detailedAnalysis?.axes?.map((a: AxisDetail) => ({
+              id: a.id as "G1-A" | "G1-B" | "G2-A" | "G2-B" | "G3-A",
+              status: a.status,
+              metrics: a.metrics,
+            })) || null}
             isProcessing={isVerifying}
           />
         </div>
         <div className="flex flex-col gap-6">
-<SourceComponents 
-              data={null}
-              isProcessing={isVerifying}
-              stemVolumes={{}}
-              onVolumeChange={(stemId, volume) => console.log(`Volume change: ${stemId} = ${volume}`)}
-              onDownload={(stemId) => console.log(`Download: ${stemId}`)}
-            />
+          <SourceComponents
+            data={verificationResult?.detailedAnalysis?.stemComponents ? {
+              components: verificationResult.detailedAnalysis.stemComponents.map((s: StemComponentData) => ({
+                id: s.id,
+                name: s.name,
+                available: s.available,
+              })),
+            } : null}
+            isProcessing={isVerifying}
+            stemVolumes={{}}
+            onVolumeChange={(stemId, volume) => console.log(`Volume change: ${stemId} = ${volume}`)}
+            onDownload={(stemId) => console.log(`Download: ${stemId}`)}
+          />
         </div>
       </div>
 
       {/* Geometry Scan Trace */}
       <div className="mt-6">
-        <GeometryScanTrace 
-          data={null}
+        <GeometryScanTrace
+          data={verificationResult?.detailedAnalysis?.geometryTrace ? {
+            axes: verificationResult.detailedAnalysis.geometryTrace.map((g: GeometryTraceAxisData) => ({
+              axis: g.axis,
+              exceeded: g.exceeded,
+              metrics: g.metrics,
+            })),
+          } : null}
           isProcessing={isVerifying}
         />
       </div>

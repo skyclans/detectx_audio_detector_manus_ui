@@ -127,6 +127,42 @@ export const appRouter = router({
             throw new Error(`DetectX API returned ${response.status}`);
           }
 
+          // Extended DetectX response with detailed analysis
+          interface AxisMetric {
+            name: string;
+            value: string;
+          }
+          interface AxisDetail {
+            id: string;
+            name: string;
+            status: "exceeded" | "within_bounds";
+            metrics: AxisMetric[];
+          }
+          interface TimelineEvent {
+            time: number;
+            event_type: string;
+            axis: string;
+            note: string | null;
+          }
+          interface StemComponent {
+            id: string;
+            name: string;
+            available: boolean;
+          }
+          interface GeometryTraceAxis {
+            axis: string;
+            exceeded: boolean;
+            metrics: AxisMetric[];
+          }
+          interface DetailedAnalysis {
+            axes: AxisDetail[];
+            timeline_events: TimelineEvent[];
+            stem_components: StemComponent[];
+            geometry_trace: GeometryTraceAxis[];
+            g1_b_metrics: Record<string, unknown> | null;
+            g3_b_metrics: Record<string, unknown> | null;
+          }
+
           const detectxResult = await response.json() as {
             verdict: string;
             authority: string;
@@ -143,12 +179,16 @@ export const appRouter = router({
               codec: string | null;
               file_size: number | null;
             } | null;
+            detailed_analysis: DetailedAnalysis | null;
           };
 
           console.log(`[Verification] DetectX result:`, detectxResult);
 
           // Map DetectX response to UI format
           const isAI = detectxResult.verdict === "AI signal evidence was observed.";
+
+          // Map detailed analysis for UI components
+          const detailedAnalysis = detectxResult.detailed_analysis;
 
           return {
             success: true,
@@ -170,6 +210,18 @@ export const appRouter = router({
             cnn_score: detectxResult.cnn_score,
             geometry_exceeded: detectxResult.geometry_exceeded,
             notice: detectxResult.notice,
+            // Detailed analysis for UI components
+            detailedAnalysis: detailedAnalysis ? {
+              axes: detailedAnalysis.axes,
+              timelineEvents: detailedAnalysis.timeline_events.map(e => ({
+                time: e.time,
+                eventType: e.event_type,
+                axis: e.axis,
+                note: e.note,
+              })),
+              stemComponents: detailedAnalysis.stem_components,
+              geometryTrace: detailedAnalysis.geometry_trace,
+            } : null,
           };
         } catch (error) {
           console.error(`[Verification] Error calling DetectX:`, error);

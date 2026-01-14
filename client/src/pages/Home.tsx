@@ -412,20 +412,19 @@ export default function Home() {
             onSeekBackward={handleSeekBackward}
             onVolumeChange={handleVolumeChange}
           />
+          {/* Live Console with height limit */}
           <LiveScanConsole
             logs={scanLogs}
             isVerifying={isVerifying}
             isComplete={scanComplete}
           />
+          
+          {/* Verification Result - directly below Live Console */}
+          <VerdictPanel
+            verdict={verificationResult?.verdict ?? null}
+            isProcessing={isVerifying}
+          />
         </div>
-      </div>
-
-      {/* Verdict Panel */}
-      <div className="mt-6">
-        <VerdictPanel
-          verdict={verificationResult?.verdict ?? null}
-          isProcessing={isVerifying}
-        />
       </div>
 
       {/* Extended analysis sections */}

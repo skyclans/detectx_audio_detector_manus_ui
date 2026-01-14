@@ -729,3 +729,10 @@
 - [x] Update Server Router with orientation parameter
 - [x] Update MetadataPanel to use server metadata
 - [x] Test orientation parameter flow
+
+
+## Live Console & Verification Result Layout Improvement (Jan 14)
+- [x] Reduce Live Console height to 200px max with internal scroll
+- [x] Move Verification Result below Live Console
+- [x] Add auto-scroll to bottom when new logs are added
+- [x] Display all metadata fields (orientation, cnn_score, geometry_exceeded)

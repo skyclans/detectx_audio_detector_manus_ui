@@ -6,6 +6,10 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { extractAudioMetadata } from "./audioMetadata";
 import { sendContactEmail } from "./_core/email";
+import FormData from "form-data";
+
+// DetectX RunPod Server URL
+const DETECTX_API_URL = process.env.DETECTX_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
 
 /**
  * Anonymous Stateless Verification Flow
@@ -97,35 +101,106 @@ export const appRouter = router({
         // Process file in-memory - no storage
         const fileBuffer = Buffer.from(input.fileData, "base64");
 
-        // Simulate analysis (in production, forward to DetectX server)
-        // Generate deterministic, evidence-based results
-        // Pass orientation to DetectX server as query parameter
         console.log(`[Verification] Processing with orientation: ${input.orientation}`);
-        const analysisResult = simulateForensicAnalysis({
-          duration: input.duration,
-          sampleRate: input.sampleRate,
-          fileSize: input.fileSize,
-          orientation: input.orientation,
-        });
+        console.log(`[Verification] File: ${input.fileName}, Size: ${input.fileSize}`);
 
-        // Return results immediately - no database storage
-        return {
-          success: true,
-          verdict: analysisResult.verdict,
-          crgStatus: analysisResult.crgStatus,
-          primaryExceededAxis: analysisResult.primaryExceededAxis,
-          timelineMarkers: analysisResult.timelineMarkers,
-          // Server metadata for MetadataPanel
-          metadata: {
+        try {
+          // Forward to DetectX RunPod Server
+          const formData = new FormData();
+          formData.append("file", fileBuffer, {
+            filename: input.fileName,
+            contentType: "audio/mpeg",
+          });
+
+          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
+          console.log(`[Verification] Calling DetectX API: ${apiUrl}`);
+
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            body: formData as any,
+            headers: formData.getHeaders(),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[Verification] DetectX API error: ${response.status} - ${errorText}`);
+            throw new Error(`DetectX API returned ${response.status}`);
+          }
+
+          const detectxResult = await response.json() as {
+            verdict: string;
+            authority: string;
+            orientation: string;
+            exceeded_axes: string[];
+            cnn_score: number | null;
+            geometry_exceeded: boolean | null;
+            notice: string | null;
+            metadata: {
+              duration: number | null;
+              sample_rate: number | null;
+              channels: number | null;
+              bit_depth: number | null;
+              codec: string | null;
+              file_size: number | null;
+            } | null;
+          };
+
+          console.log(`[Verification] DetectX result:`, detectxResult);
+
+          // Map DetectX response to UI format
+          const isAI = detectxResult.verdict === "AI signal evidence was observed.";
+
+          return {
+            success: true,
+            verdict: isAI ? "observed" as const : "not_observed" as const,
+            crgStatus: isAI ? "CR-G_exceeded" : "CR-G_within_HDB-G",
+            primaryExceededAxis: detectxResult.exceeded_axes[0] || null,
+            exceededAxes: detectxResult.exceeded_axes,
+            timelineMarkers: [] as { timestamp: number; type: string }[],
+            // Server metadata from DetectX
+            metadata: detectxResult.metadata || {
+              duration: input.duration,
+              sample_rate: input.sampleRate,
+              channels: 2,
+              bit_depth: 16,
+              codec: "PCM_16",
+              file_size: input.fileSize,
+            },
+            orientation: detectxResult.orientation as "ai_oriented" | "balanced" | "human_oriented",
+            cnn_score: detectxResult.cnn_score,
+            geometry_exceeded: detectxResult.geometry_exceeded,
+            notice: detectxResult.notice,
+          };
+        } catch (error) {
+          console.error(`[Verification] Error calling DetectX:`, error);
+
+          // Fallback to simulation if DetectX is unavailable
+          console.log(`[Verification] Falling back to simulation mode`);
+          const analysisResult = simulateForensicAnalysis({
             duration: input.duration,
-            sample_rate: input.sampleRate,
-            channels: 2, // Default stereo
-            bit_depth: 16, // Default 16-bit
-            codec: "PCM_16",
-            file_size: input.fileSize,
-          },
-          orientation: input.orientation,
-        };
+            sampleRate: input.sampleRate,
+            fileSize: input.fileSize,
+            orientation: input.orientation,
+          });
+
+          return {
+            success: true,
+            verdict: analysisResult.verdict,
+            crgStatus: analysisResult.crgStatus,
+            primaryExceededAxis: analysisResult.primaryExceededAxis,
+            timelineMarkers: analysisResult.timelineMarkers,
+            metadata: {
+              duration: input.duration,
+              sample_rate: input.sampleRate,
+              channels: 2,
+              bit_depth: 16,
+              codec: "PCM_16",
+              file_size: input.fileSize,
+            },
+            orientation: input.orientation,
+            notice: "Fallback mode - DetectX server unavailable",
+          };
+        }
       }),
   }),
 

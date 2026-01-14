@@ -120,7 +120,7 @@ export function LiveScanConsole({
       <div className="forensic-panel-content p-0">
         <div
           ref={consoleRef}
-          className="h-[160px] max-h-[160px] overflow-y-auto bg-[oklch(0.12_0.01_260)] font-mono text-xs p-3 space-y-1 scrollbar-thin scrollbar-thumb-forensic-cyan/30 scrollbar-track-transparent"
+          className="h-[120px] lg:h-[160px] max-h-[120px] lg:max-h-[160px] overflow-y-auto bg-[oklch(0.12_0.01_260)] font-mono text-[10px] lg:text-xs p-2 lg:p-3 space-y-1 scrollbar-thin scrollbar-thumb-forensic-cyan/30 scrollbar-track-transparent"
         >
           {logs.length === 0 && !isVerifying ? (
             <div className="text-muted-foreground">

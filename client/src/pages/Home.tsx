@@ -457,9 +457,9 @@ export default function Home() {
       </div>
 
       {/* Top section - Upload, Metadata, Waveform */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Left column - Upload and Metadata */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 lg:gap-6">
           {/* Verdict Boundary Orientation Slider */}
           <VerdictOrientationSlider
             value={orientation}
@@ -476,7 +476,7 @@ export default function Home() {
         </div>
         
         {/* Right column - Waveform and Player */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="lg:col-span-2 flex flex-col gap-4 lg:gap-6">
           <WaveformVisualization
             audioBuffer={audioBuffer}
             currentTime={currentTime}
@@ -512,8 +512,8 @@ export default function Home() {
       </div>
 
       {/* Extended analysis sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mt-4 lg:mt-6">
+        <div className="flex flex-col gap-4 lg:gap-6">
           <TimelineAnalysis
             events={verificationResult?.detailedAnalysis?.timelineEvents?.map((e: TimelineEventData) => ({
               time: e.time,
@@ -528,7 +528,7 @@ export default function Home() {
             isProcessing={isVerifying}
           />
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 lg:gap-6">
           <DetailedAnalysis
             axes={verificationResult?.detailedAnalysis?.axes?.map((a: AxisDetail) => ({
               id: a.id as "G1-A" | "G1-B" | "G2-A" | "G2-B" | "G3-A",
@@ -538,7 +538,7 @@ export default function Home() {
             isProcessing={isVerifying}
           />
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 lg:gap-6">
           <SourceComponents
             data={verificationResult?.detailedAnalysis?.stemComponents ? {
               components: verificationResult.detailedAnalysis.stemComponents.map((s: StemComponentData) => ({

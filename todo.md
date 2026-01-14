@@ -743,3 +743,12 @@
 - [x] Install form-data dependency
 - [x] Restart server to apply changes
 - [ ] Test RunPod API connection
+
+
+## Authentication & Beta Mode (Jan 15)
+- [x] Add login button to homepage header (right side)
+- [x] Implement Google login UI
+- [x] Implement Apple login UI
+- [x] Pro mode beta pricing: $0 with strikethrough and (beta) label
+- [ ] Stripe integration placeholder (EIN pending, US account not ready)
+- [x] verify-audio page mobile optimization

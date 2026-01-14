@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useState } from "react";
 import {
   ChevronRight,
   Clock,
@@ -13,6 +14,8 @@ import {
   Sun,
   Moon,
   Home,
+  Menu,
+  X,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -48,7 +51,7 @@ const navSections: NavSection[] = [
   },
 ];
 
-function NavItemComponent({ item, isActive }: { item: NavItem; isActive: boolean }) {
+function NavItemComponent({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
   if (item.comingSoon) {
     return (
       <div
@@ -65,7 +68,7 @@ function NavItemComponent({ item, isActive }: { item: NavItem; isActive: boolean
   }
 
   return (
-    <Link href={item.href}>
+    <Link href={item.href} onClick={onClick}>
       <div
         className={cn(
           "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
@@ -88,112 +91,140 @@ function NavItemComponent({ item, isActive }: { item: NavItem; isActive: boolean
  */
 const BRAND_HEIGHT = "h-20"; // 80px - shared between sidebar brand and header
 
-function Sidebar() {
+function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMobileClose: () => void }) {
   const [location] = useLocation();
   const { user, loading, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
-      {/* Brand - Logo as primary brand element */}
-      <div className={cn(BRAND_HEIGHT, "flex items-center justify-between px-6 border-b border-sidebar-border")}>
-        <Link href="/" className="flex items-center gap-4">
-          <img
-            src="/detectx-logo.png"
-            alt="DetectX"
-            className="w-10 h-10 object-contain"
-          />
-          <span className="text-xl font-semibold text-sidebar-foreground tracking-tight">DetectX</span>
-        </Link>
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
-          aria-label="Toggle theme"
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
-      </div>
-
-      {/* Back to Home Link */}
-      <div className="px-3 pt-4">
-        <Link href="/">
-          <div className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
-            <Home className="w-4 h-4" />
-            <span>Back to Home</span>
-          </div>
-        </Link>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3">
-        {navSections.map((section, idx) => (
-          <div key={section.title} className={cn(idx > 0 && "mt-6")}>
-            <div className="px-3 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              {section.title}
-            </div>
-            <div className="space-y-1">
-              {section.items.map((item) => (
-                <NavItemComponent
-                  key={item.label}
-                  item={item}
-                  isActive={location === item.href}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </nav>
-
-      {/* User section */}
-      <div className="p-3 border-t border-sidebar-border">
-        {loading ? (
-          <div className="flex items-center gap-3 px-3 py-2">
-            <Skeleton className="w-8 h-8 rounded-full" />
-            <div className="flex-1">
-              <Skeleton className="h-4 w-24 mb-1" />
-              <Skeleton className="h-3 w-32" />
-            </div>
-          </div>
-        ) : user ? (
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-              <User className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-sidebar-foreground truncate">
-                {user.name || "User"}
-              </div>
-              <div className="text-xs text-muted-foreground truncate">
-                {user.email || "No email"}
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              onClick={() => logout()}
+    <>
+      {/* Mobile overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onMobileClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <aside className={cn(
+        "fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-50",
+        "transition-transform duration-300 ease-in-out",
+        "lg:translate-x-0",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
+        {/* Brand - Logo as primary brand element */}
+        <div className={cn(BRAND_HEIGHT, "flex items-center justify-between px-6 border-b border-sidebar-border")}>
+          <Link href="/" className="flex items-center gap-4" onClick={onMobileClose}>
+            <img
+              src="/detectx-logo.png"
+              alt="DetectX"
+              className="w-10 h-10 object-contain"
+            />
+            <span className="text-xl font-semibold text-sidebar-foreground tracking-tight">DetectX</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+              aria-label="Toggle theme"
             >
-              <LogOut className="w-4 h-4" />
-            </Button>
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            {/* Mobile close button */}
+            <button
+              onClick={onMobileClose}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors lg:hidden"
+              aria-label="Close menu"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-        ) : (
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-2"
-            onClick={() => (window.location.href = getLoginUrl())}
-          >
-            <User className="w-4 h-4" />
-            Sign In
-          </Button>
-        )}
-      </div>
-    </aside>
+        </div>
+
+        {/* Back to Home Link */}
+        <div className="px-3 pt-4">
+          <Link href="/" onClick={onMobileClose}>
+            <div className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
+              <Home className="w-4 h-4" />
+              <span>Back to Home</span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
+          {navSections.map((section, idx) => (
+            <div key={section.title} className={cn(idx > 0 && "mt-6")}>
+              <div className="px-3 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {section.title}
+              </div>
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <NavItemComponent
+                    key={item.label}
+                    item={item}
+                    isActive={location === item.href}
+                    onClick={onMobileClose}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* User section */}
+        <div className="p-3 border-t border-sidebar-border">
+          {loading ? (
+            <div className="flex items-center gap-3 px-3 py-2">
+              <Skeleton className="w-8 h-8 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-4 w-24 mb-1" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+            </div>
+          ) : user ? (
+            <div className="flex items-center gap-3 px-3 py-2">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <User className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-sidebar-foreground truncate">
+                  {user.name || "User"}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {user.email || "No email"}
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={() => logout()}
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2"
+              onClick={() => (window.location.href = getLoginUrl())}
+            >
+              <User className="w-4 h-4" />
+              Sign In
+            </Button>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }
 
 interface HeaderProps {
   title: string;
   subtitle: string;
+  onMenuClick: () => void;
 }
 
 /**
@@ -203,7 +234,7 @@ interface HeaderProps {
  * - Improved contrast for high visibility
  * - Navigation feels clear, deliberate, and professional
  */
-function Header({ title, subtitle }: HeaderProps) {
+function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const headerLinks = [
     { label: "Technology", href: "/technology" },
     { label: "Research", href: "/research" },
@@ -215,11 +246,20 @@ function Header({ title, subtitle }: HeaderProps) {
   return (
     <header className={cn(
       BRAND_HEIGHT, // EXACTLY match sidebar brand height
-      "bg-sidebar border-b border-border flex items-center justify-between px-8"
+      "bg-sidebar border-b border-border flex items-center justify-between px-4 lg:px-8"
     )}>
-      <div>
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">{title}</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
+      {/* Mobile menu button */}
+      <button
+        onClick={onMenuClick}
+        className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors lg:hidden mr-3"
+        aria-label="Open menu"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+      
+      <div className="flex-1 min-w-0">
+        <h1 className="text-lg lg:text-xl font-semibold text-foreground tracking-tight truncate">{title}</h1>
+        <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 truncate">{subtitle}</p>
       </div>
       <nav className="hidden lg:flex items-center gap-8">
         {headerLinks.map((link) => (
@@ -250,12 +290,21 @@ export function ForensicLayout({
   title = "Audio Verification",
   subtitle = "Structural signal inspection",
 }: ForensicLayoutProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar />
-      <div className="ml-64">
-        <Header title={title} subtitle={subtitle} />
-        <main className="p-6">{children}</main>
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen} 
+        onMobileClose={() => setIsMobileMenuOpen(false)} 
+      />
+      <div className="lg:ml-64">
+        <Header 
+          title={title} 
+          subtitle={subtitle} 
+          onMenuClick={() => setIsMobileMenuOpen(true)}
+        />
+        <main className="p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

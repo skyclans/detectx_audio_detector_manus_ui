@@ -15,6 +15,7 @@ import Research from "./pages/Research";
 import Updates from "./pages/Updates";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Login from "./pages/Login";
 
 function Router() {
   return (
@@ -42,6 +43,9 @@ function Router() {
       <Route path="/blog" component={ComingSoon} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      
+      {/* Auth pages */}
+      <Route path="/login" component={Login} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

@@ -3,7 +3,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Sun, Moon } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { Sun, Moon, User, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 /**
  * DetectX Landing Page (HOME)
@@ -21,6 +30,7 @@ export default function Landing() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { user, loading, isAuthenticated, logout } = useAuth();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +73,7 @@ export default function Landing() {
               </Link>
             </div>
 
-            {/* Right side: Theme toggle + Verify Audio */}
+            {/* Right side: Theme toggle + Login/User + Verify Audio */}
             <div className="flex items-center gap-4">
               {/* Theme Toggle */}
               <button
@@ -77,6 +87,48 @@ export default function Landing() {
                   <Moon className="h-5 w-5" />
                 )}
               </button>
+
+              {/* Login/User Button */}
+              {!loading && (
+                isAuthenticated && user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4" />
+                        <span className="hidden sm:inline">{user.name || 'Account'}</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem asChild>
+                        <Link href="/verify-audio" className="flex items-center gap-2 cursor-pointer">
+                          History
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
+                          Settings
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/plan" className="flex items-center gap-2 cursor-pointer">
+                          Plan
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={logout} className="flex items-center gap-2 cursor-pointer text-red-500">
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link href="/login">
+                    <Button variant="ghost" className="text-sm font-medium">
+                      Login
+                    </Button>
+                  </Link>
+                )
+              )}
 
               {/* Verify Audio Button */}
               <Link href="/verify-audio">

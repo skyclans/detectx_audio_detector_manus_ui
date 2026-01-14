@@ -66,7 +66,8 @@ const plans = [
   },
   {
     name: "Professional",
-    price: "$29",
+    price: "$0",
+    originalPrice: "$29",
     period: "month",
     icon: Zap,
     positioning: "Manual, UI-driven forensic verification for professionals and small teams.",
@@ -85,8 +86,9 @@ const plans = [
     restrictionNote: "Professional is for people, not systems.",
     current: false,
     recommended: true,
-    badgeText: "Upgrade to Professional",
+    badgeText: "Get Professional (Beta)",
     badgeVariant: "default" as const,
+    isBeta: true,
   },
   {
     name: "Enterprise",
@@ -174,12 +176,22 @@ export default function Plan() {
                 <div className="forensic-panel-content flex flex-col flex-1">
                   {/* Price */}
                   <div className="text-center mb-4">
+                    {plan.originalPrice && (
+                      <span className="text-lg text-muted-foreground line-through mr-2">
+                        {plan.originalPrice}
+                      </span>
+                    )}
                     <span className="text-3xl font-bold text-foreground">
                       {plan.price}
                     </span>
                     <span className="text-sm text-muted-foreground ml-1">
                       / {plan.period}
                     </span>
+                    {plan.isBeta && (
+                      <span className="ml-2 px-2 py-0.5 bg-forensic-amber/20 text-forensic-amber text-xs font-medium rounded">
+                        BETA
+                      </span>
+                    )}
                   </div>
 
                   {/* Positioning */}

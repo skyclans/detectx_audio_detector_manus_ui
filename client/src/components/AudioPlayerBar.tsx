@@ -148,8 +148,8 @@ export function AudioPlayerBar({
 
   return (
     <div className="forensic-panel">
-      <div className="px-4 py-3 flex items-center justify-between gap-4">
-        {/* Left side: Playback controls */}
+      <div className="px-3 lg:px-4 py-3 flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-4">
+        {/* Top row on mobile / Left side on desktop: Playback controls */}
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -209,30 +209,30 @@ export function AudioPlayerBar({
           </Button>
         </div>
 
-        {/* Right side: Time display and volume */}
-        <div className="flex items-center gap-6">
+        {/* Bottom row on mobile / Right side on desktop: Time display and volume */}
+        <div className="flex items-center gap-3 lg:gap-6 flex-wrap justify-center">
           {/* Position */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1 lg:gap-2">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:inline">
               Position
             </span>
-            <span className="text-sm font-mono text-foreground w-12 text-right tabular-nums">
+            <span className="text-xs lg:text-sm font-mono text-foreground w-10 lg:w-12 text-right tabular-nums">
               {formatTime(currentTime)}
             </span>
           </div>
 
           {/* Remaining */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1 lg:gap-2">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider hidden sm:inline">
               Remaining
             </span>
-            <span className="text-sm font-mono text-foreground w-12 text-right tabular-nums">
+            <span className="text-xs lg:text-sm font-mono text-foreground w-10 lg:w-12 text-right tabular-nums">
               -{formatTime(remaining)}
             </span>
           </div>
 
           {/* Volume */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 lg:gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -250,7 +250,7 @@ export function AudioPlayerBar({
               value={[volume * 100]}
               max={100}
               step={1}
-              className="w-20"
+              className="w-16 lg:w-20"
               onValueChange={handleVolumeChange}
               disabled={disabled}
             />

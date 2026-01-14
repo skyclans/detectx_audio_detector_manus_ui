@@ -736,3 +736,10 @@
 - [x] Move Verification Result below Live Console
 - [x] Add auto-scroll to bottom when new logs are added
 - [x] Display all metadata fields (orientation, cnn_score, geometry_exceeded)
+
+
+## RunPod API Integration (Jan 14)
+- [x] Pull RunPod API integration from GitHub
+- [x] Install form-data dependency
+- [x] Restart server to apply changes
+- [ ] Test RunPod API connection

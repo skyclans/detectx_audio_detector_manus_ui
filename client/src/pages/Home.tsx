@@ -157,6 +157,17 @@ export default function Home() {
    * FILE SELECTION HANDLER
    */
   const handleFileSelect = useCallback(async (file: File) => {
+    // Stop any currently playing audio before switching files
+    if (audioRuntimeRef.current) {
+      audioRuntimeRef.current.stop();
+    }
+    if (timeLoopCleanupRef.current) {
+      timeLoopCleanupRef.current();
+      timeLoopCleanupRef.current = null;
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+
     setSelectedFile(file);
     setVerificationResult(null);
     setScanLogs([]);
@@ -309,7 +320,7 @@ export default function Home() {
     for (let i = 0; i < sequence.length; i++) {
       await new Promise(resolve => setTimeout(resolve, delays[i] || 200));
       const log = generateScanLogs(sequence[i]);
-      setScanLogs(prev => [...prev, log]);
+      setScanLogs((prev: ScanLog[]) => [...prev, log]);
     }
     
     try {
@@ -332,7 +343,7 @@ export default function Home() {
       
       // Update metadata with server response if available
       if (result.metadata) {
-        setMetadata(prev => prev ? {
+        setMetadata((prev: FileMetadata | null) => prev ? {
           ...prev,
           duration: result.metadata.duration ?? prev.duration,
           sampleRate: result.metadata.sample_rate ?? prev.sampleRate,

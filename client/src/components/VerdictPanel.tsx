@@ -141,6 +141,12 @@ export function VerdictPanel({
           This result reports structural signal evidence only. The system does not
           estimate probability, attribute authorship, or reference any specific AI
           model names.
+          {isObserved && (
+            <span className="block mt-2 text-forensic-amber/80">
+              Note: Some music genres may produce false positives. If you believe this is incorrect,
+              please re-verify using Human-Oriented mode for maximum human protection.
+            </span>
+          )}
         </p>
       </div>
     </div>

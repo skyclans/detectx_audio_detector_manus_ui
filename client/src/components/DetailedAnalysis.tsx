@@ -114,9 +114,6 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
     return (
       <div className="forensic-panel h-full">
         <div className="forensic-panel-header">Detailed Analysis</div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Axis-level geometry metrics reported by the verification engine
-        </p>
         <div className="forensic-panel-content">
           <div className="flex flex-col items-center justify-center py-6">
             <p className="text-sm text-muted-foreground">Inspecting structural signals…</p>
@@ -132,9 +129,6 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
     return (
       <div className="forensic-panel h-full">
         <div className="forensic-panel-header">Detailed Analysis</div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Axis-level geometry metrics reported by the verification engine
-        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-6">
             Awaiting verification

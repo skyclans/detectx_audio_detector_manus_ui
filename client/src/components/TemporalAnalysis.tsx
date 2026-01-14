@@ -48,9 +48,6 @@ export function TemporalAnalysis({ data, isProcessing = false }: TemporalAnalysi
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Time-structured geometry series (if provided by the server)
-        </p>
         <div className="forensic-panel-content">
           <div className="flex flex-col items-center justify-center py-6">
             <p className="text-sm text-muted-foreground">Inspecting structural signals…</p>
@@ -80,9 +77,6 @@ export function TemporalAnalysis({ data, isProcessing = false }: TemporalAnalysi
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Time-structured geometry series (if provided by the server)
-        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-6">
             Awaiting verification
@@ -114,9 +108,6 @@ export function TemporalAnalysis({ data, isProcessing = false }: TemporalAnalysi
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Time-structured geometry series (if provided by the server)
-        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-4">
             No temporal series available

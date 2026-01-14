@@ -100,9 +100,6 @@ export function GeometryScanTrace({
     return (
       <div className="forensic-panel">
         <div className="forensic-panel-header">Geometry Scan Trace</div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Execution trace of geometry checks performed by the verification engine
-        </p>
         <div className="forensic-panel-content">
           <div className="flex flex-col items-center justify-center py-6">
             <p className="text-sm text-muted-foreground">Inspecting structural signals…</p>
@@ -118,9 +115,6 @@ export function GeometryScanTrace({
     return (
       <div className="forensic-panel">
         <div className="forensic-panel-header">Geometry Scan Trace</div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Execution trace of geometry checks performed by the verification engine
-        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-6">
             Awaiting verification
@@ -138,9 +132,6 @@ export function GeometryScanTrace({
     return (
       <div className="forensic-panel">
         <div className="forensic-panel-header">Geometry Scan Trace</div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Execution trace of geometry checks performed by the verification engine
-        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-4">
             No geometry trace available

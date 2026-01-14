@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { AudioUploadPanel } from "@/components/AudioUploadPanel";
 import { MetadataPanel } from "@/components/MetadataPanel";
+import { Clock } from "lucide-react";
 import { WaveformVisualization } from "@/components/WaveformVisualization";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 import { LiveScanConsole, type ScanLogEntry } from "@/components/LiveScanConsole";
@@ -117,7 +118,11 @@ export default function Home() {
   const [scanLogs, setScanLogs] = useState<ScanLog[]>([]);
   const [scanComplete, setScanComplete] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
-  
+
+  // Session time state
+  const [sessionStartTime] = useState<Date>(new Date());
+  const [sessionElapsed, setSessionElapsed] = useState<string>("00:00:00");
+
   // Refs
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioRuntimeRef = useRef<AudioRuntime | null>(null);
@@ -152,6 +157,24 @@ export default function Home() {
       ctx.close();
     };
   }, []);
+
+  // Session timer - updates every second
+  useEffect(() => {
+    const formatElapsed = (start: Date): string => {
+      const now = new Date();
+      const diff = Math.floor((now.getTime() - start.getTime()) / 1000);
+      const hours = Math.floor(diff / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    };
+
+    const interval = setInterval(() => {
+      setSessionElapsed(formatElapsed(sessionStartTime));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [sessionStartTime]);
 
   /**
    * FILE SELECTION HANDLER
@@ -383,13 +406,22 @@ export default function Home() {
 
   return (
     <ForensicLayout>
+      {/* Session Time Display */}
+      <div className="flex items-center justify-end mb-4">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/30 rounded-md border border-border/50">
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Session:</span>
+          <span className="text-sm font-mono text-foreground">{sessionElapsed}</span>
+        </div>
+      </div>
+
       {/* Top section - Upload, Metadata, Waveform */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column - Upload and Metadata */}
         <div className="flex flex-col gap-6">
           {/* Verdict Boundary Orientation Slider */}
-          <VerdictOrientationSlider 
-            value={orientation} 
+          <VerdictOrientationSlider
+            value={orientation}
             onChange={setOrientation}
             disabled={isVerifying}
           />

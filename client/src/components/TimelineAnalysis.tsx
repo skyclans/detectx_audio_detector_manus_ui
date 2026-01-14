@@ -59,9 +59,6 @@ export function TimelineAnalysis({ events, isProcessing = false, onSeek }: Timel
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Detected structural events along the audio timeline
-        </p>
         <div className="forensic-panel-content">
           <div className="flex flex-col items-center justify-center py-6">
             <p className="text-sm text-muted-foreground">Inspecting structural signals…</p>
@@ -92,9 +89,6 @@ export function TimelineAnalysis({ events, isProcessing = false, onSeek }: Timel
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Detected structural events along the audio timeline
-        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-6">
             Awaiting verification
@@ -127,9 +121,6 @@ export function TimelineAnalysis({ events, isProcessing = false, onSeek }: Timel
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Detected structural events along the audio timeline
-        </p>
         <div className="forensic-panel-content">
           <p className="text-sm text-muted-foreground text-center py-4">
             No timeline events detected

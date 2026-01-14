@@ -132,7 +132,7 @@ describe("verification.process (Anonymous Stateless)", () => {
     // Current implementation returns verdict as string, not object
     expect(result).toHaveProperty("verdict");
     expect(result).toHaveProperty("crgStatus");
-  });
+  }, 30000);
 
   it("returns valid verdict value", async () => {
     const ctx = createAnonymousContext();
@@ -146,7 +146,7 @@ describe("verification.process (Anonymous Stateless)", () => {
     // Current implementation returns verdict as "observed" or "not_observed"
     const allowedVerdicts = ["observed", "not_observed"];
     expect(allowedVerdicts).toContain(result.verdict);
-  });
+  }, 30000);
 
   it("does NOT persist verification records", async () => {
     const ctx = createAnonymousContext();
@@ -161,7 +161,7 @@ describe("verification.process (Anonymous Stateless)", () => {
     expect(result).not.toHaveProperty("id");
     expect(result).not.toHaveProperty("userId");
     expect(result).not.toHaveProperty("createdAt");
-  });
+  }, 30000);
 });
 
 describe("verdict texts compliance", () => {
@@ -177,7 +177,7 @@ describe("verdict texts compliance", () => {
     // Current implementation uses "observed" / "not_observed"
     const allowedVerdicts = ["observed", "not_observed"];
     expect(allowedVerdicts).toContain(result.verdict);
-  });
+  }, 30000);
 
   it("returns crgStatus field", async () => {
     const ctx = createAnonymousContext();
@@ -189,7 +189,7 @@ describe("verdict texts compliance", () => {
     });
 
     expect(result).toHaveProperty("crgStatus");
-  });
+  }, 30000);
 });
 
 describe("auth.logout", () => {

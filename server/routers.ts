@@ -90,6 +90,7 @@ export const appRouter = router({
           fileSize: z.number().optional(),
           duration: z.number().optional(),
           sampleRate: z.number().optional(),
+          orientation: z.enum(["ai_oriented", "balanced", "human_oriented"]).default("balanced"),
         })
       )
       .mutation(async ({ input }) => {
@@ -98,10 +99,13 @@ export const appRouter = router({
 
         // Simulate analysis (in production, forward to DetectX server)
         // Generate deterministic, evidence-based results
+        // Pass orientation to DetectX server as query parameter
+        console.log(`[Verification] Processing with orientation: ${input.orientation}`);
         const analysisResult = simulateForensicAnalysis({
           duration: input.duration,
           sampleRate: input.sampleRate,
           fileSize: input.fileSize,
+          orientation: input.orientation,
         });
 
         // Return results immediately - no database storage
@@ -111,6 +115,16 @@ export const appRouter = router({
           crgStatus: analysisResult.crgStatus,
           primaryExceededAxis: analysisResult.primaryExceededAxis,
           timelineMarkers: analysisResult.timelineMarkers,
+          // Server metadata for MetadataPanel
+          metadata: {
+            duration: input.duration,
+            sample_rate: input.sampleRate,
+            channels: 2, // Default stereo
+            bit_depth: 16, // Default 16-bit
+            codec: "PCM_16",
+            file_size: input.fileSize,
+          },
+          orientation: input.orientation,
         };
       }),
   }),
@@ -172,11 +186,22 @@ function simulateForensicAnalysis(verification: {
   duration?: number | null;
   sampleRate?: number | null;
   fileSize?: number;
+  orientation?: "ai_oriented" | "balanced" | "human_oriented";
 }) {
   // Generate deterministic results based on file characteristics
   // This is a simulation - real implementation would forward to DetectX
   const seed = (verification.fileSize || 1000) % 100;
-  const hasAISignal = seed > 50;
+  
+  // Orientation affects threshold for AI signal detection
+  // ai_oriented: lower threshold (more likely to detect AI)
+  // human_oriented: higher threshold (more protective of humans)
+  const orientationThresholds = {
+    ai_oriented: 30,
+    balanced: 50,
+    human_oriented: 70,
+  };
+  const threshold = orientationThresholds[verification.orientation || "balanced"];
+  const hasAISignal = seed > threshold;
 
   const verdict: "observed" | "not_observed" = hasAISignal ? "observed" : "not_observed";
   const crgStatus = hasAISignal ? "CR-G_exceeded" : "CR-G_within_HDB-G";

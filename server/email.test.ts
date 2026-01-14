@@ -9,7 +9,7 @@ describe("Email Service", () => {
     expect(apiKey?.startsWith("re_")).toBe(true);
   });
 
-  it("should be able to connect to Resend API", async () => {
+  it("should be able to connect to Resend API", { timeout: 15000 }, async () => {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
       throw new Error("RESEND_API_KEY not configured");

@@ -115,18 +115,11 @@ export const appRouter = router({
           const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
           console.log(`[Verification] Calling DetectX API: ${apiUrl}`);
 
-          // Set timeout for long-running Demucs processing (5 minutes)
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 300000);
-
           const response = await fetch(apiUrl, {
             method: "POST",
             body: formData as any,
             headers: formData.getHeaders(),
-            signal: controller.signal,
           });
-
-          clearTimeout(timeoutId);
 
           if (!response.ok) {
             const errorText = await response.text();

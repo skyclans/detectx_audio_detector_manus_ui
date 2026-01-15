@@ -488,12 +488,13 @@ export default function Home() {
       const result = await response.json();
       console.log("[Verification] RunPod API response:", result);
       
-      // Update result - convert to VerdictResult format
-      const verdictText: DetectXVerdictText | null = result.verdict === "observed" 
-        ? "AI signal evidence was observed."
-        : result.verdict === "not_observed"
-        ? "AI signal evidence was not observed."
-        : null;
+      // Update result - API returns full verdict text directly
+      // e.g., "AI signal evidence was observed." or "AI signal evidence was not observed."
+      const verdictText: DetectXVerdictText | null =
+        result.verdict === "AI signal evidence was observed." ||
+        result.verdict === "AI signal evidence was not observed."
+          ? result.verdict
+          : null;
       
       // Update metadata with server response if available
       if (result.metadata) {

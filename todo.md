@@ -807,3 +807,9 @@
 ## VerdictPanel Rollback (Jan 16)
 - [x] Pull GitHub commit f8404ff (VerdictPanel animation rollback)
 - [x] Fix verdict not showing issue
+
+
+## Waveform Fix (Jan 16)
+- [x] Rollback VerdictPanel animation to a9de4db version
+- [x] Keep Plan UI changes (text clarity, Beta emphasis)
+- [x] Fix waveform not displaying issue

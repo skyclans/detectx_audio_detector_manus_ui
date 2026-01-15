@@ -186,11 +186,10 @@ export default function Home() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioRuntimeRef = useRef<AudioRuntime | null>(null);
   const timeLoopCleanupRef = useRef<(() => void) | null>(null);
-  const fileDataRef = useRef<string | null>(null); // Store base64 data for processing
+  const selectedFileRef = useRef<File | null>(null); // Store actual File object for direct upload
 
-  // tRPC mutations - ANONYMOUS (no auth required)
-  const uploadMutation = trpc.verification.upload.useMutation();
-  const processMutation = trpc.verification.process.useMutation();
+  // RunPod API URL for direct file upload (bypasses tRPC Base64 encoding)
+  const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
 
   // Initialize AudioRuntime on mount
   useEffect(() => {
@@ -288,14 +287,11 @@ export default function Home() {
       fileSize: file.size,
     });
     
+    // Store File object for direct upload to RunPod (no Base64 encoding)
+    selectedFileRef.current = file;
+    
     // Decode audio for playback
     const arrayBuffer = await file.arrayBuffer();
-    
-    // Store base64 data for later processing (transient, not stored)
-    const base64Data = btoa(
-      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-    );
-    fileDataRef.current = base64Data;
     
     if (audioContextRef.current) {
       try {
@@ -304,29 +300,53 @@ export default function Home() {
         setDuration(buffer.duration);
         setCurrentTime(0);
         
-        // Extract metadata via server (ffprobe) - NO STORAGE
-        const uploadResult = await uploadMutation.mutateAsync({
-          fileName: file.name,
-          fileData: base64Data,
-          contentType: file.type,
-        });
-        
-        // Update metadata from server response
+        // Extract metadata from Web Audio API (no server call needed)
+        // Full metadata will be extracted by RunPod server during verification
         setMetadata({
-          fileName: uploadResult.metadata.filename,
-          duration: uploadResult.metadata.duration,
-          sampleRate: uploadResult.metadata.sampleRate,
-          bitDepth: uploadResult.metadata.bitDepth,
-          channels: uploadResult.metadata.channels,
-          codec: uploadResult.metadata.codec,
-          fileHash: uploadResult.metadata.sha256,
-          fileSize: uploadResult.metadata.fileSize,
+          fileName: file.name,
+          duration: buffer.duration,
+          sampleRate: buffer.sampleRate,
+          bitDepth: null, // Will be extracted by RunPod
+          channels: buffer.numberOfChannels,
+          codec: getCodecFromFilename(file.name),
+          fileHash: null, // Will be computed by RunPod
+          fileSize: file.size,
         });
       } catch (error) {
         console.error("Failed to decode audio:", error);
+        // Still set basic metadata even if decode fails
+        setMetadata({
+          fileName: file.name,
+          duration: null,
+          sampleRate: null,
+          bitDepth: null,
+          channels: null,
+          codec: getCodecFromFilename(file.name),
+          fileHash: null,
+          fileSize: file.size,
+        });
       }
     }
-  }, [uploadMutation]);
+  }, []);
+
+  // Helper to get codec from filename
+  function getCodecFromFilename(filename: string): string | null {
+    const ext = filename.toLowerCase().split('.').pop();
+    const codecs: Record<string, string> = {
+      'mp3': 'MP3',
+      'wav': 'WAV/PCM',
+      'flac': 'FLAC',
+      'ogg': 'Vorbis',
+      'm4a': 'AAC',
+      'aac': 'AAC',
+      'wma': 'WMA',
+      'aiff': 'AIFF',
+      'aif': 'AIFF',
+      'opus': 'Opus',
+      'webm': 'WebM',
+    };
+    return codecs[ext || ''] || null;
+  }
 
   /**
    * PLAYBACK CONTROLS
@@ -403,14 +423,13 @@ export default function Home() {
   }, []);
 
   /**
-   * VERIFICATION HANDLER - ANONYMOUS, STATELESS
+   * VERIFICATION HANDLER - DIRECT RUNPOD API CALL
    * 
-   * No authentication required.
-   * No file storage - file data is sent directly for processing.
-   * No database records created.
+   * Calls RunPod API directly with FormData to avoid Base64 encoding overhead.
+   * No tRPC intermediary for file upload - direct multipart/form-data.
    */
   const handleVerify = useCallback(async () => {
-    if (!selectedFile || !metadata || !fileDataRef.current) return;
+    if (!selectedFile || !metadata || !selectedFileRef.current) return;
     
     // Check if user needs to select a mode first (for logged-in users)
     if (isAuthenticated && !isMasterUser && !selectedMode) {
@@ -440,15 +459,34 @@ export default function Home() {
     }
     
     try {
-      // Process verification directly - NO STORAGE, NO DATABASE
-      const result = await processMutation.mutateAsync({
-        fileName: metadata.fileName,
-        fileData: fileDataRef.current,
-        fileSize: metadata.fileSize,
-        duration: metadata.duration || undefined,
-        sampleRate: metadata.sampleRate || undefined,
-        orientation: orientation,
+      // DIRECT RUNPOD API CALL - FormData with actual File object
+      // This bypasses tRPC Base64 encoding which causes boundary parsing errors
+      const formData = new FormData();
+      formData.append("file", selectedFileRef.current);
+      
+      // Build API URL with orientation and optional user_id
+      let apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
+      if (user?.id) {
+        apiUrl += `&user_id=${user.id}`;
+      }
+      
+      console.log(`[Verification] Calling RunPod API directly: ${apiUrl}`);
+      console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);
+      
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        body: formData,
+        // DO NOT set Content-Type header - browser will auto-generate with boundary
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[Verification] RunPod API error: ${response.status} - ${errorText}`);
+        throw new Error(`RunPod API returned ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log("[Verification] RunPod API response:", result);
       
       // Update result - convert to VerdictResult format
       const verdictText: DetectXVerdictText | null = result.verdict === "observed" 
@@ -474,12 +512,12 @@ export default function Home() {
         verdict: verdictText ? {
           verdict: verdictText,
           authority: "CR-G",
-          exceeded_axes: result.primaryExceededAxis ? [result.primaryExceededAxis] : [],
+          exceeded_axes: result.exceeded_axes || (result.primaryExceededAxis ? [result.primaryExceededAxis] : []),
         } : null,
-        crgStatus: result.crgStatus,
-        primaryExceededAxis: result.primaryExceededAxis,
-        timelineMarkers: result.timelineMarkers || [],
-        detailedAnalysis: result.detailedAnalysis || null,
+        crgStatus: result.crgStatus || result.crg_status,
+        primaryExceededAxis: result.primaryExceededAxis || result.primary_exceeded_axis,
+        timelineMarkers: result.timelineMarkers || result.timeline_markers || [],
+        detailedAnalysis: result.detailedAnalysis || result.detailed_analysis || null,
       });
       
       setScanComplete(true);
@@ -496,7 +534,7 @@ export default function Home() {
     } finally {
       setIsVerifying(false);
     }
-  }, [selectedFile, metadata, processMutation, isAuthenticated, isMasterUser, selectedMode, modeLimit, usageCount, setLocation]);
+  }, [selectedFile, metadata, orientation, user, isAuthenticated, isMasterUser, selectedMode, modeLimit, usageCount, setLocation, DETECTX_API_URL]);
 
   // Debug: Log verification result changes
   useEffect(() => {

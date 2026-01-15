@@ -774,3 +774,10 @@
 - [x] Let browser auto-generate boundary for multipart/form-data (native FormData + Blob)
 - [x] Added getMimeType helper for proper MIME type detection
 - [x] Test with large FLAC, WAV, MP3 files (25 tests passing, API calls successful)
+
+
+## Direct RunPod API Call (Jan 16)
+- [x] Change Home.tsx to call RunPod API directly with FormData
+- [x] Bypass tRPC Base64 encoding for large files
+- [x] Use Web Audio API for local metadata extraction
+- [x] Test with large WAV, FLAC, MP3 files (25 tests passing)

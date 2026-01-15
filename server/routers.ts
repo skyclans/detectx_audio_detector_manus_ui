@@ -6,7 +6,6 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { extractAudioMetadata } from "./audioMetadata";
 import { sendContactEmail } from "./_core/email";
-import FormData from "form-data";
 
 // DetectX RunPod Server URL
 const DETECTX_API_URL = process.env.DETECTX_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
@@ -105,20 +104,17 @@ export const appRouter = router({
         console.log(`[Verification] File: ${input.fileName}, Size: ${input.fileSize}`);
 
         try {
-          // Forward to DetectX RunPod Server
+          // Forward to DetectX RunPod Server using native FormData
+          const blob = new Blob([fileBuffer], { type: "audio/mpeg" });
           const formData = new FormData();
-          formData.append("file", fileBuffer, {
-            filename: input.fileName,
-            contentType: "audio/mpeg",
-          });
+          formData.append("file", blob, input.fileName);
 
           const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
           console.log(`[Verification] Calling DetectX API: ${apiUrl}`);
 
           const response = await fetch(apiUrl, {
             method: "POST",
-            body: formData as any,
-            headers: formData.getHeaders(),
+            body: formData,
           });
 
           if (!response.ok) {

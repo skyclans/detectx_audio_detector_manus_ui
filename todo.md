@@ -752,3 +752,10 @@
 - [x] Pro mode beta pricing: $0 with strikethrough and (beta) label
 - [ ] Stripe integration placeholder (EIN pending, US account not ready)
 - [x] verify-audio page mobile optimization
+
+
+## GitHub Sync (Jan 15 - Commit 6582ea2)
+- [x] Pull latest commit 6582ea2 from GitHub
+- [x] Apply server/routers.ts changes (form-data → Node.js FormData/Blob)
+- [x] Fix RunPod API 400 Bad Request error
+- [x] Test API connection

@@ -541,9 +541,11 @@ export default function Home() {
       
       // Increment usage count (skip for master users)
       if (!isMasterUser) {
-        const newCount = usageCount + 1;
-        setUsageCount(newCount);
-        localStorage.setItem("detectx_usage_count", newCount.toString());
+        setUsageCount((prev: number) => {
+          const newCount = prev + 1;
+          localStorage.setItem("detectx_usage_count", newCount.toString());
+          return newCount;
+        });
       }
     } catch (error) {
       console.error("Verification failed:", error);
@@ -551,7 +553,7 @@ export default function Home() {
     } finally {
       setIsVerifying(false);
     }
-  }, [selectedFile, metadata, orientation, user, isAuthenticated, isMasterUser, selectedMode, modeLimit, usageCount, setLocation, DETECTX_API_URL]);
+  }, [selectedFile, metadata, orientation, user, isAuthenticated, isMasterUser, selectedMode, modeLimit, setLocation, DETECTX_API_URL]);
 
   // Debug: Log verification result changes
   useEffect(() => {

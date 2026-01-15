@@ -43,7 +43,7 @@ export const appRouter = router({
      * Upload and extract metadata - ANONYMOUS, NO STORAGE
      * 
      * Files are processed in-memory and NOT persisted to Manus storage.
-     * Metadata is extracted using ffprobe (container-level inspection).
+     * Basic metadata is extracted (filename, size, SHA-256, codec from extension).
      * Returns metadata only - file is discarded after extraction.
      */
     upload: publicProcedure
@@ -57,8 +57,8 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const fileBuffer = Buffer.from(input.fileData, "base64");
 
-        // Extract forensic metadata using ffprobe (container-level inspection)
-        // This occurs BEFORE any analysis or normalization
+        // Extract basic metadata (filename, size, SHA-256, codec from extension)
+        // Detailed audio analysis (duration, sample rate) is done by RunPod server
         const metadata = await extractAudioMetadata(fileBuffer, input.fileName);
 
         // DO NOT store file - return metadata only

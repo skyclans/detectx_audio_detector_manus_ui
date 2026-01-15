@@ -820,3 +820,10 @@
 - [x] Fetch settings from RunPod API (GET /settings/{user_id})
 - [x] Show plan usage stats and master badge
 - [ ] Save settings to RunPod API (PUT /settings/{user_id}) - future feature
+
+
+## File Upload Size & ffprobe Fix (Jan 16)
+- [x] Increase body size limit to 500MB
+- [x] Remove ffprobe dependency from server
+- [x] Use direct file forwarding to RunPod (metadata from RunPod server)
+- [x] Test large file upload (29 tests passing)

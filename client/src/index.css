@@ -288,3 +288,33 @@
     background: oklch(0.40 0.01 260);
   }
 }
+
+
+/* Custom animations for VerdictPanel */
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+
+@keyframes check-mark {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 2s ease-in-out infinite;
+}
+
+.animate-check-mark {
+  stroke-dasharray: 24;
+  animation: check-mark 0.5s ease-out forwards;
+  animation-delay: 0.3s;
+}

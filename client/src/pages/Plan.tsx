@@ -174,22 +174,24 @@ export default function Plan() {
                   {plan.name}
                 </div>
                 <div className="forensic-panel-content flex flex-col flex-1">
-                  {/* Price */}
-                  <div className="text-center mb-4">
-                    {plan.originalPrice && (
-                      <span className="text-lg text-muted-foreground line-through mr-2">
-                        {plan.originalPrice}
+                  {/* Price - Clear text format to avoid confusion */}
+                  <div className="flex flex-col items-center mb-2">
+                    {plan.isBeta && (
+                      <span className="mb-1 px-2 py-0.5 bg-forensic-cyan text-background text-xs font-bold rounded">
+                        BETA - FREE ACCESS
                       </span>
                     )}
-                    <span className="text-3xl font-bold text-foreground">
-                      {plan.price}
+                    {plan.originalPrice && (
+                      <span className="text-sm text-muted-foreground line-through">
+                        {plan.originalPrice}/{plan.period}
+                      </span>
+                    )}
+                    <span className="text-2xl font-bold text-foreground">
+                      {plan.price === "$0" ? "Free" : plan.price}
                     </span>
-                    <span className="text-sm text-muted-foreground ml-1">
-                      / {plan.period}
-                    </span>
-                    {plan.isBeta && (
-                      <span className="ml-2 px-2 py-0.5 bg-forensic-amber/20 text-forensic-amber text-xs font-medium rounded">
-                        BETA
+                    {plan.period !== "forever" && plan.price !== "$0" && (
+                      <span className="text-xs text-muted-foreground">
+                        per {plan.period}
                       </span>
                     )}
                   </div>

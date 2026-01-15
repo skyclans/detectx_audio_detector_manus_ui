@@ -211,15 +211,15 @@ export default function ModeSelection() {
                   {mode.description}
                 </p>
 
-                {/* Limit display */}
+                {/* Limit display - full text to avoid dollar confusion */}
                 <div className="text-center mb-6">
                   {mode.limit === "contact" ? (
-                    <span className="text-2xl font-bold text-foreground">Custom</span>
+                    <span className="text-lg font-bold text-foreground">Custom Plan</span>
                   ) : (
-                    <>
-                      <span className="text-3xl font-bold text-foreground">{mode.limit}</span>
-                      <span className="text-muted-foreground ml-1">/ month</span>
-                    </>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold text-foreground">{mode.limit} verifications</span>
+                      <span className="text-sm text-muted-foreground">per month</span>
+                    </div>
                   )}
                 </div>
 
@@ -253,10 +253,15 @@ export default function ModeSelection() {
           ))}
         </div>
 
-        {/* Note */}
-        <div className="mt-8 text-center">
+        {/* Beta Notice - Emphasized */}
+        <div className="mt-8 p-4 bg-forensic-cyan/10 border border-forensic-cyan/30 rounded-lg text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="px-2 py-0.5 bg-forensic-cyan text-background text-xs font-bold rounded">BETA</span>
+            <span className="text-sm font-medium text-forensic-cyan">Early Access Program</span>
+          </div>
           <p className="text-xs text-muted-foreground">
-            Pro Mode is currently available as a beta version. Leave your email on the Plan page to receive early access benefits when the official version launches.
+            All plans are currently in beta. Pro Mode features are available for free during the beta period.
+            Leave your email on the Plan page to receive early access benefits when the official version launches.
           </p>
         </div>
       </div>

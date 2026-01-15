@@ -795,3 +795,10 @@
 ## Audio Decoding Error Fix (Jan 16)
 - [x] Fix "Failed to decode audio: Unable to decode audio data" error
 - [x] Add fallback for unsupported audio formats (FLAC, some WAV variants)
+
+
+## UI Improvements (Jan 16)
+- [x] Add animation effect to Verification Result progress
+- [x] Update Plan UI text: "5 verifications per month" instead of "5/month"
+- [x] Update Plan UI text: "20 verifications per month" instead of "20/month"
+- [x] Emphasize Beta mode in Plan UI (BETA - FREE ACCESS badge)

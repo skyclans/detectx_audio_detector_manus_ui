@@ -6,10 +6,29 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { extractAudioMetadata } from "./audioMetadata";
 import { sendContactEmail } from "./_core/email";
-import FormData from "form-data";
+// Using native FormData and Blob for proper multipart/form-data handling
 
 // DetectX RunPod Server URL
 const DETECTX_API_URL = process.env.DETECTX_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+
+// Helper to get MIME type from filename
+function getMimeType(filename: string): string {
+  const ext = filename.toLowerCase().split('.').pop();
+  const mimeTypes: Record<string, string> = {
+    'mp3': 'audio/mpeg',
+    'wav': 'audio/wav',
+    'flac': 'audio/flac',
+    'ogg': 'audio/ogg',
+    'm4a': 'audio/mp4',
+    'aac': 'audio/aac',
+    'wma': 'audio/x-ms-wma',
+    'aiff': 'audio/aiff',
+    'aif': 'audio/aiff',
+    'opus': 'audio/opus',
+    'webm': 'audio/webm',
+  };
+  return mimeTypes[ext || ''] || 'application/octet-stream';
+}
 
 /**
  * Anonymous Stateless Verification Flow
@@ -105,20 +124,21 @@ export const appRouter = router({
         console.log(`[Verification] File: ${input.fileName}, Size: ${input.fileSize}`);
 
         try {
-          // Forward to DetectX RunPod Server
+          // Forward to DetectX RunPod Server using native FormData + Blob
+          // This ensures proper boundary generation without manual Content-Type headers
+          const blob = new Blob([fileBuffer], { type: getMimeType(input.fileName) });
           const formData = new FormData();
-          formData.append("file", fileBuffer, {
-            filename: input.fileName,
-            contentType: "audio/mpeg",
-          });
+          formData.append("file", blob, input.fileName);
 
           const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
           console.log(`[Verification] Calling DetectX API: ${apiUrl}`);
 
+          // Use native fetch with FormData - do NOT set Content-Type header manually
+          // Browser/Node will auto-generate boundary for multipart/form-data
           const response = await fetch(apiUrl, {
             method: "POST",
             body: formData as any,
-            headers: formData.getHeaders(),
+            // headers: formData.getHeaders(), // REMOVED - causes boundary parsing error
           });
 
           if (!response.ok) {

@@ -767,3 +767,10 @@
 - [x] Enterprise Mode: Redirect to Contact page
 - [x] Store selected mode in user session/state (localStorage)
 - [x] Apply mode limits to verification flow
+
+
+## 400 Bad Request Fix (Jan 16)
+- [x] Remove manual Content-Type header from FormData requests
+- [x] Let browser auto-generate boundary for multipart/form-data (native FormData + Blob)
+- [x] Added getMimeType helper for proper MIME type detection
+- [x] Test with large FLAC, WAV, MP3 files (25 tests passing, API calls successful)

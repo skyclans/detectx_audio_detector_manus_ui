@@ -802,3 +802,8 @@
 - [x] Update Plan UI text: "5 verifications per month" instead of "5/month"
 - [x] Update Plan UI text: "20 verifications per month" instead of "20/month"
 - [x] Emphasize Beta mode in Plan UI (BETA - FREE ACCESS badge)
+
+
+## VerdictPanel Rollback (Jan 16)
+- [x] Pull GitHub commit f8404ff (VerdictPanel animation rollback)
+- [x] Fix verdict not showing issue

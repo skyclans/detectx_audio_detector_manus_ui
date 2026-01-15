@@ -13,6 +13,7 @@ interface ContactEmailParams {
 }
 
 const inquiryTypeLabels: Record<string, string> = {
+  "professional-beta-interest": "Professional Plan Beta Interest",
   "artist-creator": "Artist / Creator",
   "producer-studio": "Producer / Studio",
   "record-label": "Record Label / Publisher",

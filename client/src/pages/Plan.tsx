@@ -1,7 +1,7 @@
 /**
  * Plan Page - Subscription Management
  * 
- * v1.0 FINAL PRICING CONFIGURATION:
+ * v1.1 BETA CONFIGURATION:
  * 
  * FREE ($0/forever):
  * - 5 verifications per month
@@ -11,14 +11,12 @@
  * - Community support
  * - NO API access, NO batch processing, NO priority queue
  * 
- * PROFESSIONAL ($29/month) - Recommended:
- * - 50 verifications per month
- * - Full CR-G analysis suite
- * - All export formats (PDF, JSON, CSV, Markdown)
- * - Batch processing (UI-based only)
- * - Priority support
- * - NO API access, NO automation, NO webhooks
- * - "Professional is for people, not systems"
+ * PROFESSIONAL (Beta) - NO PRICE DISPLAYED:
+ * - Currently available as beta version
+ * - Up to 30 verifications
+ * - Full AI signal evidence analysis
+ * - Same detection engine as the upcoming full release
+ * - NO price, NO subscription, NO payment
  * 
  * ENTERPRISE (Custom/Contact Sales):
  * - Unlimited verifications
@@ -30,16 +28,21 @@
  * - On-premise deployment option
  * - Custom integrations
  * - Dedicated account manager
+ * 
+ * IMPORTANT: Plan section is visible to ALL users (login NOT required)
  */
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
-import { getLoginUrl } from "@/const";
-import { Check, X, LogIn, Zap, Building2, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Check, X, Zap, Building2, Sparkles, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
 
-// v1.0 FINAL pricing structure - EXACTLY as specified
+// v1.1 BETA pricing structure - Professional has NO price
 const plans = [
   {
     name: "Free",
@@ -66,17 +69,14 @@ const plans = [
   },
   {
     name: "Professional",
-    price: "$0",
-    originalPrice: "$29",
-    period: "month",
+    // NO price - Beta version
+    isBeta: true,
     icon: Zap,
-    positioning: "Manual, UI-driven forensic verification for professionals and small teams.",
+    positioning: "Currently available as a beta version.",
     features: [
-      "50 verifications per month",
-      "Full CR-G analysis suite",
-      "All export formats (PDF, JSON, CSV, Markdown)",
-      "Batch processing (UI-based only)",
-      "Priority support",
+      "Up to 30 verifications",
+      "Full AI signal evidence analysis",
+      "Same detection engine as the upcoming full release",
     ],
     restrictions: [
       "NO API access",
@@ -86,9 +86,8 @@ const plans = [
     restrictionNote: "Professional is for people, not systems.",
     current: false,
     recommended: true,
-    badgeText: "Get Professional (Beta)",
+    badgeText: "Get Professional",
     badgeVariant: "default" as const,
-    isBeta: true,
   },
   {
     name: "Enterprise",
@@ -117,38 +116,57 @@ const plans = [
 
 export default function Plan() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Use contact.submit mutation to send email notification
+  const submitMutation = trpc.contact.submit.useMutation();
 
   const handleUpgrade = (planName: string) => {
     if (planName === "Enterprise") {
       toast.info("Contact sales@detectx.app for Enterprise pricing");
-    } else {
-      toast.info(`${planName} plan upgrade coming soon`);
+    } else if (planName === "Professional") {
+      // Open email collection modal
+      setEmailModalOpen(true);
     }
   };
 
-  if (!authLoading && !isAuthenticated) {
-    return (
-      <ForensicLayout title="Plan" subtitle="Subscription management">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6">
-            <LogIn className="w-10 h-10 text-muted-foreground" />
-          </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            Authentication Required
-          </h2>
-          <p className="text-muted-foreground mb-6 max-w-md">
-            Sign in to view and manage your subscription plan.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => (window.location.href = getLoginUrl())}
-          >
-            Sign In to Continue
-          </Button>
-        </div>
-      </ForensicLayout>
-    );
-  }
+  const handleEmailSubmit = async () => {
+    if (!email || !email.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await submitMutation.mutateAsync({
+        inquiryType: "professional-beta-interest",
+        name: user?.name || "Anonymous User",
+        email: email,
+        subject: "Professional Plan Beta Interest",
+        message: `User expressed interest in Professional Plan (Beta).
+        
+Email: ${email}
+User ID: ${user?.id || "Not logged in"}
+Timestamp: ${new Date().toISOString()}
+
+This user would like to receive early access benefits and special privileges when the official version launches.`,
+      });
+
+      toast.success("Thank you! We'll notify you when the official version launches.");
+      setEmailModalOpen(false);
+      setEmail("");
+    } catch (error) {
+      console.error("Failed to submit email:", error);
+      toast.error("Failed to submit. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // IMPORTANT: Plan page is visible to ALL users (login NOT required)
+  // Removed authentication check - anyone can view plans
 
   return (
     <ForensicLayout title="Plan" subtitle="Subscription management">
@@ -172,27 +190,26 @@ export default function Plan() {
                 <div className="forensic-panel-header flex items-center gap-2">
                   <IconComponent className="w-4 h-4" />
                   {plan.name}
+                  {plan.isBeta && (
+                    <span className="ml-auto px-2 py-0.5 bg-forensic-amber/20 text-forensic-amber text-xs font-medium rounded">
+                      Beta
+                    </span>
+                  )}
                 </div>
                 <div className="forensic-panel-content flex flex-col flex-1">
-                  {/* Price */}
-                  <div className="text-center mb-4">
-                    {plan.originalPrice && (
-                      <span className="text-lg text-muted-foreground line-through mr-2">
-                        {plan.originalPrice}
+                  {/* Price - Only show for non-beta plans */}
+                  {!plan.isBeta && plan.price && (
+                    <div className="text-center mb-4">
+                      <span className="text-3xl font-bold text-foreground">
+                        {plan.price}
                       </span>
-                    )}
-                    <span className="text-3xl font-bold text-foreground">
-                      {plan.price}
-                    </span>
-                    <span className="text-sm text-muted-foreground ml-1">
-                      / {plan.period}
-                    </span>
-                    {plan.isBeta && (
-                      <span className="ml-2 px-2 py-0.5 bg-forensic-amber/20 text-forensic-amber text-xs font-medium rounded">
-                        BETA
-                      </span>
-                    )}
-                  </div>
+                      {plan.period && (
+                        <span className="text-sm text-muted-foreground ml-1">
+                          / {plan.period}
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Positioning */}
                   <p className="text-xs text-muted-foreground text-center mb-4 min-h-[40px]">
@@ -263,52 +280,54 @@ export default function Plan() {
           })}
         </div>
 
-        {/* Usage Stats */}
-        <div className="forensic-panel mt-6">
-          <div className="forensic-panel-header">Current Usage</div>
-          <div className="forensic-panel-content">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  Verifications This Month
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  0 <span className="text-sm font-normal text-muted-foreground">/ 5</span>
-                </p>
-                <div className="w-full h-2 bg-muted rounded-full mt-2">
-                  <div className="w-0 h-full bg-forensic-cyan rounded-full" />
+        {/* Usage Stats - Only show if authenticated */}
+        {isAuthenticated && (
+          <div className="forensic-panel mt-6">
+            <div className="forensic-panel-header">Current Usage</div>
+            <div className="forensic-panel-content">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                    Verifications This Month
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    0 <span className="text-sm font-normal text-muted-foreground">/ 5</span>
+                  </p>
+                  <div className="w-full h-2 bg-muted rounded-full mt-2">
+                    <div className="w-0 h-full bg-forensic-cyan rounded-full" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  Storage Used
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  0 MB <span className="text-sm font-normal text-muted-foreground">/ 100 MB</span>
-                </p>
-                <div className="w-full h-2 bg-muted rounded-full mt-2">
-                  <div className="w-0 h-full bg-forensic-cyan rounded-full" />
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                    Storage Used
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    0 MB <span className="text-sm font-normal text-muted-foreground">/ 100 MB</span>
+                  </p>
+                  <div className="w-full h-2 bg-muted rounded-full mt-2">
+                    <div className="w-0 h-full bg-forensic-cyan rounded-full" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  API Calls This Month
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  0 <span className="text-sm font-normal text-muted-foreground">/ 0</span>
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">Enterprise only</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  Billing Period Ends
-                </p>
-                <p className="text-2xl font-bold text-foreground">N/A</p>
-                <p className="text-xs text-muted-foreground mt-2">Free plan - no billing</p>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                    API Calls This Month
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    0 <span className="text-sm font-normal text-muted-foreground">/ 0</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">Enterprise only</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                    Billing Period Ends
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">N/A</p>
+                  <p className="text-xs text-muted-foreground mt-2">Free plan - no billing</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* FAQ Section */}
         <div className="forensic-panel mt-6">
@@ -325,10 +344,10 @@ export default function Plan() {
               </div>
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">
-                  Can I upgrade or downgrade anytime?
+                  What is the Professional Beta?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Yes, you can change your plan at any time. Changes take effect at the start of your next billing cycle.
+                  The Professional plan is currently available as a free beta. Leave your email to receive early access benefits when the official version launches.
                 </p>
               </div>
               <div>
@@ -351,6 +370,60 @@ export default function Plan() {
           </div>
         </div>
       </div>
+
+      {/* Email Collection Modal for Professional Beta */}
+      <Dialog open={emailModalOpen} onOpenChange={setEmailModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-forensic-cyan" />
+              Professional Plan
+              <span className="px-2 py-0.5 bg-forensic-amber/20 text-forensic-amber text-xs font-medium rounded">
+                Beta
+              </span>
+            </DialogTitle>
+            <DialogDescription className="text-left space-y-4 pt-4">
+              <p>
+                Professional Plan is currently available as a beta version.
+              </p>
+              <p>
+                Leave your email address below.
+              </p>
+              <p>
+                When the official version launches, you will receive early access benefits and special privileges.
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm text-muted-foreground">
+                Email address
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+            </div>
+            <Button
+              className="w-full"
+              onClick={handleEmailSubmit}
+              disabled={isSubmitting || !email}
+            >
+              {isSubmitting ? "Submitting..." : "Notify Me"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </ForensicLayout>
   );
 }

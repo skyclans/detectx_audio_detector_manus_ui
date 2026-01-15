@@ -759,3 +759,21 @@
 - [x] Apply server/routers.ts changes (form-data → Node.js FormData/Blob)
 - [x] Fix RunPod API 400 Bad Request error
 - [x] Test API connection
+
+
+## RunPod Shared Directory Sync (Jan 16)
+- [x] Check RunPod API health status (healthy, queue: 0, uptime: 60048s)
+- [x] Fetch routers.ts from /workspace/shared/ (via GitHub - files identical)
+- [x] Apply changes to Manus UI (already applied in previous checkpoint)
+- [x] Rebuild and deploy (server restarted, 25 tests passing)
+- [x] Record status to /workspace/shared/manus_status.json (via HTTP API)
+
+
+## Verify-Audio Plan Section Update (Jan 16)
+- [x] Sidebar Plan section visible to all users (login not required)
+- [x] Remove Professional Plan price ($29) completely
+- [x] Add Beta label to Professional Plan
+- [x] Update Professional Plan description (beta version text)
+- [x] Implement email collection modal for "Get Professional" button
+- [x] Send collected emails to support@detectx.app
+- [x] Test email submission flow

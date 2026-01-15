@@ -17,6 +17,10 @@ import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { getLoginUrl } from "@/const";
+import { toast } from "sonner";
+import { LogIn, AlertTriangle } from "lucide-react";
 import { AudioRuntime } from "@/lib/audioRuntime";
 import { startDualTimeLoop } from "@/lib/timeLoop";
 import type { DetectXVerdictText, DetectXVerificationResult } from "@shared/detectx-verification";
@@ -25,12 +29,38 @@ import type { DetectXVerdictText, DetectXVerificationResult } from "@shared/dete
  * ANONYMOUS STATELESS VERIFICATION FLOW
  * 
  * NON-NEGOTIABLE CONSTRAINTS:
- * 1) No login/authentication required
+ * 1) No login/authentication required for verification
  * 2) No file storage - files are transient
  * 3) No upload history or session-based access control
  * 4) DetectX server is sole authority for processing and results
  * 5) Manus acts only as UI layer and request forwarder
+ * 
+ * PLAN LIMITS:
+ * - Free: 10/month, 50MB max
+ * - Pro (Beta): 20/month, 100MB max
+ * - Enterprise: Unlimited, 500MB max
+ * - Master emails bypass all limits
  */
+
+// Master emails with unlimited access
+const MASTER_EMAILS = [
+  "skyclans2@gmail.com",
+  "ceo@detectx.app",
+  "support@detectx.app",
+  "coolkimy@gmail.com",
+];
+
+// DetectX RunPod Server URL
+const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+
+// Plan check response interface
+interface PlanCheckResponse {
+  allowed: boolean;
+  reason?: string;
+  current_usage?: number;
+  monthly_limit?: number;
+  remaining?: number;
+}
 
 // File metadata interface (forensic input record)
 interface FileMetadata {
@@ -171,7 +201,15 @@ export default function Home() {
   const fileDataRef = useRef<string | null>(null); // Store base64 data for processing
 
   // Auth context - optional, used for history tracking
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+
+  // Plan limit state
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [planLimitExceeded, setPlanLimitExceeded] = useState(false);
+  const [planLimitMessage, setPlanLimitMessage] = useState<string | null>(null);
+
+  // Check if user is a master user (unlimited access)
+  const isMasterUser = user?.email && MASTER_EMAILS.includes(user.email);
 
   // tRPC mutations - ANONYMOUS (no auth required)
   const uploadMutation = trpc.verification.upload.useMutation();
@@ -367,14 +405,59 @@ export default function Home() {
   }, []);
 
   /**
+   * Check plan limits before verification
+   */
+  const checkPlanLimit = async (): Promise<boolean> => {
+    // Master users bypass all limits
+    if (isMasterUser) {
+      return true;
+    }
+
+    // Non-logged-in users can verify but won't see results
+    if (!isAuthenticated || !user?.id) {
+      return true; // Allow verification, but show login prompt before results
+    }
+
+    try {
+      const response = await fetch(`${DETECTX_API_URL}/plan/${encodeURIComponent(user.id.toString())}/check`);
+      if (response.ok) {
+        const data: PlanCheckResponse = await response.json();
+        if (!data.allowed) {
+          setPlanLimitExceeded(true);
+          setPlanLimitMessage(data.reason || "Monthly limit reached. Upgrade your plan.");
+          toast.error(data.reason || "Monthly limit reached. Upgrade your plan.");
+          return false;
+        }
+      }
+      return true;
+    } catch (err) {
+      console.error("Failed to check plan limit:", err);
+      // Allow verification if check fails (fail open)
+      return true;
+    }
+  };
+
+  /**
    * VERIFICATION HANDLER - ANONYMOUS, STATELESS
    * 
-   * No authentication required.
-   * No file storage - file data is sent directly for processing.
-   * No database records created.
+   * No authentication required for verification.
+   * Non-logged-in users: show login prompt before results.
+   * Logged-in users: check plan limits, show results.
+   * Master users: bypass all limits.
    */
   const handleVerify = useCallback(async () => {
     if (!selectedFile || !metadata || !fileDataRef.current) return;
+
+    // Reset plan limit state
+    setPlanLimitExceeded(false);
+    setPlanLimitMessage(null);
+    setShowLoginPrompt(false);
+
+    // Check plan limits (master users bypass)
+    const canVerify = await checkPlanLimit();
+    if (!canVerify) {
+      return;
+    }
     
     // Immediate UI update
     setIsVerifying(true);
@@ -422,6 +505,14 @@ export default function Home() {
         } : prev);
       }
       
+      // For non-logged-in users, show login prompt instead of results
+      if (!isAuthenticated && !isMasterUser) {
+        setShowLoginPrompt(true);
+        setVerificationResult(null);
+        setScanComplete(true);
+        return;
+      }
+
       setVerificationResult({
         verdict: verdictText ? {
           verdict: verdictText,
@@ -508,11 +599,72 @@ export default function Home() {
             isComplete={scanComplete}
           />
           
+          {/* Login Prompt for Non-Logged-In Users */}
+          {showLoginPrompt && !isAuthenticated && (
+            <div className="forensic-panel border-forensic-cyan">
+              <div className="forensic-panel-header flex items-center gap-2">
+                <LogIn className="w-4 h-4" />
+                Sign In Required
+              </div>
+              <div className="forensic-panel-content">
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <div className="w-16 h-16 rounded-full bg-forensic-cyan/20 flex items-center justify-center mb-4">
+                    <LogIn className="w-8 h-8 text-forensic-cyan" />
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    Please sign in to view verification results
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-md">
+                    Your verification has been completed. Sign in to view the full results and save to your history.
+                  </p>
+                  <Button
+                    onClick={() => (window.location.href = getLoginUrl())}
+                    className="gap-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Sign In to View Results
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Plan Limit Exceeded Message */}
+          {planLimitExceeded && (
+            <div className="forensic-panel border-forensic-amber">
+              <div className="forensic-panel-header flex items-center gap-2 text-forensic-amber">
+                <AlertTriangle className="w-4 h-4" />
+                Monthly Limit Reached
+              </div>
+              <div className="forensic-panel-content">
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <div className="w-16 h-16 rounded-full bg-forensic-amber/20 flex items-center justify-center mb-4">
+                    <AlertTriangle className="w-8 h-8 text-forensic-amber" />
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    {planLimitMessage || "Monthly limit reached"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-md">
+                    Upgrade your plan to continue verifying audio files.
+                  </p>
+                  <Button
+                    onClick={() => (window.location.href = "/plan")}
+                    className="gap-2"
+                  >
+                    View Plans
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Verification Result - directly below Live Console */}
-          <VerdictPanel
-            verdict={verificationResult?.verdict ?? null}
-            isProcessing={isVerifying}
-          />
+          {!showLoginPrompt && !planLimitExceeded && (
+            <VerdictPanel
+              verdict={verificationResult?.verdict ?? null}
+              isProcessing={isVerifying}
+            />
+          )}
         </div>
       </div>
 

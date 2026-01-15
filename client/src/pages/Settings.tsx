@@ -1,26 +1,78 @@
 /**
  * Settings Page
  * 
- * v1.0 FINAL:
+ * v1.2 UPDATE:
  * - Profile section with user info
+ * - Plan usage from RunPod API
  * - Account actions (sign out)
  * - About section with version info
  * - System information panel
+ * - Master user badge
  */
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
-import { LogIn, User, Info, Shield, Cpu } from "lucide-react";
+import { LogIn, User, Info, Shield, Cpu, Crown, Zap } from "lucide-react";
+import { useState, useEffect } from "react";
 
-// Version constants - v1.0 FINAL
-const APP_VERSION = "1.0.0";
-const BUILD_DATE = "2025-01-10";
+// Version constants - v1.2 UPDATE
+const APP_VERSION = "1.2.0";
+const BUILD_DATE = "2025-01-16";
 const ENGINE_VERSION = "CR-G v1.0";
+
+// Master emails with unlimited access
+const MASTER_EMAILS = [
+  "skyclans2@gmail.com",
+  "ceo@detectx.app",
+  "support@detectx.app",
+  "coolkimy@gmail.com",
+];
+
+// DetectX RunPod Server URL
+const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+
+interface UserSettings {
+  user_id: string;
+  plan_type: string;
+  monthly_limit: number;
+  current_usage: number;
+  remaining: number;
+  max_file_size_mb: number;
+  notification_email: boolean;
+  notification_slack: boolean;
+}
 
 export default function Settings() {
   const { user, loading: authLoading, isAuthenticated, logout } = useAuth();
+  const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [loadingSettings, setLoadingSettings] = useState(false);
+
+  // Check if user is a master user
+  const isMasterUser = user?.email && MASTER_EMAILS.includes(user.email);
+
+  // Fetch user settings from RunPod
+  useEffect(() => {
+    if (user?.id) {
+      fetchSettings(user.id.toString());
+    }
+  }, [user?.id]);
+
+  const fetchSettings = async (userId: string) => {
+    setLoadingSettings(true);
+    try {
+      const response = await fetch(`${DETECTX_API_URL}/settings/${encodeURIComponent(userId)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSettings(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch settings:", err);
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
 
   if (!authLoading && !isAuthenticated) {
     return (
@@ -49,6 +101,30 @@ export default function Settings() {
   return (
     <ForensicLayout title="Settings" subtitle="Account configuration">
       <div className="max-w-2xl space-y-6">
+        {/* Master User Badge */}
+        {isMasterUser && (
+          <div className="forensic-panel border-forensic-cyan">
+            <div className="forensic-panel-content">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-forensic-cyan/20 flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-forensic-cyan" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    Master Account
+                    <span className="px-2 py-0.5 bg-forensic-cyan/20 text-forensic-cyan text-xs font-medium rounded">
+                      Unlimited
+                    </span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    You have unlimited access to all features. No restrictions apply.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Profile Section */}
         <div className="forensic-panel">
           <div className="forensic-panel-header">
@@ -58,11 +134,18 @@ export default function Settings() {
           <div className="forensic-panel-content">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                <User className="w-8 h-8 text-muted-foreground" />
+                {isMasterUser ? (
+                  <Crown className="w-8 h-8 text-forensic-cyan" />
+                ) : (
+                  <User className="w-8 h-8 text-muted-foreground" />
+                )}
               </div>
               <div>
-                <p className="text-lg font-medium text-foreground">
+                <p className="text-lg font-medium text-foreground flex items-center gap-2">
                   {user?.name || "User"}
+                  {isMasterUser && (
+                    <Crown className="w-4 h-4 text-forensic-cyan" />
+                  )}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {user?.email || "No email"}
@@ -84,7 +167,7 @@ export default function Settings() {
                   Role
                 </span>
                 <span className="text-sm text-foreground capitalize">
-                  {user?.role || "user"}
+                  {isMasterUser ? "Master" : (user?.role || "user")}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-border/50">
@@ -96,6 +179,87 @@ export default function Settings() {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Plan Usage Section */}
+        <div className="forensic-panel">
+          <div className="forensic-panel-header">
+            <Zap className="w-4 h-4 mr-2 inline" />
+            Plan & Usage
+          </div>
+          <div className="forensic-panel-content">
+            {loadingSettings ? (
+              <div className="text-center py-4 text-muted-foreground">Loading usage data...</div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Current Plan
+                  </span>
+                  <span className="text-sm font-medium text-foreground flex items-center gap-2">
+                    {isMasterUser ? (
+                      <>
+                        Master
+                        <Crown className="w-4 h-4 text-forensic-cyan" />
+                      </>
+                    ) : (
+                      settings?.plan_type?.charAt(0).toUpperCase() + (settings?.plan_type?.slice(1) || "") || "Free"
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Monthly Usage
+                  </span>
+                  <span className="text-sm font-mono text-foreground">
+                    {isMasterUser ? "∞" : (settings?.current_usage || 0)} / {isMasterUser ? "∞" : (settings?.monthly_limit || 10)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Remaining
+                  </span>
+                  <span className="text-sm font-mono text-foreground">
+                    {isMasterUser ? "∞" : (settings?.remaining ?? 10)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Max File Size
+                  </span>
+                  <span className="text-sm font-mono text-foreground">
+                    {isMasterUser ? "500" : (settings?.max_file_size_mb || 50)} MB
+                  </span>
+                </div>
+                
+                {/* Usage Progress Bar */}
+                {!isMasterUser && (
+                  <div className="pt-2">
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                      <span>Usage this month</span>
+                      <span>{Math.round(((settings?.current_usage || 0) / (settings?.monthly_limit || 10)) * 100)}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-muted rounded-full">
+                      <div 
+                        className="h-full bg-forensic-cyan rounded-full transition-all" 
+                        style={{ 
+                          width: `${Math.min(100, ((settings?.current_usage || 0) / (settings?.monthly_limit || 10)) * 100)}%` 
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  variant="outline"
+                  className="w-full mt-2"
+                  onClick={() => (window.location.href = "/plan")}
+                >
+                  {isMasterUser ? "View All Plans" : "Upgrade Plan"}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -116,7 +280,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* System Information - v1.0 FINAL */}
+        {/* System Information - v1.2 UPDATE */}
         <div className="forensic-panel">
           <div className="forensic-panel-header">
             <Cpu className="w-4 h-4 mr-2 inline" />

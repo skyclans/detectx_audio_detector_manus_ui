@@ -148,15 +148,28 @@ export default function History() {
                         <span className="px-1.5 py-0.5 bg-muted rounded text-[10px] uppercase">
                           {record.orientation.replace("_", " ")}
                         </span>
+                        {record.cnn_score !== undefined && (
+                          <span className="px-1.5 py-0.5 bg-forensic-cyan/10 text-forensic-cyan rounded text-[10px]">
+                            CNN: {(record.cnn_score * 100).toFixed(1)}%
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    record.verdict.includes("was observed")
-                      ? "bg-forensic-amber/20 text-forensic-amber"
-                      : "bg-forensic-green/20 text-forensic-green"
-                  }`}>
-                    {record.verdict.includes("was observed") ? "AI Signal Observed" : "No AI Signal"}
+                  <div className="flex items-center gap-3">
+                    {record.cnn_score !== undefined && (
+                      <div className="text-right hidden sm:block">
+                        <p className="text-xs text-muted-foreground">CNN Score</p>
+                        <p className="text-sm font-mono text-foreground">{(record.cnn_score * 100).toFixed(2)}%</p>
+                      </div>
+                    )}
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      record.verdict.includes("was observed")
+                        ? "bg-forensic-amber/20 text-forensic-amber"
+                        : "bg-forensic-green/20 text-forensic-green"
+                    }`}>
+                      {record.verdict.includes("was observed") ? "AI Signal Observed" : "No AI Signal"}
+                    </div>
                   </div>
                 </div>
               ))}

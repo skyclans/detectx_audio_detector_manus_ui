@@ -1,35 +1,28 @@
 /**
  * Plan Page - Subscription Management
  * 
- * v1.1 BETA CONFIGURATION:
+ * v1.2 PLAN CONFIGURATION (from Manual):
  * 
  * FREE ($0/forever):
- * - 5 verifications per month
- * - Basic CR-G analysis
- * - PDF & JSON export
- * - Standard processing queue
- * - Community support
- * - NO API access, NO batch processing, NO priority queue
+ * - 10 verifications per month
+ * - 50MB max file size
+ * - Basic verification
  * 
- * PROFESSIONAL (Beta) - NO PRICE DISPLAYED:
- * - Currently available as beta version
- * - Up to 30 verifications
- * - Full AI signal evidence analysis
- * - Same detection engine as the upcoming full release
- * - NO price, NO subscription, NO payment
+ * PRO (Beta) - NO PRICE:
+ * - 20 verifications per month
+ * - 100MB max file size
+ * - History, priority queue
  * 
- * ENTERPRISE (Custom/Contact Sales):
+ * ENTERPRISE (Contact Sales):
  * - Unlimited verifications
- * - Full API access (REST)
- * - Webhooks
- * - Unlimited batch processing
- * - Dedicated processing infrastructure
- * - SLA guarantee (99.9% uptime)
- * - On-premise deployment option
- * - Custom integrations
- * - Dedicated account manager
+ * - 500MB max file size
+ * - API access, custom integration
  * 
- * IMPORTANT: Plan section is visible to ALL users (login NOT required)
+ * MASTER EMAILS (Unlimited Access):
+ * - skyclans2@gmail.com
+ * - ceo@detectx.app
+ * - support@detectx.app
+ * - coolkimy@gmail.com
  */
 
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -37,12 +30,23 @@ import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Check, X, Zap, Building2, Sparkles, Mail } from "lucide-react";
+import { Check, X, Zap, Building2, Sparkles, Mail, Crown } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 
-// v1.1 BETA pricing structure - Professional has NO price
+// Master emails with unlimited access
+const MASTER_EMAILS = [
+  "skyclans2@gmail.com",
+  "ceo@detectx.app",
+  "support@detectx.app",
+  "coolkimy@gmail.com",
+];
+
+// DetectX RunPod Server URL
+const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+
+// v1.2 Plan configuration from manual
 const plans = [
   {
     name: "Free",
@@ -51,42 +55,48 @@ const plans = [
     icon: Sparkles,
     positioning: "Evaluation and light research use.",
     features: [
-      "5 verifications per month",
-      "Basic CR-G analysis",
+      "10 verifications per month",
+      "50MB max file size",
+      "Basic verification",
       "PDF & JSON export",
       "Standard processing queue",
-      "Community support",
     ],
     restrictions: [
-      "No API access",
-      "No batch processing",
+      "No history access",
       "No priority queue",
+      "No API access",
     ],
+    monthlyLimit: 10,
+    maxFileSize: 50,
     current: true,
     recommended: false,
     badgeText: "Current Plan",
     badgeVariant: "outline" as const,
   },
   {
-    name: "Professional",
+    name: "Pro",
     // NO price - Beta version
     isBeta: true,
     icon: Zap,
     positioning: "Currently available as a beta version.",
     features: [
-      "Up to 30 verifications",
+      "20 verifications per month",
+      "100MB max file size",
       "Full AI signal evidence analysis",
-      "Same detection engine as the upcoming full release",
+      "Verification history",
+      "Priority processing queue",
     ],
     restrictions: [
-      "NO API access",
-      "NO automation",
-      "NO webhooks",
+      "No API access",
+      "No automation",
+      "No webhooks",
     ],
-    restrictionNote: "Professional is for people, not systems.",
+    restrictionNote: "Pro is for people, not systems.",
+    monthlyLimit: 20,
+    maxFileSize: 100,
     current: false,
     recommended: true,
-    badgeText: "Get Professional",
+    badgeText: "Get Pro",
     badgeVariant: "default" as const,
   },
   {
@@ -97,16 +107,18 @@ const plans = [
     positioning: "System-level and organizational integration.",
     features: [
       "Unlimited verifications",
+      "500MB max file size",
       "Full API access (REST)",
       "Webhooks",
       "Unlimited batch processing",
       "Dedicated processing infrastructure",
       "SLA guarantee (99.9% uptime)",
-      "On-premise deployment option",
       "Custom integrations",
       "Dedicated account manager",
     ],
     restrictions: [],
+    monthlyLimit: -1, // Unlimited
+    maxFileSize: 500,
     current: false,
     recommended: false,
     badgeText: "Contact Sales",
@@ -114,19 +126,56 @@ const plans = [
   },
 ];
 
+interface PlanInfo {
+  plan_type: string;
+  monthly_limit: number;
+  current_usage: number;
+  remaining: number;
+  max_file_size_mb: number;
+  features: string[];
+}
+
 export default function Plan() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState(false);
+
+  // Check if user is a master user
+  const isMasterUser = user?.email && MASTER_EMAILS.includes(user.email);
 
   // Use contact.submit mutation to send email notification
   const submitMutation = trpc.contact.submit.useMutation();
 
+  // Fetch user's plan info from RunPod
+  useEffect(() => {
+    if (user?.id) {
+      fetchPlanInfo(user.id.toString());
+    }
+  }, [user?.id]);
+
+  const fetchPlanInfo = async (userId: string) => {
+    setLoadingPlan(true);
+    try {
+      const response = await fetch(`${DETECTX_API_URL}/plan/${encodeURIComponent(userId)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPlanInfo(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch plan info:", err);
+    } finally {
+      setLoadingPlan(false);
+    }
+  };
+
   const handleUpgrade = (planName: string) => {
     if (planName === "Enterprise") {
-      toast.info("Contact sales@detectx.app for Enterprise pricing");
-    } else if (planName === "Professional") {
+      // Navigate to contact page
+      window.location.href = "https://detectx.app/contact";
+    } else if (planName === "Pro") {
       // Open email collection modal
       setEmailModalOpen(true);
     }
@@ -144,8 +193,8 @@ export default function Plan() {
         inquiryType: "professional-beta-interest",
         name: user?.name || "Anonymous User",
         email: email,
-        subject: "Professional Plan Beta Interest",
-        message: `User expressed interest in Professional Plan (Beta).
+        subject: "Pro Plan Beta Interest",
+        message: `User expressed interest in Pro Plan (Beta).
         
 Email: ${email}
 User ID: ${user?.id || "Not logged in"}
@@ -165,26 +214,62 @@ This user would like to receive early access benefits and special privileges whe
     }
   };
 
-  // IMPORTANT: Plan page is visible to ALL users (login NOT required)
-  // Removed authentication check - anyone can view plans
+  // Determine current plan based on planInfo
+  const getCurrentPlanName = () => {
+    if (isMasterUser) return "Master";
+    if (!planInfo) return "Free";
+    return planInfo.plan_type.charAt(0).toUpperCase() + planInfo.plan_type.slice(1);
+  };
+
+  const currentPlanName = getCurrentPlanName();
 
   return (
     <ForensicLayout title="Plan" subtitle="Subscription management">
       <div className="max-w-6xl">
-        {/* Plan Cards - All badges aligned at same vertical position */}
+        {/* Master Badge */}
+        {isMasterUser && (
+          <div className="forensic-panel mb-6 border-forensic-cyan">
+            <div className="forensic-panel-content">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-forensic-cyan/20 flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-forensic-cyan" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    Master Account
+                    <span className="px-2 py-0.5 bg-forensic-cyan/20 text-forensic-cyan text-xs font-medium rounded">
+                      Unlimited
+                    </span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    You have unlimited access to all features. No restrictions apply.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Plan Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((plan) => {
             const IconComponent = plan.icon;
+            const isCurrentPlan = currentPlanName.toLowerCase() === plan.name.toLowerCase();
             return (
               <div
                 key={plan.name}
                 className={`forensic-panel relative flex flex-col ${
-                  plan.recommended ? "ring-2 ring-forensic-cyan" : ""
-                }`}
+                  plan.recommended && !isMasterUser ? "ring-2 ring-forensic-cyan" : ""
+                } ${isCurrentPlan && !isMasterUser ? "ring-2 ring-forensic-green" : ""}`}
               >
-                {plan.recommended && (
+                {plan.recommended && !isMasterUser && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-forensic-cyan text-background text-xs font-medium rounded-full">
                     Recommended
+                  </div>
+                )}
+                {isCurrentPlan && !isMasterUser && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-forensic-green text-background text-xs font-medium rounded-full">
+                    Current Plan
                   </div>
                 )}
                 <div className="forensic-panel-header flex items-center gap-2">
@@ -226,11 +311,11 @@ This user would like to receive early access benefits and special privileges whe
                     ))}
                   </ul>
 
-                  {/* Restrictions (for Free and Professional) */}
+                  {/* Restrictions */}
                   {plan.restrictions.length > 0 && (
                     <div className="border-t border-border/30 pt-3 mb-4">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
-                        {plan.name === "Professional" ? "Restrictions (MANDATORY)" : "Limitations"}
+                        Limitations
                       </p>
                       <ul className="space-y-1">
                         {plan.restrictions.map((restriction) => (
@@ -248,14 +333,18 @@ This user would like to receive early access benefits and special privileges whe
                     </div>
                   )}
 
-                  {/* Spacer to push badge to bottom */}
+                  {/* Spacer */}
                   <div className="flex-1" />
 
-                  {/* CTA Button/Badge - ALL aligned at same vertical position */}
+                  {/* CTA Button */}
                   <div className="mt-auto pt-4">
-                    {plan.current ? (
+                    {isCurrentPlan && !isMasterUser ? (
                       <Button variant="outline" className="w-full h-10" disabled>
-                        {plan.badgeText}
+                        Current Plan
+                      </Button>
+                    ) : isMasterUser ? (
+                      <Button variant="outline" className="w-full h-10" disabled>
+                        Included in Master
                       </Button>
                     ) : (
                       <Button
@@ -285,46 +374,68 @@ This user would like to receive early access benefits and special privileges whe
           <div className="forensic-panel mt-6">
             <div className="forensic-panel-header">Current Usage</div>
             <div className="forensic-panel-content">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                    Verifications This Month
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    0 <span className="text-sm font-normal text-muted-foreground">/ 5</span>
-                  </p>
-                  <div className="w-full h-2 bg-muted rounded-full mt-2">
-                    <div className="w-0 h-full bg-forensic-cyan rounded-full" />
+              {loadingPlan ? (
+                <div className="text-center py-4 text-muted-foreground">Loading usage data...</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      Verifications This Month
+                    </p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {isMasterUser ? "∞" : (planInfo?.current_usage || 0)}{" "}
+                      <span className="text-sm font-normal text-muted-foreground">
+                        / {isMasterUser ? "∞" : (planInfo?.monthly_limit || 10)}
+                      </span>
+                    </p>
+                    <div className="w-full h-2 bg-muted rounded-full mt-2">
+                      <div 
+                        className="h-full bg-forensic-cyan rounded-full transition-all" 
+                        style={{ 
+                          width: isMasterUser ? "0%" : 
+                            `${Math.min(100, ((planInfo?.current_usage || 0) / (planInfo?.monthly_limit || 10)) * 100)}%` 
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      Max File Size
+                    </p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {isMasterUser ? "500" : (planInfo?.max_file_size_mb || 50)} MB
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">Per file limit</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      Remaining
+                    </p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {isMasterUser ? "∞" : (planInfo?.remaining ?? (10 - (planInfo?.current_usage || 0)))}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">Verifications left</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      Plan Type
+                    </p>
+                    <p className="text-2xl font-bold text-foreground flex items-center gap-2">
+                      {isMasterUser ? (
+                        <>
+                          Master
+                          <Crown className="w-5 h-5 text-forensic-cyan" />
+                        </>
+                      ) : (
+                        currentPlanName
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {isMasterUser ? "Unlimited access" : "Monthly billing"}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                    Storage Used
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    0 MB <span className="text-sm font-normal text-muted-foreground">/ 100 MB</span>
-                  </p>
-                  <div className="w-full h-2 bg-muted rounded-full mt-2">
-                    <div className="w-0 h-full bg-forensic-cyan rounded-full" />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                    API Calls This Month
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">
-                    0 <span className="text-sm font-normal text-muted-foreground">/ 0</span>
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">Enterprise only</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                    Billing Period Ends
-                  </p>
-                  <p className="text-2xl font-bold text-foreground">N/A</p>
-                  <p className="text-xs text-muted-foreground mt-2">Free plan - no billing</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -344,18 +455,18 @@ This user would like to receive early access benefits and special privileges whe
               </div>
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">
-                  What is the Professional Beta?
+                  What is the Pro Beta?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  The Professional plan is currently available as a free beta. Leave your email to receive early access benefits when the official version launches.
+                  The Pro plan is currently available as a free beta. Leave your email to receive early access benefits when the official version launches.
                 </p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">
-                  Why doesn't Professional include API access?
+                  Why doesn't Pro include API access?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Professional is designed for manual, UI-driven forensic verification. API access and automation are reserved for Enterprise customers with system-level integration needs.
+                  Pro is designed for manual, UI-driven forensic verification. API access and automation are reserved for Enterprise customers with system-level integration needs.
                 </p>
               </div>
               <div>
@@ -363,7 +474,7 @@ This user would like to receive early access benefits and special privileges whe
                   What file formats are supported?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  We support WAV, MP3, FLAC, OGG, and M4A formats across all plans.
+                  We support WAV, MP3, FLAC, OGG, AAC, and M4A formats across all plans.
                 </p>
               </div>
             </div>
@@ -371,13 +482,13 @@ This user would like to receive early access benefits and special privileges whe
         </div>
       </div>
 
-      {/* Email Collection Modal for Professional Beta */}
+      {/* Email Collection Modal for Pro Beta */}
       <Dialog open={emailModalOpen} onOpenChange={setEmailModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-forensic-cyan" />
-              Professional Plan
+              Pro Plan
               <span className="px-2 py-0.5 bg-forensic-amber/20 text-forensic-amber text-xs font-medium rounded">
                 Beta
               </span>
@@ -399,25 +510,22 @@ This user would like to receive early access benefits and special privileges whe
               <label htmlFor="email" className="text-sm text-muted-foreground">
                 Email address
               </label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    disabled={isSubmitting}
-                  />
-                </div>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                />
               </div>
             </div>
             <Button
               className="w-full"
               onClick={handleEmailSubmit}
-              disabled={isSubmitting || !email}
+              disabled={isSubmitting}
             >
               {isSubmitting ? "Submitting..." : "Notify Me"}
             </Button>

@@ -790,3 +790,33 @@
 ## History UI Bug Fix (Jan 16)
 - [x] Debug History API response parsing (data.history not data.records)
 - [x] Fix History UI not displaying records
+
+
+## Plan System Implementation (Jan 16)
+### Master Emails (Unlimited Access)
+- skyclans2@gmail.com
+- ceo@detectx.app
+- support@detectx.app
+- coolkimy@gmail.com
+
+### Plan Configuration
+- [x] Update Plan page with Free/Pro/Enterprise tiers
+- [x] Free: 10/month, 50MB max
+- [x] Pro (Beta): 20/month, 100MB max
+- [x] Enterprise: Unlimited, 500MB max, Contact Sales button
+
+### Verify-Audio Page
+- [x] Check plan limit before verification (GET /plan/{user_id}/check)
+- [x] Show "Monthly limit reached" message when exceeded
+- [x] Non-logged-in users: show "Please sign in to view results" before showing results
+- [x] Master emails bypass all limits
+
+### History Page
+- [x] Fetch from RunPod API with user_id
+- [x] Show CNN Score column
+- [x] Already implemented - verify working
+
+### Settings Page
+- [x] Fetch settings from RunPod API (GET /settings/{user_id})
+- [x] Show plan usage stats and master badge
+- [ ] Save settings to RunPod API (PUT /settings/{user_id}) - future feature

@@ -785,3 +785,8 @@
 - [x] Add user_id to Plan API call (uses local auth)
 - [x] Add user_id to Settings API call (uses local auth)
 - [x] Test with logged-in user (25 tests passing)
+
+
+## History UI Bug Fix (Jan 16)
+- [x] Debug History API response parsing (data.history not data.records)
+- [x] Fix History UI not displaying records

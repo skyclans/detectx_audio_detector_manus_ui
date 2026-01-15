@@ -18,11 +18,13 @@ const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
 interface HistoryRecord {
   id: string;
   filename: string;
-  verdict: "observed" | "not_observed";
-  orientation: "ai_oriented" | "balanced" | "human_oriented";
+  verdict: string; // Full verdict text from API
+  orientation: string;
   created_at: string;
   file_size?: number;
   duration?: number;
+  cnn_score?: number;
+  geometry_exceeded?: boolean;
 }
 
 export default function History() {
@@ -46,7 +48,8 @@ export default function History() {
         throw new Error(`Failed to fetch history: ${response.status}`);
       }
       const data = await response.json();
-      setHistory(data.records || []);
+      console.log("[History] API response:", data);
+      setHistory(data.history || []);
     } catch (err) {
       console.error("Failed to fetch history:", err);
       setError("Failed to load verification history");
@@ -127,11 +130,11 @@ export default function History() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      record.verdict === "observed" 
+                      record.verdict.includes("was observed") 
                         ? "bg-forensic-amber/20" 
                         : "bg-forensic-green/20"
                     }`}>
-                      {record.verdict === "observed" ? (
+                      {record.verdict.includes("was observed") ? (
                         <XCircle className="w-5 h-5 text-forensic-amber" />
                       ) : (
                         <CheckCircle className="w-5 h-5 text-forensic-green" />
@@ -149,11 +152,11 @@ export default function History() {
                     </div>
                   </div>
                   <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    record.verdict === "observed"
+                    record.verdict.includes("was observed")
                       ? "bg-forensic-amber/20 text-forensic-amber"
                       : "bg-forensic-green/20 text-forensic-green"
                   }`}>
-                    {record.verdict === "observed" ? "AI Signal Observed" : "No AI Signal"}
+                    {record.verdict.includes("was observed") ? "AI Signal Observed" : "No AI Signal"}
                   </div>
                 </div>
               ))}

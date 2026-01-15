@@ -16,6 +16,7 @@ import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { AudioRuntime } from "@/lib/audioRuntime";
 import { startDualTimeLoop } from "@/lib/timeLoop";
 import type { DetectXVerdictText, DetectXVerificationResult } from "@shared/detectx-verification";
@@ -168,6 +169,9 @@ export default function Home() {
   const audioRuntimeRef = useRef<AudioRuntime | null>(null);
   const timeLoopCleanupRef = useRef<(() => void) | null>(null);
   const fileDataRef = useRef<string | null>(null); // Store base64 data for processing
+
+  // Auth context - optional, used for history tracking
+  const { user } = useAuth();
 
   // tRPC mutations - ANONYMOUS (no auth required)
   const uploadMutation = trpc.verification.upload.useMutation();
@@ -395,6 +399,7 @@ export default function Home() {
         duration: metadata.duration || undefined,
         sampleRate: metadata.sampleRate || undefined,
         orientation: orientation,
+        userId: user?.id?.toString(), // Pass user ID for history tracking (optional)
       });
       
       // Update result - convert to VerdictResult format

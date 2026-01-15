@@ -777,3 +777,11 @@
 - [x] Implement email collection modal for "Get Professional" button
 - [x] Send collected emails to support@detectx.app
 - [x] Test email submission flow
+
+
+## User ID Integration for RunPod API (Jan 16)
+- [x] Add user_id parameter to verify-audio API call
+- [x] Add user_id filter to History API call
+- [x] Add user_id to Plan API call (uses local auth)
+- [x] Add user_id to Settings API call (uses local auth)
+- [x] Test with logged-in user (25 tests passing)

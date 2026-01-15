@@ -94,6 +94,7 @@ export const appRouter = router({
           duration: z.number().optional(),
           sampleRate: z.number().optional(),
           orientation: z.enum(["ai_oriented", "balanced", "human_oriented"]).default("balanced"),
+          userId: z.string().optional(), // Optional user ID for history tracking
         })
       )
       .mutation(async ({ input }) => {
@@ -109,7 +110,9 @@ export const appRouter = router({
           const formData = new FormData();
           formData.append("file", blob, input.fileName);
 
-          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
+          // Build API URL with optional user_id for history tracking
+          const userIdParam = input.userId ? `&user_id=${encodeURIComponent(input.userId)}` : "";
+          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}${userIdParam}`;
           console.log(`[Verification] Calling DetectX API: ${apiUrl}`);
 
           const response = await fetch(apiUrl, {

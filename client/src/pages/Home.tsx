@@ -313,8 +313,11 @@ export default function Home() {
           fileSize: file.size,
         });
       } catch (error) {
-        console.error("Failed to decode audio:", error);
-        // Still set basic metadata even if decode fails
+        // Web Audio API may not support all formats (e.g., FLAC, some WAV variants)
+        // This is expected - verification will still work via RunPod
+        console.warn("Audio preview unavailable (format not supported by browser):", error);
+        
+        // Set basic metadata - full metadata will be extracted by RunPod server
         setMetadata({
           fileName: file.name,
           duration: null,
@@ -325,6 +328,10 @@ export default function Home() {
           fileHash: null,
           fileSize: file.size,
         });
+        
+        // Set audioBuffer to null so UI knows preview is unavailable
+        setAudioBuffer(null);
+        setDuration(0);
       }
     }
   }, []);

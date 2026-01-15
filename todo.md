@@ -790,3 +790,8 @@
 
 ## Parallel Animation & API (Jan 16)
 - [x] Pull latest GitHub changes (animation + API parallel execution)
+
+
+## Audio Decoding Error Fix (Jan 16)
+- [x] Fix "Failed to decode audio: Unable to decode audio data" error
+- [x] Add fallback for unsupported audio formats (FLAC, some WAV variants)

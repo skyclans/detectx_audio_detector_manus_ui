@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 /**
  * VerdictPanel - Forensic Evidence Viewer
@@ -55,57 +55,17 @@ export function VerdictPanel({
   verdict,
   isProcessing = false,
 }: VerdictPanelProps) {
-  // Animation state for result reveal
-  const [showResult, setShowResult] = useState(false);
-  const [animationPhase, setAnimationPhase] = useState<"idle" | "scanning" | "revealing" | "complete">("idle");
-
-  // Trigger animation when verdict changes from null to value
-  useEffect(() => {
-    if (verdict && !isProcessing) {
-      setAnimationPhase("revealing");
-      // Start reveal animation
-      setTimeout(() => {
-        setShowResult(true);
-        setAnimationPhase("complete");
-      }, 300);
-    } else if (isProcessing) {
-      setShowResult(false);
-      setAnimationPhase("scanning");
-    } else {
-      setShowResult(false);
-      setAnimationPhase("idle");
-    }
-  }, [verdict, isProcessing]);
-
-  // Processing state - animated scanning effect
+  // Processing state - neutral "inspecting structural signals" state
   if (isProcessing) {
     return (
-      <div className="forensic-panel overflow-hidden">
+      <div className="forensic-panel">
         <div className="forensic-panel-header">Verification Result</div>
-        <div className="forensic-panel-content relative">
-          {/* Scanning animation overlay */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-forensic-cyan/5 via-forensic-cyan/10 to-transparent animate-scan-line" />
-          </div>
-          
-          <div className="flex flex-col items-center justify-center py-8 relative z-10">
-            {/* Pulsing scanner icon */}
-            <div className="relative mb-4">
-              <div className="w-12 h-12 border-2 border-forensic-cyan/30 rounded-full animate-ping absolute inset-0" />
-              <div className="w-12 h-12 border-2 border-forensic-cyan border-t-transparent rounded-full animate-spin" />
-            </div>
-            
-            {/* Animated text */}
-            <p className="text-sm text-forensic-cyan animate-pulse">
+        <div className="forensic-panel-content">
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-sm text-muted-foreground">
               Inspecting structural signals...
             </p>
-            
-            {/* Progress dots */}
-            <div className="flex gap-1 mt-3">
-              <span className="w-2 h-2 bg-forensic-cyan/60 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-              <span className="w-2 h-2 bg-forensic-cyan/60 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-              <span className="w-2 h-2 bg-forensic-cyan/60 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-            </div>
           </div>
         </div>
       </div>
@@ -130,64 +90,30 @@ export function VerdictPanel({
   const isObserved = verdict.verdict === "AI signal evidence was observed.";
 
   return (
-    <div className="forensic-panel overflow-hidden">
+    <div className="forensic-panel">
       <div className="forensic-panel-header">Verification Result</div>
-      <div className={cn(
-        "forensic-panel-content space-y-6 transition-all duration-500",
-        showResult ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
-        {/* Main verdict - rendered verbatim from DetectX with animation */}
+      <div className="forensic-panel-content space-y-6">
+        {/* Main verdict - rendered verbatim from DetectX */}
         <div
           className={cn(
-            "p-4 rounded-md border-l-4 transition-all duration-700",
+            "p-4 rounded-md border-l-4",
             isObserved
               ? "bg-forensic-amber/10 border-forensic-amber"
-              : "bg-forensic-green/10 border-forensic-green",
-            showResult ? "scale-100" : "scale-95"
+              : "bg-forensic-green/10 border-forensic-green"
           )}
         >
-          {/* Verdict icon with animation */}
-          <div className={cn(
-            "flex items-center gap-3 mb-2 transition-all duration-500 delay-200",
-            showResult ? "opacity-100" : "opacity-0"
-          )}>
-            {isObserved ? (
-              <div className="w-8 h-8 rounded-full bg-forensic-amber/20 flex items-center justify-center animate-pulse">
-                <svg className="w-5 h-5 text-forensic-amber" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-forensic-green/20 flex items-center justify-center">
-                <svg className="w-5 h-5 text-forensic-green animate-check-mark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            )}
-            <span className={cn(
-              "text-xs font-medium uppercase tracking-wider",
-              isObserved ? "text-forensic-amber" : "text-forensic-green"
-            )}>
-              {isObserved ? "Signal Detected" : "No Signal Detected"}
-            </span>
-          </div>
-          
           <p
             className={cn(
-              "text-lg font-medium transition-all duration-500 delay-300",
-              isObserved ? "text-forensic-amber" : "text-forensic-green",
-              showResult ? "opacity-100" : "opacity-0"
+              "text-lg font-medium",
+              isObserved ? "text-forensic-amber" : "text-forensic-green"
             )}
           >
             {verdict.verdict}
           </p>
         </div>
 
-        {/* Authority - displayed verbatim with fade-in */}
-        <div className={cn(
-          "space-y-3 transition-all duration-500 delay-400",
-          showResult ? "opacity-100" : "opacity-0"
-        )}>
+        {/* Authority - displayed verbatim */}
+        <div className="space-y-3">
           <div className="flex justify-between items-center py-2 border-b border-border/50">
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
               Authority
@@ -210,11 +136,8 @@ export function VerdictPanel({
           )}
         </div>
 
-        {/* Forensic disclaimer with fade-in */}
-        <p className={cn(
-          "text-[10px] text-muted-foreground leading-relaxed transition-all duration-500 delay-500",
-          showResult ? "opacity-100" : "opacity-0"
-        )}>
+        {/* Forensic disclaimer */}
+        <p className="text-[10px] text-muted-foreground leading-relaxed">
           This result reports structural signal evidence only. The system does not
           estimate probability, attribute authorship, or reference any specific AI
           model names.

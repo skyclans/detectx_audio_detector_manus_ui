@@ -16,6 +16,7 @@ import Updates from "./pages/Updates";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
+import ModeSelection from "./pages/ModeSelection";
 
 function Router() {
   return (
@@ -46,6 +47,7 @@ function Router() {
       
       {/* Auth pages */}
       <Route path="/login" component={Login} />
+      <Route path="/select-mode" component={ModeSelection} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

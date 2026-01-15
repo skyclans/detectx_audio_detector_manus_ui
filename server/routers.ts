@@ -6,6 +6,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { extractAudioMetadata } from "./audioMetadata";
 import { sendContactEmail } from "./_core/email";
+import FormData from "form-data";
 
 // DetectX RunPod Server URL
 const DETECTX_API_URL = process.env.DETECTX_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
@@ -43,7 +44,7 @@ export const appRouter = router({
      * Upload and extract metadata - ANONYMOUS, NO STORAGE
      * 
      * Files are processed in-memory and NOT persisted to Manus storage.
-     * Basic metadata is extracted (filename, size, SHA-256, codec from extension).
+     * Metadata is extracted using ffprobe (container-level inspection).
      * Returns metadata only - file is discarded after extraction.
      */
     upload: publicProcedure
@@ -57,8 +58,8 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const fileBuffer = Buffer.from(input.fileData, "base64");
 
-        // Extract basic metadata (filename, size, SHA-256, codec from extension)
-        // Detailed audio analysis (duration, sample rate) is done by RunPod server
+        // Extract forensic metadata using ffprobe (container-level inspection)
+        // This occurs BEFORE any analysis or normalization
         const metadata = await extractAudioMetadata(fileBuffer, input.fileName);
 
         // DO NOT store file - return metadata only
@@ -94,7 +95,6 @@ export const appRouter = router({
           duration: z.number().optional(),
           sampleRate: z.number().optional(),
           orientation: z.enum(["ai_oriented", "balanced", "human_oriented"]).default("balanced"),
-          userId: z.string().optional(), // Optional user ID for history tracking
         })
       )
       .mutation(async ({ input }) => {
@@ -105,19 +105,20 @@ export const appRouter = router({
         console.log(`[Verification] File: ${input.fileName}, Size: ${input.fileSize}`);
 
         try {
-          // Forward to DetectX RunPod Server using native FormData
-          const blob = new Blob([fileBuffer], { type: "audio/mpeg" });
+          // Forward to DetectX RunPod Server
           const formData = new FormData();
-          formData.append("file", blob, input.fileName);
+          formData.append("file", fileBuffer, {
+            filename: input.fileName,
+            contentType: "audio/mpeg",
+          });
 
-          // Build API URL with optional user_id for history tracking
-          const userIdParam = input.userId ? `&user_id=${encodeURIComponent(input.userId)}` : "";
-          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}${userIdParam}`;
+          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
           console.log(`[Verification] Calling DetectX API: ${apiUrl}`);
 
           const response = await fetch(apiUrl, {
             method: "POST",
-            body: formData,
+            body: formData as any,
+            headers: formData.getHeaders(),
           });
 
           if (!response.ok) {

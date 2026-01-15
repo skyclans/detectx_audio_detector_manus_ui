@@ -754,76 +754,16 @@
 - [x] verify-audio page mobile optimization
 
 
-## GitHub Sync (Jan 15 - Commit 6582ea2)
-- [x] Pull latest commit 6582ea2 from GitHub
-- [x] Apply server/routers.ts changes (form-data → Node.js FormData/Blob)
-- [x] Fix RunPod API 400 Bad Request error
-- [x] Test API connection
+## Master ID Login Bug Fix (Jan 16)
+- [ ] Fix login prompt showing for logged-in master users
+- [ ] Ensure master emails bypass login prompt for results
+- [ ] Test with skyclans2@gmail.com
 
 
-## RunPod Shared Directory Sync (Jan 16)
-- [x] Check RunPod API health status (healthy, queue: 0, uptime: 60048s)
-- [x] Fetch routers.ts from /workspace/shared/ (via GitHub - files identical)
-- [x] Apply changes to Manus UI (already applied in previous checkpoint)
-- [x] Rebuild and deploy (server restarted, 25 tests passing)
-- [x] Record status to /workspace/shared/manus_status.json (via HTTP API)
-
-
-## Verify-Audio Plan Section Update (Jan 16)
-- [x] Sidebar Plan section visible to all users (login not required)
-- [x] Remove Professional Plan price ($29) completely
-- [x] Add Beta label to Professional Plan
-- [x] Update Professional Plan description (beta version text)
-- [x] Implement email collection modal for "Get Professional" button
-- [x] Send collected emails to support@detectx.app
-- [x] Test email submission flow
-
-
-## User ID Integration for RunPod API (Jan 16)
-- [x] Add user_id parameter to verify-audio API call
-- [x] Add user_id filter to History API call
-- [x] Add user_id to Plan API call (uses local auth)
-- [x] Add user_id to Settings API call (uses local auth)
-- [x] Test with logged-in user (25 tests passing)
-
-
-## History UI Bug Fix (Jan 16)
-- [x] Debug History API response parsing (data.history not data.records)
-- [x] Fix History UI not displaying records
-
-
-## Plan System Implementation (Jan 16)
-### Master Emails (Unlimited Access)
-- skyclans2@gmail.com
-- ceo@detectx.app
-- support@detectx.app
-- coolkimy@gmail.com
-
-### Plan Configuration
-- [x] Update Plan page with Free/Pro/Enterprise tiers
-- [x] Free: 10/month, 50MB max
-- [x] Pro (Beta): 20/month, 100MB max
-- [x] Enterprise: Unlimited, 500MB max, Contact Sales button
-
-### Verify-Audio Page
-- [x] Check plan limit before verification (GET /plan/{user_id}/check)
-- [x] Show "Monthly limit reached" message when exceeded
-- [x] Non-logged-in users: show "Please sign in to view results" before showing results
-- [x] Master emails bypass all limits
-
-### History Page
-- [x] Fetch from RunPod API with user_id
-- [x] Show CNN Score column
-- [x] Already implemented - verify working
-
-### Settings Page
-- [x] Fetch settings from RunPod API (GET /settings/{user_id})
-- [x] Show plan usage stats and master badge
-- [ ] Save settings to RunPod API (PUT /settings/{user_id}) - future feature
-
-
-## File Upload Size & ffprobe Fix (Jan 16)
-- [x] Increase body size limit to 500MB
-- [x] Remove ffprobe dependency from server
-- [x] Use direct file forwarding to RunPod (metadata from RunPod server)
-- [x] Test large file upload (29 tests passing)
+## Mode Selection After Login (Jan 16)
+- [x] Create mode selection page/component after login
+- [x] Free Mode: 5 verifications per month
+- [x] Pro Mode (Beta): 20 verifications per month
+- [x] Enterprise Mode: Redirect to Contact page
+- [x] Store selected mode in user session/state (localStorage)
+- [x] Apply mode limits to verification flow

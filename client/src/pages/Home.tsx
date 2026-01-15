@@ -448,45 +448,54 @@ export default function Home() {
     setIsVerifying(true);
     setScanComplete(false);
     setScanLogs([]);
-    
-    // Generate scan logs with delays
-    const sequence = getFullScanSequence();
-    const delays = [100, 150, 150, 150, 200, 200, 300, 300, 400, 400, 500, 500, 200, 200, 200, 200, 200, 300, 500];
-    for (let i = 0; i < sequence.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, delays[i] || 200));
-      const log = generateScanLogs(sequence[i]);
-      setScanLogs((prev: ScanLog[]) => [...prev, log]);
-    }
-    
+
+    // Start scan animation (runs in parallel with API call)
+    const runScanAnimation = async () => {
+      const sequence = getFullScanSequence();
+      const delays = [100, 150, 150, 150, 200, 200, 300, 300, 400, 400, 500, 500, 200, 200, 200, 200, 200, 300, 500];
+      for (let i = 0; i < sequence.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, delays[i] || 200));
+        const log = generateScanLogs(sequence[i]);
+        setScanLogs((prev: ScanLog[]) => [...prev, log]);
+      }
+    };
+
+    // Start animation without waiting
+    const animationPromise = runScanAnimation();
+
     try {
       // DIRECT RUNPOD API CALL - FormData with actual File object
       // This bypasses tRPC Base64 encoding which causes boundary parsing errors
+      // Runs in PARALLEL with scan animation
       const formData = new FormData();
       formData.append("file", selectedFileRef.current);
-      
+
       // Build API URL with orientation and optional user_id
       let apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
       if (user?.id) {
         apiUrl += `&user_id=${user.id}`;
       }
-      
+
       console.log(`[Verification] Calling RunPod API directly: ${apiUrl}`);
       console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);
-      
+
       const response = await fetch(apiUrl, {
         method: "POST",
         body: formData,
         // DO NOT set Content-Type header - browser will auto-generate with boundary
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`[Verification] RunPod API error: ${response.status} - ${errorText}`);
         throw new Error(`RunPod API returned ${response.status}`);
       }
-      
+
       const result = await response.json();
       console.log("[Verification] RunPod API response:", result);
+
+      // Wait for animation to complete before showing result
+      await animationPromise;
       
       // Update result - API returns full verdict text directly
       // e.g., "AI signal evidence was observed." or "AI signal evidence was not observed."

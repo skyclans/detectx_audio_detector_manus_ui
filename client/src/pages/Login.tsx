@@ -129,23 +129,23 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Manus OAuth (Primary) */}
+            {/* DetectX Account (Primary) */}
             <a href={manusLoginUrl} className="block">
               <Button
                 className="w-full h-12 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                Sign in with Manus Account
+                Sign in with DetectX Account
               </Button>
             </a>
 
             {/* Terms */}
             <p className="text-xs text-muted-foreground text-center mt-6">
               By signing in, you agree to our{" "}
-              <Link href="/about" className="underline hover:text-foreground">
+              <Link href="/terms" className="underline hover:text-foreground">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/about" className="underline hover:text-foreground">
+              <Link href="/privacy" className="underline hover:text-foreground">
                 Privacy Policy
               </Link>
             </p>

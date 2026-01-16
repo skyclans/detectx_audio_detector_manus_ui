@@ -851,3 +851,10 @@
 - [x] Pull 5-minute timeout feature (xhr.timeout = 300000) - commit 4a3de8c
 - [x] Pull cancel button (X) feature with XHR.abort() - commit f07f7b6
 - [x] Pull file upload UI description update (large file warning, MP3 recommendation)
+
+
+## Terms of Service and Privacy Policy
+- [x] Create Terms of Service page (/terms)
+- [x] Create Privacy Policy page (/privacy)
+- [x] Add Terms/Privacy links to login flow
+- [x] Change "Sign with account" to "Sign in with DetectX Account"

@@ -17,6 +17,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import ModeSelection from "./pages/ModeSelection";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 function Router() {
   return (
@@ -48,6 +50,10 @@ function Router() {
       {/* Auth pages */}
       <Route path="/login" component={Login} />
       <Route path="/select-mode" component={ModeSelection} />
+      
+      {/* Legal pages */}
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

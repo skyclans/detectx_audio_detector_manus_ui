@@ -161,6 +161,7 @@ export default function Home() {
   const [scanLogs, setScanLogs] = useState<ScanLog[]>([]);
   const [scanComplete, setScanComplete] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   // Session time state
   const [sessionStartTime] = useState<Date>(new Date());
@@ -434,6 +435,7 @@ export default function Home() {
    * 
    * Calls RunPod API directly with FormData to avoid Base64 encoding overhead.
    * No tRPC intermediary for file upload - direct multipart/form-data.
+   * Uses XMLHttpRequest for upload progress tracking.
    */
   const handleVerify = useCallback(async () => {
     if (!selectedFile || !metadata || !selectedFileRef.current) return;
@@ -455,6 +457,7 @@ export default function Home() {
     setIsVerifying(true);
     setScanComplete(false);
     setScanLogs([]);
+    setUploadProgress(0);
 
     // Start scan animation (runs in parallel with API call)
     const runScanAnimation = async () => {
@@ -474,6 +477,7 @@ export default function Home() {
       // DIRECT RUNPOD API CALL - FormData with actual File object
       // This bypasses tRPC Base64 encoding which causes boundary parsing errors
       // Runs in PARALLEL with scan animation
+      // Uses XMLHttpRequest for upload progress tracking
       const formData = new FormData();
       formData.append("file", selectedFileRef.current);
 
@@ -486,19 +490,53 @@ export default function Home() {
       console.log(`[Verification] Calling RunPod API directly: ${apiUrl}`);
       console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);
 
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        body: formData,
-        // DO NOT set Content-Type header - browser will auto-generate with boundary
+      // Use XMLHttpRequest for upload progress tracking
+      const result = await new Promise<any>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        // Track upload progress
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
+            setUploadProgress(percentComplete);
+            console.log(`[Upload Progress] ${percentComplete}%`);
+          }
+        });
+        
+        xhr.upload.addEventListener("load", () => {
+          setUploadProgress(100);
+          console.log("[Upload] Complete, waiting for server response...");
+        });
+        
+        xhr.addEventListener("load", () => {
+          setUploadProgress(null); // Clear progress after response
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const response = JSON.parse(xhr.responseText);
+              resolve(response);
+            } catch (e) {
+              reject(new Error("Failed to parse response"));
+            }
+          } else {
+            console.error(`[Verification] RunPod API error: ${xhr.status} - ${xhr.responseText}`);
+            reject(new Error(`RunPod API returned ${xhr.status}`));
+          }
+        });
+        
+        xhr.addEventListener("error", () => {
+          setUploadProgress(null);
+          reject(new Error("Network error during upload"));
+        });
+        
+        xhr.addEventListener("abort", () => {
+          setUploadProgress(null);
+          reject(new Error("Upload aborted"));
+        });
+        
+        xhr.open("POST", apiUrl);
+        xhr.send(formData);
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[Verification] RunPod API error: ${response.status} - ${errorText}`);
-        throw new Error(`RunPod API returned ${response.status}`);
-      }
-
-      const result = await response.json();
       console.log("[Verification] RunPod API response:", result);
 
       // Wait for animation to complete before showing result
@@ -549,6 +587,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Verification failed:", error);
+      setUploadProgress(null);
       setScanComplete(true);
     } finally {
       setIsVerifying(false);
@@ -588,6 +627,7 @@ export default function Home() {
             onFileSelect={(fileInfo) => handleFileSelect(fileInfo.file)}
             onVerify={handleVerify}
             isVerifying={isVerifying}
+            uploadProgress={uploadProgress}
           />
           <MetadataPanel metadata={metadata} />
         </div>

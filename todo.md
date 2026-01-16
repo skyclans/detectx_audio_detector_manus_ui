@@ -818,3 +818,15 @@
 ## Stale Closure Fix (Jan 16)
 - [ ] Pull GitHub commit 90deae6 (usageCount stale closure fix)
 - [ ] Fix multiple verification results not showing
+
+
+## Orientation Mode UI Improvements
+- [x] Update AI-Oriented mode description text
+- [x] Update BALANCED mode description text
+- [x] Update Human-Oriented mode description text
+- [x] Add tooltip (i icon) for long Note content to prevent UI clutter
+
+## File Upload Progress Indicator
+- [x] Add upload progress bar for file uploads
+- [x] Show percentage during upload
+- [x] Ensure progress indicator does not interfere with verification results display

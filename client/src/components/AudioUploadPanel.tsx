@@ -17,6 +17,7 @@ interface AudioUploadPanelProps {
   onVerify: () => void;
   isVerifying?: boolean;
   disabled?: boolean;
+  uploadProgress?: number | null; // 0-100 or null when not uploading
 }
 
 const SUPPORTED_FORMATS = ["audio/wav", "audio/mpeg", "audio/mp3", "audio/flac", "audio/ogg", "audio/m4a", "audio/x-m4a", "audio/mp4"];
@@ -50,6 +51,7 @@ export function AudioUploadPanel({
   onVerify,
   isVerifying = false,
   disabled = false,
+  uploadProgress = null,
 }: AudioUploadPanelProps) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<AudioFileInfo | null>(null);
@@ -177,6 +179,8 @@ export function AudioUploadPanel({
     onVerify();
   }, [onVerify]);
 
+  const isUploading = uploadProgress !== null && uploadProgress >= 0 && uploadProgress < 100;
+
   return (
     <div className="forensic-panel">
       <div className="forensic-panel-header">File Upload</div>
@@ -261,24 +265,45 @@ export function AudioUploadPanel({
                 <button
                   onClick={clearFile}
                   className="p-1 hover:bg-muted rounded transition-colors"
-                  disabled={isVerifying}
+                  disabled={isVerifying || isUploading}
                 >
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
             </div>
 
+            {/* Upload Progress Bar */}
+            {isUploading && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Uploading...</span>
+                  <span className="text-forensic-cyan font-mono">{Math.round(uploadProgress)}%</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-forensic-cyan transition-all duration-150 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Verify button - IMMEDIATE RESPONSE */}
             <Button
               onClick={handleVerifyClick}
-              disabled={isVerifying || disabled}
+              disabled={isVerifying || disabled || isUploading}
               className={cn(
                 "w-full h-12 font-semibold text-sm tracking-wide transition-all duration-0",
                 "bg-forensic-cyan hover:bg-forensic-cyan/90 text-background",
-                isVerifying && "opacity-70"
+                (isVerifying || isUploading) && "opacity-70"
               )}
             >
-              {isVerifying ? (
+              {isUploading ? (
+                <span className="flex items-center gap-2">
+                  <Upload className="w-4 h-4 animate-pulse" />
+                  UPLOADING... {Math.round(uploadProgress)}%
+                </span>
+              ) : isVerifying ? (
                 <span className="flex items-center gap-2">
                   <AudioLines className="w-4 h-4 animate-pulse" />
                   VERIFYING...

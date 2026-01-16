@@ -213,19 +213,25 @@ export function AudioUploadPanel({
               htmlFor="audio-upload"
               className={cn("cursor-pointer", disabled && "cursor-not-allowed")}
             >
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                  <Upload className="w-8 h-8 text-muted-foreground" />
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                    <Upload className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Drop audio file here or click to browse
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Supported formats: WAV, MP3, FLAC, OGG, M4A
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-2">
+                      Large audio files may take longer to upload and verify.
+                    </p>
+                    <p className="text-xs text-muted-foreground/70">
+                      For faster processing, MP3 format is recommended.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    Drop audio file here or click to browse
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Supported formats: WAV, MP3, FLAC, OGG, M4A
-                  </p>
-                </div>
-              </div>
             </label>
           </div>
         ) : (

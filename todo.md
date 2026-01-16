@@ -845,3 +845,9 @@
 ## Sidebar Plan/Usage Display
 - [x] Add current plan indicator above login tab in sidebar
 - [x] Show remaining usage count in sidebar
+
+
+## Dev Team GitHub Changes (Pull Required)
+- [x] Pull 5-minute timeout feature (xhr.timeout = 300000) - commit 4a3de8c
+- [x] Pull cancel button (X) feature with XHR.abort() - commit f07f7b6
+- [x] Pull file upload UI description update (large file warning, MP3 recommendation)

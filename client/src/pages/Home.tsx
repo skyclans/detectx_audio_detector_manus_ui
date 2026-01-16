@@ -491,9 +491,11 @@ export default function Home() {
       console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);
 
       // Use XMLHttpRequest for upload progress tracking
+      // Timeout set to 5 minutes for large WAV files
       const result = await new Promise<any>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
+        xhr.timeout = 300000; // 5 minutes timeout for large files
+
         // Track upload progress
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
@@ -502,12 +504,12 @@ export default function Home() {
             console.log(`[Upload Progress] ${percentComplete}%`);
           }
         });
-        
+
         xhr.upload.addEventListener("load", () => {
           setUploadProgress(100);
           console.log("[Upload] Complete, waiting for server response...");
         });
-        
+
         xhr.addEventListener("load", () => {
           setUploadProgress(null); // Clear progress after response
           if (xhr.status >= 200 && xhr.status < 300) {
@@ -522,17 +524,22 @@ export default function Home() {
             reject(new Error(`RunPod API returned ${xhr.status}`));
           }
         });
-        
+
         xhr.addEventListener("error", () => {
           setUploadProgress(null);
           reject(new Error("Network error during upload"));
         });
-        
+
         xhr.addEventListener("abort", () => {
           setUploadProgress(null);
           reject(new Error("Upload aborted"));
         });
-        
+
+        xhr.addEventListener("timeout", () => {
+          setUploadProgress(null);
+          reject(new Error("Request timeout - file too large or slow connection"));
+        });
+
         xhr.open("POST", apiUrl);
         xhr.send(formData);
       });

@@ -813,3 +813,8 @@
 - [x] Rollback VerdictPanel animation to a9de4db version
 - [x] Keep Plan UI changes (text clarity, Beta emphasis)
 - [x] Fix waveform not displaying issue
+
+
+## Stale Closure Fix (Jan 16)
+- [ ] Pull GitHub commit 90deae6 (usageCount stale closure fix)
+- [ ] Fix multiple verification results not showing

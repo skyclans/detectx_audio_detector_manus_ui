@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronRight,
   Clock,
@@ -16,6 +16,8 @@ import {
   Home,
   Menu,
   X,
+  Zap,
+  Sparkles,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -50,6 +52,152 @@ const navSections: NavSection[] = [
     ],
   },
 ];
+
+/**
+ * Plan & Usage Display Component
+ * Shows current plan and remaining usage in sidebar
+ */
+function PlanUsageDisplay() {
+  const { user, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const [usageCount, setUsageCount] = useState(0);
+  const [modeLimit, setModeLimit] = useState<number | null>(null);
+  const [selectedMode, setSelectedMode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const mode = localStorage.getItem("detectx_selected_mode");
+    const limit = localStorage.getItem("detectx_mode_limit");
+    
+    if (mode) {
+      setSelectedMode(mode);
+      if (limit === "unlimited" || mode === "master") {
+        setModeLimit(null); // Unlimited
+      } else {
+        setModeLimit(parseInt(limit || "5", 10));
+      }
+    } else {
+      // Default to free plan if no mode selected
+      setModeLimit(5);
+    }
+    
+    // Get usage count from localStorage
+    const storedUsage = localStorage.getItem("detectx_usage_count");
+    if (storedUsage) {
+      setUsageCount(parseInt(storedUsage, 10));
+    }
+
+    // Listen for storage changes (when usage updates)
+    const handleStorageChange = () => {
+      const newUsage = localStorage.getItem("detectx_usage_count");
+      if (newUsage) {
+        setUsageCount(parseInt(newUsage, 10));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also poll for changes (for same-tab updates)
+    const interval = setInterval(() => {
+      const newUsage = localStorage.getItem("detectx_usage_count");
+      const newMode = localStorage.getItem("detectx_selected_mode");
+      const newLimit = localStorage.getItem("detectx_mode_limit");
+      
+      if (newUsage) {
+        setUsageCount(parseInt(newUsage, 10));
+      }
+      if (newMode !== selectedMode) {
+        setSelectedMode(newMode);
+        if (newLimit === "unlimited" || newMode === "master") {
+          setModeLimit(null);
+        } else {
+          setModeLimit(parseInt(newLimit || "5", 10));
+        }
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [selectedMode]);
+
+  // Determine plan name
+  const getPlanName = () => {
+    if (!selectedMode || selectedMode === "free") return "Free";
+    if (selectedMode === "professional" || selectedMode === "pro") return "Professional (Beta)";
+    if (selectedMode === "master") return "Master";
+    return "Free";
+  };
+
+  // Calculate remaining
+  const remaining = modeLimit !== null ? Math.max(0, modeLimit - usageCount) : null;
+  const isPro = selectedMode === "professional" || selectedMode === "pro";
+  const isMaster = selectedMode === "master";
+
+  // If not authenticated, show login prompt
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="px-3 py-3 border-t border-sidebar-border">
+      <div 
+        className="p-3 rounded-lg bg-sidebar-accent/30 cursor-pointer hover:bg-sidebar-accent/50 transition-colors"
+        onClick={() => setLocation("/plan")}
+      >
+        {/* Plan Badge */}
+        <div className="flex items-center gap-2 mb-2">
+          {isPro || isMaster ? (
+            <Zap className="w-4 h-4 text-forensic-cyan" />
+          ) : (
+            <Sparkles className="w-4 h-4 text-muted-foreground" />
+          )}
+          <span className={cn(
+            "text-xs font-medium uppercase tracking-wider",
+            isPro || isMaster ? "text-forensic-cyan" : "text-muted-foreground"
+          )}>
+            {getPlanName()}
+          </span>
+        </div>
+
+        {/* Usage Display */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Remaining</span>
+            <span className={cn(
+              "font-medium",
+              remaining === 0 ? "text-red-500" : "text-foreground"
+            )}>
+              {modeLimit === null ? "Unlimited" : `${remaining} / ${modeLimit}`}
+            </span>
+          </div>
+          
+          {/* Progress bar */}
+          {modeLimit !== null && (
+            <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+              <div 
+                className={cn(
+                  "h-full rounded-full transition-all",
+                  remaining === 0 ? "bg-red-500" : "bg-forensic-cyan"
+                )}
+                style={{ width: `${Math.max(0, ((remaining ?? 0) / modeLimit) * 100)}%` }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Upgrade prompt when exhausted */}
+        {remaining === 0 && !isPro && !isMaster && (
+          <div className="mt-2 pt-2 border-t border-border/30">
+            <span className="text-[10px] text-forensic-cyan font-medium">
+              Upgrade to Professional →
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function NavItemComponent({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
   if (item.comingSoon) {
@@ -172,6 +320,9 @@ function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMob
             </div>
           ))}
         </nav>
+
+        {/* Plan & Usage section */}
+        <PlanUsageDisplay />
 
         {/* User section */}
         <div className="p-3 border-t border-sidebar-border">

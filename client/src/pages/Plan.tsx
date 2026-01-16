@@ -1,7 +1,7 @@
 /**
  * Plan Page - Subscription Management
  * 
- * v1.0 FINAL PRICING CONFIGURATION:
+ * v1.1 BETA PRICING CONFIGURATION:
  * 
  * FREE ($0/forever):
  * - 5 verifications per month
@@ -11,8 +11,8 @@
  * - Community support
  * - NO API access, NO batch processing, NO priority queue
  * 
- * PROFESSIONAL ($29/month) - Recommended:
- * - 50 verifications per month
+ * PROFESSIONAL (BETA - FREE ACCESS This Month Only):
+ * - Up to 30 verifications during the beta period
  * - Full CR-G analysis suite
  * - All export formats (PDF, JSON, CSV, Markdown)
  * - Batch processing (UI-based only)
@@ -65,14 +65,17 @@ const plans = [
     badgeVariant: "outline" as const,
   },
   {
-    name: "Professional",
-    price: "$0",
-    originalPrice: "$29",
-    period: "month",
+    name: "Professional Plan",
+    subtitle: "BETA — FREE ACCESS (This Month Only)",
+    price: "Free",
+    period: "beta",
     icon: Zap,
-    positioning: "Manual, UI-driven forensic verification for professionals and small teams.",
+    positioning: "This plan is currently available as a beta version.",
+    betaDescription: `Free access is provided for this month only while payment infrastructure is being finalized.
+
+During the beta period, up to 30 verification certificates are available for testing and evaluation.`,
     features: [
-      "50 verifications per month",
+      "Up to 30 verifications during the beta period",
       "Full CR-G analysis suite",
       "All export formats (PDF, JSON, CSV, Markdown)",
       "Batch processing (UI-based only)",
@@ -174,22 +177,19 @@ export default function Plan() {
                   {plan.name}
                 </div>
                 <div className="forensic-panel-content flex flex-col flex-1">
+                  {/* Subtitle for Beta */}
+                  {'subtitle' in plan && plan.subtitle && (
+                    <p className="text-xs text-forensic-cyan font-medium text-center mb-2">
+                      {plan.subtitle}
+                    </p>
+                  )}
+                  
                   {/* Price - Clear text format to avoid confusion */}
                   <div className="flex flex-col items-center mb-2">
-                    {plan.isBeta && (
-                      <span className="mb-1 px-2 py-0.5 bg-forensic-cyan text-background text-xs font-bold rounded">
-                        BETA - FREE ACCESS
-                      </span>
-                    )}
-                    {plan.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through">
-                        {plan.originalPrice}/{plan.period}
-                      </span>
-                    )}
                     <span className="text-2xl font-bold text-foreground">
-                      {plan.price === "$0" ? "Free" : plan.price}
+                      {plan.price}
                     </span>
-                    {plan.period !== "forever" && plan.price !== "$0" && (
+                    {plan.period !== "forever" && plan.period !== "beta" && plan.price !== "Custom" && (
                       <span className="text-xs text-muted-foreground">
                         per {plan.period}
                       </span>
@@ -197,9 +197,16 @@ export default function Plan() {
                   </div>
 
                   {/* Positioning */}
-                  <p className="text-xs text-muted-foreground text-center mb-4 min-h-[40px]">
+                  <p className="text-xs text-muted-foreground text-center mb-2">
                     {plan.positioning}
                   </p>
+                  
+                  {/* Beta Description */}
+                  {'betaDescription' in plan && plan.betaDescription && (
+                    <p className="text-xs text-muted-foreground text-center mb-4 whitespace-pre-line">
+                      {plan.betaDescription}
+                    </p>
+                  )}
 
                   {/* Features */}
                   <ul className="space-y-2 mb-4">
@@ -215,7 +222,7 @@ export default function Plan() {
                   {plan.restrictions.length > 0 && (
                     <div className="border-t border-border/30 pt-3 mb-4">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
-                        {plan.name === "Professional" ? "Restrictions (MANDATORY)" : "Limitations"}
+                        {plan.name.includes("Professional") ? "Restrictions (MANDATORY)" : "Limitations"}
                       </p>
                       <ul className="space-y-1">
                         {plan.restrictions.map((restriction) => (

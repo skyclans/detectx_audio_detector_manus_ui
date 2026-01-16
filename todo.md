@@ -830,3 +830,18 @@
 - [x] Add upload progress bar for file uploads
 - [x] Show percentage during upload
 - [x] Ensure progress indicator does not interfere with verification results display
+
+
+## Pro Plan Beta Version Update
+- [x] Change Pro Plan title to "Professional Plan BETA — FREE ACCESS (This Month Only)"
+- [x] Remove $29/month pricing
+- [x] Change "50 verifications per month" to "Up to 30 verifications during the beta period"
+- [x] Add beta description text in Pro card
+
+## Free Mode Exhaustion Auto-redirect
+- [x] Auto-redirect to Professional Plan page when Free Mode usage is exhausted
+- [x] Show "Get Professional" CTA on redirect
+
+## Sidebar Plan/Usage Display
+- [x] Add current plan indicator above login tab in sidebar
+- [x] Show remaining usage count in sidebar

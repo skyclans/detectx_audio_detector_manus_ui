@@ -15,6 +15,7 @@ interface AudioFileInfo {
 interface AudioUploadPanelProps {
   onFileSelect: (fileInfo: AudioFileInfo) => void;
   onVerify: () => void;
+  onCancel?: () => void; // Cancel ongoing verification
   isVerifying?: boolean;
   disabled?: boolean;
   uploadProgress?: number | null; // 0-100 or null when not uploading
@@ -49,6 +50,7 @@ function formatDuration(seconds: number): string {
 export function AudioUploadPanel({
   onFileSelect,
   onVerify,
+  onCancel,
   isVerifying = false,
   disabled = false,
   uploadProgress = null,
@@ -263,11 +265,22 @@ export function AudioUploadPanel({
                   </div>
                 </div>
                 <button
-                  onClick={clearFile}
+                  onClick={() => {
+                    if (isVerifying || isUploading) {
+                      // Cancel ongoing verification/upload
+                      onCancel?.();
+                    } else {
+                      // Clear file when not verifying
+                      clearFile();
+                    }
+                  }}
                   className="p-1 hover:bg-muted rounded transition-colors"
-                  disabled={isVerifying || isUploading}
+                  title={isVerifying || isUploading ? "Cancel verification" : "Remove file"}
                 >
-                  <X className="w-4 h-4 text-muted-foreground" />
+                  <X className={cn(
+                    "w-4 h-4",
+                    isVerifying || isUploading ? "text-destructive" : "text-muted-foreground"
+                  )} />
                 </button>
               </div>
             </div>

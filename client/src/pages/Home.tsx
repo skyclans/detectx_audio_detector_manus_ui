@@ -188,6 +188,7 @@ export default function Home() {
   const audioRuntimeRef = useRef<AudioRuntime | null>(null);
   const timeLoopCleanupRef = useRef<(() => void) | null>(null);
   const selectedFileRef = useRef<File | null>(null); // Store actual File object for direct upload
+  const xhrRef = useRef<XMLHttpRequest | null>(null); // Store XHR for cancel functionality
 
   // RunPod API URL for direct file upload (bypasses tRPC Base64 encoding)
   const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
@@ -431,6 +432,21 @@ export default function Home() {
   }, []);
 
   /**
+   * CANCEL VERIFICATION - Abort ongoing upload/verification
+   */
+  const handleCancelVerification = useCallback(() => {
+    if (xhrRef.current) {
+      xhrRef.current.abort();
+      xhrRef.current = null;
+    }
+    setIsVerifying(false);
+    setUploadProgress(null);
+    setScanLogs([]);
+    setScanComplete(false);
+    console.log("[Verification] Cancelled by user");
+  }, []);
+
+  /**
    * VERIFICATION HANDLER - DIRECT RUNPOD API CALL
    * 
    * Calls RunPod API directly with FormData to avoid Base64 encoding overhead.
@@ -494,6 +510,7 @@ export default function Home() {
       // Timeout set to 5 minutes for large WAV files
       const result = await new Promise<any>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
+        xhrRef.current = xhr; // Store ref for cancel functionality
         xhr.timeout = 300000; // 5 minutes timeout for large files
 
         // Track upload progress
@@ -633,6 +650,7 @@ export default function Home() {
           <AudioUploadPanel
             onFileSelect={(fileInfo) => handleFileSelect(fileInfo.file)}
             onVerify={handleVerify}
+            onCancel={handleCancelVerification}
             isVerifying={isVerifying}
             uploadProgress={uploadProgress}
           />

@@ -3,7 +3,7 @@
  * 
  * NON-NEGOTIABLE CONSTRAINTS:
  * 1) No login/authentication required for verification
- * 2) No file storage in Manus - files are transient
+ * 2) No file storage in DetectX - files are transient
  * 3) No upload history or session-based access control
  * 4) DetectX server is sole authority for processing and results
  */
@@ -48,7 +48,7 @@ function createAuthenticatedContext(): TrpcContext {
       openId: "test-open-id",
       name: "Test User",
       email: "test@example.com",
-      loginMethod: "manus",
+      loginMethod: "detectx",
       role: "user",
       createdAt: new Date(),
       updatedAt: new Date(),

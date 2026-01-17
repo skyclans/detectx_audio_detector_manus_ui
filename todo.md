@@ -875,3 +875,20 @@
 - [x] Add checkbox for Terms of Service agreement
 - [x] Add checkbox for Privacy Policy agreement
 - [x] Disable login buttons until both checkboxes are checked
+
+
+## New User Pro Plan Usage Reset (Jan 17)
+- [x] Fix new Pro users getting previous user's usage count
+- [x] Reset usage count to initial value when new user selects Pro plan
+- [x] Ensure usage is per-user, not shared globally (track user ID in localStorage)
+
+## Manus to DetectX Branding Change (Jan 17)
+- [x] Update all UI text from Manus to DetectX
+- [x] Update Login.tsx comments from Manus OAuth to DetectX OAuth
+- [x] Update History.tsx privacy notice from Manus to DetectX
+- [x] Update Home.tsx comments from Manus to DetectX
+- [x] Update Settings.tsx copyright from 2025 to 2026 DetectX
+- [x] Rename ManusDialog.tsx to DetectXDialog.tsx
+- [x] Update routers.ts comments from Manus to DetectX
+- [x] Update verification.test.ts comments and loginMethod from manus to detectx
+- [x] Update auth.logout.test.ts loginMethod from manus to detectx

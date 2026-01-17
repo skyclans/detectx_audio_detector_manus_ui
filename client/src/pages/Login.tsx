@@ -10,7 +10,7 @@ import { Sun, Moon, ArrowLeft } from "lucide-react";
  * DetectX Login Page
  * 
  * Provides Google and Apple login options.
- * Currently uses Manus OAuth as the primary authentication method.
+ * Currently uses DetectX OAuth as the primary authentication method.
  * Google and Apple login buttons are UI placeholders for future integration.
  */
 
@@ -37,7 +37,7 @@ function AppleIcon({ className }: { className?: string }) {
 
 export default function Login() {
   const { theme, toggleTheme } = useTheme();
-  const manusLoginUrl = getLoginUrl();
+  const detectXLoginUrl = getLoginUrl();
   
   // Terms agreement state
   const [termsAgreed, setTermsAgreed] = useState(false);
@@ -47,16 +47,16 @@ export default function Login() {
 
   const handleGoogleLogin = () => {
     if (!canLogin) return;
-    // For now, redirect to Manus OAuth which handles authentication
+    // For now, redirect to DetectX OAuth which handles authentication
     // In future, this will be replaced with direct Google OAuth
-    window.location.href = manusLoginUrl;
+    window.location.href = detectXLoginUrl;
   };
 
   const handleAppleLogin = () => {
     if (!canLogin) return;
-    // For now, redirect to Manus OAuth which handles authentication
+    // For now, redirect to DetectX OAuth which handles authentication
     // In future, this will be replaced with direct Apple OAuth
-    window.location.href = manusLoginUrl;
+    window.location.href = detectXLoginUrl;
   };
 
   const handleDetectXLogin = (e: React.MouseEvent) => {
@@ -190,7 +190,7 @@ export default function Login() {
 
             {/* DetectX Account (Primary) */}
             <a 
-              href={canLogin ? manusLoginUrl : undefined} 
+              href={canLogin ? detectXLoginUrl : undefined} 
               className="block"
               onClick={handleDetectXLogin}
             >

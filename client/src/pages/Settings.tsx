@@ -186,7 +186,7 @@ export default function Settings() {
               <div className="pt-3 border-t border-border/30">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
-                    © 2025 DetectX
+                    © 2026 DetectX
                   </span>
                   <span className="text-xs font-mono text-muted-foreground">
                     v{APP_VERSION}

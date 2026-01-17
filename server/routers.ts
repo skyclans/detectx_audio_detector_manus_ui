@@ -35,10 +35,10 @@ function getMimeType(filename: string): string {
  * 
  * NON-NEGOTIABLE CONSTRAINTS:
  * 1) No login/authentication required for verification
- * 2) No file storage in Manus - files are transient
+ * 2) No file storage in DetectX - files are transient
  * 3) No upload history or session-based access control
  * 4) DetectX server is sole authority for processing and results
- * 5) Manus acts only as UI layer and request forwarder
+ * 5) DetectX UI acts only as UI layer and request forwarder
  */
 
 // Timeline marker type for evidence-based markers only
@@ -62,7 +62,7 @@ export const appRouter = router({
     /**
      * Upload and extract metadata - ANONYMOUS, NO STORAGE
      * 
-     * Files are processed in-memory and NOT persisted to Manus storage.
+     * Files are processed in-memory and NOT persisted to DetectX storage.
      * Metadata is extracted using ffprobe (container-level inspection).
      * Returns metadata only - file is discarded after extraction.
      */

@@ -96,6 +96,20 @@ export default function ModeSelection() {
       return;
     }
 
+    // Check if this is a new mode selection (different from current)
+    const currentMode = localStorage.getItem("detectx_selected_mode");
+    const currentUserId = localStorage.getItem("detectx_user_id");
+    const newUserId = user?.openId || user?.email || "anonymous";
+    
+    // Reset usage count if:
+    // 1. User is different (new user)
+    // 2. Mode is being selected for the first time
+    // 3. User is switching to a different mode
+    if (currentUserId !== newUserId || !currentMode || currentMode !== mode.id) {
+      localStorage.setItem("detectx_usage_count", "0");
+      localStorage.setItem("detectx_user_id", newUserId);
+    }
+
     // Store selected mode in localStorage
     localStorage.setItem("detectx_selected_mode", mode.id);
     localStorage.setItem("detectx_mode_limit", mode.limit.toString());
@@ -152,6 +166,15 @@ export default function ModeSelection() {
           <Button
             size="lg"
             onClick={() => {
+              // Check if this is a new user
+              const currentUserId = localStorage.getItem("detectx_user_id");
+              const newUserId = user?.openId || user?.email || "anonymous";
+              
+              if (currentUserId !== newUserId) {
+                localStorage.setItem("detectx_usage_count", "0");
+                localStorage.setItem("detectx_user_id", newUserId);
+              }
+              
               localStorage.setItem("detectx_selected_mode", "master");
               localStorage.setItem("detectx_mode_limit", "unlimited");
               setLocation("/verify-audio");

@@ -31,7 +31,7 @@ import type { DetectXVerdictText, DetectXVerificationResult } from "@shared/dete
  * 2) No file storage - files are transient
  * 3) No upload history or session-based access control
  * 4) DetectX server is sole authority for processing and results
- * 5) Manus acts only as UI layer and request forwarder
+ * 5) DetectX UI acts only as UI layer and request forwarder
  */
 
 // File metadata interface (forensic input record)

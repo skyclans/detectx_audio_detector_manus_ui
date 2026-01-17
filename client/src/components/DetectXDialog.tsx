@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface ManusDialogProps {
+interface DetectXDialogProps {
   title?: string;
   logo?: string;
   open?: boolean;
@@ -18,14 +18,14 @@ interface ManusDialogProps {
   onClose?: () => void;
 }
 
-export function ManusDialog({
+export function DetectXDialog({
   title,
   logo,
   open = false,
   onLogin,
   onOpenChange,
   onClose,
-}: ManusDialogProps) {
+}: DetectXDialogProps) {
   const [internalOpen, setInternalOpen] = useState(open);
 
   useEffect(() => {

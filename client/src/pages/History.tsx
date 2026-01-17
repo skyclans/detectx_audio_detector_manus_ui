@@ -35,7 +35,7 @@ export default function History() {
               <p className="text-xs text-muted-foreground">
                 <strong>Privacy Notice:</strong> Your uploaded files are processed
                 in-memory and immediately discarded after verification. No data
-                is stored on Manus servers.
+                is stored on DetectX servers.
               </p>
             </div>
           </div>

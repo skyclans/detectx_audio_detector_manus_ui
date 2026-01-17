@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getLoginUrl } from "@/const";
 import { Sun, Moon, ArrowLeft } from "lucide-react";
@@ -36,17 +38,31 @@ function AppleIcon({ className }: { className?: string }) {
 export default function Login() {
   const { theme, toggleTheme } = useTheme();
   const manusLoginUrl = getLoginUrl();
+  
+  // Terms agreement state
+  const [termsAgreed, setTermsAgreed] = useState(false);
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  
+  const canLogin = termsAgreed && privacyAgreed;
 
   const handleGoogleLogin = () => {
+    if (!canLogin) return;
     // For now, redirect to Manus OAuth which handles authentication
     // In future, this will be replaced with direct Google OAuth
     window.location.href = manusLoginUrl;
   };
 
   const handleAppleLogin = () => {
+    if (!canLogin) return;
     // For now, redirect to Manus OAuth which handles authentication
     // In future, this will be replaced with direct Apple OAuth
     window.location.href = manusLoginUrl;
+  };
+
+  const handleDetectXLogin = (e: React.MouseEvent) => {
+    if (!canLogin) {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -96,6 +112,47 @@ export default function Login() {
               </p>
             </div>
 
+            {/* Terms Agreement Checkboxes */}
+            <div className="space-y-3 mb-6 p-4 bg-muted/30 rounded-lg border border-border">
+              <p className="text-xs text-muted-foreground mb-3">
+                Please agree to the following to continue:
+              </p>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="terms-agreement"
+                  checked={termsAgreed}
+                  onCheckedChange={(checked) => setTermsAgreed(checked === true)}
+                  className="mt-0.5"
+                />
+                <label
+                  htmlFor="terms-agreement"
+                  className="text-sm text-foreground cursor-pointer leading-relaxed"
+                >
+                  I agree to the{" "}
+                  <Link href="/terms" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                    Terms of Service
+                  </Link>
+                </label>
+              </div>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="privacy-agreement"
+                  checked={privacyAgreed}
+                  onCheckedChange={(checked) => setPrivacyAgreed(checked === true)}
+                  className="mt-0.5"
+                />
+                <label
+                  htmlFor="privacy-agreement"
+                  className="text-sm text-foreground cursor-pointer leading-relaxed"
+                >
+                  I agree to the{" "}
+                  <Link href="/privacy" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                    Privacy Policy
+                  </Link>
+                </label>
+              </div>
+            </div>
+
             {/* Login Options */}
             <div className="space-y-4">
               {/* Google Login */}
@@ -103,6 +160,7 @@ export default function Login() {
                 variant="outline"
                 className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
                 onClick={handleGoogleLogin}
+                disabled={!canLogin}
               >
                 <GoogleIcon className="h-5 w-5" />
                 Continue with Google
@@ -113,6 +171,7 @@ export default function Login() {
                 variant="outline"
                 className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
                 onClick={handleAppleLogin}
+                disabled={!canLogin}
               >
                 <AppleIcon className="h-5 w-5" />
                 Continue with Apple
@@ -130,25 +189,25 @@ export default function Login() {
             </div>
 
             {/* DetectX Account (Primary) */}
-            <a href={manusLoginUrl} className="block">
+            <a 
+              href={canLogin ? manusLoginUrl : undefined} 
+              className="block"
+              onClick={handleDetectXLogin}
+            >
               <Button
                 className="w-full h-12 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={!canLogin}
               >
                 Sign in with DetectX Account
               </Button>
             </a>
 
-            {/* Terms */}
-            <p className="text-xs text-muted-foreground text-center mt-6">
-              By signing in, you agree to our{" "}
-              <Link href="/terms" className="underline hover:text-foreground">
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="underline hover:text-foreground">
-                Privacy Policy
-              </Link>
-            </p>
+            {/* Helper text when checkboxes not checked */}
+            {!canLogin && (
+              <p className="text-xs text-amber-500 text-center mt-4">
+                Please agree to both Terms of Service and Privacy Policy to continue.
+              </p>
+            )}
           </div>
 
           {/* Beta Notice */}

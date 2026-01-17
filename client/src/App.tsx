@@ -19,6 +19,7 @@ import Login from "./pages/Login";
 import ModeSelection from "./pages/ModeSelection";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import { CookieConsent } from "./components/CookieConsent";
 
 function Router() {
   return (
@@ -68,6 +69,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <CookieConsent />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

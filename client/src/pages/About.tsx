@@ -271,11 +271,14 @@ export default function About() {
                 DetectX does not determine authorship. It reports structural signal observations only.
               </p>
             </div>
-            <div className="flex gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
               <Link href="/technology" className="hover:text-foreground transition-colors">Technology</Link>
               <Link href="/research" className="hover:text-foreground transition-colors">Research</Link>
               <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
               <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+              <span className="text-muted-foreground/30">|</span>
+              <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
             </div>
           </div>
         </div>

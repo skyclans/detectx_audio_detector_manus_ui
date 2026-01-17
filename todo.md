@@ -858,3 +858,20 @@
 - [x] Create Privacy Policy page (/privacy)
 - [x] Add Terms/Privacy links to login flow
 - [x] Change "Sign with account" to "Sign in with DetectX Account"
+
+
+## Footer Terms/Privacy Links
+- [x] Add Terms of Service link to page footer
+- [x] Add Privacy Policy link to page footer
+- [x] Apply footer to all main pages (Landing, About, Contact, Technology, Research, Updates)
+
+## Cookie Consent Banner
+- [x] Create CookieConsent component
+- [x] Store consent preference in localStorage
+- [x] Show banner on first visit until user accepts
+- [x] Add link to Privacy Policy in banner
+
+## Terms Agreement Checkbox on Login
+- [x] Add checkbox for Terms of Service agreement
+- [x] Add checkbox for Privacy Policy agreement
+- [x] Disable login buttons until both checkboxes are checked

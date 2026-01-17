@@ -485,6 +485,16 @@ export default function Landing() {
             </Link>
           </div>
           
+          {/* Legal Links */}
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground/60 mt-4">
+            <Link href="/terms" className="hover:text-muted-foreground transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
+          
           <p className="text-center text-xs text-muted-foreground/40 mt-8">
             © {new Date().getFullYear()} DetectX. All rights reserved.
           </p>

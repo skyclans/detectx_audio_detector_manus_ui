@@ -892,3 +892,10 @@
 - [x] Update routers.ts comments from Manus to DetectX
 - [x] Update verification.test.ts comments and loginMethod from manus to detectx
 - [x] Update auth.logout.test.ts loginMethod from manus to detectx
+
+
+## Login Page Footer Meta to DetectX (Jan 18)
+- [ ] Change "from meta" to "from DetectX" in login footer
+- [ ] Change "서비스 약관" link text to DetectX branding
+- [ ] Change "개인 보호정책" link text to DetectX branding
+- [ ] Change "@2026 meta" to "@2026 DetectX" in login footer

@@ -202,7 +202,7 @@ export default function Home() {
   const xhrRef = useRef<XMLHttpRequest | null>(null); // Store XHR for cancel functionality
 
   // RunPod API URL for direct file upload (bypasses tRPC Base64 encoding)
-  const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+  const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
 
   // Initialize AudioRuntime on mount
   useEffect(() => {

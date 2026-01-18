@@ -1,6 +1,11 @@
 /**
  * Export Panel Component
- * 
+ *
+ * Enhanced Mode v2.0:
+ * - Classifier Engine (Primary): CNN trained on 30M+ verified human samples
+ * - Reconstruction Engine (Secondary): Stem separation analysis
+ * - Human False Positive Rate: <1%
+ *
  * EXPORT FORMAT REQUIREMENTS (MANDATORY):
  * - CSV/XLS headers must be horizontal (column-based)
  * - One analysis = one row of metadata values
@@ -8,19 +13,19 @@
  * - CSV must be encoded as UTF-8 with BOM
  * - XLS/XLSX must preserve full Unicode support
  * - Filenames in Korean, Japanese, Chinese, and all non-Latin scripts must not break
- * 
- * v1.0 FINAL:
- * - Download All button downloads all reports as single ZIP archive
  */
 
 import { Button } from "@/components/ui/button";
 import { FileJson, FileSpreadsheet, FileText, FileType, Download } from "lucide-react";
 import JSZip from "jszip";
 
+const ENGINE_VERSION = "v2.0";
+const ENGINE_MODE = "Enhanced Mode";
+
 interface VerdictResult {
   verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
-  authority: "CR-G";
   exceeded_axes: string[];
+  cnn_score?: number;
 }
 
 interface ExportData {
@@ -33,8 +38,6 @@ interface ExportData {
   codec: string | null;
   fileHash: string | null;
   verdict: VerdictResult | null;
-  crgStatus: string | null;
-  primaryExceededAxis: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
   analysisTimestamp: string;
 }
@@ -58,6 +61,7 @@ function formatDuration(ms: number): string {
 
 function generatePDFContent(data: ExportData): string {
   const verdictText = getVerdictText(data.verdict) || "Pending";
+  const isHuman = data.verdict?.verdict === "AI signal evidence was not observed.";
 
   return `
 <!DOCTYPE html>
@@ -71,16 +75,21 @@ function generatePDFContent(data: ExportData): string {
     h2 { color: #555; margin-top: 30px; }
     table { width: 100%; border-collapse: collapse; margin: 20px 0; }
     th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #f5f5f5; }
+    th { background: #f5f5f5; width: 200px; }
     .verdict { font-size: 18px; padding: 20px; background: #f0fdf4; border-left: 4px solid #22c55e; margin: 20px 0; }
-    .verdict.observed { background: #fffbeb; border-left-color: #f59e0b; }
-    .footer { margin-top: 40px; font-size: 12px; color: #888; }
+    .verdict.observed { background: #fef3c7; border-left-color: #f59e0b; }
+    .engine-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0; }
+    .engine-item { margin: 8px 0; }
+    .footer { margin-top: 40px; font-size: 12px; color: #888; border-top: 1px solid #ddd; padding-top: 20px; }
+    .disclaimer { background: #fefce8; border: 1px solid #fef08a; border-radius: 4px; padding: 12px; margin-top: 20px; font-size: 13px; }
   </style>
 </head>
 <body>
   <h1>DetectX Audio Verification Report</h1>
   <p><strong>Generated:</strong> ${data.analysisTimestamp}</p>
-  
+  <p><strong>Detection Mode:</strong> ${ENGINE_MODE}</p>
+  <p><strong>Engine Version:</strong> ${ENGINE_VERSION}</p>
+
   <h2>File Information</h2>
   <table>
     <tr><th>Filename</th><td>${data.fileName}</td></tr>
@@ -92,17 +101,28 @@ function generatePDFContent(data: ExportData): string {
     <tr><th>Codec</th><td>${data.codec || "N/A"}</td></tr>
     <tr><th>SHA-256</th><td style="font-family: monospace; font-size: 12px;">${data.fileHash || "N/A"}</td></tr>
   </table>
-  
+
   <h2>Verification Result</h2>
-  <div class="verdict ${data.verdict?.verdict === "AI signal evidence was observed." ? "observed" : ""}">
-    ${verdictText}
+  <div class="verdict ${!isHuman ? "observed" : ""}">
+    <strong>${verdictText}</strong>
   </div>
-  
-  <table>
-    <tr><th>CR-G Status</th><td>${data.crgStatus || "N/A"}</td></tr>
-    ${data.primaryExceededAxis ? `<tr><th>Primary Exceeded Axis</th><td>${data.primaryExceededAxis}</td></tr>` : ""}
-  </table>
-  
+
+  ${isHuman ? `
+  <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+  The Classifier Engine (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
+  This result indicates that the signal is consistent with human musical creation.</p>
+  ` : `
+  <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+  AI signal evidence was observed in the audio signal.</p>
+  `}
+
+  <h2>Verification Engine Details</h2>
+  <div class="engine-box">
+    <div class="engine-item"><strong>Classifier Engine (Primary):</strong> Deep learning classifier optimized for human protection</div>
+    <div class="engine-item"><strong>Reconstruction Engine (Secondary):</strong> Stem separation and reconstruction differential analysis</div>
+    <div class="engine-item"><strong>Human False Positive Rate:</strong> Less than 1%</div>
+  </div>
+
   ${data.timelineMarkers.length > 0 ? `
   <h2>Timeline Events</h2>
   <table>
@@ -116,10 +136,16 @@ function generatePDFContent(data: ExportData): string {
     `).join("")}
   </table>
   ` : ""}
-  
+
+  <div class="disclaimer">
+    <strong>Disclaimer:</strong> DetectX does not determine authorship, intent, or ownership.
+    This verification is based solely on structural signal observations.
+    Some genres with heavy processing (Electronic/EDM, Hip-hop, Dance/House, Lo-fi)
+    may exhibit signal characteristics similar to AI-generated music.
+  </div>
+
   <div class="footer">
-    <p>This report contains structural signal evidence only. The system does not estimate probability, attribute authorship, or reference any specific AI model names.</p>
-    <p>Generated by DetectX Audio — Audio AI Signal Verification</p>
+    <p>DetectX Audio AI Detector — Engine ${ENGINE_VERSION} (${ENGINE_MODE})</p>
   </div>
 </body>
 </html>
@@ -127,9 +153,25 @@ function generatePDFContent(data: ExportData): string {
 }
 
 function generateJSON(data: ExportData): string {
+  const isHuman = data.verdict?.verdict === "AI signal evidence was not observed.";
   const report = {
-    reportVersion: "1.0.0",
+    reportVersion: "2.0.0",
     generatedAt: data.analysisTimestamp,
+    engine: {
+      version: ENGINE_VERSION,
+      mode: ENGINE_MODE,
+      classifierEngine: {
+        name: "Classifier Engine",
+        role: "Primary",
+        description: "CNN trained on 30,000,000+ verified human samples",
+      },
+      reconstructionEngine: {
+        name: "Reconstruction Engine",
+        role: "Secondary",
+        description: "Stem separation and reconstruction differential analysis",
+      },
+      humanFpRate: "<1%",
+    },
     file: {
       name: data.fileName,
       size: data.fileSize,
@@ -142,11 +184,10 @@ function generateJSON(data: ExportData): string {
     },
     verification: {
       verdict: getVerdictText(data.verdict),
-      verdictCode: data.verdict?.verdict || null,
-      crgStatus: data.crgStatus,
-      primaryExceededAxis: data.primaryExceededAxis,
+      verdictCode: isHuman ? "AI_NOT_OBSERVED" : "AI_OBSERVED",
     },
     timelineEvents: data.timelineMarkers,
+    disclaimer: "DetectX does not determine authorship, intent, or ownership. Some genres with heavy processing may exhibit signal characteristics similar to AI-generated music.",
   };
   return JSON.stringify(report, null, 2);
 }
@@ -168,7 +209,7 @@ function generateCSV(data: ExportData): string {
     return str;
   };
 
-  // Horizontal headers (column-based)
+  // Horizontal headers (column-based) - Enhanced Mode format
   const headers = [
     "Filename",
     "File Size (bytes)",
@@ -179,8 +220,8 @@ function generateCSV(data: ExportData): string {
     "Codec",
     "SHA-256 Hash",
     "Verdict",
-    "CR-G Status",
-    "Primary Exceeded Axis",
+    "Detection Mode",
+    "Engine Version",
     "Analysis Timestamp",
   ];
 
@@ -195,8 +236,8 @@ function generateCSV(data: ExportData): string {
     escapeCSV(data.codec),
     escapeCSV(data.fileHash),
     escapeCSV(getVerdictText(data.verdict)),
-    escapeCSV(data.crgStatus),
-    escapeCSV(data.primaryExceededAxis),
+    escapeCSV(ENGINE_MODE),
+    escapeCSV(ENGINE_VERSION),
     escapeCSV(data.analysisTimestamp),
   ];
 
@@ -217,10 +258,14 @@ function generateCSV(data: ExportData): string {
 
 function generateMarkdown(data: ExportData): string {
   const verdictText = getVerdictText(data.verdict) || "Pending";
+  const isHuman = data.verdict?.verdict === "AI signal evidence was not observed.";
+  const verdictEmoji = isHuman ? "🟢" : "🔴";
 
   let md = `# DetectX Audio Verification Report
 
 **Generated:** ${data.analysisTimestamp}
+**Detection Mode:** ${ENGINE_MODE}
+**Engine Version:** ${ENGINE_VERSION}
 
 ## File Information
 
@@ -237,12 +282,22 @@ function generateMarkdown(data: ExportData): string {
 
 ## Verification Result
 
-> **${verdictText}**
+> ${verdictEmoji} **${verdictText}**
 
-| Metric | Value |
-|--------|-------|
-| CR-G Status | ${data.crgStatus || "N/A"} |
-${data.primaryExceededAxis ? `| Primary Exceeded Axis | ${data.primaryExceededAxis} |` : ""}
+${isHuman ? `
+This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+The Classifier Engine (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
+This result indicates that the signal is consistent with human musical creation.
+` : `
+This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+AI signal evidence was observed in the audio signal.
+`}
+
+## Engine Details
+
+- **Classifier Engine (Primary):** Deep learning classifier optimized for human protection
+- **Reconstruction Engine (Secondary):** Stem separation and reconstruction differential analysis
+- **Human False Positive Rate:** < 1%
 
 `;
 
@@ -256,11 +311,16 @@ ${data.timelineMarkers.map((m, i) => `| ${i + 1} | ${m.type} | ${formatDuration(
 `;
   }
 
-  md += `---
+  md += `## Disclaimer
 
-*This report contains structural signal evidence only. The system does not estimate probability, attribute authorship, or reference any specific AI model names.*
+> DetectX does not determine authorship, intent, or ownership.
+> This verification is based solely on structural signal observations.
+> Some genres with heavy processing (Electronic/EDM, Hip-hop, Dance/House, Lo-fi)
+> may exhibit signal characteristics similar to AI-generated music.
 
-*Generated by DetectX Audio — Audio AI Signal Verification*
+---
+
+*DetectX Audio AI Detector — Engine ${ENGINE_VERSION} (${ENGINE_MODE})*
 `;
 
   return md;
@@ -272,12 +332,12 @@ ${data.timelineMarkers.map((m, i) => `| ${i + 1} | ${m.type} | ${formatDuration(
  */
 function downloadFile(content: string, filename: string, mimeType: string, addBOM: boolean = false) {
   let finalContent = content;
-  
+
   // Add UTF-8 BOM for CSV files to ensure Excel opens with correct encoding
   if (addBOM) {
     finalContent = "\uFEFF" + content;
   }
-  
+
   const blob = new Blob([finalContent], { type: `${mimeType};charset=utf-8` });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -348,28 +408,27 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
 
   /**
    * Download All - Bundle all reports as single ZIP archive
-   * v1.0 FINAL: No confirmation dialog required
    */
   const handleDownloadAll = async () => {
     if (!data) return;
-    
+
     const baseName = sanitizeFileName(getBaseFileName(data.fileName));
     const zip = new JSZip();
-    
+
     // Add all report formats to ZIP
     const htmlContent = generatePDFContent(data);
     zip.file(`${baseName}_report.html`, htmlContent);
-    
+
     const jsonContent = generateJSON(data);
     zip.file(`${baseName}_report.json`, jsonContent);
-    
+
     // CSV with UTF-8 BOM
     const csvContent = "\uFEFF" + generateCSV(data);
     zip.file(`${baseName}_report.csv`, csvContent);
-    
+
     const mdContent = generateMarkdown(data);
     zip.file(`${baseName}_report.md`, mdContent);
-    
+
     // Generate and download ZIP
     const zipBlob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(zipBlob);
@@ -396,7 +455,7 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
           disabled={isDisabled}
         >
           <Download className="w-4 h-4 mr-2" />
-          Download All & Stems (ZIP)
+          Download All (ZIP)
         </Button>
 
         <div className="grid grid-cols-2 gap-3">

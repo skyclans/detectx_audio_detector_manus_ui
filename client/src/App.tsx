@@ -22,6 +22,9 @@ import Privacy from "./pages/Privacy";
 import HomeTest from "./pages/HomeTest";
 import HistoryTest from "./pages/HistoryTest";
 import { CookieConsent } from "./components/CookieConsent";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+import AdminVerifications from "./pages/admin/Verifications";
 
 function Router() {
   return (
@@ -62,6 +65,12 @@ function Router() {
       <Route path="/test" component={HomeTest} />
       <Route path="/test/verify-audio" component={HomeTest} />
       <Route path="/test/history" component={HistoryTest} />
+      
+      {/* Admin pages (restricted access) */}
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/verifications" component={AdminVerifications} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

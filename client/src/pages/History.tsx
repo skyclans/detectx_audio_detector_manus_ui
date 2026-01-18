@@ -3,11 +3,22 @@
  *
  * Enhanced Mode: Classifier Engine + Reconstruction Engine
  * Connects to server History API for verification records.
+ * Includes calendar-based date range filtering.
  */
 
 import { ForensicLayout } from "@/components/ForensicLayout";
-import { FileAudio, Search, Download, RefreshCw, ChevronLeft, ChevronRight, Filter } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import {
+  FileAudio,
+  Search,
+  Download,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Calendar,
+  X,
+} from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -38,6 +49,286 @@ interface HistoryStats {
 interface HistoryResponse {
   history: HistoryRecord[];
   count: number;
+  total: number;
+}
+
+// Mini Calendar Component
+function MiniCalendar({
+  selectedDate,
+  onSelect,
+  onClose,
+  minDate,
+  maxDate,
+}: {
+  selectedDate: Date | null;
+  onSelect: (date: Date) => void;
+  onClose: () => void;
+  minDate?: Date;
+  maxDate?: Date;
+}) {
+  const [viewDate, setViewDate] = useState(selectedDate || new Date());
+
+  const daysInMonth = useMemo(() => {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days: (Date | null)[] = [];
+
+    // Add empty slots for days before first of month
+    for (let i = 0; i < firstDay.getDay(); i++) {
+      days.push(null);
+    }
+
+    // Add all days in month
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      days.push(new Date(year, month, d));
+    }
+
+    return days;
+  }, [viewDate]);
+
+  const isDateDisabled = (date: Date) => {
+    if (minDate && date < new Date(minDate.setHours(0, 0, 0, 0))) return true;
+    if (maxDate && date > new Date(maxDate.setHours(23, 59, 59, 999))) return true;
+    return false;
+  };
+
+  const isSelected = (date: Date) => {
+    if (!selectedDate) return false;
+    return (
+      date.getFullYear() === selectedDate.getFullYear() &&
+      date.getMonth() === selectedDate.getMonth() &&
+      date.getDate() === selectedDate.getDate()
+    );
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  };
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+
+  return (
+    <div className="absolute top-full left-0 mt-1 z-50 bg-background border border-border rounded-lg shadow-lg p-3 w-64">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <button
+          onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1))}
+          className="p-1 hover:bg-muted/50 rounded"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <span className="text-sm font-medium">
+          {monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}
+        </span>
+        <button
+          onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1))}
+          className="p-1 hover:bg-muted/50 rounded"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Day headers */}
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+          <div key={day} className="text-center text-xs text-muted-foreground font-medium py-1">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Days */}
+      <div className="grid grid-cols-7 gap-1">
+        {daysInMonth.map((date, i) => (
+          <div key={i} className="aspect-square">
+            {date ? (
+              <button
+                onClick={() => {
+                  if (!isDateDisabled(date)) {
+                    onSelect(date);
+                    onClose();
+                  }
+                }}
+                disabled={isDateDisabled(date)}
+                className={`w-full h-full text-xs rounded flex items-center justify-center transition-colors
+                  ${isDateDisabled(date) ? "text-muted-foreground/30 cursor-not-allowed" : "hover:bg-muted/50"}
+                  ${isSelected(date) ? "bg-primary text-primary-foreground" : ""}
+                  ${isToday(date) && !isSelected(date) ? "border border-primary" : ""}
+                `}
+              >
+                {date.getDate()}
+              </button>
+            ) : null}
+          </div>
+        ))}
+      </div>
+
+      {/* Quick actions */}
+      <div className="mt-2 pt-2 border-t border-border flex gap-2">
+        <button
+          onClick={() => {
+            onSelect(new Date());
+            onClose();
+          }}
+          className="flex-1 text-xs py-1 px-2 bg-muted/50 hover:bg-muted rounded"
+        >
+          Today
+        </button>
+        <button
+          onClick={onClose}
+          className="flex-1 text-xs py-1 px-2 bg-muted/50 hover:bg-muted rounded"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Date Range Picker Component
+function DateRangePicker({
+  startDate,
+  endDate,
+  onStartChange,
+  onEndChange,
+  onClear,
+}: {
+  startDate: Date | null;
+  endDate: Date | null;
+  onStartChange: (date: Date | null) => void;
+  onEndChange: (date: Date | null) => void;
+  onClear: () => void;
+}) {
+  const [showStartCal, setShowStartCal] = useState(false);
+  const [showEndCal, setShowEndCal] = useState(false);
+
+  const formatDisplayDate = (date: Date | null) => {
+    if (!date) return "Select date";
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const hasDateFilter = startDate || endDate;
+
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <Calendar className="w-4 h-4 text-muted-foreground" />
+
+      {/* Start Date */}
+      <div className="relative">
+        <button
+          onClick={() => {
+            setShowStartCal(!showStartCal);
+            setShowEndCal(false);
+          }}
+          className={`px-3 py-1.5 text-xs border rounded-lg transition-colors ${
+            startDate
+              ? "bg-primary/10 border-primary/30 text-primary"
+              : "bg-background border-border hover:bg-muted/50"
+          }`}
+        >
+          {formatDisplayDate(startDate)}
+        </button>
+        {showStartCal && (
+          <MiniCalendar
+            selectedDate={startDate}
+            onSelect={(date) => onStartChange(date)}
+            onClose={() => setShowStartCal(false)}
+            maxDate={endDate || undefined}
+          />
+        )}
+      </div>
+
+      <span className="text-muted-foreground text-xs">to</span>
+
+      {/* End Date */}
+      <div className="relative">
+        <button
+          onClick={() => {
+            setShowEndCal(!showEndCal);
+            setShowStartCal(false);
+          }}
+          className={`px-3 py-1.5 text-xs border rounded-lg transition-colors ${
+            endDate
+              ? "bg-primary/10 border-primary/30 text-primary"
+              : "bg-background border-border hover:bg-muted/50"
+          }`}
+        >
+          {formatDisplayDate(endDate)}
+        </button>
+        {showEndCal && (
+          <MiniCalendar
+            selectedDate={endDate}
+            onSelect={(date) => onEndChange(date)}
+            onClose={() => setShowEndCal(false)}
+            minDate={startDate || undefined}
+          />
+        )}
+      </div>
+
+      {/* Clear button */}
+      {hasDateFilter && (
+        <button
+          onClick={onClear}
+          className="p-1.5 hover:bg-muted/50 rounded transition-colors text-muted-foreground hover:text-foreground"
+          title="Clear date filter"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
+
+      {/* Quick presets */}
+      <div className="flex gap-1 ml-2">
+        <button
+          onClick={() => {
+            const today = new Date();
+            onStartChange(today);
+            onEndChange(today);
+          }}
+          className="px-2 py-1 text-xs bg-muted/30 hover:bg-muted/50 rounded transition-colors"
+        >
+          Today
+        </button>
+        <button
+          onClick={() => {
+            const today = new Date();
+            const weekAgo = new Date(today);
+            weekAgo.setDate(today.getDate() - 7);
+            onStartChange(weekAgo);
+            onEndChange(today);
+          }}
+          className="px-2 py-1 text-xs bg-muted/30 hover:bg-muted/50 rounded transition-colors"
+        >
+          7 Days
+        </button>
+        <button
+          onClick={() => {
+            const today = new Date();
+            const monthAgo = new Date(today);
+            monthAgo.setMonth(today.getMonth() - 1);
+            onStartChange(monthAgo);
+            onEndChange(today);
+          }}
+          className="px-2 py-1 text-xs bg-muted/30 hover:bg-muted/50 rounded transition-colors"
+        >
+          30 Days
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function History() {
@@ -49,27 +340,44 @@ export default function History() {
   const [filterVerdict, setFilterVerdict] = useState<"all" | "ai" | "human">("all");
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const pageSize = 20;
+
+  const formatApiDate = (date: Date | null) => {
+    if (!date) return null;
+    return date.toISOString().split("T")[0];
+  };
 
   const fetchHistory = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${API_BASE}/history?limit=${pageSize}&offset=${page * pageSize}`
-      );
+      const params = new URLSearchParams({
+        limit: String(pageSize),
+        offset: String(page * pageSize),
+      });
+
+      if (startDate) {
+        params.append("start_date", formatApiDate(startDate)!);
+      }
+      if (endDate) {
+        params.append("end_date", formatApiDate(endDate)!);
+      }
+
+      const response = await fetch(`${API_BASE}/history?${params}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch history: ${response.statusText}`);
       }
       const data: HistoryResponse = await response.json();
       setHistory(data.history);
-      setTotalCount(data.count);
+      setTotalCount(data.total || data.count);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load history");
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, startDate, endDate]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -87,6 +395,11 @@ export default function History() {
     fetchHistory();
     fetchStats();
   }, [fetchHistory, fetchStats]);
+
+  // Reset page when date filter changes
+  useEffect(() => {
+    setPage(0);
+  }, [startDate, endDate]);
 
   const filteredHistory = history.filter((record) => {
     const matchesSearch =
@@ -169,6 +482,11 @@ export default function History() {
     URL.revokeObjectURL(url);
   };
 
+  const handleClearDateFilter = () => {
+    setStartDate(null);
+    setEndDate(null);
+  };
+
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
@@ -221,6 +539,11 @@ export default function History() {
             <div className="flex items-center gap-2">
               <FileAudio className="w-4 h-4" />
               Verification History
+              {(startDate || endDate) && (
+                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
+                  Date Filtered
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -242,6 +565,17 @@ export default function History() {
           </div>
 
           <div className="forensic-panel-content">
+            {/* Date Range Picker */}
+            <div className="mb-4 pb-4 border-b border-border">
+              <DateRangePicker
+                startDate={startDate}
+                endDate={endDate}
+                onStartChange={setStartDate}
+                onEndChange={setEndDate}
+                onClear={handleClearDateFilter}
+              />
+            </div>
+
             {/* Search and Filter */}
             <div className="flex flex-col md:flex-row gap-3 mb-4">
               <div className="relative flex-1">
@@ -285,7 +619,7 @@ export default function History() {
             {/* Empty State */}
             {!loading && !error && filteredHistory.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
-                {searchTerm || filterVerdict !== "all"
+                {searchTerm || filterVerdict !== "all" || startDate || endDate
                   ? "No records match your search criteria."
                   : "No verification history found."}
               </div>
@@ -373,7 +707,7 @@ export default function History() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
                 <div className="text-sm text-muted-foreground">
-                  Page {page + 1} of {totalPages}
+                  Page {page + 1} of {totalPages} ({totalCount} total)
                 </div>
                 <div className="flex items-center gap-2">
                   <button

@@ -49,7 +49,7 @@ export function VerdictOrientationSlider({ disabled }: { disabled?: boolean }) {
                 <div className="text-xs text-zinc-300 leading-relaxed">
                   <span className="text-zinc-500 font-medium block mb-1">About Enhanced Mode:</span>
                   Enhanced Mode uses a dual-engine approach: Classifier Engine as primary filter (protecting human music with ~0% false positive),
-                  and Reconstruction Engine as secondary for AI detection boost. Trained on 10,000,000+ verified human music samples.
+                  and Reconstruction Engine as secondary for AI detection boost. Trained on 30,000,000+ verified human music samples.
                 </div>
                 {/* Arrow */}
                 <div className="absolute -top-1.5 right-3 w-3 h-3 bg-zinc-800 border-l border-t border-zinc-600 transform rotate-45" />

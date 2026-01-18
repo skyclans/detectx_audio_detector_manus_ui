@@ -113,7 +113,7 @@ function generateScanLogs(stage: ScanStage): ScanLog {
     // Enhanced Mode Philosophy
     philosophy_1: { message: "Enhanced Mode: Dual-engine verification active", type: "philosophy" },
     philosophy_2: { message: "Classifier Engine (primary) protecting human creativity", type: "philosophy" },
-    philosophy_3: { message: "Trained on 10,000,000+ verified human music samples", type: "philosophy" },
+    philosophy_3: { message: "Trained on 30,000,000+ verified human music samples", type: "philosophy" },
 
     // Scan Process
     init: { message: "Initializing Enhanced Mode pipeline", type: "process" },

@@ -1,42 +1,409 @@
 /**
- * History Page - DISABLED for Anonymous Stateless Verification Flow
- * 
- * NON-NEGOTIABLE CONSTRAINTS:
- * 1) No upload history
- * 2) No file retention
- * 3) No session-based access control
- * 
- * This page displays a message explaining that verification history
- * is not available in the anonymous stateless verification mode.
+ * History Page - Verification History with Server Integration
+ *
+ * Enhanced Mode: Classifier Engine + Reconstruction Engine
+ * Connects to server History API for verification records.
  */
 
 import { ForensicLayout } from "@/components/ForensicLayout";
-import { FileAudio, Info } from "lucide-react";
+import { FileAudio, Search, Download, RefreshCw, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
+interface HistoryRecord {
+  id: string;
+  verification_id: string;
+  user_id: string | null;
+  original_filename: string;
+  verdict: string;
+  cnn_score: number | null;
+  exceeded_axes: string[];
+  orientation: string;
+  duration_sec: number | null;
+  sample_rate: number | null;
+  geometry_exceeded: boolean | null;
+  reconstruction_diff_exceeded: boolean | null;
+  created_at: string;
+  metadata: Record<string, unknown> | null;
+}
+
+interface HistoryStats {
+  total_verifications: number;
+  ai_detected: number;
+  human_detected: number;
+  by_orientation: Record<string, number>;
+}
+
+interface HistoryResponse {
+  history: HistoryRecord[];
+  count: number;
+}
 
 export default function History() {
+  const [history, setHistory] = useState<HistoryRecord[]>([]);
+  const [stats, setStats] = useState<HistoryStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterVerdict, setFilterVerdict] = useState<"all" | "ai" | "human">("all");
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 20;
+
+  const fetchHistory = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `${API_BASE}/history?limit=${pageSize}&offset=${page * pageSize}`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch history: ${response.statusText}`);
+      }
+      const data: HistoryResponse = await response.json();
+      setHistory(data.history);
+      setTotalCount(data.count);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load history");
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE}/history/stats`);
+      if (response.ok) {
+        const data: HistoryStats = await response.json();
+        setStats(data);
+      }
+    } catch {
+      // Stats are optional, don't show error
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchHistory();
+    fetchStats();
+  }, [fetchHistory, fetchStats]);
+
+  const filteredHistory = history.filter((record) => {
+    const matchesSearch =
+      searchTerm === "" ||
+      record.original_filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.verification_id.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const isAI = record.verdict.includes("was observed");
+    const matchesVerdict =
+      filterVerdict === "all" ||
+      (filterVerdict === "ai" && isAI) ||
+      (filterVerdict === "human" && !isAI);
+
+    return matchesSearch && matchesVerdict;
+  });
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleString();
+  };
+
+  const formatDuration = (seconds: number | null) => {
+    if (seconds === null) return "-";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const getVerdictBadge = (verdict: string) => {
+    const isAI = verdict.includes("was observed");
+    return (
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+          isAI
+            ? "bg-red-500/20 text-red-400 border border-red-500/30"
+            : "bg-green-500/20 text-green-400 border border-green-500/30"
+        }`}
+      >
+        {isAI ? "AI Observed" : "AI Not Observed"}
+      </span>
+    );
+  };
+
+  const handleExportCSV = () => {
+    if (filteredHistory.length === 0) return;
+
+    const headers = [
+      "Verification ID",
+      "Filename",
+      "Verdict",
+      "CNN Score",
+      "Duration",
+      "Mode",
+      "Date",
+    ];
+
+    const rows = filteredHistory.map((record) => [
+      record.verification_id,
+      record.original_filename,
+      record.verdict.includes("was observed") ? "AI_OBSERVED" : "AI_NOT_OBSERVED",
+      record.cnn_score?.toFixed(4) ?? "",
+      formatDuration(record.duration_sec),
+      record.orientation,
+      formatDate(record.created_at),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `detectx_history_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
   return (
     <ForensicLayout>
-      <div className="forensic-panel">
-        <div className="forensic-panel-header flex items-center gap-2">
-          <FileAudio className="w-4 h-4" />
-          Verification History
-        </div>
-        <div className="forensic-panel-content">
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-              <Info className="w-8 h-8 text-muted-foreground" />
+      <div className="space-y-4">
+        {/* Stats Panel */}
+        {stats && (
+          <div className="forensic-panel">
+            <div className="forensic-panel-header flex items-center gap-2">
+              <FileAudio className="w-4 h-4" />
+              Verification Statistics
             </div>
-            <h3 className="text-lg font-medium mb-2">History Not Available</h3>
-            <p className="text-sm text-muted-foreground max-w-md">
-              DetectX Audio operates in anonymous stateless verification mode.
-              Verification records are not stored or retained.
-            </p>
-            <div className="mt-6 p-4 bg-muted/30 rounded-lg max-w-md">
-              <p className="text-xs text-muted-foreground">
-                <strong>Privacy Notice:</strong> Your uploaded files are processed
-                in-memory and immediately discarded after verification. No data
-                is stored on DetectX servers.
-              </p>
+            <div className="forensic-panel-content">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-3 bg-muted/30 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    {stats.total_verifications}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Total Verifications</div>
+                </div>
+                <div className="text-center p-3 bg-red-500/10 rounded-lg">
+                  <div className="text-2xl font-bold text-red-400">
+                    {stats.ai_detected}
+                  </div>
+                  <div className="text-xs text-muted-foreground">AI Detected</div>
+                </div>
+                <div className="text-center p-3 bg-green-500/10 rounded-lg">
+                  <div className="text-2xl font-bold text-green-400">
+                    {stats.human_detected}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Human Verified</div>
+                </div>
+                <div className="text-center p-3 bg-muted/30 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    {stats.total_verifications > 0
+                      ? ((stats.ai_detected / stats.total_verifications) * 100).toFixed(1)
+                      : 0}
+                    %
+                  </div>
+                  <div className="text-xs text-muted-foreground">AI Detection Rate</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* History Table */}
+        <div className="forensic-panel">
+          <div className="forensic-panel-header flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileAudio className="w-4 h-4" />
+              Verification History
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={fetchHistory}
+                className="p-1.5 hover:bg-muted/50 rounded transition-colors"
+                title="Refresh"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              </button>
+              <button
+                onClick={handleExportCSV}
+                className="p-1.5 hover:bg-muted/50 rounded transition-colors"
+                title="Export CSV"
+                disabled={filteredHistory.length === 0}
+              >
+                <Download className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="forensic-panel-content">
+            {/* Search and Filter */}
+            <div className="flex flex-col md:flex-row gap-3 mb-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search by filename or verification ID..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <select
+                  value={filterVerdict}
+                  onChange={(e) => setFilterVerdict(e.target.value as "all" | "ai" | "human")}
+                  className="px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                >
+                  <option value="all">All Results</option>
+                  <option value="ai">AI Detected</option>
+                  <option value="human">Human Verified</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Error State */}
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm mb-4">
+                {error}
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loading && !error && filteredHistory.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                {searchTerm || filterVerdict !== "all"
+                  ? "No records match your search criteria."
+                  : "No verification history found."}
+              </div>
+            )}
+
+            {/* Table */}
+            {!loading && filteredHistory.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3 font-medium text-muted-foreground">
+                        File
+                      </th>
+                      <th className="text-left py-2 px-3 font-medium text-muted-foreground">
+                        Verdict
+                      </th>
+                      <th className="text-left py-2 px-3 font-medium text-muted-foreground hidden md:table-cell">
+                        CNN Score
+                      </th>
+                      <th className="text-left py-2 px-3 font-medium text-muted-foreground hidden md:table-cell">
+                        Duration
+                      </th>
+                      <th className="text-left py-2 px-3 font-medium text-muted-foreground hidden lg:table-cell">
+                        Mode
+                      </th>
+                      <th className="text-left py-2 px-3 font-medium text-muted-foreground">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredHistory.map((record) => (
+                      <tr
+                        key={record.id}
+                        className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                      >
+                        <td className="py-2 px-3">
+                          <div className="flex flex-col">
+                            <span className="font-medium truncate max-w-[200px]">
+                              {record.original_filename}
+                            </span>
+                            <span className="text-xs text-muted-foreground font-mono">
+                              {record.verification_id.slice(0, 8)}...
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-2 px-3">{getVerdictBadge(record.verdict)}</td>
+                        <td className="py-2 px-3 hidden md:table-cell">
+                          {record.cnn_score !== null ? (
+                            <span
+                              className={`font-mono ${
+                                record.cnn_score >= 0.9
+                                  ? "text-green-400"
+                                  : record.cnn_score >= 0.5
+                                  ? "text-yellow-400"
+                                  : "text-red-400"
+                              }`}
+                            >
+                              {(record.cnn_score * 100).toFixed(1)}%
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3 hidden md:table-cell">
+                          {formatDuration(record.duration_sec)}
+                        </td>
+                        <td className="py-2 px-3 hidden lg:table-cell">
+                          <span className="text-xs bg-muted/50 px-2 py-1 rounded capitalize">
+                            {record.orientation}
+                          </span>
+                        </td>
+                        <td className="py-2 px-3 text-muted-foreground text-xs">
+                          {formatDate(record.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                <div className="text-sm text-muted-foreground">
+                  Page {page + 1} of {totalPages}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="p-2 hover:bg-muted/50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={page >= totalPages - 1}
+                    className="p-2 hover:bg-muted/50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info Panel */}
+        <div className="forensic-panel">
+          <div className="forensic-panel-content">
+            <div className="text-xs text-muted-foreground">
+              <strong>Enhanced Mode v2.0</strong> — Classifier Engine (CNN trained on
+              30,000,000+ verified human samples) + Reconstruction Engine (Stem separation
+              analysis). History records are stored securely and can be exported for
+              institutional reporting.
             </div>
           </div>
         </div>

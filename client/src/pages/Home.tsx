@@ -773,8 +773,6 @@ export default function Home() {
             codec: metadata?.codec || null,
             fileHash: metadata?.fileHash || null,
             verdict: verificationResult?.verdict ?? null,
-            crgStatus: verificationResult?.crgStatus || null,
-            primaryExceededAxis: verificationResult?.primaryExceededAxis || null,
             timelineMarkers: verificationResult?.timelineMarkers || [],
             analysisTimestamp: new Date().toISOString(),
           }}

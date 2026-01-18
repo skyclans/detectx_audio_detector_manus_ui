@@ -899,3 +899,10 @@
 - [ ] Change "서비스 약관" link text to DetectX branding
 - [ ] Change "개인 보호정책" link text to DetectX branding
 - [ ] Change "@2026 meta" to "@2026 DetectX" in login footer
+
+
+## Export API Integration (Jan 18)
+- [x] Merged dev team ExportPanel Enhanced Mode v2.0 format update
+- [x] Merged dev team History page with server API integration
+- [x] Merged dev team calendar date range filter to History page
+- [x] Fixed TypeScript error in Home.tsx (removed deprecated crgStatus/primaryExceededAxis props)

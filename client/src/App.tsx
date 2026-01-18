@@ -19,6 +19,8 @@ import Login from "./pages/Login";
 import ModeSelection from "./pages/ModeSelection";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import HomeTest from "./pages/HomeTest";
+import HistoryTest from "./pages/HistoryTest";
 import { CookieConsent } from "./components/CookieConsent";
 
 function Router() {
@@ -55,6 +57,11 @@ function Router() {
       {/* Legal pages */}
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      
+      {/* Test environment (port 8001) */}
+      <Route path="/test" component={HomeTest} />
+      <Route path="/test/verify-audio" component={HomeTest} />
+      <Route path="/test/history" component={HistoryTest} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

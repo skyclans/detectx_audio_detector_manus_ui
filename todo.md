@@ -906,3 +906,10 @@
 - [x] Merged dev team History page with server API integration
 - [x] Merged dev team calendar date range filter to History page
 - [x] Fixed TypeScript error in Home.tsx (removed deprecated crgStatus/primaryExceededAxis props)
+
+
+## Test Environment Separation (Jan 19)
+- [x] Create test version of Home page (HomeTest.tsx) with API URL port 8001
+- [x] Create test version of History page (HistoryTest.tsx) with API URL port 8001
+- [x] Add /test routes to App.tsx (/test, /test/verify-audio, /test/history)
+- [x] Ensure production UI remains unchanged (port 8000)

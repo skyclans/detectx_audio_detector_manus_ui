@@ -90,17 +90,20 @@ export default function Technology() {
           {/* DetectX Audio — Engine Overview */}
           <section className="mb-16">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              DetectX Audio — Engine Overview
+              DetectX Audio — Enhanced Mode Architecture
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX Audio is the first production verification engine in the DetectX platform. It analyzes mix-level audio signals to detect structural evidence of AI generation.
+                DetectX Audio uses a dual-engine verification system called Enhanced Mode. This architecture combines two complementary engines to maximize human protection while maintaining effective AI detection.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                The engine operates on a fixed normalization pipeline that transforms input audio into a standardized measurement space. This normalization ensures that all analyses are conducted under identical conditions, regardless of source format, encoding, or loudness.
+                <strong className="text-foreground">Classifier Engine (Primary):</strong> A deep learning classifier trained on over 30,000,000 verified human music samples. This engine serves as the primary filter, optimized for near-zero false positives on human content. If the Classifier Engine determines content is human, the verdict is trusted immediately.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <strong className="text-foreground">Reconstruction Engine (Secondary):</strong> When the Classifier Engine score exceeds the 90% threshold, the Reconstruction Engine activates. This engine separates audio into stem components, reconstructs the signal, and compares the reconstruction differential against known patterns. This secondary analysis boosts AI detection accuracy.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                After normalization, the system extracts residual signal geometry and compares it against human-normalized baselines. The comparison is purely structural—no model attribution, no similarity scoring, no probabilistic inference.
+                The dual-engine approach ensures human creators are protected (approximately 0% false positive rate) while maintaining approximately 50% AI detection rate for confirmed AI-generated content.
               </p>
             </div>
           </section>
@@ -124,15 +127,15 @@ export default function Technology() {
                 </p>
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
-                <h3 className="text-lg font-medium text-foreground mb-3">Geometry-First Analysis</h3>
+                <h3 className="text-lg font-medium text-foreground mb-3">Dual-Engine Verification</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The system analyzes structural signal geometry rather than learned feature representations. This approach avoids the opacity of neural network classifiers and provides explainable, auditable results.
+                  The system uses two complementary engines: Classifier Engine (deep learning) for human protection and Reconstruction Engine for AI detection boost. The Classifier Engine is trained on 30,000,000+ verified human samples to ensure near-zero false positives.
                 </p>
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
-                <h3 className="text-lg font-medium text-foreground mb-3">No Probability Scores</h3>
+                <h3 className="text-lg font-medium text-foreground mb-3">Binary Verdict Model</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  DetectX does not output confidence percentages or likelihood ratios. The system reports structural observations only: evidence was observed, or evidence was not observed. This eliminates the misinterpretation risks associated with probabilistic outputs.
+                  DetectX does not output confidence percentages or likelihood ratios. The system reports binary structural observations only: evidence was observed, or evidence was not observed. This eliminates the misinterpretation risks associated with probabilistic outputs.
                 </p>
               </div>
             </div>

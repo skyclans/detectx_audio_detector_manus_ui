@@ -156,31 +156,31 @@ export default function Research() {
             </div>
           </section>
 
-          {/* Geometry Over Similarity */}
+          {/* Dual-Engine Approach */}
           <section className="mb-16">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              Geometry Over Similarity
+              Dual-Engine Verification Approach
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX analyzes structural signal geometry rather than learned similarity metrics. This distinction is fundamental:
+                DetectX uses a dual-engine architecture that prioritizes human protection while maintaining effective AI detection:
               </p>
               <div className="grid md:grid-cols-2 gap-6 my-6">
                 <div className="border border-border rounded-lg p-6 bg-card">
-                  <h3 className="text-lg font-medium text-foreground mb-3">Similarity-Based Detection</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Classifier Engine (Primary)</h3>
                   <p className="text-sm text-muted-foreground">
-                    Compares input against known AI outputs using learned feature representations. Opaque, model-dependent, and vulnerable to adversarial manipulation.
+                    Deep learning classifier trained on 30,000,000+ verified human music samples. Optimized for near-zero false positives. If the classifier says Human, the verdict is trusted immediately.
                   </p>
                 </div>
                 <div className="border border-border rounded-lg p-6 bg-card">
-                  <h3 className="text-lg font-medium text-foreground mb-3">Geometry-Based Detection</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Reconstruction Engine (Secondary)</h3>
                   <p className="text-sm text-muted-foreground">
-                    Analyzes structural signal properties against human baselines. Explainable, deterministic, and independent of specific AI model architectures.
+                    Activates when the Classifier Engine exceeds 90% threshold. Analyzes stem separation and reconstruction differentials to boost AI detection accuracy.
                   </p>
                 </div>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Geometry-based analysis does not require knowledge of which AI system generated the content. It detects structural anomalies that exceed human baseline parameters, regardless of source.
+                This approach ensures human creators are protected first. The Classifier Engine acts as a protective filter, while the Reconstruction Engine provides secondary verification for suspected AI content.
               </p>
             </div>
           </section>
@@ -200,11 +200,11 @@ export default function Research() {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Fixed normalization pipelines with no stochastic components</span>
+                  <span>Fixed normalization pipelines with consistent preprocessing</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Versioned baseline references with documented parameters</span>
+                  <span>Versioned models and baseline references with documented parameters</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
@@ -212,7 +212,7 @@ export default function Research() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>No model inference or neural network classification</span>
+                  <span>Binary verdict outputs without probabilistic ambiguity</span>
                 </li>
               </ul>
             </div>

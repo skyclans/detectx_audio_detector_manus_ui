@@ -72,13 +72,70 @@ export default function Updates() {
             </p>
           </div>
 
-          {/* Update Entry: DAY 35 */}
+          {/* Update Entry: 2026-01-17 */}
           <article className="mb-16 border border-border rounded-lg overflow-hidden">
             <div className="bg-muted/30 px-6 py-4 border-b border-border">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-mono text-muted-foreground">DAY 35</span>
-                <time className="text-sm text-muted-foreground">2026-01-12</time>
+              <time className="text-sm font-mono text-muted-foreground">2026-01-17</time>
+            </div>
+            <div className="p-6">
+              <h2 className="text-xl font-medium text-foreground mb-6">
+                Enhanced Mode: Dual-Engine Architecture Released
+              </h2>
+
+              <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
+                <p className="text-muted-foreground leading-relaxed">
+                  DetectX Audio now operates exclusively in Enhanced Mode, a dual-engine verification architecture designed to maximize human protection while maintaining effective AI detection.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Architecture Overview</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Enhanced Mode combines two complementary engines working in sequence:
+                </p>
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Classifier Engine (Primary):</strong> A deep learning classifier trained on over 30,000,000 verified human music samples. Optimized for near-zero false positives. If the Classifier Engine determines content is human, the verdict is trusted immediately.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Reconstruction Engine (Secondary):</strong> Activates when the Classifier Engine score exceeds 90% threshold. Analyzes stem separation and reconstruction differentials to boost AI detection accuracy.</span>
+                  </li>
+                </ul>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Performance Characteristics</h3>
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Human False Positive Rate:</strong> Approximately 0% — human creators are protected</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">AI Detection Rate:</strong> Approximately 50% for confirmed AI-generated content</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Binary Verdicts:</strong> No probabilistic scores, only structural observations</span>
+                  </li>
+                </ul>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Design Philosophy</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  The dual-engine approach prioritizes human safety as a hard constraint. By using the Classifier Engine as the primary filter, the system ensures that human creative work is never unfairly flagged. The Reconstruction Engine serves as a secondary check only when the primary classifier indicates potential AI content.
+                </p>
+
+                <div className="mt-8 pt-6 border-t border-border">
+                  <p className="text-sm text-muted-foreground italic">
+                    This update documents a system architecture change. Performance metrics are based on internal testing and may vary with different content types.
+                  </p>
+                </div>
               </div>
+            </div>
+          </article>
+
+          {/* Update Entry: 2026-01-12 */}
+          <article className="mb-16 border border-border rounded-lg overflow-hidden">
+            <div className="bg-muted/30 px-6 py-4 border-b border-border">
+              <time className="text-sm font-mono text-muted-foreground">2026-01-12</time>
             </div>
             <div className="p-6">
               <h2 className="text-xl font-medium text-foreground mb-6">

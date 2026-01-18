@@ -15,6 +15,13 @@
       "when": 1767976342707,
       "tag": "0001_yummy_pyro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1768759797573,
+      "tag": "0002_peaceful_spot",
+      "breakpoints": true
     }
   ]
 }

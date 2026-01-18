@@ -2,15 +2,16 @@
  * Admin Users Page
  * 
  * Displays user list with search, filter, and management capabilities.
- * Features: Plan change, Usage modification, Admin management
- * API: GET /api/admin/users
+ * Features: Plan change, Usage modification, Admin management, Bulk actions
+ * Uses tRPC for real database operations
  */
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Dialog,
   DialogContent,
@@ -27,52 +28,16 @@ import {
   ChevronRight,
   RotateCcw,
   Edit,
-  Calendar,
   Shield,
   UserPlus,
   Trash2,
   Check,
-  X
+  Users,
+  CheckSquare
 } from "lucide-react";
-// Toast notifications - using simple alerts for now
+import { trpc } from "@/lib/trpc";
 
-const API_BASE = "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
-
-// Admin emails that can manage other admins
-const SUPER_ADMIN_EMAILS = [
-  "ceo@detectx.app",
-  "skyclans2@gmail.com",
-  "support@detectx.app",
-  "coolkimy@naver.com",
-  "skyclans@naver.com"
-];
-
-interface User {
-  user_id: string;
-  email: string;
-  name: string;
-  plan_type: string;
-  monthly_limit: number;
-  used_this_month: number;
-  remaining: number;
-  total_verifications: number;
-  last_verification_at: string | null;
-  created_at: string;
-  reset_date: string;
-}
-
-interface UsersResponse {
-  users: User[];
-  count: number;
-  total: number;
-}
-
-interface Admin {
-  email: string;
-  added_by: string;
-  added_at: string;
-}
-
+// Plan options with limits
 const PLAN_OPTIONS = [
   { value: "free", label: "Free", limit: 5 },
   { value: "pro", label: "Professional", limit: 30 },
@@ -80,589 +45,529 @@ const PLAN_OPTIONS = [
   { value: "master", label: "Master (Unlimited)", limit: -1 },
 ];
 
-export default function AdminUsers() {
-  // Simple toast function using alerts
-  const toast = ({ title, description, variant }: { title: string; description: string; variant?: string }) => {
-    if (variant === "destructive") {
-      alert(`Error: ${title}\n${description}`);
-    } else {
-      console.log(`${title}: ${description}`);
-    }
-  };
-  const [data, setData] = useState<UsersResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [planFilter, setPlanFilter] = useState<string>("");
-  const [page, setPage] = useState(0);
-  const limit = 20;
+// Plan badge colors
+const PLAN_COLORS: Record<string, string> = {
+  free: "bg-gray-500/20 text-gray-400",
+  pro: "bg-blue-500/20 text-blue-400",
+  enterprise: "bg-purple-500/20 text-purple-400",
+  master: "bg-amber-500/20 text-amber-400",
+};
 
+export default function AdminUsers() {
+  // Search and filter states
+  const [search, setSearch] = useState("");
+  const [planFilter, setPlanFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const limit = 20;
+  
+  // Selection states for bulk actions
+  const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+  
   // Modal states
   const [editPlanModal, setEditPlanModal] = useState(false);
   const [editUsageModal, setEditUsageModal] = useState(false);
   const [adminModal, setAdminModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [bulkActionModal, setBulkActionModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   
   // Edit form states
-  const [newPlan, setNewPlan] = useState("");
+  const [newPlan, setNewPlan] = useState<"free" | "pro" | "enterprise" | "master">("free");
   const [newUsageCount, setNewUsageCount] = useState(0);
   const [newMonthlyLimit, setNewMonthlyLimit] = useState(0);
   const [extensionDays, setExtensionDays] = useState(0);
   
   // Admin management states
-  const [admins, setAdmins] = useState<Admin[]>([
-    { email: "ceo@detectx.app", added_by: "system", added_at: "2026-01-01T00:00:00" },
-    { email: "skyclans2@gmail.com", added_by: "system", added_at: "2026-01-01T00:00:00" },
-    { email: "support@detectx.app", added_by: "system", added_at: "2026-01-01T00:00:00" },
-    { email: "coolkimy@naver.com", added_by: "system", added_at: "2026-01-01T00:00:00" },
-    { email: "skyclans@naver.com", added_by: "system", added_at: "2026-01-01T00:00:00" },
-  ]);
   const [newAdminEmail, setNewAdminEmail] = useState("");
-
-  useEffect(() => {
-    fetchUsers();
-  }, [page, planFilter]);
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({
-        limit: limit.toString(),
-        offset: (page * limit).toString(),
-      });
-      if (search) params.append("search", search);
-      if (planFilter) params.append("plan", planFilter);
-
-      const response = await fetch(`${API_BASE}/admin/users?${params}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch users");
-      }
-      const result = await response.json();
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      // Use mock data for development
-      setData({
-        users: [
-          {
-            user_id: "user_001",
-            email: "user1@example.com",
-            name: "John Doe",
-            plan_type: "free",
-            monthly_limit: 5,
-            used_this_month: 3,
-            remaining: 2,
-            total_verifications: 45,
-            last_verification_at: "2026-01-18T14:33:27",
-            created_at: "2026-01-05T10:00:00",
-            reset_date: "2026-02-01T00:00:00",
-          },
-          {
-            user_id: "user_002",
-            email: "pro@example.com",
-            name: "Jane Smith",
-            plan_type: "pro",
-            monthly_limit: 30,
-            used_this_month: 15,
-            remaining: 15,
-            total_verifications: 156,
-            last_verification_at: "2026-01-19T09:15:00",
-            created_at: "2026-01-01T08:00:00",
-            reset_date: "2026-02-01T00:00:00",
-          },
-          {
-            user_id: "user_003",
-            email: "enterprise@company.com",
-            name: "Enterprise User",
-            plan_type: "enterprise",
-            monthly_limit: 1000,
-            used_this_month: 234,
-            remaining: 766,
-            total_verifications: 1250,
-            last_verification_at: "2026-01-19T10:00:00",
-            created_at: "2025-12-15T10:00:00",
-            reset_date: "2026-02-01T00:00:00",
-          },
-        ],
-        count: 3,
-        total: 128,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
+  // Bulk action states
+  const [bulkAction, setBulkAction] = useState<"plan" | "reset">("plan");
+  const [bulkPlan, setBulkPlan] = useState<"free" | "pro" | "enterprise" | "master">("free");
+  
+  // Fetch users from API
+  const { data: usersData, isLoading, refetch } = trpc.admin.getUsers.useQuery({
+    search: search || undefined,
+    plan: planFilter !== "all" ? planFilter : undefined,
+    page,
+    limit,
+  });
+  
+  // Fetch admins
+  const { data: adminsData, refetch: refetchAdmins } = trpc.admin.getAdmins.useQuery();
+  
+  // Check admin status
+  const { data: adminStatus } = trpc.admin.checkAdminStatus.useQuery();
+  
+  // Mutations
+  const changePlanMutation = trpc.admin.changePlan.useMutation({
+    onSuccess: () => {
+      refetch();
+      setEditPlanModal(false);
+      alert("Plan changed successfully");
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+  
+  const modifyUsageMutation = trpc.admin.modifyUsage.useMutation({
+    onSuccess: () => {
+      refetch();
+      setEditUsageModal(false);
+      alert("Usage settings updated successfully");
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+  
+  const resetUsageMutation = trpc.admin.resetUsage.useMutation({
+    onSuccess: () => {
+      refetch();
+      alert("Usage reset successfully");
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+  
+  const addAdminMutation = trpc.admin.addAdmin.useMutation({
+    onSuccess: () => {
+      refetchAdmins();
+      setNewAdminEmail("");
+      alert("Admin added successfully");
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+  
+  const removeAdminMutation = trpc.admin.removeAdmin.useMutation({
+    onSuccess: () => {
+      refetchAdmins();
+      alert("Admin removed successfully");
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+  
+  const bulkChangePlanMutation = trpc.admin.bulkChangePlan.useMutation({
+    onSuccess: (data) => {
+      refetch();
+      setBulkActionModal(false);
+      setSelectedUsers(new Set());
+      setSelectAll(false);
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+  
+  const bulkResetUsageMutation = trpc.admin.bulkResetUsage.useMutation({
+    onSuccess: (data) => {
+      refetch();
+      setBulkActionModal(false);
+      setSelectedUsers(new Set());
+      setSelectAll(false);
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+  
+  // Computed values
+  const users = usersData?.users || [];
+  const totalPages = usersData?.totalPages || 1;
+  const total = usersData?.total || 0;
+  const admins = adminsData || [];
+  const isSuperAdmin = adminStatus?.isSuperAdmin || false;
+  
+  const selectedUser = useMemo(() => {
+    if (!selectedUserId) return null;
+    return users.find(u => u.id === selectedUserId);
+  }, [selectedUserId, users]);
+  
+  // Handlers
   const handleSearch = () => {
-    setPage(0);
-    fetchUsers();
+    setPage(1);
+    refetch();
   };
-
-  const handleResetUsage = async (userId: string) => {
-    if (!confirm("Are you sure you want to reset this user's monthly usage?")) {
-      return;
+  
+  const handleSelectUser = (userId: number, checked: boolean) => {
+    const newSelected = new Set(selectedUsers);
+    if (checked) {
+      newSelected.add(userId);
+    } else {
+      newSelected.delete(userId);
     }
-    try {
-      const response = await fetch(`${API_BASE}/admin/users/${userId}/reset-usage`, {
-        method: "POST",
-      });
-      if (response.ok) {
-        fetchUsers();
-        toast({
-          title: "Usage Reset",
-          description: "User's monthly usage has been reset to 0.",
-        });
-      }
-    } catch (err) {
-      console.error("Failed to reset usage:", err);
-      toast({
-        title: "Reset Successful (Mock)",
-        description: "User's monthly usage has been reset.",
-        variant: "default",
-      });
-    }
+    setSelectedUsers(newSelected);
+    setSelectAll(newSelected.size === users.length);
   };
-
-  // Open Plan Edit Modal
-  const openPlanEditModal = (user: User) => {
-    setSelectedUser(user);
-    setNewPlan(user.plan_type);
-    setEditPlanModal(true);
-  };
-
-  // Handle Plan Change
-  const handlePlanChange = async () => {
-    if (!selectedUser) return;
-    
-    try {
-      const planOption = PLAN_OPTIONS.find(p => p.value === newPlan);
-      const response = await fetch(`${API_BASE}/admin/users/${selectedUser.user_id}/plan`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          plan_type: newPlan,
-          monthly_limit: planOption?.limit || 5
-        }),
-      });
-      
-      if (response.ok) {
-        fetchUsers();
-      }
-    } catch (err) {
-      console.error("Failed to change plan:", err);
+  
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedUsers(new Set(users.map(u => u.id)));
+    } else {
+      setSelectedUsers(new Set());
     }
-    
-    toast({
-      title: "Plan Updated",
-      description: `${selectedUser.email}'s plan changed to ${newPlan.toUpperCase()}.`,
-    });
-    setEditPlanModal(false);
-    
-    // Update mock data locally
-    if (data) {
-      const planOption = PLAN_OPTIONS.find(p => p.value === newPlan);
-      setData({
-        ...data,
-        users: data.users.map(u => 
-          u.user_id === selectedUser.user_id 
-            ? { ...u, plan_type: newPlan, monthly_limit: planOption?.limit || u.monthly_limit }
-            : u
-        )
-      });
+    setSelectAll(checked);
+  };
+  
+  const openPlanModal = (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      setSelectedUserId(userId);
+      setNewPlan(user.plan as "free" | "pro" | "enterprise" | "master");
+      setEditPlanModal(true);
     }
   };
-
-  // Open Usage Edit Modal
-  const openUsageEditModal = (user: User) => {
-    setSelectedUser(user);
-    setNewUsageCount(user.used_this_month);
-    setNewMonthlyLimit(user.monthly_limit);
-    setExtensionDays(0);
-    setEditUsageModal(true);
-  };
-
-  // Handle Usage Modification
-  const handleUsageModification = async () => {
-    if (!selectedUser) return;
-    
-    try {
-      const response = await fetch(`${API_BASE}/admin/users/${selectedUser.user_id}/usage`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          used_this_month: newUsageCount,
-          monthly_limit: newMonthlyLimit,
-          extension_days: extensionDays
-        }),
-      });
-      
-      if (response.ok) {
-        fetchUsers();
-      }
-    } catch (err) {
-      console.error("Failed to modify usage:", err);
-    }
-    
-    toast({
-      title: "Usage Modified",
-      description: `${selectedUser.email}'s usage has been updated.`,
-    });
-    setEditUsageModal(false);
-    
-    // Update mock data locally
-    if (data) {
-      setData({
-        ...data,
-        users: data.users.map(u => 
-          u.user_id === selectedUser.user_id 
-            ? { 
-                ...u, 
-                used_this_month: newUsageCount, 
-                monthly_limit: newMonthlyLimit,
-                remaining: newMonthlyLimit - newUsageCount
-              }
-            : u
-        )
-      });
+  
+  const openUsageModal = (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      setSelectedUserId(userId);
+      setNewUsageCount(user.usageCount);
+      setNewMonthlyLimit(user.monthlyLimit);
+      setExtensionDays(0);
+      setEditUsageModal(true);
     }
   };
-
-  // Handle Add Admin
-  const handleAddAdmin = async () => {
-    if (!newAdminEmail || !newAdminEmail.includes("@")) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (admins.some(a => a.email === newAdminEmail)) {
-      toast({
-        title: "Already Admin",
-        description: "This email is already an admin.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    try {
-      const response = await fetch(`${API_BASE}/admin/admins`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newAdminEmail }),
-      });
-      
-      if (response.ok) {
-        // Refresh admin list
-      }
-    } catch (err) {
-      console.error("Failed to add admin:", err);
-    }
-    
-    // Add locally
-    setAdmins([...admins, {
-      email: newAdminEmail,
-      added_by: "current_admin",
-      added_at: new Date().toISOString()
-    }]);
-    
-    toast({
-      title: "Admin Added",
-      description: `${newAdminEmail} has been added as an admin.`,
-    });
-    setNewAdminEmail("");
+  
+  const handlePlanChange = () => {
+    if (!selectedUserId) return;
+    changePlanMutation.mutate({ userId: selectedUserId, plan: newPlan });
   };
-
-  // Handle Remove Admin
-  const handleRemoveAdmin = async (email: string) => {
-    if (SUPER_ADMIN_EMAILS.includes(email)) {
-      toast({
-        title: "Cannot Remove",
-        description: "Super admins cannot be removed.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!confirm(`Are you sure you want to remove ${email} from admins?`)) {
-      return;
-    }
-    
-    try {
-      const response = await fetch(`${API_BASE}/admin/admins/${encodeURIComponent(email)}`, {
-        method: "DELETE",
-      });
-      
-      if (response.ok) {
-        // Refresh admin list
-      }
-    } catch (err) {
-      console.error("Failed to remove admin:", err);
-    }
-    
-    // Remove locally
-    setAdmins(admins.filter(a => a.email !== email));
-    
-    toast({
-      title: "Admin Removed",
-      description: `${email} has been removed from admins.`,
+  
+  const handleUsageModification = () => {
+    if (!selectedUserId) return;
+    modifyUsageMutation.mutate({
+      userId: selectedUserId,
+      usageCount: newUsageCount,
+      monthlyLimit: newMonthlyLimit,
+      extensionDays: extensionDays > 0 ? extensionDays : undefined,
     });
   };
-
-  const getPlanBadgeColor = (plan: string) => {
-    switch (plan) {
-      case "free":
-        return "bg-gray-500/10 text-gray-500 border-gray-500/20";
-      case "pro":
-        return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-      case "enterprise":
-        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-      case "master":
-        return "bg-purple-500/10 text-purple-500 border-purple-500/20";
-      default:
-        return "bg-muted text-muted-foreground";
+  
+  const handleResetUsage = (userId: number) => {
+    if (confirm("Are you sure you want to reset this user's usage?")) {
+      resetUsageMutation.mutate({ userId });
     }
+  };
+  
+  const handleAddAdmin = () => {
+    if (!newAdminEmail.trim()) return;
+    addAdminMutation.mutate({ email: newAdminEmail.trim() });
+  };
+  
+  const handleRemoveAdmin = (email: string) => {
+    if (confirm(`Are you sure you want to remove ${email} from admin?`)) {
+      removeAdminMutation.mutate({ email });
+    }
+  };
+  
+  const handleBulkAction = () => {
+    const userIds = Array.from(selectedUsers);
+    if (userIds.length === 0) return;
+    
+    if (bulkAction === "plan") {
+      bulkChangePlanMutation.mutate({ userIds, plan: bulkPlan });
+    } else {
+      bulkResetUsageMutation.mutate({ userIds });
+    }
+  };
+  
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("ko-KR");
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Users</h1>
-            <p className="text-muted-foreground">Manage DetectX users and admins</p>
+            <h1 className="text-2xl font-bold text-foreground">User Management</h1>
+            <p className="text-muted-foreground">
+              Manage user plans, usage, and admin access
+            </p>
           </div>
-          <Button onClick={() => setAdminModal(true)} variant="outline">
-            <Shield className="h-4 w-4 mr-2" />
-            Manage Admins
-          </Button>
+          <div className="flex gap-2">
+            {isSuperAdmin && (
+              <Button variant="outline" onClick={() => setAdminModal(true)}>
+                <Shield className="h-4 w-4 mr-2" />
+                Manage Admins
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => refetch()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
         </div>
-
-        {error && (
-          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 text-yellow-600 dark:text-yellow-400 text-sm">
-            Using mock data: {error}
-          </div>
-        )}
-
-        {/* Filters */}
+        
+        {/* Search and Filters */}
         <Card>
           <CardContent className="pt-6">
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-1 min-w-[200px]">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by email or name..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="pl-10"
-                  />
-                </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by email or name..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  className="pl-10"
+                />
               </div>
               <select
                 value={planFilter}
                 onChange={(e) => setPlanFilter(e.target.value)}
-                className="px-3 py-2 border border-input rounded-md bg-background"
+                className="flex h-10 w-full md:w-40 rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <option value="">All Plans</option>
-                <option value="free">Free</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
-                <option value="master">Master</option>
+                <option value="all">All Plans</option>
+                {PLAN_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
               <Button onClick={handleSearch}>
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </Button>
-              <Button variant="outline" onClick={() => { setSearch(""); setPlanFilter(""); setPage(0); fetchUsers(); }}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Reset
-              </Button>
             </div>
           </CardContent>
         </Card>
-
+        
+        {/* Bulk Actions Bar */}
+        {selectedUsers.size > 0 && (
+          <Card className="border-blue-500/50 bg-blue-500/5">
+            <CardContent className="py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckSquare className="h-5 w-5 text-blue-400" />
+                  <span className="font-medium">{selectedUsers.size} users selected</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setBulkAction("plan");
+                      setBulkActionModal(true);
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Change Plan
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setBulkAction("reset");
+                      setBulkActionModal(true);
+                    }}
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Reset Usage
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedUsers(new Set());
+                      setSelectAll(false);
+                    }}
+                  >
+                    Clear Selection
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Users Table */}
         <Card>
           <CardHeader>
-            <CardTitle>
-              Users ({data?.total || 0} total)
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Users ({total} total)
             </CardTitle>
+            <CardDescription>
+              Click on a user to manage their plan and usage
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-16 bg-muted rounded animate-pulse" />
-                ))}
+            {isLoading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading users...
+              </div>
+            ) : users.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No users found
               </div>
             ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Plan</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Usage</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Total</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Last Active</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data?.users.map((user) => (
-                        <tr key={user.user_id} className="border-b border-border hover:bg-muted/50">
-                          <td className="py-3 px-4">
-                            <div>
-                              <div className="font-medium">{user.name || "Unknown"}</div>
-                              <div className="text-sm text-muted-foreground">{user.email}</div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPlanBadgeColor(user.plan_type)}`}>
-                              {user.plan_type.toUpperCase()}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="py-3 px-2 text-left">
+                        <Checkbox
+                          checked={selectAll}
+                          onCheckedChange={handleSelectAll}
+                        />
+                      </th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">User</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Plan</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Usage</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Last Active</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user.id} className="border-b border-border hover:bg-muted/50">
+                        <td className="py-3 px-2">
+                          <Checkbox
+                            checked={selectedUsers.has(user.id)}
+                            onCheckedChange={(checked) => handleSelectUser(user.id, !!checked)}
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <div>
+                            <div className="font-medium">{user.name || "Unknown"}</div>
+                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${PLAN_COLORS[user.plan] || PLAN_COLORS.free}`}>
+                            {PLAN_OPTIONS.find(p => p.value === user.plan)?.label || user.plan}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="text-sm">
+                            <span className="font-medium">{user.usageCount}</span>
+                            <span className="text-muted-foreground">
+                              / {user.monthlyLimit === -1 ? "∞" : user.monthlyLimit}
                             </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              <div className="w-24 bg-muted rounded-full h-2">
-                                <div 
-                                  className={`h-2 rounded-full ${
-                                    user.remaining === 0 ? "bg-red-500" : "bg-primary"
-                                  }`}
-                                  style={{ width: `${user.monthly_limit > 0 ? (user.used_this_month / user.monthly_limit) * 100 : 0}%` }}
-                                />
-                              </div>
-                              <span className="text-sm">
-                                {user.monthly_limit === -1 ? "∞" : `${user.used_this_month}/${user.monthly_limit}`}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            {user.total_verifications.toLocaleString()}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-muted-foreground">
-                            {user.last_verification_at 
-                              ? new Date(user.last_verification_at).toLocaleDateString()
-                              : "Never"}
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-1">
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => openPlanEditModal(user)}
-                                title="Change Plan"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => openUsageEditModal(user)}
-                                title="Modify Usage"
-                              >
-                                <Calendar className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleResetUsage(user.user_id)}
-                                title="Reset monthly usage"
-                              >
-                                <RotateCcw className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">
+                          {formatDate(user.lastSignedIn)}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex gap-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => openPlanModal(user.id)}
+                              title="Change Plan"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => openUsageModal(user.id)}
+                              title="Edit Usage"
+                            >
+                              <Shield className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleResetUsage(user.id)}
+                              title="Reset Usage"
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-sm text-muted-foreground">
+                  Page {page} of {totalPages}
                 </div>
-
-                {/* Pagination */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                  <div className="text-sm text-muted-foreground">
-                    Showing {page * limit + 1} - {Math.min((page + 1) * limit, data?.total || 0)} of {data?.total || 0}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(p => Math.max(0, p - 1))}
-                      disabled={page === 0}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="text-sm">Page {page + 1}</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(p => p + 1)}
-                      disabled={(page + 1) * limit >= (data?.total || 0)}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
-              </>
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
-
-      {/* Plan Edit Modal */}
+      
+      {/* Plan Change Modal */}
       <Dialog open={editPlanModal} onOpenChange={setEditPlanModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Change User Plan</DialogTitle>
             <DialogDescription>
-              Change the plan for {selectedUser?.email}
+              Change plan for {selectedUser?.email}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Current Plan</Label>
-              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getPlanBadgeColor(selectedUser?.plan_type || "")}`}>
-                {selectedUser?.plan_type?.toUpperCase()}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="newPlan">New Plan</Label>
+              <Label>Select Plan</Label>
               <select
-                id="newPlan"
                 value={newPlan}
-                onChange={(e) => setNewPlan(e.target.value)}
-                className="w-full px-3 py-2 border border-input rounded-md bg-background"
+                onChange={(e) => setNewPlan(e.target.value as typeof newPlan)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                {PLAN_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label} ({option.limit === -1 ? "Unlimited" : `${option.limit}/month`})
+                {PLAN_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label} ({opt.limit === -1 ? "Unlimited" : `${opt.limit}/month`})
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Current plan: <span className="font-medium">{selectedUser?.plan}</span>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditPlanModal(false)}>
               Cancel
             </Button>
-            <Button onClick={handlePlanChange}>
+            <Button onClick={handlePlanChange} disabled={changePlanMutation.isPending}>
               <Check className="h-4 w-4 mr-2" />
-              Save Changes
+              {changePlanMutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Usage Edit Modal */}
+      
+      {/* Usage Modification Modal */}
       <Dialog open={editUsageModal} onOpenChange={setEditUsageModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modify User Usage</DialogTitle>
+            <DialogTitle>Modify Usage Settings</DialogTitle>
             <DialogDescription>
               Adjust usage settings for {selectedUser?.email}
             </DialogDescription>
@@ -703,7 +608,7 @@ export default function AdminUsers() {
                 placeholder="0"
               />
               <p className="text-xs text-muted-foreground">
-                Add extra days before usage resets. Current reset: {selectedUser?.reset_date ? new Date(selectedUser.reset_date).toLocaleDateString() : "N/A"}
+                Add extra days before usage resets. Current reset: {formatDate(selectedUser?.usageResetDate)}
               </p>
             </div>
           </div>
@@ -711,14 +616,14 @@ export default function AdminUsers() {
             <Button variant="outline" onClick={() => setEditUsageModal(false)}>
               Cancel
             </Button>
-            <Button onClick={handleUsageModification}>
+            <Button onClick={handleUsageModification} disabled={modifyUsageMutation.isPending}>
               <Check className="h-4 w-4 mr-2" />
-              Save Changes
+              {modifyUsageMutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
+      
       {/* Admin Management Modal */}
       <Dialog open={adminModal} onOpenChange={setAdminModal}>
         <DialogContent className="max-w-lg">
@@ -740,13 +645,13 @@ export default function AdminUsers() {
                   onChange={(e) => setNewAdminEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddAdmin()}
                 />
-                <Button onClick={handleAddAdmin}>
+                <Button onClick={handleAddAdmin} disabled={addAdminMutation.isPending}>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Add
                 </Button>
               </div>
             </div>
-
+            
             {/* Admin List */}
             <div className="space-y-2">
               <Label>Current Admins ({admins.length})</Label>
@@ -756,19 +661,20 @@ export default function AdminUsers() {
                     <div>
                       <div className="font-medium text-sm">{admin.email}</div>
                       <div className="text-xs text-muted-foreground">
-                        {SUPER_ADMIN_EMAILS.includes(admin.email) ? (
+                        {admin.isSuperAdmin ? (
                           <span className="text-purple-500">Super Admin</span>
                         ) : (
-                          <>Added by {admin.added_by} on {new Date(admin.added_at).toLocaleDateString()}</>
+                          <>Added by {admin.addedBy} on {formatDate(admin.createdAt)}</>
                         )}
                       </div>
                     </div>
-                    {!SUPER_ADMIN_EMAILS.includes(admin.email) && (
+                    {!admin.isSuperAdmin && (
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleRemoveAdmin(admin.email)}
                         className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                        disabled={removeAdminMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -781,6 +687,58 @@ export default function AdminUsers() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setAdminModal(false)}>
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Bulk Action Modal */}
+      <Dialog open={bulkActionModal} onOpenChange={setBulkActionModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {bulkAction === "plan" ? "Bulk Change Plan" : "Bulk Reset Usage"}
+            </DialogTitle>
+            <DialogDescription>
+              This action will affect {selectedUsers.size} selected users
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {bulkAction === "plan" ? (
+              <div className="space-y-2">
+                <Label>Select Plan for All</Label>
+                <select
+                  value={bulkPlan}
+                  onChange={(e) => setBulkPlan(e.target.value as typeof bulkPlan)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  {PLAN_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label} ({opt.limit === -1 ? "Unlimited" : `${opt.limit}/month`})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <p className="text-sm text-yellow-400">
+                  This will reset the monthly usage count to 0 for all selected users.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkActionModal(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleBulkAction}
+              disabled={bulkChangePlanMutation.isPending || bulkResetUsageMutation.isPending}
+            >
+              <Check className="h-4 w-4 mr-2" />
+              {bulkChangePlanMutation.isPending || bulkResetUsageMutation.isPending 
+                ? "Processing..." 
+                : `Apply to ${selectedUsers.size} Users`}
             </Button>
           </DialogFooter>
         </DialogContent>

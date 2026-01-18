@@ -25,6 +25,7 @@ import { CookieConsent } from "./components/CookieConsent";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
 import AdminVerifications from "./pages/admin/Verifications";
+import AdminLogs from "./pages/admin/Logs";
 
 function Router() {
   return (
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/verifications" component={AdminVerifications} />
+      <Route path="/admin/logs" component={AdminLogs} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

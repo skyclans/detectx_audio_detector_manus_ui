@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, openId, name, email, loginMethod, role, createdAt, lastSignedIn FROM users ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZmhzMtyTDVivZy.root --database CTHcZpr7kfs6VJ6N3XpwEQ --execute SELECT id, openId, name, email, loginMethod, role, createdAt, lastSignedIn FROM users ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "J4iLMW8Sn9oYHei95wMfYt",
+      "name": "윤기 김",
+      "email": "skyclans2@gmail.com",
+      "loginMethod": "google",
+      "role": "admin",
+      "createdAt": "2026-01-09 16:39:23",
+      "lastSignedIn": "2026-01-18 18:05:51"
+    },
+    {
+      "id": "1860004",
+      "openId": "nDegSoV4HJgd4adzcCdfsU",
+      "name": "skyclans",
+      "email": "skyclans@naver.com",
+      "loginMethod": "email",
+      "role": "user",
+      "createdAt": "2026-01-15 15:32:53",
+      "lastSignedIn": "2026-01-18 17:26:05"
+    },
+    {
+      "id": "2310010",
+      "openId": "9VbCkaG4y6b2abu7UaXn6f",
+      "name": "coolkimy",
+      "email": "coolkimy@naver.com",
+      "loginMethod": "email",
+      "role": "user",
+      "createdAt": "2026-01-17 13:12:44",
+      "lastSignedIn": "2026-01-17 13:13:37"
+    },
+    {
+      "id": "2310015",
+      "openId": "YFGW7f6WLfDLCg5XLugxXq",
+      "name": "Duzon Studio",
+      "email": "studioduzon@gmail.com",
+      "loginMethod": "google",
+      "role": "user",
+      "createdAt": "2026-01-17 13:16:49",
+      "lastSignedIn": "2026-01-18 16:07:36"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tlastSignedIn\n1\tJ4iLMW8Sn9oYHei95wMfYt\t윤기 김\tskyclans2@gmail.com\tgoogle\tadmin\t2026-01-09 16:39:23\t2026-01-18 18:05:51\n1860004\tnDegSoV4HJgd4adzcCdfsU\tskyclans\tskyclans@naver.com\temail\tuser\t2026-01-15 15:32:53\t2026-01-18 17:26:05\n2310010\t9VbCkaG4y6b2abu7UaXn6f\tcoolkimy\tcoolkimy@naver.com\temail\tuser\t2026-01-17 13:12:44\t2026-01-17 13:13:37\n2310015\tYFGW7f6WLfDLCg5XLugxXq\tDuzon Studio\tstudioduzon@gmail.com\tgoogle\tuser\t2026-01-17 13:16:49\t2026-01-18 16:07:36\n",
+  "stderr": "",
+  "execution_time_ms": 1623
+}

@@ -1,7 +1,8 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, json, bigint } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, json, bigint, boolean } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
+ * Extended with plan and usage tracking for admin management.
  */
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -10,6 +11,13 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  
+  // Plan and usage tracking
+  plan: mysqlEnum("plan", ["free", "pro", "enterprise", "master"]).default("free").notNull(),
+  usageCount: int("usageCount").default(0).notNull(),
+  monthlyLimit: int("monthlyLimit").default(5).notNull(),
+  usageResetDate: timestamp("usageResetDate"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -17,6 +25,44 @@ export const users = mysqlTable("users", {
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+
+/**
+ * Admin users table for managing admin access.
+ * Super admins can add/remove other admins.
+ */
+export const adminUsers = mysqlTable("admin_users", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  isSuperAdmin: boolean("isSuperAdmin").default(false).notNull(),
+  addedBy: varchar("addedBy", { length: 320 }), // Email of admin who added this admin
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = typeof adminUsers.$inferInsert;
+
+/**
+ * Admin activity logs for audit trail.
+ * Tracks all admin actions for accountability.
+ */
+export const adminLogs = mysqlTable("admin_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  adminEmail: varchar("adminEmail", { length: 320 }).notNull(),
+  action: varchar("action", { length: 64 }).notNull(), // plan_change, usage_modify, admin_add, admin_remove, bulk_action
+  targetType: varchar("targetType", { length: 64 }).notNull(), // user, admin
+  targetId: int("targetId"), // User ID or Admin ID
+  targetEmail: varchar("targetEmail", { length: 320 }),
+  previousValue: json("previousValue"), // Previous state before change
+  newValue: json("newValue"), // New state after change
+  details: text("details"), // Additional details or notes
+  ipAddress: varchar("ipAddress", { length: 64 }),
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AdminLog = typeof adminLogs.$inferSelect;
+export type InsertAdminLog = typeof adminLogs.$inferInsert;
 
 /**
  * Audio verification records table.

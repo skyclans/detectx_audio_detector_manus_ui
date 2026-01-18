@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO admin_users (email, isSuperAdmin, addedBy) VALUES \n('ceo@detectx.app', true, 'system'),\n('skyclans2@gmail.com', true, 'system'),\n('support@detectx.app', true, 'system'),\n('coolkimy@naver.com', true, 'system'),\n('skyclans@naver.com', true, 'system')\nON DUPLICATE KEY UPDATE isSuperAdmin = VALUES(isSuperAdmin);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZmhzMtyTDVivZy.root --database CTHcZpr7kfs6VJ6N3XpwEQ --execute INSERT INTO admin_users (email, isSuperAdmin, addedBy) VALUES \n('ceo@detectx.app', true, 'system'),\n('skyclans2@gmail.com', true, 'system'),\n('support@detectx.app', true, 'system'),\n('coolkimy@naver.com', true, 'system'),\n('skyclans@naver.com', true, 'system')\nON DUPLICATE KEY UPDATE isSuperAdmin = VALUES(isSuperAdmin);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1548
+}

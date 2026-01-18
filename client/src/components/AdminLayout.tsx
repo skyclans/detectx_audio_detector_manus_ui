@@ -6,7 +6,8 @@ import {
   FileCheck, 
   Settings,
   ArrowLeft,
-  Shield
+  Shield,
+  ScrollText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -86,6 +87,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/verifications", icon: FileCheck, label: "Verifications" },
+    { href: "/admin/logs", icon: ScrollText, label: "Activity Logs" },
   ];
 
   return (

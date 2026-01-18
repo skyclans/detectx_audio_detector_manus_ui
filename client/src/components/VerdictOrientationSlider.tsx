@@ -48,8 +48,9 @@ export function VerdictOrientationSlider({ disabled }: { disabled?: boolean }) {
               <div className="absolute right-0 top-full mt-2 w-72 p-3 bg-zinc-800 border border-zinc-600 rounded-lg shadow-xl z-50">
                 <div className="text-xs text-zinc-300 leading-relaxed">
                   <span className="text-zinc-500 font-medium block mb-1">About Enhanced Mode:</span>
-                  Enhanced Mode uses a dual-engine approach: Classifier Engine as primary filter (protecting human music with ~0% false positive),
+                  Enhanced Mode uses a dual-engine approach: Classifier Engine as primary filter (protecting human music with &lt;1% false positive),
                   and Reconstruction Engine as secondary for AI detection boost. Trained on 30,000,000+ verified human music samples.
+                  <span className="block mt-2 text-zinc-400">Note: Some genres with signal characteristics similar to AI-generated music (Electronic/EDM, Hip-hop, Dance/House, Lo-fi) may have slightly higher false positive rates.</span>
                 </div>
                 {/* Arrow */}
                 <div className="absolute -top-1.5 right-3 w-3 h-3 bg-zinc-800 border-l border-t border-zinc-600 transform rotate-45" />
@@ -60,7 +61,7 @@ export function VerdictOrientationSlider({ disabled }: { disabled?: boolean }) {
         <ul className="text-xs text-zinc-400 space-y-1">
           <li>• <span className="text-zinc-300">Primary:</span> CNN (90% threshold)</li>
           <li>• <span className="text-zinc-300">Secondary:</span> Reconstruction Diff</li>
-          <li>• <span className="text-zinc-300">Human FP:</span> ~0% (Human-safe)</li>
+          <li>• <span className="text-zinc-300">Human FP:</span> &lt;1% (Human-safe)</li>
           <li>• <span className="text-zinc-300">AI Detection:</span> ~50%</li>
         </ul>
       </div>

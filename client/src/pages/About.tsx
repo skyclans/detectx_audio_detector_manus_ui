@@ -163,7 +163,7 @@ export default function About() {
                 Human safety is not an optimization target—it is a hard constraint. Every design decision in the DetectX system prioritizes the protection of human creators.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                The Classifier Engine is trained on over 30,000,000 verified human-created audio samples, ensuring the system recognizes the full breadth of human creative expression. This extensive training prioritizes near-zero false positives for human content.
+                The Classifier Engine is trained on over 30,000,000 verified human-created audio samples, ensuring the system recognizes the full breadth of human creative expression. This extensive training prioritizes &lt;1% false positives for human content.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 This means:
@@ -171,7 +171,7 @@ export default function About() {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>The Classifier Engine is optimized to protect human creators with approximately 0% false positive rate</span>
+                  <span>The Classifier Engine is optimized to protect human creators with &lt;1% false positive rate</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>

@@ -106,7 +106,7 @@ export default function Updates() {
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">Human False Positive Rate:</strong> Approximately 0% — human creators are protected</span>
+                    <span><strong className="text-foreground">Human False Positive Rate:</strong> &lt;1% — human creators are protected</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>

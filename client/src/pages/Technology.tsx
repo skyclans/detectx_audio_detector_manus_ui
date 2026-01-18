@@ -102,8 +102,11 @@ export default function Technology() {
               <p className="text-muted-foreground leading-relaxed mb-4">
                 <strong className="text-foreground">Reconstruction Engine (Secondary):</strong> When the Classifier Engine score exceeds the 90% threshold, the Reconstruction Engine activates. This engine separates audio into stem components, reconstructs the signal, and compares the reconstruction differential against known patterns. This secondary analysis boosts AI detection accuracy.
               </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                The dual-engine approach ensures human creators are protected (&lt;1% false positive rate) while maintaining approximately 50% AI detection rate for confirmed AI-generated content.
+              </p>
               <p className="text-muted-foreground leading-relaxed">
-                The dual-engine approach ensures human creators are protected (approximately 0% false positive rate) while maintaining approximately 50% AI detection rate for confirmed AI-generated content.
+                <strong className="text-foreground">Genre Note:</strong> Some genres may exhibit signal characteristics similar to AI-generated music due to heavy processing: Electronic/EDM, Hip-hop (heavily produced), Dance/House, and Lo-fi. These genres may have slightly higher false positive rates. The system prioritizes human artist protection as its primary design constraint.
               </p>
             </div>
           </section>
@@ -129,7 +132,7 @@ export default function Technology() {
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Dual-Engine Verification</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The system uses two complementary engines: Classifier Engine (deep learning) for human protection and Reconstruction Engine for AI detection boost. The Classifier Engine is trained on 30,000,000+ verified human samples to ensure near-zero false positives.
+                  The system uses two complementary engines: Classifier Engine (deep learning) for human protection and Reconstruction Engine for AI detection boost. The Classifier Engine is trained on 30,000,000+ verified human samples to ensure &lt;1% false positives.
                 </p>
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">

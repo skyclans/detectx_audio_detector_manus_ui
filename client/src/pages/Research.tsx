@@ -169,7 +169,7 @@ export default function Research() {
                 <div className="border border-border rounded-lg p-6 bg-card">
                   <h3 className="text-lg font-medium text-foreground mb-3">Classifier Engine (Primary)</h3>
                   <p className="text-sm text-muted-foreground">
-                    Deep learning classifier trained on 30,000,000+ verified human music samples. Optimized for near-zero false positives. If the classifier says Human, the verdict is trusted immediately.
+                    Deep learning classifier trained on 30,000,000+ verified human music samples. Optimized for &lt;1% false positives. If the classifier says Human, the verdict is trusted immediately.
                   </p>
                 </div>
                 <div className="border border-border rounded-lg p-6 bg-card">

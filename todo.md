@@ -970,3 +970,8 @@
 
 ## Content Update (Jan 19)
 - [x] Update AI Detection percentage from ~50% to 80%+ in Dual-Engine Detection section
+
+
+## SEO Files for Google (Jan 19)
+- [x] Create sitemap.xml with all pages
+- [x] Create robots.txt with crawling rules

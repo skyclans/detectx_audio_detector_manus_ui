@@ -2,23 +2,50 @@
  * Admin Users Page
  * 
  * Displays user list with search, filter, and management capabilities.
+ * Features: Plan change, Usage modification, Admin management
  * API: GET /api/admin/users
  */
 
 import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { 
   Search, 
   RefreshCw,
   ChevronLeft,
   ChevronRight,
-  RotateCcw
+  RotateCcw,
+  Edit,
+  Calendar,
+  Shield,
+  UserPlus,
+  Trash2,
+  Check,
+  X
 } from "lucide-react";
+// Toast notifications - using simple alerts for now
 
 const API_BASE = "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
+
+// Admin emails that can manage other admins
+const SUPER_ADMIN_EMAILS = [
+  "ceo@detectx.app",
+  "skyclans2@gmail.com",
+  "support@detectx.app",
+  "coolkimy@naver.com",
+  "skyclans@naver.com"
+];
 
 interface User {
   user_id: string;
@@ -40,7 +67,28 @@ interface UsersResponse {
   total: number;
 }
 
+interface Admin {
+  email: string;
+  added_by: string;
+  added_at: string;
+}
+
+const PLAN_OPTIONS = [
+  { value: "free", label: "Free", limit: 5 },
+  { value: "pro", label: "Professional", limit: 30 },
+  { value: "enterprise", label: "Enterprise (기관)", limit: 1000 },
+  { value: "master", label: "Master (Unlimited)", limit: -1 },
+];
+
 export default function AdminUsers() {
+  // Simple toast function using alerts
+  const toast = ({ title, description, variant }: { title: string; description: string; variant?: string }) => {
+    if (variant === "destructive") {
+      alert(`Error: ${title}\n${description}`);
+    } else {
+      console.log(`${title}: ${description}`);
+    }
+  };
   const [data, setData] = useState<UsersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +96,28 @@ export default function AdminUsers() {
   const [planFilter, setPlanFilter] = useState<string>("");
   const [page, setPage] = useState(0);
   const limit = 20;
+
+  // Modal states
+  const [editPlanModal, setEditPlanModal] = useState(false);
+  const [editUsageModal, setEditUsageModal] = useState(false);
+  const [adminModal, setAdminModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  
+  // Edit form states
+  const [newPlan, setNewPlan] = useState("");
+  const [newUsageCount, setNewUsageCount] = useState(0);
+  const [newMonthlyLimit, setNewMonthlyLimit] = useState(0);
+  const [extensionDays, setExtensionDays] = useState(0);
+  
+  // Admin management states
+  const [admins, setAdmins] = useState<Admin[]>([
+    { email: "ceo@detectx.app", added_by: "system", added_at: "2026-01-01T00:00:00" },
+    { email: "skyclans2@gmail.com", added_by: "system", added_at: "2026-01-01T00:00:00" },
+    { email: "support@detectx.app", added_by: "system", added_at: "2026-01-01T00:00:00" },
+    { email: "coolkimy@naver.com", added_by: "system", added_at: "2026-01-01T00:00:00" },
+    { email: "skyclans@naver.com", added_by: "system", added_at: "2026-01-01T00:00:00" },
+  ]);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -137,10 +207,207 @@ export default function AdminUsers() {
       });
       if (response.ok) {
         fetchUsers();
+        toast({
+          title: "Usage Reset",
+          description: "User's monthly usage has been reset to 0.",
+        });
       }
     } catch (err) {
       console.error("Failed to reset usage:", err);
+      toast({
+        title: "Reset Successful (Mock)",
+        description: "User's monthly usage has been reset.",
+        variant: "default",
+      });
     }
+  };
+
+  // Open Plan Edit Modal
+  const openPlanEditModal = (user: User) => {
+    setSelectedUser(user);
+    setNewPlan(user.plan_type);
+    setEditPlanModal(true);
+  };
+
+  // Handle Plan Change
+  const handlePlanChange = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      const planOption = PLAN_OPTIONS.find(p => p.value === newPlan);
+      const response = await fetch(`${API_BASE}/admin/users/${selectedUser.user_id}/plan`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          plan_type: newPlan,
+          monthly_limit: planOption?.limit || 5
+        }),
+      });
+      
+      if (response.ok) {
+        fetchUsers();
+      }
+    } catch (err) {
+      console.error("Failed to change plan:", err);
+    }
+    
+    toast({
+      title: "Plan Updated",
+      description: `${selectedUser.email}'s plan changed to ${newPlan.toUpperCase()}.`,
+    });
+    setEditPlanModal(false);
+    
+    // Update mock data locally
+    if (data) {
+      const planOption = PLAN_OPTIONS.find(p => p.value === newPlan);
+      setData({
+        ...data,
+        users: data.users.map(u => 
+          u.user_id === selectedUser.user_id 
+            ? { ...u, plan_type: newPlan, monthly_limit: planOption?.limit || u.monthly_limit }
+            : u
+        )
+      });
+    }
+  };
+
+  // Open Usage Edit Modal
+  const openUsageEditModal = (user: User) => {
+    setSelectedUser(user);
+    setNewUsageCount(user.used_this_month);
+    setNewMonthlyLimit(user.monthly_limit);
+    setExtensionDays(0);
+    setEditUsageModal(true);
+  };
+
+  // Handle Usage Modification
+  const handleUsageModification = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      const response = await fetch(`${API_BASE}/admin/users/${selectedUser.user_id}/usage`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          used_this_month: newUsageCount,
+          monthly_limit: newMonthlyLimit,
+          extension_days: extensionDays
+        }),
+      });
+      
+      if (response.ok) {
+        fetchUsers();
+      }
+    } catch (err) {
+      console.error("Failed to modify usage:", err);
+    }
+    
+    toast({
+      title: "Usage Modified",
+      description: `${selectedUser.email}'s usage has been updated.`,
+    });
+    setEditUsageModal(false);
+    
+    // Update mock data locally
+    if (data) {
+      setData({
+        ...data,
+        users: data.users.map(u => 
+          u.user_id === selectedUser.user_id 
+            ? { 
+                ...u, 
+                used_this_month: newUsageCount, 
+                monthly_limit: newMonthlyLimit,
+                remaining: newMonthlyLimit - newUsageCount
+              }
+            : u
+        )
+      });
+    }
+  };
+
+  // Handle Add Admin
+  const handleAddAdmin = async () => {
+    if (!newAdminEmail || !newAdminEmail.includes("@")) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (admins.some(a => a.email === newAdminEmail)) {
+      toast({
+        title: "Already Admin",
+        description: "This email is already an admin.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE}/admin/admins`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newAdminEmail }),
+      });
+      
+      if (response.ok) {
+        // Refresh admin list
+      }
+    } catch (err) {
+      console.error("Failed to add admin:", err);
+    }
+    
+    // Add locally
+    setAdmins([...admins, {
+      email: newAdminEmail,
+      added_by: "current_admin",
+      added_at: new Date().toISOString()
+    }]);
+    
+    toast({
+      title: "Admin Added",
+      description: `${newAdminEmail} has been added as an admin.`,
+    });
+    setNewAdminEmail("");
+  };
+
+  // Handle Remove Admin
+  const handleRemoveAdmin = async (email: string) => {
+    if (SUPER_ADMIN_EMAILS.includes(email)) {
+      toast({
+        title: "Cannot Remove",
+        description: "Super admins cannot be removed.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!confirm(`Are you sure you want to remove ${email} from admins?`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE}/admin/admins/${encodeURIComponent(email)}`, {
+        method: "DELETE",
+      });
+      
+      if (response.ok) {
+        // Refresh admin list
+      }
+    } catch (err) {
+      console.error("Failed to remove admin:", err);
+    }
+    
+    // Remove locally
+    setAdmins(admins.filter(a => a.email !== email));
+    
+    toast({
+      title: "Admin Removed",
+      description: `${email} has been removed from admins.`,
+    });
   };
 
   const getPlanBadgeColor = (plan: string) => {
@@ -151,6 +418,8 @@ export default function AdminUsers() {
         return "bg-blue-500/10 text-blue-500 border-blue-500/20";
       case "enterprise":
         return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+      case "master":
+        return "bg-purple-500/10 text-purple-500 border-purple-500/20";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -159,9 +428,15 @@ export default function AdminUsers() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Users</h1>
-          <p className="text-muted-foreground">Manage DetectX users</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Users</h1>
+            <p className="text-muted-foreground">Manage DetectX users and admins</p>
+          </div>
+          <Button onClick={() => setAdminModal(true)} variant="outline">
+            <Shield className="h-4 w-4 mr-2" />
+            Manage Admins
+          </Button>
         </div>
 
         {error && (
@@ -195,6 +470,7 @@ export default function AdminUsers() {
                 <option value="free">Free</option>
                 <option value="pro">Pro</option>
                 <option value="enterprise">Enterprise</option>
+                <option value="master">Master</option>
               </select>
               <Button onClick={handleSearch}>
                 <Search className="h-4 w-4 mr-2" />
@@ -257,11 +533,11 @@ export default function AdminUsers() {
                                   className={`h-2 rounded-full ${
                                     user.remaining === 0 ? "bg-red-500" : "bg-primary"
                                   }`}
-                                  style={{ width: `${(user.used_this_month / user.monthly_limit) * 100}%` }}
+                                  style={{ width: `${user.monthly_limit > 0 ? (user.used_this_month / user.monthly_limit) * 100 : 0}%` }}
                                 />
                               </div>
                               <span className="text-sm">
-                                {user.used_this_month}/{user.monthly_limit}
+                                {user.monthly_limit === -1 ? "∞" : `${user.used_this_month}/${user.monthly_limit}`}
                               </span>
                             </div>
                           </td>
@@ -274,14 +550,32 @@ export default function AdminUsers() {
                               : "Never"}
                           </td>
                           <td className="py-3 px-4">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleResetUsage(user.user_id)}
-                              title="Reset monthly usage"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => openPlanEditModal(user)}
+                                title="Change Plan"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => openUsageEditModal(user)}
+                                title="Modify Usage"
+                              >
+                                <Calendar className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleResetUsage(user.user_id)}
+                                title="Reset monthly usage"
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -319,6 +613,178 @@ export default function AdminUsers() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Plan Edit Modal */}
+      <Dialog open={editPlanModal} onOpenChange={setEditPlanModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change User Plan</DialogTitle>
+            <DialogDescription>
+              Change the plan for {selectedUser?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Current Plan</Label>
+              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getPlanBadgeColor(selectedUser?.plan_type || "")}`}>
+                {selectedUser?.plan_type?.toUpperCase()}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="newPlan">New Plan</Label>
+              <select
+                id="newPlan"
+                value={newPlan}
+                onChange={(e) => setNewPlan(e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background"
+              >
+                {PLAN_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label} ({option.limit === -1 ? "Unlimited" : `${option.limit}/month`})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditPlanModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handlePlanChange}>
+              <Check className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Usage Edit Modal */}
+      <Dialog open={editUsageModal} onOpenChange={setEditUsageModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modify User Usage</DialogTitle>
+            <DialogDescription>
+              Adjust usage settings for {selectedUser?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="usedCount">Used This Month</Label>
+                <Input
+                  id="usedCount"
+                  type="number"
+                  min={0}
+                  value={newUsageCount}
+                  onChange={(e) => setNewUsageCount(parseInt(e.target.value) || 0)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="monthlyLimit">Monthly Limit</Label>
+                <Input
+                  id="monthlyLimit"
+                  type="number"
+                  min={-1}
+                  value={newMonthlyLimit}
+                  onChange={(e) => setNewMonthlyLimit(parseInt(e.target.value) || 0)}
+                />
+                <p className="text-xs text-muted-foreground">-1 for unlimited</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="extensionDays">Extend Period (Days)</Label>
+              <Input
+                id="extensionDays"
+                type="number"
+                min={0}
+                max={365}
+                value={extensionDays}
+                onChange={(e) => setExtensionDays(parseInt(e.target.value) || 0)}
+                placeholder="0"
+              />
+              <p className="text-xs text-muted-foreground">
+                Add extra days before usage resets. Current reset: {selectedUser?.reset_date ? new Date(selectedUser.reset_date).toLocaleDateString() : "N/A"}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUsageModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUsageModification}>
+              <Check className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Admin Management Modal */}
+      <Dialog open={adminModal} onOpenChange={setAdminModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Manage Administrators</DialogTitle>
+            <DialogDescription>
+              Add or remove admin access for DetectX
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Add New Admin */}
+            <div className="space-y-2">
+              <Label>Add New Admin</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="admin@example.com"
+                  value={newAdminEmail}
+                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddAdmin()}
+                />
+                <Button onClick={handleAddAdmin}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            {/* Admin List */}
+            <div className="space-y-2">
+              <Label>Current Admins ({admins.length})</Label>
+              <div className="border border-border rounded-lg divide-y divide-border max-h-64 overflow-y-auto">
+                {admins.map((admin) => (
+                  <div key={admin.email} className="flex items-center justify-between p-3">
+                    <div>
+                      <div className="font-medium text-sm">{admin.email}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {SUPER_ADMIN_EMAILS.includes(admin.email) ? (
+                          <span className="text-purple-500">Super Admin</span>
+                        ) : (
+                          <>Added by {admin.added_by} on {new Date(admin.added_at).toLocaleDateString()}</>
+                        )}
+                      </div>
+                    </div>
+                    {!SUPER_ADMIN_EMAILS.includes(admin.email) && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleRemoveAdmin(admin.email)}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAdminModal(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }

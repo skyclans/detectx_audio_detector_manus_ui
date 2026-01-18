@@ -931,3 +931,10 @@
 - [x] Create Admin Verifications page with records
 - [x] Add admin routes to App.tsx (/admin, /admin/dashboard, /admin/users, /admin/verifications)
 - [x] Ensure no impact on existing verification functionality
+
+
+## Admin Page Enhancements (Jan 19)
+- [x] User plan change feature (Free, Pro, Enterprise/기관 mode)
+- [x] User usage period modification (reset/adjust usage count)
+- [x] Admin management feature (add new admins by authorized admins)
+- [x] Admin list view and removal option

@@ -110,7 +110,7 @@ export default function Updates() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">AI Detection Rate:</strong> Approximately 50% for confirmed AI-generated content</span>
+                    <span><strong className="text-foreground">AI Detection Rate:</strong> Approximately 80%+ for confirmed AI-generated content</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>

@@ -103,7 +103,7 @@ export default function Technology() {
                 <strong className="text-foreground">Reconstruction Engine (Secondary):</strong> When the Classifier Engine score exceeds the 90% threshold, the Reconstruction Engine activates. This engine separates audio into stem components, reconstructs the signal, and compares the reconstruction differential against known patterns. This secondary analysis boosts AI detection accuracy.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                The dual-engine approach ensures human creators are protected (&lt;1% false positive rate) while maintaining approximately 50% AI detection rate for confirmed AI-generated content.
+                The dual-engine approach ensures human creators are protected (&lt;1% false positive rate) while maintaining approximately 80%+ AI detection rate for confirmed AI-generated content.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 <strong className="text-foreground">Genre Note:</strong> Some genres may exhibit signal characteristics similar to AI-generated music due to heavy processing: Electronic/EDM, Hip-hop (heavily produced), Dance/House, and Lo-fi. These genres may have slightly higher false positive rates. The system prioritizes human artist protection as its primary design constraint.

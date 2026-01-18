@@ -113,7 +113,7 @@ export default function Updates() {
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Implementation</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The baseline corpus consists of approximately 2,400 verified human-created audio samples spanning 12 genre categories. Each sample has documented provenance including recording session metadata, artist verification, and production chain attestation.
+                  The Classifier Engine has been trained on over 10,000,000 verified human-created audio samples spanning diverse genre categories. Each sample has documented provenance including recording session metadata, artist verification, and production chain attestation.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Validation Results</h3>

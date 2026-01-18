@@ -197,7 +197,7 @@ export default function Technology() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Maximum file size: 50MB per analysis</span>
+                  <span>Maximum file size: 200MB per analysis</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>

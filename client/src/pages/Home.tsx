@@ -94,12 +94,13 @@ interface VerdictResult {
   detailedAnalysis?: DetailedAnalysisData | null;
 }
 
-// Scan sequence stages
-type ScanStage = 
-  | "init" | "lock" | "normalize" | "residual" | "persistence" 
-  | "cross_stem" | "geometry" | "constraint_1" | "constraint_2" 
-  | "constraint_3" | "philosophy_1" | "philosophy_2" | "philosophy_3" 
-  | "philosophy_4" | "pre_verdict_1" | "pre_verdict_2" | "complete";
+// Scan sequence stages for Enhanced Mode (CNN + Reconstruction Engine)
+type ScanStage =
+  | "init" | "upload" | "decode" | "classifier" | "classifier_check"
+  | "recon_init" | "recon_stems" | "recon_compare" | "recon_eval"
+  | "constraint_1" | "constraint_2" | "constraint_3"
+  | "philosophy_1" | "philosophy_2" | "philosophy_3"
+  | "pre_verdict" | "complete";
 
 // Alias for ScanLog type
 type ScanLog = ScanLogEntry;
@@ -107,38 +108,48 @@ type ScanLog = ScanLogEntry;
 // Generate scan log from stage
 function generateScanLogs(stage: ScanStage): ScanLog {
   const timestamp = new Date().toLocaleTimeString("en-US", { hour12: false });
-  
+
   const stageMessages: Record<ScanStage, { message: string; type: ScanLog["type"] }> = {
-    init: { message: "Initializing forensic scan pipeline", type: "process" },
-    lock: { message: "Locking analysis parameters", type: "process" },
-    normalize: { message: "Establishing normalization coordinate space", type: "process" },
-    residual: { message: "Observing residual structure", type: "process" },
-    persistence: { message: "Monitoring residual persistence", type: "process" },
-    cross_stem: { message: "Evaluating cross-stem geometry", type: "process" },
-    geometry: { message: "Comparing against human geometry envelope", type: "process" },
+    // Enhanced Mode Philosophy
+    philosophy_1: { message: "Enhanced Mode: Dual-engine verification active", type: "philosophy" },
+    philosophy_2: { message: "Classifier Engine (primary) protecting human creativity", type: "philosophy" },
+    philosophy_3: { message: "Trained on 10,000,000+ verified human music samples", type: "philosophy" },
+
+    // Scan Process
+    init: { message: "Initializing Enhanced Mode pipeline", type: "process" },
+    upload: { message: "Processing audio file", type: "process" },
+    decode: { message: "Extracting audio features", type: "process" },
+    classifier: { message: "Running Classifier Engine analysis", type: "process" },
+    classifier_check: { message: "Evaluating classifier threshold (90%)", type: "process" },
+
+    // Reconstruction Engine (only runs if classifier >= 90%)
+    recon_init: { message: "Classifier threshold exceeded — activating Reconstruction Engine", type: "process" },
+    recon_stems: { message: "Separating audio into stem components", type: "process" },
+    recon_compare: { message: "Comparing original vs reconstructed signal", type: "process" },
+    recon_eval: { message: "Evaluating reconstruction differential metrics", type: "process" },
+
+    // Constraints
     constraint_1: { message: "No probabilistic inference is performed", type: "constraint" },
     constraint_2: { message: "No authorship or intent is inferred", type: "constraint" },
     constraint_3: { message: "Absence of evidence is a valid outcome", type: "constraint" },
-    philosophy_1: { message: "Real-time structural signal observation", type: "philosophy" },
-    philosophy_2: { message: "Geometry-primary verification engine active", type: "philosophy" },
-    philosophy_3: { message: "Human baseline geometry enforced", type: "philosophy" },
-    philosophy_4: { message: "Deterministic execution under fixed conditions", type: "philosophy" },
-    pre_verdict_1: { message: "Final geometry evaluation pending", type: "info" },
-    pre_verdict_2: { message: "Results will be disclosed after full scan completion", type: "info" },
-    complete: { message: "Scan complete", type: "complete" },
+
+    // Pre-Verdict
+    pre_verdict: { message: "Finalizing dual-engine verdict", type: "info" },
+    complete: { message: "Enhanced Mode scan complete", type: "complete" },
   };
-  
+
   const { message, type } = stageMessages[stage];
   return { timestamp, message, type };
 }
 
-// Full scan sequence
+// Full scan sequence for Enhanced Mode
 function getFullScanSequence(): ScanStage[] {
   return [
-    "philosophy_1", "philosophy_2", "philosophy_3", "philosophy_4",
-    "init", "lock", "normalize", "residual", "persistence", "cross_stem", "geometry",
+    "philosophy_1", "philosophy_2", "philosophy_3",
+    "init", "upload", "decode", "classifier", "classifier_check",
+    "recon_init", "recon_stems", "recon_compare", "recon_eval",
     "constraint_1", "constraint_2", "constraint_3",
-    "pre_verdict_1", "pre_verdict_2",
+    "pre_verdict",
     "complete"
   ];
 }

@@ -143,8 +143,7 @@ export function VerdictPanel({
           model names.
           {isObserved && (
             <span className="block mt-2 text-forensic-amber/80">
-              Note: Some music genres may produce false positives. If you believe this is incorrect,
-              please re-verify using Human-Oriented mode for maximum human protection.
+              Note: Some music genres may exhibit AI-like signal patterns. Enhanced Mode uses dual-engine verification to minimize false positives.
             </span>
           )}
         </p>

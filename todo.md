@@ -975,3 +975,10 @@
 ## SEO Files for Google (Jan 19)
 - [x] Create sitemap.xml with all pages
 - [x] Create robots.txt with crawling rules
+
+
+## Dev Team Git Updates (Jan 19)
+- [x] Sync homepage text changes from git
+- [x] Sync file limits update (100MB, 15min) from git
+- [x] Sync error message red box UI from git
+- [x] Make MP3 file recommendation more prominent in upload UI

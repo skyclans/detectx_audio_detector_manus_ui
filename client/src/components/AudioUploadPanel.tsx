@@ -222,14 +222,18 @@ export function AudioUploadPanel({
                       Drop audio file here or click to browse
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Supported formats: WAV, MP3, FLAC, OGG, M4A
+                      Supported: WAV, MP3, FLAC, OGG, M4A
                     </p>
-                    <p className="text-xs text-muted-foreground/70 mt-2">
-                      Large audio files may take longer to upload and verify.
-                    </p>
-                    <p className="text-xs text-muted-foreground/70">
-                      For faster processing, MP3 format is recommended.
-                    </p>
+                    {/* MP3 Recommendation - Prominent Display */}
+                    <div className="mt-3 px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-md">
+                      <p className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                        <span className="inline-block w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                        MP3 format recommended for best results
+                      </p>
+                      <p className="text-[10px] text-emerald-400/70 mt-0.5">
+                        Faster upload · Optimal file size · Max 100MB / 15min
+                      </p>
+                    </div>
                   </div>
                 </div>
             </label>

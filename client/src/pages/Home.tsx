@@ -173,6 +173,7 @@ export default function Home() {
   const [scanComplete, setScanComplete] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   // Session time state
   const [sessionStartTime] = useState<Date>(new Date());
@@ -485,6 +486,7 @@ export default function Home() {
     setScanComplete(false);
     setScanLogs([]);
     setUploadProgress(0);
+    setVerificationError(null);  // Clear previous error
 
     // Start scan animation (runs in parallel with API call)
     const runScanAnimation = async () => {
@@ -549,7 +551,13 @@ export default function Home() {
             }
           } else {
             console.error(`[Verification] RunPod API error: ${xhr.status} - ${xhr.responseText}`);
-            reject(new Error(`RunPod API returned ${xhr.status}`));
+            // Try to parse error detail from server response
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              reject(new Error(errorResponse.detail || `Server error: ${xhr.status}`));
+            } catch {
+              reject(new Error(`Server error: ${xhr.status}`));
+            }
           }
         });
 
@@ -624,6 +632,9 @@ export default function Home() {
       console.error("Verification failed:", error);
       setUploadProgress(null);
       setScanComplete(true);
+      // Set error message for UI display
+      const errorMessage = error instanceof Error ? error.message : "Verification failed";
+      setVerificationError(errorMessage);
     } finally {
       setIsVerifying(false);
     }
@@ -699,6 +710,14 @@ export default function Home() {
             verdict={verificationResult?.verdict ?? null}
             isProcessing={isVerifying}
           />
+
+          {/* Error Message Display */}
+          {verificationError && !isVerifying && (
+            <div className="p-4 rounded-md border-l-4 bg-red-500/10 border-red-500">
+              <p className="text-sm font-medium text-red-500">Verification Error</p>
+              <p className="text-sm text-red-400 mt-1">{verificationError}</p>
+            </div>
+          )}
         </div>
       </div>
 

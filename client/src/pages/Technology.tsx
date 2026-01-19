@@ -109,6 +109,14 @@ export default function Technology() {
                 <strong className="text-foreground">Genre Note:</strong> Some genres may exhibit signal characteristics similar to AI-generated music due to heavy processing: Electronic/EDM, Hip-hop (heavily produced), Dance/House, and Lo-fi. These genres may have slightly higher false positive rates. The system prioritizes human artist protection as its primary design constraint.
               </p>
             </div>
+            {/* Architecture Diagram */}
+            <div className="mt-8">
+              <img
+                src="/images/tech-architecture.png"
+                alt="Dual-engine audio verification architecture"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
           </section>
 
           {/* Core Technical Principles */}
@@ -119,9 +127,14 @@ export default function Technology() {
             <div className="space-y-6">
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Deterministic Processing</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed mb-4">
                   Every step in the verification pipeline produces identical output for identical input. There are no random seeds, no stochastic sampling, and no model inference variability. The same audio file will always produce the same verdict.
                 </p>
+                <img
+                  src="/images/tech-deterministic.png"
+                  alt="Deterministic processing visualization"
+                  className="w-full h-auto rounded-lg mt-4"
+                />
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Human-Safe Baseline Construction</h3>

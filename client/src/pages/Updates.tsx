@@ -88,6 +88,14 @@ export default function Updates() {
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Architecture Overview</h3>
+                {/* Dual-Engine Diagram */}
+                <div className="my-6">
+                  <img
+                    src="/images/updates-dualengine.png"
+                    alt="Dual-engine architecture release"
+                    className="w-full h-auto rounded-lg shadow-lg"
+                  />
+                </div>
                 <p className="text-muted-foreground leading-relaxed">
                   Enhanced Mode combines two complementary engines working in sequence:
                 </p>
@@ -148,6 +156,14 @@ export default function Updates() {
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Decision Summary</h3>
+                {/* Baseline Strategy Diagram */}
+                <div className="my-6">
+                  <img
+                    src="/images/updates-baseline.png"
+                    alt="Baseline strategy comparison: minimal vs expansive"
+                    className="w-full h-auto rounded-lg shadow-lg"
+                  />
+                </div>
                 <p className="text-muted-foreground leading-relaxed">
                   The human baseline will be constructed using a minimal, high-confidence corpus rather than an expansive, diverse corpus. This decision prioritizes false positive prevention over detection sensitivity.
                 </p>

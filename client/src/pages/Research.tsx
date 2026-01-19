@@ -85,6 +85,14 @@ export default function Research() {
                 The research program prioritizes reliability over sensitivity. A system that occasionally misclassifies human work as AI-generated causes more harm than a system that occasionally fails to detect AI content. Human safety is non-negotiable.
               </p>
             </div>
+            {/* Philosophy Diagram */}
+            <div className="mt-8">
+              <img
+                src="/images/research-philosophy.png"
+                alt="Research philosophy: deterministic, explainable, human-safe"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
           </section>
 
           {/* Why Probability-Based Detection Fails */}
@@ -153,6 +161,14 @@ export default function Research() {
               <p className="text-muted-foreground leading-relaxed">
                 The baseline defines what "human" looks like in signal geometry terms. Content that falls within baseline parameters is reported as showing no AI signal evidence.
               </p>
+            </div>
+            {/* Baseline Visualization */}
+            <div className="mt-8">
+              <img
+                src="/images/research-baseline.png"
+                alt="Human-normalized baseline with 30M+ samples"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
             </div>
           </section>
 

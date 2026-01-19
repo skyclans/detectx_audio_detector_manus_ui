@@ -422,18 +422,31 @@ export default function Landing() {
 
         {/* 8. Other Detection Modalities */}
         <section className="py-16 px-6 border-t border-border">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="text-xl font-medium text-muted-foreground mb-6">
-              Other Detection Modalities
-            </h2>
-            <p className="text-sm text-muted-foreground/70 leading-relaxed">
-              Verification systems for text, image, and video content
-              are currently under research and development.
-            </p>
-            <p className="text-sm text-muted-foreground/70 leading-relaxed mt-4">
-              These modalities will be introduced only after they meet
-              the same forensic reliability and human-safety standards.
-            </p>
+          <div className="mx-auto max-w-6xl">
+            <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+              {/* Text - Left */}
+              <div>
+                <h2 className="text-xl font-medium text-muted-foreground mb-6">
+                  Other Detection Modalities
+                </h2>
+                <p className="text-sm text-muted-foreground/70 leading-relaxed">
+                  Verification systems for text, image, and video content
+                  are currently under research and development.
+                </p>
+                <p className="text-sm text-muted-foreground/70 leading-relaxed mt-4">
+                  These modalities will be introduced only after they meet
+                  the same forensic reliability and human-safety standards.
+                </p>
+              </div>
+              {/* Image - Right */}
+              <div>
+                <img
+                  src="/images/othermodalities.png"
+                  alt="Future detection modalities under development"
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
+              </div>
+            </div>
           </div>
         </section>
 

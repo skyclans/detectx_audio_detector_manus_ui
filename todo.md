@@ -987,3 +987,13 @@
 ## OG Image for Social Sharing (Jan 19)
 - [x] Generate OG image (1200x630px) for social media sharing
 - [x] Apply OG image to index.html meta tags (og-image.png, twitter-image.png)
+
+
+## Page Images Replacement (Jan 19)
+- [x] Home - How it Works section image (howitworkssection.png)
+- [x] Home - Clear Verdict Semantics section image (ClearVerdictSemanticssection.png)
+- [x] Home - Who Uses DetectX Audio section image (WhoUsesDetectXAudiosection.png)
+- [x] Home - Other Detection Modalities section image (othermodalities.png)
+- [x] Technology page images (tech-architecture.png, tech-deterministic.png)
+- [x] Research page images (research-philosophy.png, research-baseline.png)
+- [x] Updates page images (updates-dualengine.png, updates-baseline.png)

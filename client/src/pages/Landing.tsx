@@ -154,7 +154,7 @@ export default function Landing() {
                 <div className="space-y-3 mb-10">
                   <p className="text-lg text-muted-foreground">
                     DetectX Audio uses dual-engine analysis to detect AI-generated music
-                    with 80%+ detection rate while protecting human artists at 98.89% accuracy.
+                    with strong AI detection while protecting human artists at 98.89% accuracy.
                   </p>
                   <p className="text-lg text-muted-foreground">
                     It does not determine authorship or probability.
@@ -163,7 +163,7 @@ export default function Landing() {
                 {/* Performance Stats */}
                 <div className="grid grid-cols-3 gap-4 mb-10">
                   <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <div className="text-2xl font-bold text-foreground">80%+</div>
+                    <div className="text-2xl font-bold text-foreground">Strong</div>
                     <div className="text-xs text-muted-foreground">AI Detection</div>
                   </div>
                   <div className="text-center p-4 bg-muted/30 rounded-lg">
@@ -238,7 +238,7 @@ export default function Landing() {
                   <ul className="space-y-2 text-muted-foreground">
                     <li>• Dual-engine verification (Classifier + Reconstruction)</li>
                     <li>• Human-safe by design (98.89% accuracy on human music)</li>
-                    <li>• 80%+ AI detection rate</li>
+                    <li>• Strong AI detection</li>
                     <li>• Clear binary verdict, no probability scores</li>
                   </ul>
                 </div>
@@ -334,7 +334,7 @@ export default function Landing() {
             </h2>
             <p className="text-muted-foreground mb-8">
               Upload your audio file and get instant AI detection results.
-              Enhanced Mode provides dual-engine verification with 80%+ AI detection
+              Enhanced Mode provides dual-engine verification with strong AI detection
               and 98.89% human accuracy.
             </p>
             <Link href="/verify-audio">

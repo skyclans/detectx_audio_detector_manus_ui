@@ -62,7 +62,7 @@ export function VerdictOrientationSlider({ disabled }: { disabled?: boolean }) {
           <li>• <span className="text-zinc-300">Primary:</span> CNN (90% threshold)</li>
           <li>• <span className="text-zinc-300">Secondary:</span> Reconstruction Diff</li>
           <li>• <span className="text-zinc-300">Human FP:</span> &lt;1% (Human-safe)</li>
-          <li>• <span className="text-zinc-300">AI Detection:</span> 80%+</li>
+          <li>• <span className="text-zinc-300">AI Detection:</span> Strong</li>
         </ul>
       </div>
     </div>

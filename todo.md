@@ -997,3 +997,10 @@
 - [x] Technology page images (tech-architecture.png, tech-deterministic.png)
 - [x] Research page images (research-philosophy.png, research-baseline.png)
 - [x] Updates page images (updates-dualengine.png, updates-baseline.png)
+
+
+## Text & Image Updates (Jan 19)
+- [x] Change "80%+ AI Detection" to "Strong AI Detection" in all homepage sections
+- [x] Regenerate OG image with "Strong AI Detection" text
+- [x] Regenerate How it Works section image
+- [x] Regenerate Clear Verdict section image

@@ -149,15 +149,31 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-8">
-                  A forensic verification engine for structural AI signal analysis.
+                  A forensic verification engine for AI-generated music detection.
                 </h1>
                 <div className="space-y-3 mb-10">
                   <p className="text-lg text-muted-foreground">
-                    DetectX Audio analyzes residual signal geometry after normalization.
+                    DetectX Audio uses dual-engine analysis to detect AI-generated music
+                    with 80%+ detection rate while protecting human artists at 98.89% accuracy.
                   </p>
                   <p className="text-lg text-muted-foreground">
                     It does not determine authorship or probability.
                   </p>
+                </div>
+                {/* Performance Stats */}
+                <div className="grid grid-cols-3 gap-4 mb-10">
+                  <div className="text-center p-4 bg-muted/30 rounded-lg">
+                    <div className="text-2xl font-bold text-foreground">80%+</div>
+                    <div className="text-xs text-muted-foreground">AI Detection</div>
+                  </div>
+                  <div className="text-center p-4 bg-muted/30 rounded-lg">
+                    <div className="text-2xl font-bold text-foreground">98.89%</div>
+                    <div className="text-xs text-muted-foreground">Human Accuracy</div>
+                  </div>
+                  <div className="text-center p-4 bg-muted/30 rounded-lg">
+                    <div className="text-2xl font-bold text-foreground">30M+</div>
+                    <div className="text-xs text-muted-foreground">Training Samples</div>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-3">
                   <Link href="/verify-audio">
@@ -166,7 +182,7 @@ export default function Landing() {
                     </Button>
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    Analyze audio using a deterministic, human-safe verification baseline.
+                    Verify your audio with our Classifier Engine trained on 30,000,000+ human music samples.
                   </p>
                 </div>
               </div>
@@ -201,17 +217,18 @@ export default function Landing() {
                 </h2>
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    DetectX Audio is a geometry-based forensic verification system
-                    designed to analyze structural signal behavior in audio.
+                    DetectX Audio is a dual-engine forensic verification system
+                    designed to detect AI-generated music while protecting human artists.
                   </p>
                   <p>
-                    The system operates on mix-level audio only and applies a fixed,
-                    deterministic normalization process to establish a shared measurement space.
+                    The system uses Enhanced Mode by default: Classifier Engine (primary)
+                    trained on 30,000,000+ verified human music samples, combined with
+                    Reconstruction Engine (secondary) for additional AI signal analysis.
                   </p>
                   <p>
-                    By comparing residual signal geometry against human-normalized baselines,
-                    DetectX Audio reports whether structural signal evidence exceeds
-                    what can be explained by human creation alone.
+                    By analyzing structural patterns unique to AI-generated audio,
+                    DetectX Audio reports whether AI signal evidence is present
+                    while maintaining near-zero false positives on human music.
                   </p>
                 </div>
                 <div className="mt-10">
@@ -219,10 +236,10 @@ export default function Landing() {
                     Key Principles
                   </h3>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Deterministic and reproducible by design</li>
-                    <li>• Human-safe baseline construction</li>
-                    <li>• Geometry-first analysis, not model attribution</li>
-                    <li>• No probability scores or similarity judgments</li>
+                    <li>• Dual-engine verification (Classifier + Reconstruction)</li>
+                    <li>• Human-safe by design (98.89% accuracy on human music)</li>
+                    <li>• 80%+ AI detection rate</li>
+                    <li>• Clear binary verdict, no probability scores</li>
                   </ul>
                 </div>
               </div>
@@ -242,24 +259,25 @@ export default function Landing() {
                 <ol className="space-y-4 text-muted-foreground">
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">1.</span>
-                    <span>Audio is normalized into a fixed measurement space.</span>
+                    <span>Audio is processed through the Classifier Engine (CNN).</span>
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">2.</span>
-                    <span>Residual signal geometry is extracted and analyzed.</span>
+                    <span>If classifier score exceeds 90%, Reconstruction Engine activates.</span>
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">3.</span>
-                    <span>Structural behavior is evaluated against human baselines.</span>
+                    <span>Audio is separated into stems and reconstructed for comparison.</span>
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">4.</span>
-                    <span>Structural exceedance is reported as signal evidence.</span>
+                    <span>Dual-engine consensus determines the final verdict.</span>
                   </li>
                 </ol>
                 <p className="mt-8 text-sm text-muted-foreground/80">
-                  This process is fully deterministic and does not rely on
-                  probabilistic classification or model attribution.
+                  Enhanced Mode prioritizes human protection: if the Classifier Engine
+                  says "Human," it is trusted. Additional analysis only runs when
+                  AI signals are initially detected.
                 </p>
               </div>
               {/* Image - Right */}
@@ -312,11 +330,12 @@ export default function Landing() {
         <section className="py-20 px-6 border-t border-border bg-muted/30">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              Verify an audio signal
+              Verify your music
             </h2>
             <p className="text-muted-foreground mb-8">
-              Analyze an audio signal against human-normalized baselines
-              to determine whether structural signal evidence is present.
+              Upload your audio file and get instant AI detection results.
+              Enhanced Mode provides dual-engine verification with 80%+ AI detection
+              and 98.89% human accuracy.
             </p>
             <Link href="/verify-audio">
               <Button className="px-8 py-3 text-base font-medium">
@@ -337,18 +356,18 @@ export default function Landing() {
                 </h2>
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    DetectX Audio was developed to help protect human creativity
-                    by providing a neutral, explainable verification reference.
+                    DetectX Audio was developed to protect human artists
+                    from being falsely flagged as AI-generated.
                   </p>
                   <p>
-                    As AI-generated content becomes more prevalent,
-                    human-created works are increasingly at risk of being
-                    misinterpreted or unfairly challenged.
+                    With 98.89% accuracy on human music, our Classifier Engine
+                    is trained on over 30 million verified human music samples
+                    to understand the full spectrum of human musical expression.
                   </p>
                   <p>
                     DetectX does not determine authorship.
-                    It helps ensure that human creative work is not unfairly flagged
-                    by opaque or probabilistic detection systems.
+                    It provides a reliable verification reference that prioritizes
+                    human artist protection while maintaining strong AI detection.
                   </p>
                 </div>
               </div>
@@ -382,19 +401,19 @@ export default function Landing() {
                   Who Uses DetectX Audio
                 </h2>
                 <p className="text-muted-foreground mb-6">
-                  DetectX Audio is designed for use across a wide range of
-                  professional and institutional contexts.
+                  DetectX Audio is designed for creators and institutions
+                  who need reliable AI music detection.
                 </p>
                 <ul className="space-y-2 text-muted-foreground mb-8">
-                  <li>• Composers and creators</li>
-                  <li>• Music producers and studios</li>
-                  <li>• Record labels and distributors</li>
-                  <li>• Music associations and institutions</li>
+                  <li>• Composers protecting their original work</li>
+                  <li>• Music producers verifying submissions</li>
+                  <li>• Record labels screening releases</li>
+                  <li>• Music associations and copyright organizations</li>
+                  <li>• Streaming platforms and distributors</li>
                 </ul>
                 <p className="text-muted-foreground leading-relaxed">
-                  The system provides a shared, deterministic reference
-                  for evaluating structural signal behavior in audio,
-                  without asserting authorship or creative intent.
+                  Trusted by professionals who need accurate verification
+                  without false positives on human-created music.
                 </p>
               </div>
             </div>

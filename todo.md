@@ -982,3 +982,8 @@
 - [x] Sync file limits update (100MB, 15min) from git
 - [x] Sync error message red box UI from git
 - [x] Make MP3 file recommendation more prominent in upload UI
+
+
+## OG Image for Social Sharing (Jan 19)
+- [x] Generate OG image (1200x630px) for social media sharing
+- [x] Apply OG image to index.html meta tags (og-image.png, twitter-image.png)

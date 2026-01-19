@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Sun, Moon, User, LogOut } from "lucide-react";
+import { Sun, Moon, User, LogOut, Menu, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,7 @@ import {
 export default function Landing() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user, loading, isAuthenticated, logout } = useAuth();
 
@@ -73,8 +74,17 @@ export default function Landing() {
               </Link>
             </div>
 
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+
             {/* Right side: Theme toggle + Login/User + Verify Audio */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -138,6 +148,56 @@ export default function Landing() {
               </Link>
             </div>
           </nav>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-border py-4">
+              <div className="flex flex-col gap-4">
+                <Link 
+                  href="/technology" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Technology
+                </Link>
+                <Link 
+                  href="/research" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Research
+                </Link>
+                <Link 
+                  href="/updates" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Updates
+                </Link>
+                <Link 
+                  href="/blog" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
+                </Link>
+                <Link 
+                  href="/about" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <Link 
+                  href="/contact" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
@@ -161,18 +221,18 @@ export default function Landing() {
                   </p>
                 </div>
                 {/* Performance Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-10">
-                  <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <div className="text-2xl font-bold text-foreground">Strong</div>
-                    <div className="text-xs text-muted-foreground">AI Detection</div>
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-10">
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">Strong</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">AI Detection</div>
                   </div>
-                  <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <div className="text-2xl font-bold text-foreground">98.89%</div>
-                    <div className="text-xs text-muted-foreground">Human Accuracy</div>
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">98.89%</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Human Accuracy</div>
                   </div>
-                  <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <div className="text-2xl font-bold text-foreground">30M+</div>
-                    <div className="text-xs text-muted-foreground">Training Samples</div>
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">30M+</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Training Samples</div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-3">

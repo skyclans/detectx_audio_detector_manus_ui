@@ -4,14 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getLoginUrl } from "@/const";
-import { Sun, Moon, ArrowLeft } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Sun, Moon, ArrowLeft, LogOut, User } from "lucide-react";
 
 /**
  * DetectX Login Page
  * 
- * Provides Google and Apple login options.
- * Currently uses DetectX OAuth as the primary authentication method.
- * Google and Apple login buttons are UI placeholders for future integration.
+ * Standard SaaS login flow with:
+ * - Google, Apple, and Microsoft login options (all visible from start)
+ * - Account selection always enabled (prompt=select_account)
+ * - Logout option for already logged-in users
+ * - Terms and Privacy agreement required before login
  */
 
 // Google icon SVG component
@@ -35,9 +38,22 @@ function AppleIcon({ className }: { className?: string }) {
   );
 }
 
+// Microsoft icon SVG component
+function MicrosoftIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11.4 24H0V12.6h11.4V24z" fill="#00A4EF"/>
+      <path d="M24 24H12.6V12.6H24V24z" fill="#FFB900"/>
+      <path d="M11.4 11.4H0V0h11.4v11.4z" fill="#F25022"/>
+      <path d="M24 11.4H12.6V0H24v11.4z" fill="#7FBA00"/>
+    </svg>
+  );
+}
+
 export default function Login() {
   const { theme, toggleTheme } = useTheme();
-  const detectXLoginUrl = getLoginUrl();
+  const { user, loading, isAuthenticated, logout } = useAuth();
+  const loginUrl = getLoginUrl();
   
   // Terms agreement state
   const [termsAgreed, setTermsAgreed] = useState(false);
@@ -45,24 +61,10 @@ export default function Login() {
   
   const canLogin = termsAgreed && privacyAgreed;
 
-  const handleGoogleLogin = () => {
+  // All login methods use the same OAuth flow with account selection
+  const handleLogin = () => {
     if (!canLogin) return;
-    // For now, redirect to DetectX OAuth which handles authentication
-    // In future, this will be replaced with direct Google OAuth
-    window.location.href = detectXLoginUrl;
-  };
-
-  const handleAppleLogin = () => {
-    if (!canLogin) return;
-    // For now, redirect to DetectX OAuth which handles authentication
-    // In future, this will be replaced with direct Apple OAuth
-    window.location.href = detectXLoginUrl;
-  };
-
-  const handleDetectXLogin = (e: React.MouseEvent) => {
-    if (!canLogin) {
-      e.preventDefault();
-    }
+    window.location.href = loginUrl;
   };
 
   return (
@@ -101,66 +103,104 @@ export default function Login() {
       {/* Main Content */}
       <main className="flex items-center justify-center min-h-[calc(100vh-80px)] px-6 py-12">
         <div className="w-full max-w-md">
+          {/* Already Logged In Card */}
+          {isAuthenticated && user && (
+            <div className="bg-card border border-border rounded-lg p-6 shadow-sm mb-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">{user.name}</p>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Link href="/verify-audio" className="flex-1">
+                  <Button className="w-full" variant="default">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  onClick={() => logout()}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                Want to use a different account? Sign out first, then sign in with another account.
+              </p>
+            </div>
+          )}
+
           {/* Login Card */}
           <div className="bg-card border border-border rounded-lg p-8 shadow-sm">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-semibold text-foreground mb-2">
-                Sign in to DetectX
+                {isAuthenticated ? "Switch Account" : "Sign in to DetectX"}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Access your verification history and account settings
+                {isAuthenticated 
+                  ? "Sign out above to switch to a different account"
+                  : "Choose your preferred sign-in method"
+                }
               </p>
             </div>
 
             {/* Terms Agreement Checkboxes */}
-            <div className="space-y-3 mb-6 p-4 bg-muted/30 rounded-lg border border-border">
-              <p className="text-xs text-muted-foreground mb-3">
-                Please agree to the following to continue:
-              </p>
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="terms-agreement"
-                  checked={termsAgreed}
-                  onCheckedChange={(checked) => setTermsAgreed(checked === true)}
-                  className="mt-0.5"
-                />
-                <label
-                  htmlFor="terms-agreement"
-                  className="text-sm text-foreground cursor-pointer leading-relaxed"
-                >
-                  I agree to the{" "}
-                  <Link href="/terms" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
-                    Terms of Service
-                  </Link>
-                </label>
+            {!isAuthenticated && (
+              <div className="space-y-3 mb-6 p-4 bg-muted/30 rounded-lg border border-border">
+                <p className="text-xs text-muted-foreground mb-3">
+                  Please agree to the following to continue:
+                </p>
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="terms-agreement"
+                    checked={termsAgreed}
+                    onCheckedChange={(checked) => setTermsAgreed(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label
+                    htmlFor="terms-agreement"
+                    className="text-sm text-foreground cursor-pointer leading-relaxed"
+                  >
+                    I agree to the{" "}
+                    <Link href="/terms" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                      Terms of Service
+                    </Link>
+                  </label>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="privacy-agreement"
+                    checked={privacyAgreed}
+                    onCheckedChange={(checked) => setPrivacyAgreed(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label
+                    htmlFor="privacy-agreement"
+                    className="text-sm text-foreground cursor-pointer leading-relaxed"
+                  >
+                    I agree to the{" "}
+                    <Link href="/privacy" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                      Privacy Policy
+                    </Link>
+                  </label>
+                </div>
               </div>
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="privacy-agreement"
-                  checked={privacyAgreed}
-                  onCheckedChange={(checked) => setPrivacyAgreed(checked === true)}
-                  className="mt-0.5"
-                />
-                <label
-                  htmlFor="privacy-agreement"
-                  className="text-sm text-foreground cursor-pointer leading-relaxed"
-                >
-                  I agree to the{" "}
-                  <Link href="/privacy" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
-            </div>
+            )}
 
-            {/* Login Options */}
-            <div className="space-y-4">
+            {/* Login Options - All visible from start */}
+            <div className="space-y-3">
               {/* Google Login */}
               <Button
                 variant="outline"
                 className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
-                onClick={handleGoogleLogin}
-                disabled={!canLogin}
+                onClick={handleLogin}
+                disabled={!canLogin || isAuthenticated}
               >
                 <GoogleIcon className="h-5 w-5" />
                 Continue with Google
@@ -170,11 +210,22 @@ export default function Login() {
               <Button
                 variant="outline"
                 className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
-                onClick={handleAppleLogin}
-                disabled={!canLogin}
+                onClick={handleLogin}
+                disabled={!canLogin || isAuthenticated}
               >
                 <AppleIcon className="h-5 w-5" />
                 Continue with Apple
+              </Button>
+
+              {/* Microsoft Login - Now visible from start */}
+              <Button
+                variant="outline"
+                className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
+                onClick={handleLogin}
+                disabled={!canLogin || isAuthenticated}
+              >
+                <MicrosoftIcon className="h-5 w-5" />
+                Continue with Microsoft
               </Button>
             </div>
 
@@ -189,21 +240,16 @@ export default function Login() {
             </div>
 
             {/* DetectX Account (Primary) */}
-            <a 
-              href={canLogin ? detectXLoginUrl : undefined} 
-              className="block"
-              onClick={handleDetectXLogin}
+            <Button
+              className="w-full h-12 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={handleLogin}
+              disabled={!canLogin || isAuthenticated}
             >
-              <Button
-                className="w-full h-12 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={!canLogin}
-              >
-                Sign in with DetectX Account
-              </Button>
-            </a>
+              Sign in with DetectX Account
+            </Button>
 
             {/* Helper text when checkboxes not checked */}
-            {!canLogin && (
+            {!canLogin && !isAuthenticated && (
               <p className="text-xs text-amber-500 text-center mt-4">
                 Please agree to both Terms of Service and Privacy Policy to continue.
               </p>
@@ -215,6 +261,14 @@ export default function Login() {
             <p className="text-xs text-muted-foreground text-center">
               <span className="font-medium text-foreground">Beta Mode</span> — 
               DetectX is currently in beta. All features are free during this period.
+            </p>
+          </div>
+
+          {/* Account Selection Info */}
+          <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <p className="text-xs text-blue-400 text-center">
+              <span className="font-medium">Multiple Accounts?</span> — 
+              You can choose which account to sign in with. If you're already signed in with another account in your browser, you'll see an account selection screen.
             </p>
           </div>
         </div>

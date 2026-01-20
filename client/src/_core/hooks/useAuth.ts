@@ -1,4 +1,4 @@
-import { getLoginUrl, getLoginUrlWithAccountSelection } from "@/const";
+import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
@@ -24,7 +24,7 @@ export function useAuth(options?: UseAuthOptions) {
     },
   });
 
-  const logout = useCallback(async (redirectToLogin = false) => {
+  const logout = useCallback(async () => {
     try {
       await logoutMutation.mutateAsync();
     } catch (error: unknown) {
@@ -37,7 +37,7 @@ export function useAuth(options?: UseAuthOptions) {
         throw error;
       }
     } finally {
-      // Clear local storage data related to user session
+      // Clear ALL local storage data related to user session
       localStorage.removeItem("detectx_selected_mode");
       localStorage.removeItem("detectx_mode_limit");
       localStorage.removeItem("detectx_user_id");
@@ -47,10 +47,9 @@ export function useAuth(options?: UseAuthOptions) {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
       
-      // Redirect to login with account selection prompt if requested
-      if (redirectToLogin) {
-        window.location.href = getLoginUrlWithAccountSelection();
-      }
+      // Always redirect to login page after logout (standard SaaS behavior)
+      // getLoginUrl() already includes prompt=select_account for account selection
+      window.location.href = getLoginUrl();
     }
   }, [logoutMutation, utils]);
 

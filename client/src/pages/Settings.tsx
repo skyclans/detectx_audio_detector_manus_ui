@@ -108,7 +108,7 @@ export default function Settings() {
           <div className="forensic-panel-content">
             <Button
               variant="destructive"
-              onClick={() => logout(true)}
+              onClick={() => logout()}
               className="w-full"
             >
               Sign Out

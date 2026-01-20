@@ -351,7 +351,7 @@ function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMob
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={() => logout(true)}
+                onClick={() => logout()}
               >
                 <LogOut className="w-4 h-4" />
               </Button>

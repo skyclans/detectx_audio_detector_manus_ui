@@ -1,7 +1,14 @@
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
-// Generate login URL at runtime so redirect URI reflects the current origin.
-export const getLoginUrl = (forceAccountSelection = false) => {
+/**
+ * Generate OAuth login URL at runtime.
+ * 
+ * IMPORTANT: Always forces account selection (prompt=select_account) to:
+ * 1. Allow users to choose which account to sign in with
+ * 2. Prevent auto-login with browser's cached credentials
+ * 3. Provide standard SaaS login experience
+ */
+export const getLoginUrl = () => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
@@ -13,13 +20,12 @@ export const getLoginUrl = (forceAccountSelection = false) => {
   url.searchParams.set("state", state);
   url.searchParams.set("type", "signIn");
   
-  // Force account selection prompt to allow switching accounts
-  if (forceAccountSelection) {
-    url.searchParams.set("prompt", "select_account");
-  }
+  // ALWAYS force account selection for standard SaaS login experience
+  // This ensures users can choose which account to sign in with
+  url.searchParams.set("prompt", "select_account");
 
   return url.toString();
 };
 
-// Get login URL with forced account selection (use after logout)
-export const getLoginUrlWithAccountSelection = () => getLoginUrl(true);
+// Alias for backward compatibility
+export const getLoginUrlWithAccountSelection = () => getLoginUrl();

@@ -125,7 +125,7 @@ export default function Landing() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => logout(true)} className="flex items-center gap-2 cursor-pointer text-red-500">
+                      <DropdownMenuItem onClick={() => logout()} className="flex items-center gap-2 cursor-pointer text-red-500">
                         <LogOut className="h-4 w-4" />
                         Logout
                       </DropdownMenuItem>

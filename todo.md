@@ -1023,3 +1023,11 @@
 - [x] Force account selection prompt on login (prompt=select_account)
 - [x] Clear localStorage session data on logout
 - [x] Redirect to login with account selection after logout
+
+
+## Login System Stabilization (Jan 19)
+- [x] Add logout menu to login page (shows current user with sign out option)
+- [x] Force account selection on Google OAuth (prompt=select_account always enabled)
+- [x] Show Microsoft login option from the beginning (visible alongside Google/Apple)
+- [x] Implement standard SaaS login flow (always redirect to login after logout)
+- [x] Fix user complaints about login instability (clear all session data on logout)

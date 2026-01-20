@@ -248,8 +248,57 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [sessionStartTime]);
 
-  // Check selected mode from localStorage
+  // Sync user plan from DB and check selected mode
   useEffect(() => {
+    // If user is authenticated, sync plan from DB
+    if (isAuthenticated && user) {
+      // Get plan from user object (from DB via auth.me)
+      const dbPlan = (user as any).plan as string | undefined;
+      const dbMonthlyLimit = (user as any).monthlyLimit as number | undefined;
+      const dbUsageCount = (user as any).usageCount as number | undefined;
+      
+      // If user has enterprise or master plan in DB, auto-set mode
+      if (dbPlan === "enterprise" || dbPlan === "master") {
+        setSelectedMode(dbPlan);
+        setModeLimit(dbPlan === "master" ? null : (dbMonthlyLimit ?? 1000));
+        setUsageCount(dbUsageCount ?? 0);
+        
+        // Sync to localStorage for consistency
+        localStorage.setItem("detectx_selected_mode", dbPlan);
+        localStorage.setItem("detectx_mode_limit", dbPlan === "master" ? "unlimited" : String(dbMonthlyLimit ?? 1000));
+        localStorage.setItem("detectx_usage_count", String(dbUsageCount ?? 0));
+        localStorage.setItem("detectx_user_id", user.openId || user.email || "anonymous");
+        return;
+      }
+      
+      // For pro plan users, also auto-set
+      if (dbPlan === "pro") {
+        setSelectedMode("pro");
+        setModeLimit(dbMonthlyLimit ?? 30);
+        setUsageCount(dbUsageCount ?? 0);
+        
+        localStorage.setItem("detectx_selected_mode", "pro");
+        localStorage.setItem("detectx_mode_limit", String(dbMonthlyLimit ?? 30));
+        localStorage.setItem("detectx_usage_count", String(dbUsageCount ?? 0));
+        localStorage.setItem("detectx_user_id", user.openId || user.email || "anonymous");
+        return;
+      }
+      
+      // For free plan, also auto-set if DB has plan info
+      if (dbPlan === "free") {
+        setSelectedMode("free");
+        setModeLimit(dbMonthlyLimit ?? 5);
+        setUsageCount(dbUsageCount ?? 0);
+        
+        localStorage.setItem("detectx_selected_mode", "free");
+        localStorage.setItem("detectx_mode_limit", String(dbMonthlyLimit ?? 5));
+        localStorage.setItem("detectx_usage_count", String(dbUsageCount ?? 0));
+        localStorage.setItem("detectx_user_id", user.openId || user.email || "anonymous");
+        return;
+      }
+    }
+    
+    // Fallback to localStorage for non-authenticated users or if DB plan not set
     const mode = localStorage.getItem("detectx_selected_mode");
     const limit = localStorage.getItem("detectx_mode_limit");
     
@@ -267,7 +316,7 @@ export default function Home() {
     if (storedUsage) {
       setUsageCount(parseInt(storedUsage, 10));
     }
-  }, []);
+  }, [isAuthenticated, user]);
 
   /**
    * FILE SELECTION HANDLER
@@ -469,13 +518,17 @@ export default function Home() {
     if (!selectedFile || !metadata || !selectedFileRef.current) return;
     
     // Check if user needs to select a mode first (for logged-in users)
-    if (isAuthenticated && !isMasterUser && !selectedMode) {
+    // Skip mode selection for enterprise/master plan users (their plan is set by admin)
+    const dbPlan = (user as any)?.plan as string | undefined;
+    const isEnterpriseOrMaster = dbPlan === "enterprise" || dbPlan === "master";
+    
+    if (isAuthenticated && !isMasterUser && !isEnterpriseOrMaster && !selectedMode) {
       setLocation("/select-mode");
       return;
     }
     
-    // Check mode limit (skip for master users)
-    if (!isMasterUser && modeLimit !== null && usageCount >= modeLimit) {
+    // Check mode limit (skip for master and enterprise users with high limits)
+    if (!isMasterUser && !isEnterpriseOrMaster && modeLimit !== null && usageCount >= modeLimit) {
       alert(`You have reached your monthly limit of ${modeLimit} verifications. Please upgrade your plan.`);
       setLocation("/plan");
       return;

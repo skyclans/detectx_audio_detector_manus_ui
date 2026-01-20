@@ -87,6 +87,11 @@ export default function ModeSelection() {
 
   // Check if user is a master user
   const isMasterUser = user?.email && MASTER_EMAILS.includes(user.email);
+  
+  // Check if user has enterprise or master plan set by admin in DB
+  const dbPlan = (user as any)?.plan as string | undefined;
+  const isEnterpriseUser = dbPlan === "enterprise";
+  const isMasterPlanUser = dbPlan === "master";
 
   // Handle mode selection
   const handleModeSelect = (mode: ModeOption) => {
@@ -143,7 +148,99 @@ export default function ModeSelection() {
     );
   }
 
-  // If master user, show unlimited access message and redirect
+  // If user has enterprise plan set by admin, auto-redirect
+  if (isEnterpriseUser) {
+    // Auto-set localStorage and redirect
+    const currentUserId = localStorage.getItem("detectx_user_id");
+    const newUserId = user?.openId || user?.email || "anonymous";
+    const dbMonthlyLimit = (user as any)?.monthlyLimit as number | undefined;
+    
+    if (currentUserId !== newUserId) {
+      localStorage.setItem("detectx_usage_count", "0");
+      localStorage.setItem("detectx_user_id", newUserId);
+    }
+    
+    localStorage.setItem("detectx_selected_mode", "enterprise");
+    localStorage.setItem("detectx_mode_limit", String(dbMonthlyLimit ?? 1000));
+    
+    return (
+      <ForensicLayout title="Enterprise Access" subtitle="Institutional verification privileges">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div className="w-20 h-20 rounded-full bg-forensic-cyan/20 flex items-center justify-center mb-6">
+            <Building2 className="w-10 h-10 text-forensic-cyan" />
+          </div>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">
+            Welcome, {user?.name || "Enterprise User"}
+          </h2>
+          <p className="text-muted-foreground mb-2">
+            {user?.email}
+          </p>
+          <div className="px-4 py-2 bg-forensic-cyan/20 text-forensic-cyan rounded-full text-sm font-medium mb-6">
+            Enterprise Access Enabled
+          </div>
+          <p className="text-muted-foreground mb-6 max-w-md">
+            Your account has been upgraded to Enterprise by an administrator.
+            You have access to extended verification limits and features.
+          </p>
+          <Button
+            size="lg"
+            onClick={() => setLocation("/verify-audio")}
+            className="gap-2"
+          >
+            Continue to Verify Audio
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </ForensicLayout>
+    );
+  }
+  
+  // If user has master plan set by admin (not email-based), auto-redirect
+  if (isMasterPlanUser && !isMasterUser) {
+    const currentUserId = localStorage.getItem("detectx_user_id");
+    const newUserId = user?.openId || user?.email || "anonymous";
+    
+    if (currentUserId !== newUserId) {
+      localStorage.setItem("detectx_usage_count", "0");
+      localStorage.setItem("detectx_user_id", newUserId);
+    }
+    
+    localStorage.setItem("detectx_selected_mode", "master");
+    localStorage.setItem("detectx_mode_limit", "unlimited");
+    
+    return (
+      <ForensicLayout title="Master Access" subtitle="Unlimited verification privileges">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div className="w-20 h-20 rounded-full bg-forensic-cyan/20 flex items-center justify-center mb-6">
+            <Crown className="w-10 h-10 text-forensic-cyan" />
+          </div>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">
+            Welcome, {user?.name || "Master User"}
+          </h2>
+          <p className="text-muted-foreground mb-2">
+            {user?.email}
+          </p>
+          <div className="px-4 py-2 bg-forensic-cyan/20 text-forensic-cyan rounded-full text-sm font-medium mb-6">
+            Unlimited Access Enabled
+          </div>
+          <p className="text-muted-foreground mb-6 max-w-md">
+            Your account has been upgraded to Master by an administrator.
+            You have unlimited access to all verification features.
+          </p>
+          <Button
+            size="lg"
+            onClick={() => setLocation("/verify-audio")}
+            className="gap-2"
+          >
+            Continue to Verify Audio
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </ForensicLayout>
+    );
+  }
+
+  // If master user (by email), show unlimited access message and redirect
   if (isMasterUser) {
     return (
       <ForensicLayout title="Master Access" subtitle="Unlimited verification privileges">

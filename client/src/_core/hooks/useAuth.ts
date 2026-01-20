@@ -1,4 +1,4 @@
-import { getLoginUrl } from "@/const";
+import { getLoginUrl, getLoginUrlWithAccountSelection } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
@@ -24,7 +24,7 @@ export function useAuth(options?: UseAuthOptions) {
     },
   });
 
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (redirectToLogin = false) => {
     try {
       await logoutMutation.mutateAsync();
     } catch (error: unknown) {
@@ -32,12 +32,25 @@ export function useAuth(options?: UseAuthOptions) {
         error instanceof TRPCClientError &&
         error.data?.code === "UNAUTHORIZED"
       ) {
-        return;
+        // Already logged out, continue with cleanup
+      } else {
+        throw error;
       }
-      throw error;
     } finally {
+      // Clear local storage data related to user session
+      localStorage.removeItem("detectx_selected_mode");
+      localStorage.removeItem("detectx_mode_limit");
+      localStorage.removeItem("detectx_user_id");
+      localStorage.removeItem("detectx_usage_count");
+      localStorage.removeItem("manus-runtime-user-info");
+      
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
+      
+      // Redirect to login with account selection prompt if requested
+      if (redirectToLogin) {
+        window.location.href = getLoginUrlWithAccountSelection();
+      }
     }
   }, [logoutMutation, utils]);
 

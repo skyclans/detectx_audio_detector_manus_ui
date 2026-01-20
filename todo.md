@@ -1016,3 +1016,10 @@
 - [x] Fix issue where Enterprise mode users see signup prompt on Verify Audio page
 - [x] Sync user plan from DB to localStorage on page load
 - [x] Auto-redirect enterprise/master plan users from ModeSelection page
+
+
+## Bug Fix: OAuth Account Selection (Jan 19)
+- [x] Fix issue where users cannot select different Google/Apple account after logout
+- [x] Force account selection prompt on login (prompt=select_account)
+- [x] Clear localStorage session data on logout
+- [x] Redirect to login with account selection after logout

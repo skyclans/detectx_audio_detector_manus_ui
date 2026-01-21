@@ -272,24 +272,27 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
       {/* Title: FILE METADATA (exact text) */}
       <div className="forensic-panel-header">FILE METADATA</div>
       <div className="forensic-panel-content">
-        {/* Track Info Section - Only show if any tag data exists */}
-        {hasTrackInfo && (
-          <div className="mb-4 pb-3 border-b border-border/50">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
-              Track Info (ID3/Vorbis Tags)
-            </p>
-            <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-              {trackInfoItems.map((item) => (
-                item.value && <MetadataRow key={item.label} {...item} />
-              ))}
-            </div>
-          </div>
-        )}
-        
         {/* Subline: Forensic input record (pre-analysis, pre-normalization) */}
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3 pb-2 border-b border-border/30">
           Forensic input record (pre-analysis, pre-normalization)
         </p>
+        
+        {/* Track Info Section - Only show if any tag data exists */}
+        {hasTrackInfo && (
+          <div className="mb-6 mt-2">
+            <div className="bg-muted/20 rounded-lg p-4 border border-border/30">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-forensic-cyan"></span>
+                Track Info (ID3/Vorbis Tags)
+              </p>
+              <div className="space-y-2 pl-3">
+                {trackInfoItems.map((item) => (
+                  item.value && <MetadataRow key={item.label} {...item} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         {items.map((item) => (
           <MetadataRow key={item.label} {...item} />
         ))}

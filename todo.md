@@ -1050,3 +1050,8 @@
 - [x] Fix long filename overlapping with label in FILE METADATA panel
 - [x] Truncate long filenames with ellipsis (like SHA-256)
 - [x] Add tooltip or copy functionality for full filename
+
+
+## Track Info Spacing Fix (Jan 21)
+- [x] Improve spacing between Track Info section and File Metadata section
+- [x] Add visual separation for professional UI appearance

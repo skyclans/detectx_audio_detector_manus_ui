@@ -30,6 +30,9 @@ export interface FileMetadata {
   codec?: string | null;
   fileHash?: string | null;
   fileSize?: number;
+  artist?: string | null;
+  title?: string | null;
+  album?: string | null;
 }
 
 /**

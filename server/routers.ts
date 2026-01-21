@@ -200,6 +200,10 @@ export const appRouter = router({
               bit_depth: number | null;
               codec: string | null;
               file_size: number | null;
+              file_hash: string | null;
+              artist: string | null;
+              title: string | null;
+              album: string | null;
             } | null;
             detailed_analysis: DetailedAnalysis | null;
           };
@@ -227,6 +231,10 @@ export const appRouter = router({
               bit_depth: 16,
               codec: "PCM_16",
               file_size: input.fileSize,
+              file_hash: null,
+              artist: null,
+              title: null,
+              album: null,
             },
             orientation: detectxResult.orientation as "ai_oriented" | "balanced" | "human_oriented",
             cnn_score: detectxResult.cnn_score,

@@ -1031,3 +1031,9 @@
 - [x] Show Microsoft login option from the beginning (visible alongside Google/Apple)
 - [x] Implement standard SaaS login flow (always redirect to login after logout)
 - [x] Fix user complaints about login instability (clear all session data on logout)
+
+
+## Dev Team Git Sync - Metadata & Types (Jan 21)
+- [x] Fetch and review git changes (metadata, TypeScript types, API response mapping)
+- [x] Merge changes - added artist, title, album, fileHash fields to FileMetadata
+- [x] Test and verify all functionality (41 tests passed)

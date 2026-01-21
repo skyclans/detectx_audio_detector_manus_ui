@@ -195,4 +195,54 @@ describe("MetadataPanel", () => {
     const hashElements = screen.getAllByText("a1b2c3d4e5f6g7h8...");
     expect(hashElements.length).toBeGreaterThan(0);
   });
+
+  it("truncates long filenames with ellipsis", () => {
+    const longFilename = "ADP Artist Spotlight - Imagens Rupestres - 1996 E_2723099012.mp3";
+    const metadata = {
+      fileName: longFilename,
+      duration: 30,
+      sampleRate: 44100,
+      bitDepth: null,
+      channels: 2,
+      codec: "mp3",
+      fileHash: null,
+      fileSize: 480000,
+      artist: null,
+      title: null,
+      album: null,
+    };
+
+    render(<MetadataPanel metadata={metadata} />);
+    
+    // Should NOT display the full filename
+    expect(screen.queryByText(longFilename)).not.toBeInTheDocument();
+    
+    // Should display truncated filename with ellipsis
+    // The truncated filename should contain "..." and end with ".mp3"
+    const filenameElements = screen.getAllByText(/\.\.\..*\.mp3/);
+    expect(filenameElements.length).toBeGreaterThan(0);
+  });
+
+  it("does not truncate short filenames", () => {
+    const shortFilename = "short.mp3";
+    const metadata = {
+      fileName: shortFilename,
+      duration: 30,
+      sampleRate: 44100,
+      bitDepth: null,
+      channels: 2,
+      codec: "mp3",
+      fileHash: null,
+      fileSize: 100000,
+      artist: null,
+      title: null,
+      album: null,
+    };
+
+    render(<MetadataPanel metadata={metadata} />);
+    
+    // Should display the full short filename
+    const filenameElements = screen.getAllByText(shortFilename);
+    expect(filenameElements.length).toBeGreaterThan(0);
+  });
 });

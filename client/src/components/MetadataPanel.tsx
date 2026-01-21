@@ -71,6 +71,42 @@ function formatFileSize(bytes: number): string {
 }
 
 /**
+ * Truncate filename if too long
+ * Shows first 20 chars + ... + last 15 chars (including extension)
+ * Total max display length: ~38 characters
+ */
+function truncateFilename(filename: string, maxLength: number = 35): { truncated: string; isTruncated: boolean } {
+  if (filename.length <= maxLength) {
+    return { truncated: filename, isTruncated: false };
+  }
+  
+  // Find the extension
+  const lastDotIndex = filename.lastIndexOf('.');
+  const hasExtension = lastDotIndex > 0 && lastDotIndex > filename.length - 6;
+  
+  if (hasExtension) {
+    const extension = filename.substring(lastDotIndex);
+    const nameWithoutExt = filename.substring(0, lastDotIndex);
+    const availableLength = maxLength - extension.length - 3; // 3 for "..."
+    
+    if (availableLength > 10) {
+      const frontLength = Math.ceil(availableLength * 0.6);
+      const backLength = availableLength - frontLength;
+      const truncatedName = nameWithoutExt.substring(0, frontLength) + "..." + nameWithoutExt.substring(nameWithoutExt.length - backLength);
+      return { truncated: truncatedName + extension, isTruncated: true };
+    }
+  }
+  
+  // Fallback: simple truncation
+  const frontLength = Math.ceil((maxLength - 3) * 0.6);
+  const backLength = maxLength - 3 - frontLength;
+  return { 
+    truncated: filename.substring(0, frontLength) + "..." + filename.substring(filename.length - backLength),
+    isTruncated: true 
+  };
+}
+
+/**
  * Format sample rate in kHz
  */
 function formatSampleRate(hz: number): string {
@@ -179,7 +215,12 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
   const items: MetadataItem[] = [
     { 
       label: "Filename", 
-      value: metadata.fileName || null,
+      value: metadata.fileName ? truncateFilename(metadata.fileName).truncated : null,
+      copyable: metadata.fileName ? truncateFilename(metadata.fileName).isTruncated : false,
+      fullValue: metadata.fileName || undefined,
+      tooltip: metadata.fileName && truncateFilename(metadata.fileName).isTruncated 
+        ? "Full filename is truncated for display. Click copy button to copy full filename."
+        : undefined,
     },
     {
       label: "Duration",

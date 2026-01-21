@@ -1044,3 +1044,9 @@
 - [x] Design metadata display UI component (artist, album, title)
 - [x] Integrate metadata section into verification result screen
 - [x] Test with various audio files (with/without metadata)
+
+
+## Filename Display Fix (Jan 21)
+- [x] Fix long filename overlapping with label in FILE METADATA panel
+- [x] Truncate long filenames with ellipsis (like SHA-256)
+- [x] Add tooltip or copy functionality for full filename

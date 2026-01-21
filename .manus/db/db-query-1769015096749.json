@@ -1,0 +1,55 @@
+{
+  "query": "SELECT * FROM users WHERE email LIKE '%skyclans%' OR email LIKE '%bigbandent%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZmhzMtyTDVivZy.root --database CTHcZpr7kfs6VJ6N3XpwEQ --execute SELECT * FROM users WHERE email LIKE '%skyclans%' OR email LIKE '%bigbandent%';",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "J4iLMW8Sn9oYHei95wMfYt",
+      "name": "윤기 김",
+      "email": "skyclans2@gmail.com",
+      "loginMethod": "google",
+      "role": "admin",
+      "createdAt": "2026-01-09 16:39:23",
+      "updatedAt": "2026-01-21 17:01:32",
+      "lastSignedIn": "2026-01-21 17:01:33",
+      "plan": "free",
+      "usageCount": "0",
+      "monthlyLimit": "5",
+      "usageResetDate": "NULL"
+    },
+    {
+      "id": "1860004",
+      "openId": "nDegSoV4HJgd4adzcCdfsU",
+      "name": "skyclans",
+      "email": "skyclans@naver.com",
+      "loginMethod": "email",
+      "role": "user",
+      "createdAt": "2026-01-15 15:32:53",
+      "updatedAt": "2026-01-18 18:41:52",
+      "lastSignedIn": "2026-01-18 17:26:05",
+      "plan": "pro",
+      "usageCount": "0",
+      "monthlyLimit": "30",
+      "usageResetDate": "NULL"
+    },
+    {
+      "id": "3480001",
+      "openId": "iUtn9ABLmDRTrbWoM9b3jP",
+      "name": "silvia",
+      "email": "silvia@bigbandent.com",
+      "loginMethod": "email",
+      "role": "user",
+      "createdAt": "2026-01-20 05:35:10",
+      "updatedAt": "2026-01-21 01:52:22",
+      "lastSignedIn": "2026-01-21 01:52:22",
+      "plan": "enterprise",
+      "usageCount": "0",
+      "monthlyLimit": "1000",
+      "usageResetDate": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tupdatedAt\tlastSignedIn\tplan\tusageCount\tmonthlyLimit\tusageResetDate\n1\tJ4iLMW8Sn9oYHei95wMfYt\t윤기 김\tskyclans2@gmail.com\tgoogle\tadmin\t2026-01-09 16:39:23\t2026-01-21 17:01:32\t2026-01-21 17:01:33\tfree\t0\t5\tNULL\n1860004\tnDegSoV4HJgd4adzcCdfsU\tskyclans\tskyclans@naver.com\temail\tuser\t2026-01-15 15:32:53\t2026-01-18 18:41:52\t2026-01-18 17:26:05\tpro\t0\t30\tNULL\n3480001\tiUtn9ABLmDRTrbWoM9b3jP\tsilvia\tsilvia@bigbandent.com\temail\tuser\t2026-01-20 05:35:10\t2026-01-21 01:52:22\t2026-01-21 01:52:22\tenterprise\t0\t1000\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1542
+}

@@ -24,6 +24,7 @@ import HistoryTest from "./pages/HistoryTest";
 import { CookieConsent } from "./components/CookieConsent";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
+import AdminUserDetail from "./pages/admin/UserDetail";
 import AdminVerifications from "./pages/admin/Verifications";
 import AdminLogs from "./pages/admin/Logs";
 
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/users/:id" component={AdminUserDetail} />
       <Route path="/admin/verifications" component={AdminVerifications} />
       <Route path="/admin/logs" component={AdminLogs} />
       

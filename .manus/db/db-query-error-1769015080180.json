@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, name, email, role, plan, usageCount, monthlyLimit, lastSignedIn FROM user WHERE email LIKE '%skyclans%' OR email LIKE '%bigbandent%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZmhzMtyTDVivZy.root --database CTHcZpr7kfs6VJ6N3XpwEQ --execute SELECT id, name, email, role, plan, usageCount, monthlyLimit, lastSignedIn FROM user WHERE email LIKE '%skyclans%' OR email LIKE '%bigbandent%' LIMIT 10;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'cthczpr7kfs6vj6n3xpweq.user' doesn't exist"
+  ]
+}

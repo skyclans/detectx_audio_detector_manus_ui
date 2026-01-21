@@ -27,6 +27,8 @@ import {
   createAdminLog,
   getAdminLogs,
   getAllVerifications,
+  getUserVerificationStats,
+  getVerificationsByUserId,
 } from "./db";
 
 // Admin procedure - requires admin access
@@ -118,6 +120,78 @@ export const adminRouter = router({
         usageResetDate: user.usageResetDate,
         createdAt: user.createdAt,
         lastSignedIn: user.lastSignedIn,
+      };
+    }),
+  
+  /**
+   * Get user verification statistics
+   */
+  getUserStats: adminProcedure
+    .input(z.object({ userId: z.number() }))
+    .query(async ({ input }) => {
+      const user = await getUserById(input.userId);
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+      
+      const stats = await getUserVerificationStats(input.userId);
+      
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          plan: user.plan,
+          usageCount: user.usageCount,
+          monthlyLimit: user.monthlyLimit,
+          usageResetDate: user.usageResetDate,
+          createdAt: user.createdAt,
+          lastSignedIn: user.lastSignedIn,
+        },
+        stats,
+      };
+    }),
+  
+  /**
+   * Get user's verification history
+   */
+  getUserVerifications: adminProcedure
+    .input(z.object({
+      userId: z.number(),
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(20),
+      startDate: z.date().optional(),
+      endDate: z.date().optional(),
+    }))
+    .query(async ({ input }) => {
+      const user = await getUserById(input.userId);
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+      
+      const result = await getVerificationsByUserId(input.userId, {
+        page: input.page,
+        limit: input.limit,
+        startDate: input.startDate,
+        endDate: input.endDate,
+      });
+      
+      return {
+        verifications: result.verifications.map(v => ({
+          id: v.id,
+          fileName: v.fileName,
+          fileSize: v.fileSize,
+          duration: v.duration,
+          verdict: v.verdict,
+          crgStatus: v.crgStatus,
+          status: v.status,
+          createdAt: v.createdAt,
+        })),
+        total: result.total,
+        page: input.page,
+        limit: input.limit,
+        totalPages: Math.ceil(result.total / input.limit),
       };
     }),
   

@@ -374,15 +374,84 @@ export async function getVerificationById(id: number): Promise<AudioVerification
   return result[0];
 }
 
-export async function getVerificationsByUserId(userId: number, limit = 50): Promise<AudioVerification[]> {
+export async function getVerificationsByUserId(userId: number, options?: {
+  page?: number;
+  limit?: number;
+  startDate?: Date;
+  endDate?: Date;
+}): Promise<{ verifications: AudioVerification[]; total: number }> {
   const db = await getDb();
-  if (!db) return [];
-  return db
+  if (!db) return { verifications: [], total: 0 };
+  
+  const { page = 1, limit = 50, startDate, endDate } = options || {};
+  const offset = (page - 1) * limit;
+  
+  let conditions = [eq(audioVerifications.userId, userId)];
+  
+  if (startDate) {
+    conditions.push(gte(audioVerifications.createdAt, startDate));
+  }
+  
+  if (endDate) {
+    conditions.push(lte(audioVerifications.createdAt, endDate));
+  }
+  
+  const whereClause = and(...conditions);
+  
+  // Get total count
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(audioVerifications)
+    .where(whereClause);
+  const total = countResult[0]?.count || 0;
+  
+  // Get paginated verifications
+  const verifications = await db
     .select()
     .from(audioVerifications)
-    .where(eq(audioVerifications.userId, userId))
+    .where(whereClause)
     .orderBy(desc(audioVerifications.createdAt))
-    .limit(limit);
+    .limit(limit)
+    .offset(offset);
+  
+  return { verifications, total };
+}
+
+/**
+ * Get user verification statistics (total, observed, not_observed counts)
+ */
+export async function getUserVerificationStats(userId: number) {
+  const db = await getDb();
+  if (!db) return { total: 0, observed: 0, notObserved: 0 };
+  
+  // Get total count
+  const totalResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(audioVerifications)
+    .where(eq(audioVerifications.userId, userId));
+  const total = totalResult[0]?.count || 0;
+  
+  // Get observed count
+  const observedResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(audioVerifications)
+    .where(and(
+      eq(audioVerifications.userId, userId),
+      eq(audioVerifications.verdict, 'observed')
+    ));
+  const observed = observedResult[0]?.count || 0;
+  
+  // Get not_observed count
+  const notObservedResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(audioVerifications)
+    .where(and(
+      eq(audioVerifications.userId, userId),
+      eq(audioVerifications.verdict, 'not_observed')
+    ));
+  const notObserved = notObservedResult[0]?.count || 0;
+  
+  return { total, observed, notObserved };
 }
 
 export async function getAllVerifications(options?: {

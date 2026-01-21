@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, email, role, plan, usageCount, monthlyLimit, lastSignedIn FROM users WHERE email LIKE '%skyclans%' OR email LIKE '%bigbandent%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZmhzMtyTDVivZy.root --database CTHcZpr7kfs6VJ6N3XpwEQ --execute SELECT id, name, email, role, plan, usageCount, monthlyLimit, lastSignedIn FROM users WHERE email LIKE '%skyclans%' OR email LIKE '%bigbandent%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "윤기 김",
+      "email": "skyclans2@gmail.com",
+      "role": "admin",
+      "plan": "free",
+      "usageCount": "0",
+      "monthlyLimit": "5",
+      "lastSignedIn": "2026-01-21 17:01:33"
+    },
+    {
+      "id": "1860004",
+      "name": "skyclans",
+      "email": "skyclans@naver.com",
+      "role": "user",
+      "plan": "pro",
+      "usageCount": "0",
+      "monthlyLimit": "30",
+      "lastSignedIn": "2026-01-18 17:26:05"
+    },
+    {
+      "id": "3480001",
+      "name": "silvia",
+      "email": "silvia@bigbandent.com",
+      "role": "user",
+      "plan": "enterprise",
+      "usageCount": "0",
+      "monthlyLimit": "1000",
+      "lastSignedIn": "2026-01-21 01:52:22"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\tplan\tusageCount\tmonthlyLimit\tlastSignedIn\n1\t윤기 김\tskyclans2@gmail.com\tadmin\tfree\t0\t5\t2026-01-21 17:01:33\n1860004\tskyclans\tskyclans@naver.com\tuser\tpro\t0\t30\t2026-01-18 17:26:05\n3480001\tsilvia\tsilvia@bigbandent.com\tuser\tenterprise\t0\t1000\t2026-01-21 01:52:22\n",
+  "stderr": "",
+  "execution_time_ms": 1525
+}

@@ -1055,3 +1055,11 @@
 ## Track Info Spacing Fix (Jan 21)
 - [x] Improve spacing between Track Info section and File Metadata section
 - [x] Add visual separation for professional UI appearance
+
+
+## Admin Page Fixes (Jan 22)
+- [x] Change admin role from 'free' to 'master' and show usage count
+- [x] Fix institution user (silvia@bigbandent.com) usage not reflecting (no verifications in DB - user may have tested on different account)
+- [x] Create user detail page with test count, AI observed/not observed stats
+- [x] Add date-based search for users and display lastActive in UTC
+- [x] Fix "View all verification records" mock data error (now uses tRPC)

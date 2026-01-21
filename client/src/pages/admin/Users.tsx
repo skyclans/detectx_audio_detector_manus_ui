@@ -7,6 +7,7 @@
  */
 
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,7 +34,8 @@ import {
   Trash2,
   Check,
   Users,
-  CheckSquare
+  CheckSquare,
+  Eye
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
@@ -281,7 +283,13 @@ export default function AdminUsers() {
   
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return "N/A";
-    return new Date(date).toLocaleDateString("ko-KR");
+    return new Date(date).toISOString().replace("T", " ").substring(0, 19) + " UTC";
+  };
+  
+  const [, setLocation] = useLocation();
+  
+  const handleUserClick = (userId: number) => {
+    setLocation(`/admin/users/${userId}`);
   };
 
   return (
@@ -460,6 +468,14 @@ export default function AdminUsers() {
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex gap-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleUserClick(user.id)}
+                              title="View Details"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
                             <Button 
                               variant="ghost" 
                               size="sm"

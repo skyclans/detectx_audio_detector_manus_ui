@@ -2,10 +2,10 @@
  * Admin Verifications Page
  * 
  * Displays all verification records with filtering and export capabilities.
- * API: GET /api/admin/verifications
+ * Uses tRPC for real database operations
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,161 +15,66 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
-  Download,
   Bot,
-  User,
+  UserCheck,
   FileAudio
 } from "lucide-react";
-
-const API_BASE = "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
-
-interface Verification {
-  id: string;
-  user_id: string;
-  user_email: string;
-  filename: string;
-  verdict: string;
-  cnn_score: number;
-  exceeded_axes: string[];
-  orientation: string;
-  duration_sec: number;
-  file_size: number;
-  created_at: string;
-}
-
-interface VerificationsResponse {
-  verifications: Verification[];
-  count: number;
-  total: number;
-}
+import { trpc } from "@/lib/trpc";
 
 export default function AdminVerifications() {
-  const [data, setData] = useState<VerificationsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [verdictFilter, setVerdictFilter] = useState<string>("");
+  const [verdictFilter, setVerdictFilter] = useState<string>("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const limit = 20;
 
-  useEffect(() => {
-    fetchVerifications();
-  }, [page, verdictFilter]);
+  // Fetch verifications using tRPC
+  const { data, isLoading, refetch } = trpc.admin.getVerifications.useQuery({
+    search: search || undefined,
+    verdict: verdictFilter !== "all" ? verdictFilter : undefined,
+    startDate: startDate ? new Date(startDate) : undefined,
+    endDate: endDate ? new Date(endDate + "T23:59:59") : undefined,
+    page,
+    limit,
+  });
 
-  const fetchVerifications = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({
-        limit: limit.toString(),
-        offset: (page * limit).toString(),
-      });
-      if (search) params.append("search", search);
-      if (verdictFilter) params.append("verdict", verdictFilter);
-      if (startDate) params.append("start_date", startDate);
-      if (endDate) params.append("end_date", endDate);
-
-      const response = await fetch(`${API_BASE}/admin/verifications?${params}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch verifications");
-      }
-      const result = await response.json();
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      // Use mock data for development
-      setData({
-        verifications: [
-          {
-            id: "6ffab5cf-934",
-            user_id: "user_001",
-            user_email: "user@example.com",
-            filename: "741Hz Vibes.mp3",
-            verdict: "AI signal evidence was observed.",
-            cnn_score: 0.9987,
-            exceeded_axes: ["CNN", "RECON_DIFF"],
-            orientation: "enhanced",
-            duration_sec: 234.24,
-            file_size: 5614157,
-            created_at: "2026-01-18T14:33:27",
-          },
-          {
-            id: "abc123-456",
-            user_id: "user_002",
-            user_email: "pro@example.com",
-            filename: "Original Song.wav",
-            verdict: "No AI signal evidence observed.",
-            cnn_score: 0.1234,
-            exceeded_axes: [],
-            orientation: "enhanced",
-            duration_sec: 180.5,
-            file_size: 32145678,
-            created_at: "2026-01-19T09:15:00",
-          },
-          {
-            id: "def789-012",
-            user_id: "user_003",
-            user_email: "enterprise@company.com",
-            filename: "Podcast Episode 42.mp3",
-            verdict: "No AI signal evidence observed.",
-            cnn_score: 0.0521,
-            exceeded_axes: [],
-            orientation: "enhanced",
-            duration_sec: 3600.0,
-            file_size: 86400000,
-            created_at: "2026-01-19T10:00:00",
-          },
-        ],
-        count: 3,
-        total: 659,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const verifications = data?.verifications || [];
+  const totalPages = data?.totalPages || 1;
+  const total = data?.total || 0;
 
   const handleSearch = () => {
-    setPage(0);
-    fetchVerifications();
+    setPage(1);
+    refetch();
   };
 
-  const handleExport = async (format: "csv" | "xlsx") => {
-    try {
-      const params = new URLSearchParams({ format });
-      if (startDate) params.append("start_date", startDate);
-      if (endDate) params.append("end_date", endDate);
-      if (verdictFilter) params.append("verdict", verdictFilter);
-
-      const response = await fetch(`${API_BASE}/admin/verifications/export?${params}`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `verifications_export.${format}`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      }
-    } catch (err) {
-      console.error("Export failed:", err);
-    }
+  const handleReset = () => {
+    setSearch("");
+    setVerdictFilter("all");
+    setStartDate("");
+    setEndDate("");
+    setPage(1);
+    refetch();
   };
 
-  const isAIDetected = (verdict: string) => {
-    return verdict.toLowerCase().includes("ai signal evidence was observed");
-  };
-
-  const formatFileSize = (bytes: number) => {
+  const formatFileSize = (bytes: number | null | undefined) => {
+    if (!bytes) return "N/A";
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const formatDuration = (seconds: number) => {
+  const formatDuration = (ms: number | null | undefined) => {
+    if (!ms) return "N/A";
+    const seconds = Math.floor(ms / 1000);
     const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
+    const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) return "N/A";
+    return new Date(date).toISOString().replace("T", " ").substring(0, 19) + " UTC";
   };
 
   return (
@@ -177,14 +82,8 @@ export default function AdminVerifications() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Verifications</h1>
-          <p className="text-muted-foreground">View all verification records</p>
+          <p className="text-muted-foreground">View all verification records ({total} total)</p>
         </div>
-
-        {error && (
-          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 text-yellow-600 dark:text-yellow-400 text-sm">
-            Using mock data: {error}
-          </div>
-        )}
 
         {/* Filters */}
         <Card>
@@ -207,9 +106,9 @@ export default function AdminVerifications() {
                 onChange={(e) => setVerdictFilter(e.target.value)}
                 className="px-3 py-2 border border-input rounded-md bg-background"
               >
-                <option value="">All Results</option>
-                <option value="ai">AI Detected</option>
-                <option value="human">Human Verified</option>
+                <option value="all">All Results</option>
+                <option value="observed">AI Observed</option>
+                <option value="not_observed">Not Observed</option>
               </select>
               <Input
                 type="date"
@@ -229,14 +128,7 @@ export default function AdminVerifications() {
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </Button>
-              <Button variant="outline" onClick={() => { 
-                setSearch(""); 
-                setVerdictFilter(""); 
-                setStartDate("");
-                setEndDate("");
-                setPage(0); 
-                fetchVerifications(); 
-              }}>
+              <Button variant="outline" onClick={handleReset}>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
@@ -246,27 +138,21 @@ export default function AdminVerifications() {
 
         {/* Verifications Table */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle>
-              Verifications ({data?.total || 0} total)
+              Verification Records
             </CardTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleExport("csv")}>
-                <Download className="h-4 w-4 mr-2" />
-                CSV
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport("xlsx")}>
-                <Download className="h-4 w-4 mr-2" />
-                Excel
-              </Button>
-            </div>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {isLoading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="h-16 bg-muted rounded animate-pulse" />
                 ))}
+              </div>
+            ) : verifications.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No verifications found
               </div>
             ) : (
               <>
@@ -275,59 +161,50 @@ export default function AdminVerifications() {
                     <thead>
                       <tr className="border-b border-border">
                         <th className="text-left py-3 px-4 font-medium text-muted-foreground">File</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">User ID</th>
                         <th className="text-left py-3 px-4 font-medium text-muted-foreground">Result</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">CNN Score</th>
                         <th className="text-left py-3 px-4 font-medium text-muted-foreground">Duration</th>
                         <th className="text-left py-3 px-4 font-medium text-muted-foreground">Size</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
+                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date (UTC)</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {data?.verifications.map((v) => (
+                      {verifications.map((v) => (
                         <tr key={v.id} className="border-b border-border hover:bg-muted/50">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
                               <FileAudio className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium truncate max-w-[200px]" title={v.filename}>
-                                {v.filename}
+                              <span className="font-medium truncate max-w-[200px]" title={v.fileName}>
+                                {v.fileName}
                               </span>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">
-                            {v.user_email}
+                            {v.userId}
                           </td>
                           <td className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              {isAIDetected(v.verdict) ? (
-                                <>
-                                  <Bot className="h-4 w-4 text-red-500" />
-                                  <span className="text-red-500 text-sm font-medium">AI Detected</span>
-                                </>
-                              ) : (
-                                <>
-                                  <User className="h-4 w-4 text-green-500" />
-                                  <span className="text-green-500 text-sm font-medium">Human</span>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`font-mono text-sm ${
-                              v.cnn_score > 0.9 ? "text-red-500" : 
-                              v.cnn_score > 0.5 ? "text-yellow-500" : "text-green-500"
-                            }`}>
-                              {(v.cnn_score * 100).toFixed(1)}%
-                            </span>
+                            {v.verdict === "observed" ? (
+                              <div className="flex items-center gap-2">
+                                <Bot className="h-4 w-4 text-red-500" />
+                                <span className="text-red-500 text-sm font-medium">AI Observed</span>
+                              </div>
+                            ) : v.verdict === "not_observed" ? (
+                              <div className="flex items-center gap-2">
+                                <UserCheck className="h-4 w-4 text-green-500" />
+                                <span className="text-green-500 text-sm font-medium">Not Observed</span>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">Pending</span>
+                            )}
                           </td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">
-                            {formatDuration(v.duration_sec)}
+                            {formatDuration(v.duration)}
                           </td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">
-                            {formatFileSize(v.file_size)}
+                            {formatFileSize(v.fileSize)}
                           </td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">
-                            {new Date(v.created_at).toLocaleDateString()}
+                            {formatDate(v.createdAt)}
                           </td>
                         </tr>
                       ))}
@@ -336,30 +213,33 @@ export default function AdminVerifications() {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                  <div className="text-sm text-muted-foreground">
-                    Showing {page * limit + 1} - {Math.min((page + 1) * limit, data?.total || 0)} of {data?.total || 0}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="text-sm text-muted-foreground">
+                      Page {page} of {totalPages}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page === 1}
+                        onClick={() => setPage(p => p - 1)}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={page === totalPages}
+                        onClick={() => setPage(p => p + 1)}
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(p => Math.max(0, p - 1))}
-                      disabled={page === 0}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="text-sm">Page {page + 1}</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage(p => p + 1)}
-                      disabled={(page + 1) * limit >= (data?.total || 0)}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                )}
               </>
             )}
           </CardContent>

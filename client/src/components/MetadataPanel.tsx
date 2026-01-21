@@ -11,7 +11,7 @@
  * Metadata is context, not evidence.
  */
 
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Copy, Check, Info } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -40,6 +40,10 @@ interface MetadataPanelProps {
     codec?: string | null;
     fileHash?: string | null; // SHA-256 hash
     fileSize?: number;
+    // ID3/Vorbis tag metadata
+    artist?: string | null;
+    title?: string | null;
+    album?: string | null;
   } | null;
 }
 
@@ -147,6 +151,28 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
     );
   }
 
+  // Check if track info (ID3/Vorbis tags) is available
+  const hasTrackInfo = metadata.artist || metadata.title || metadata.album;
+
+  // Track info items (ID3/Vorbis tag metadata)
+  const trackInfoItems: MetadataItem[] = [
+    {
+      label: "Title",
+      value: metadata.title || null,
+      tooltip: "Track title extracted from ID3 (MP3) or Vorbis (OGG/FLAC) tags.",
+    },
+    {
+      label: "Artist",
+      value: metadata.artist || null,
+      tooltip: "Artist name extracted from ID3 (MP3) or Vorbis (OGG/FLAC) tags.",
+    },
+    {
+      label: "Album",
+      value: metadata.album || null,
+      tooltip: "Album name extracted from ID3 (MP3) or Vorbis (OGG/FLAC) tags.",
+    },
+  ];
+
   // Field list in FIXED ORDER as specified
   // If a value is unavailable → display "—"
   // Do NOT calculate, estimate, or infer missing values
@@ -205,6 +231,20 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
       {/* Title: FILE METADATA (exact text) */}
       <div className="forensic-panel-header">FILE METADATA</div>
       <div className="forensic-panel-content">
+        {/* Track Info Section - Only show if any tag data exists */}
+        {hasTrackInfo && (
+          <div className="mb-4 pb-3 border-b border-border/50">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
+              Track Info (ID3/Vorbis Tags)
+            </p>
+            <div className="bg-muted/30 rounded-lg p-3 space-y-1">
+              {trackInfoItems.map((item) => (
+                item.value && <MetadataRow key={item.label} {...item} />
+              ))}
+            </div>
+          </div>
+        )}
+        
         {/* Subline: Forensic input record (pre-analysis, pre-normalization) */}
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3 pb-2 border-b border-border/30">
           Forensic input record (pre-analysis, pre-normalization)

@@ -44,6 +44,10 @@ interface FileMetadata {
   codec: string | null;
   fileHash: string | null;
   fileSize: number;
+  // ID3/Vorbis tag metadata
+  artist: string | null;
+  title: string | null;
+  album: string | null;
 }
 
 // Detailed analysis types from server
@@ -348,6 +352,10 @@ export default function Home() {
       codec: null,
       fileHash: null,
       fileSize: file.size,
+      // ID3/Vorbis tags will be extracted by RunPod
+      artist: null,
+      title: null,
+      album: null,
     });
     
     // Store File object for direct upload to RunPod (no Base64 encoding)
@@ -374,6 +382,10 @@ export default function Home() {
           codec: getCodecFromFilename(file.name),
           fileHash: null, // Will be computed by RunPod
           fileSize: file.size,
+          // ID3/Vorbis tags will be extracted by RunPod
+          artist: null,
+          title: null,
+          album: null,
         });
       } catch (error) {
         // Web Audio API may not support all formats (e.g., FLAC, some WAV variants)
@@ -390,6 +402,10 @@ export default function Home() {
           codec: getCodecFromFilename(file.name),
           fileHash: null,
           fileSize: file.size,
+          // ID3/Vorbis tags will be extracted by RunPod
+          artist: null,
+          title: null,
+          album: null,
         });
         
         // Set audioBuffer to null so UI knows preview is unavailable
@@ -656,6 +672,11 @@ export default function Home() {
           bitDepth: result.metadata.bit_depth ?? prev.bitDepth,
           codec: result.metadata.codec ?? prev.codec,
           fileSize: result.metadata.file_size ?? prev.fileSize,
+          fileHash: result.metadata.file_hash ?? prev.fileHash,
+          // ID3/Vorbis tag metadata
+          artist: result.metadata.artist ?? prev.artist,
+          title: result.metadata.title ?? prev.title,
+          album: result.metadata.album ?? prev.album,
         } : prev);
       }
       

@@ -286,6 +286,145 @@ export const appRouter = router({
       }),
   }),
 
+  /**
+   * Verification with storage - for logged-in users
+   * Saves verification results to database and increments usage
+   */
+  verificationWithStorage: router({
+    process: protectedProcedure
+      .input(
+        z.object({
+          fileName: z.string(),
+          fileData: z.string(), // base64 encoded
+          fileSize: z.number().optional(),
+          duration: z.number().optional(),
+          sampleRate: z.number().optional(),
+          orientation: z.enum(["ai_oriented", "balanced", "human_oriented"]).default("balanced"),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { createVerification, incrementUserUsage } = await import("./db");
+        
+        // Process file in-memory
+        const fileBuffer = Buffer.from(input.fileData, "base64");
+
+        console.log(`[VerificationWithStorage] User ${ctx.user.id} processing: ${input.fileName}`);
+        console.log(`[VerificationWithStorage] Orientation: ${input.orientation}`);
+
+        try {
+          // Forward to DetectX RunPod Server
+          const blob = new Blob([fileBuffer], { type: getMimeType(input.fileName) });
+          const formData = new FormData();
+          formData.append("file", blob, input.fileName);
+
+          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
+          console.log(`[VerificationWithStorage] Calling DetectX API: ${apiUrl}`);
+
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            body: formData as any,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[VerificationWithStorage] DetectX API error: ${response.status} - ${errorText}`);
+            throw new Error(`DetectX API returned ${response.status}`);
+          }
+
+          const detectxResult = await response.json() as {
+            verdict: string;
+            authority: string;
+            orientation: string;
+            exceeded_axes: string[];
+            cnn_score: number | null;
+            geometry_exceeded: boolean | null;
+            notice: string | null;
+            metadata: {
+              duration: number | null;
+              sample_rate: number | null;
+              channels: number | null;
+              bit_depth: number | null;
+              codec: string | null;
+              file_size: number | null;
+              file_hash: string | null;
+              artist: string | null;
+              title: string | null;
+              album: string | null;
+            } | null;
+            detailed_analysis: unknown | null;
+          };
+
+          console.log(`[VerificationWithStorage] DetectX result:`, detectxResult);
+
+          const isAI = detectxResult.verdict === "AI signal evidence was observed.";
+          const verdict = isAI ? "observed" as const : "not_observed" as const;
+          const crgStatus = isAI ? "CR-G_exceeded" : "CR-G_within_HDB-G";
+
+          // Save to database
+          try {
+            await createVerification({
+              userId: ctx.user.id,
+              fileName: input.fileName,
+              fileSize: input.fileSize || 0,
+              fileUrl: "", // No storage URL - transient file
+              fileKey: "", // No storage key - transient file
+              duration: detectxResult.metadata?.duration || input.duration,
+              sampleRate: detectxResult.metadata?.sample_rate || input.sampleRate,
+              bitDepth: detectxResult.metadata?.bit_depth,
+              channels: detectxResult.metadata?.channels,
+              codec: detectxResult.metadata?.codec,
+              fileHash: detectxResult.metadata?.file_hash,
+              verdict,
+              crgStatus,
+              primaryExceededAxis: detectxResult.exceeded_axes[0] || null,
+              timelineMarkers: [],
+              analysisData: detectxResult.detailed_analysis,
+              status: "completed",
+            });
+
+            // Increment user usage
+            await incrementUserUsage(ctx.user.id);
+            console.log(`[VerificationWithStorage] Saved verification for user ${ctx.user.id}`);
+          } catch (dbError) {
+            console.error(`[VerificationWithStorage] Failed to save to DB:`, dbError);
+            // Continue - don't fail the verification just because DB save failed
+          }
+
+          return {
+            success: true,
+            verdict,
+            crgStatus,
+            primaryExceededAxis: detectxResult.exceeded_axes[0] || null,
+            exceededAxes: detectxResult.exceeded_axes,
+            timelineMarkers: [] as { timestamp: number; type: string }[],
+            metadata: detectxResult.metadata || {
+              duration: input.duration,
+              sample_rate: input.sampleRate,
+              channels: 2,
+              bit_depth: 16,
+              codec: "PCM_16",
+              file_size: input.fileSize,
+              file_hash: null,
+              artist: null,
+              title: null,
+              album: null,
+            },
+            orientation: detectxResult.orientation as "ai_oriented" | "balanced" | "human_oriented",
+            cnn_score: detectxResult.cnn_score,
+            geometry_exceeded: detectxResult.geometry_exceeded,
+            notice: detectxResult.notice,
+            detailedAnalysis: detectxResult.detailed_analysis,
+          };
+        } catch (error) {
+          console.error(`[VerificationWithStorage] Error:`, error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Verification failed",
+          });
+        }
+      }),
+  }),
+
   contact: router({
     /**
      * Submit contact form inquiry

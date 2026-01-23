@@ -1063,3 +1063,10 @@
 - [x] Create user detail page with test count, AI observed/not observed stats
 - [x] Add date-based search for users and display lastActive in UTC
 - [x] Fix "View all verification records" mock data error (now uses tRPC)
+
+
+## Verification Records Storage Implementation (Jan 22)
+- [x] Add protectedProcedure for logged-in user verification with DB storage
+- [x] Keep publicProcedure for anonymous stateless verification
+- [x] Save verification results to audio_verifications table for logged-in users
+- [x] Update user usage count after verification

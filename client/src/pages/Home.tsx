@@ -190,6 +190,9 @@ export default function Home() {
   const [modeLimit, setModeLimit] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
 
+  // Mutation to save verification to database for logged-in users
+  const saveVerificationMutation = trpc.verificationWithStorage.process.useMutation();
+
   // Master emails with unlimited access
   const MASTER_EMAILS = [
     "skyclans2@gmail.com",
@@ -693,6 +696,34 @@ export default function Home() {
       });
       
       setScanComplete(true);
+      
+      // Save verification to database for logged-in users
+      if (user?.id && selectedFileRef.current) {
+        try {
+          // Convert file to base64 for tRPC call
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const base64 = (reader.result as string).split(',')[1];
+            try {
+              await saveVerificationMutation.mutateAsync({
+                fileName: selectedFileRef.current!.name,
+                fileData: base64,
+                fileSize: selectedFileRef.current!.size,
+                duration: metadata?.duration || undefined,
+                sampleRate: metadata?.sampleRate || undefined,
+                orientation: "balanced" as const, // Enhanced mode maps to balanced
+              });
+              console.log("[Verification] Saved to database for user", user.id);
+            } catch (dbError) {
+              console.error("[Verification] Failed to save to DB:", dbError);
+              // Don't fail the verification - just log the error
+            }
+          };
+          reader.readAsDataURL(selectedFileRef.current);
+        } catch (e) {
+          console.error("[Verification] Error preparing file for DB save:", e);
+        }
+      }
       
       // Increment usage count (skip for master users)
       if (!isMasterUser) {

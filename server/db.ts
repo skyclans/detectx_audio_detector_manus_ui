@@ -204,6 +204,18 @@ export async function resetUserUsage(userId: number) {
   }).where(eq(users.id, userId));
 }
 
+/**
+ * Increment user usage count by 1
+ */
+export async function incrementUserUsage(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(users).set({ 
+    usageCount: sql`${users.usageCount} + 1`,
+  }).where(eq(users.id, userId));
+}
+
 export async function bulkUpdateUserPlan(
   userIds: number[],
   plan: "free" | "pro" | "enterprise" | "master"

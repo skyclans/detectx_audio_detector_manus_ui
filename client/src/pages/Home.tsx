@@ -98,6 +98,36 @@ interface VerdictResult {
   detailedAnalysis?: DetailedAnalysisData | null;
 }
 
+// Helper function to convert snake_case server response to camelCase for UI
+function convertDetailedAnalysis(data: any): DetailedAnalysisData | null {
+  if (!data) return null;
+
+  return {
+    axes: (data.axes || []).map((a: any) => ({
+      id: a.id,
+      name: a.name,
+      status: a.status,
+      metrics: a.metrics || [],
+    })),
+    timelineEvents: (data.timeline_events || data.timelineEvents || []).map((e: any) => ({
+      time: e.time,
+      eventType: e.event_type || e.eventType,
+      axis: e.axis,
+      note: e.note,
+    })),
+    stemComponents: (data.stem_components || data.stemComponents || []).map((s: any) => ({
+      id: s.id,
+      name: s.name,
+      available: s.available,
+    })),
+    geometryTrace: (data.geometry_trace || data.geometryTrace || []).map((g: any) => ({
+      axis: g.axis,
+      exceeded: g.exceeded,
+      metrics: g.metrics || [],
+    })),
+  };
+}
+
 // Scan sequence stages for Enhanced Mode (CNN + Reconstruction Engine)
 type ScanStage =
   | "init" | "upload" | "decode" | "classifier" | "classifier_check"
@@ -692,7 +722,7 @@ export default function Home() {
         crgStatus: result.crgStatus || result.crg_status,
         primaryExceededAxis: result.primaryExceededAxis || result.primary_exceeded_axis,
         timelineMarkers: result.timelineMarkers || result.timeline_markers || [],
-        detailedAnalysis: result.detailedAnalysis || result.detailed_analysis || null,
+        detailedAnalysis: convertDetailedAnalysis(result.detailedAnalysis || result.detailed_analysis),
       });
       
       setScanComplete(true);

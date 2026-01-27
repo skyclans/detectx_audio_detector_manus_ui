@@ -1,13 +1,15 @@
 /**
  * Source Components Section
- * 
- * Professional audio analyzer style visualization.
+ *
+ * Professional audio analyzer style visualization with waveform playback.
  * UI displays data only. No interpretation.
  * All text is verbatim from DetectX specification.
  */
 
-import { Layers, Download, Volume2, Music, Mic2, Drum, Guitar, Waves } from "lucide-react";
+import { useState } from "react";
+import { Layers, Download, Volume2, Music, Mic2, Drum, Guitar, Waves, ChevronDown, ChevronUp } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { StemWaveformPlayer } from "./StemWaveformPlayer";
 
 interface StemComponent {
   id: string;
@@ -33,6 +36,8 @@ interface SourceComponentsProps {
   stemVolumes?: Record<string, number>;
   onVolumeChange?: (stemId: string, volume: number) => void;
   onDownload?: (stemId: string) => void;
+  /** API base URL for building full download URLs */
+  apiBaseUrl?: string;
 }
 
 // Stem icons mapping
@@ -45,17 +50,17 @@ const STEM_ICONS: Record<string, typeof Music> = {
   guitar: Guitar,
 };
 
-// Stem colors
-const STEM_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  vocals: { bg: "bg-purple-500/10", text: "text-purple-400", border: "border-purple-500/30" },
-  drums: { bg: "bg-orange-500/10", text: "text-orange-400", border: "border-orange-500/30" },
-  bass: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30" },
-  other: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30" },
-  piano: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/30" },
-  guitar: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30" },
+// Stem colors with waveform color
+const STEM_COLORS: Record<string, { bg: string; text: string; border: string; waveform: string }> = {
+  vocals: { bg: "bg-purple-500/10", text: "text-purple-400", border: "border-purple-500/30", waveform: "oklch(0.65 0.25 300)" },
+  drums: { bg: "bg-orange-500/10", text: "text-orange-400", border: "border-orange-500/30", waveform: "oklch(0.70 0.20 50)" },
+  bass: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30", waveform: "oklch(0.65 0.20 250)" },
+  other: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30", waveform: "oklch(0.70 0.20 160)" },
+  piano: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/30", waveform: "oklch(0.75 0.15 80)" },
+  guitar: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30", waveform: "oklch(0.65 0.25 25)" },
 };
 
-const DEFAULT_COLOR = { bg: "bg-muted/20", text: "text-muted-foreground", border: "border-border/30" };
+const DEFAULT_COLOR = { bg: "bg-muted/20", text: "text-muted-foreground", border: "border-border/30", waveform: "oklch(0.60 0.01 260)" };
 
 function StemRow({
   stem,
@@ -178,13 +183,15 @@ function StemRow({
   );
 }
 
-export function SourceComponents({ 
-  data, 
+export function SourceComponents({
+  data,
   isProcessing = false,
   stemVolumes = {},
   onVolumeChange,
   onDownload,
+  apiBaseUrl = "https://emjvw2an6oynf9-8000.proxy.runpod.net",
 }: SourceComponentsProps) {
+  const [expandedView, setExpandedView] = useState(false);
   // During Verification state
   if (isProcessing) {
     return (
@@ -287,6 +294,15 @@ export function SourceComponents({
 
   const availableCount = data.components.filter(c => c.available).length;
 
+  // Build full download URL from relative path
+  const buildFullUrl = (downloadUrl: string | undefined) => {
+    if (!downloadUrl) return null;
+    // If already absolute, return as-is
+    if (downloadUrl.startsWith('http')) return downloadUrl;
+    // Build full URL from API base
+    return `${apiBaseUrl}${downloadUrl}`;
+  };
+
   // Data available state
   return (
     <div className="forensic-panel h-full">
@@ -299,21 +315,62 @@ export function SourceComponents({
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-forensic-cyan/20 text-forensic-cyan">
             {availableCount}/{data.components.length} available
           </span>
+          {/* Toggle expanded view */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs"
+            onClick={() => setExpandedView(!expandedView)}
+          >
+            {expandedView ? (
+              <>
+                <ChevronUp className="w-3 h-3 mr-1" />
+                Compact
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3 h-3 mr-1" />
+                Waveform
+              </>
+            )}
+          </Button>
         </div>
       </div>
       <p className="text-xs text-muted-foreground px-4 pb-2">
-        Analytical stem components from verification engine
+        {expandedView
+          ? "Click waveform to load audio. Alt+click for loop start, Shift+click for loop end."
+          : "Analytical stem components from verification engine"}
       </p>
       <div className="forensic-panel-content space-y-2">
-        {data.components.map((stem) => (
-          <StemRow
-            key={stem.id}
-            stem={stem}
-            volume={stemVolumes[stem.id] ?? 80}
-            onVolumeChange={(v) => onVolumeChange?.(stem.id, v)}
-            onDownload={() => onDownload?.(stem.id)}
-          />
-        ))}
+        {expandedView ? (
+          // Expanded view with waveform players
+          data.components.map((stem) => {
+            const stemKey = stem.id.toLowerCase();
+            const colors = STEM_COLORS[stemKey] || DEFAULT_COLOR;
+            return (
+              <StemWaveformPlayer
+                key={stem.id}
+                stemId={stem.id}
+                name={stem.name}
+                downloadUrl={buildFullUrl(stem.downloadUrl)}
+                color={colors}
+                available={stem.available}
+                onDownload={() => onDownload?.(stem.id)}
+              />
+            );
+          })
+        ) : (
+          // Compact view with basic controls
+          data.components.map((stem) => (
+            <StemRow
+              key={stem.id}
+              stem={stem}
+              volume={stemVolumes[stem.id] ?? 80}
+              onVolumeChange={(v) => onVolumeChange?.(stem.id, v)}
+              onDownload={() => onDownload?.(stem.id)}
+            />
+          ))
+        )}
       </div>
     </div>
   );

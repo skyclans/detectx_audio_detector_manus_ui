@@ -3,7 +3,6 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTheme } from "@/contexts/ThemeContext";
-import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Sun, Moon, ArrowLeft, LogOut, User } from "lucide-react";
 
@@ -53,18 +52,29 @@ function MicrosoftIcon({ className }: { className?: string }) {
 export default function Login() {
   const { theme, toggleTheme } = useTheme();
   const { user, loading, isAuthenticated, logout } = useAuth();
-  const loginUrl = getLoginUrl();
-  
+
   // Terms agreement state
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
-  
+
   const canLogin = termsAgreed && privacyAgreed;
 
-  // All login methods use the same OAuth flow with account selection
-  const handleLogin = () => {
+  // Direct OAuth login handlers
+  const handleGoogleLogin = () => {
     if (!canLogin) return;
-    window.location.href = loginUrl;
+    window.location.href = "/api/auth/google";
+  };
+
+  const handleAppleLogin = () => {
+    if (!canLogin) return;
+    // Apple OAuth - coming soon
+    alert("Apple login coming soon!");
+  };
+
+  const handleMicrosoftLogin = () => {
+    if (!canLogin) return;
+    // Microsoft OAuth - coming soon
+    alert("Microsoft login coming soon!");
   };
 
   return (
@@ -195,11 +205,10 @@ export default function Login() {
 
             {/* Login Options - All visible from start */}
             <div className="space-y-3">
-              {/* Google Login */}
+              {/* Google Login - Primary option */}
               <Button
-                variant="outline"
-                className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
-                onClick={handleLogin}
+                className="w-full h-12 text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 flex items-center justify-center gap-3"
+                onClick={handleGoogleLogin}
                 disabled={!canLogin || isAuthenticated}
               >
                 <GoogleIcon className="h-5 w-5" />
@@ -209,44 +218,27 @@ export default function Login() {
               {/* Apple Login */}
               <Button
                 variant="outline"
-                className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
-                onClick={handleLogin}
+                className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3 opacity-50"
+                onClick={handleAppleLogin}
                 disabled={!canLogin || isAuthenticated}
               >
                 <AppleIcon className="h-5 w-5" />
                 Continue with Apple
+                <span className="text-[10px] text-muted-foreground">(Soon)</span>
               </Button>
 
-              {/* Microsoft Login - Now visible from start */}
+              {/* Microsoft Login */}
               <Button
                 variant="outline"
-                className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3"
-                onClick={handleLogin}
+                className="w-full h-12 text-sm font-medium flex items-center justify-center gap-3 opacity-50"
+                onClick={handleMicrosoftLogin}
                 disabled={!canLogin || isAuthenticated}
               >
                 <MicrosoftIcon className="h-5 w-5" />
                 Continue with Microsoft
+                <span className="text-[10px] text-muted-foreground">(Soon)</span>
               </Button>
             </div>
-
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">or</span>
-              </div>
-            </div>
-
-            {/* DetectX Account (Primary) */}
-            <Button
-              className="w-full h-12 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={handleLogin}
-              disabled={!canLogin || isAuthenticated}
-            >
-              Sign in with DetectX Account
-            </Button>
 
             {/* Helper text when checkboxes not checked */}
             {!canLogin && !isAuthenticated && (

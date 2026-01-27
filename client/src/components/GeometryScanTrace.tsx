@@ -1,12 +1,13 @@
 /**
  * Geometry Scan Trace Section
  * 
+ * Professional audio analyzer style visualization.
  * UI displays data only. No interpretation.
  * All text is verbatim from DetectX specification.
  */
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { Hexagon, ChevronDown, ChevronUp, CheckCircle2, XCircle, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AxisMetric {
@@ -29,59 +30,96 @@ interface GeometryScanTraceProps {
   isProcessing?: boolean;
 }
 
-// Row labels from specification
-const ROW_LABELS = {
-  axis: "Axis",
-  exceeded: "Exceeded",
-  metrics: "Metrics",
-};
-
-function AxisRow({ axis }: { axis: GeometryTraceAxis }) {
+function AxisRow({ axis, index }: { axis: GeometryTraceAxis; index: number }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-muted/20 rounded">
+    <div className={cn(
+      "group rounded-lg border overflow-hidden transition-all",
+      axis.exceeded 
+        ? "bg-red-500/5 border-red-500/30" 
+        : "bg-emerald-500/5 border-emerald-500/30"
+    )}>
       {/* Main row */}
-      <div className="grid grid-cols-3 gap-3 items-center py-2 px-3">
-        {/* Axis */}
-        <span className="text-xs font-mono text-foreground">{axis.axis}</span>
-
-        {/* Exceeded */}
-        <span className={`text-xs font-medium ${
-          axis.exceeded ? "text-red-400" : "text-green-400"
-        }`}>
-          {axis.exceeded ? "Yes" : "No"}
-        </span>
-
-        {/* Metrics expand/collapse */}
-        <div className="flex justify-end">
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-          >
-            {expanded ? (
-              <>
-                Hide metrics
-                <ChevronUp className="w-3 h-3" />
-              </>
-            ) : (
-              <>
-                View metrics
-                <ChevronDown className="w-3 h-3" />
-              </>
-            )}
-          </button>
+      <div 
+        className={cn(
+          "flex items-center gap-3 p-3 cursor-pointer transition-colors",
+          axis.exceeded ? "hover:bg-red-500/10" : "hover:bg-emerald-500/10"
+        )}
+        onClick={() => setExpanded(!expanded)}
+      >
+        {/* Index badge */}
+        <div className={cn(
+          "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold",
+          axis.exceeded ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"
+        )}>
+          {String(index + 1).padStart(2, "0")}
         </div>
+        
+        {/* Axis name */}
+        <div className="flex-1">
+          <span className="font-mono text-sm text-foreground">{axis.axis}</span>
+        </div>
+
+        {/* Status indicator */}
+        <div className="flex items-center gap-2">
+          {axis.exceeded ? (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-500/20">
+              <XCircle className="w-3.5 h-3.5 text-red-400" />
+              <span className="text-xs font-medium text-red-400">EXCEEDED</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-emerald-500/20">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-xs font-medium text-emerald-400">PASS</span>
+            </div>
+          )}
+        </div>
+
+        {/* Expand button */}
+        <button
+          className={cn(
+            "w-8 h-8 rounded flex items-center justify-center transition-colors",
+            axis.exceeded 
+              ? "hover:bg-red-500/20 text-red-400" 
+              : "hover:bg-emerald-500/20 text-emerald-400"
+          )}
+        >
+          {expanded ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+        </button>
       </div>
 
       {/* Expanded metrics */}
       {expanded && axis.metrics.length > 0 && (
-        <div className="px-3 pb-3 pt-1 border-t border-border/20">
-          <div className="space-y-1">
+        <div className={cn(
+          "px-4 pb-4 pt-2 border-t",
+          axis.exceeded ? "border-red-500/20 bg-red-500/5" : "border-emerald-500/20 bg-emerald-500/5"
+        )}>
+          {/* Metrics grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {axis.metrics.map((metric, idx) => (
-              <div key={idx} className="grid grid-cols-2 gap-2 text-xs py-1">
-                <span className="text-muted-foreground">{metric.name}</span>
-                <span className="font-mono text-foreground">{metric.value}</span>
+              <div 
+                key={idx} 
+                className={cn(
+                  "p-2 rounded border",
+                  axis.exceeded 
+                    ? "bg-red-500/10 border-red-500/20" 
+                    : "bg-emerald-500/10 border-emerald-500/20"
+                )}
+              >
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">
+                  {metric.name}
+                </p>
+                <p className={cn(
+                  "font-mono text-sm",
+                  axis.exceeded ? "text-red-300" : "text-emerald-300"
+                )}>
+                  {metric.value}
+                </p>
               </div>
             ))}
           </div>
@@ -99,11 +137,45 @@ export function GeometryScanTrace({
   if (isProcessing) {
     return (
       <div className="forensic-panel">
-        <div className="forensic-panel-header">Geometry Scan Trace</div>
+        <div className="forensic-panel-header flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Hexagon className="w-4 h-4 text-forensic-cyan" />
+            <span>Geometry Scan Trace</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-forensic-cyan animate-pulse" />
+            <span className="text-xs text-forensic-cyan">TRACING</span>
+          </div>
+        </div>
         <div className="forensic-panel-content">
-          <div className="flex flex-col items-center justify-center py-6">
-            <p className="text-sm text-muted-foreground">Inspecting structural signals…</p>
-            <p className="text-xs text-muted-foreground mt-1">Verification is in progress.</p>
+          {/* Geometry trace animation */}
+          <div className="relative h-48 bg-muted/10 rounded-lg overflow-hidden">
+            {/* Grid background */}
+            <div className="absolute inset-0 grid grid-cols-8 grid-rows-6 gap-0">
+              {[...Array(48)].map((_, i) => (
+                <div key={i} className="border border-border/10" />
+              ))}
+            </div>
+            
+            {/* Scanning hexagon */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative">
+                <Hexagon className="w-16 h-16 text-forensic-cyan/20" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-forensic-cyan/30 border-t-forensic-cyan rounded-full animate-spin" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Trace lines animation */}
+            <div className="absolute inset-x-0 top-0 h-full">
+              <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-forensic-cyan/50 to-transparent animate-scan-line" />
+            </div>
+            
+            {/* Status text */}
+            <div className="absolute bottom-4 inset-x-0 text-center">
+              <p className="text-xs text-muted-foreground">Tracing geometry constraints...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -114,14 +186,31 @@ export function GeometryScanTrace({
   if (!data) {
     return (
       <div className="forensic-panel">
-        <div className="forensic-panel-header">Geometry Scan Trace</div>
+        <div className="forensic-panel-header flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Hexagon className="w-4 h-4 text-muted-foreground" />
+            <span>Geometry Scan Trace</span>
+          </div>
+        </div>
         <div className="forensic-panel-content">
-          <p className="text-sm text-muted-foreground text-center py-6">
-            Awaiting verification
-          </p>
-          <p className="text-xs text-muted-foreground text-center">
-            Upload an audio file and start verification to view results.
-          </p>
+          {/* Empty state with geometry placeholder */}
+          <div className="relative h-40 bg-muted/10 rounded-lg border border-dashed border-border/30 overflow-hidden">
+            {/* Grid background */}
+            <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-0">
+              {[...Array(24)].map((_, i) => (
+                <div key={i} className="border border-border/10" />
+              ))}
+            </div>
+            
+            {/* Center content */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <Hexagon className="w-10 h-10 text-muted-foreground/20 mb-2" />
+              <p className="text-xs text-muted-foreground">Awaiting verification</p>
+              <p className="text-[10px] text-muted-foreground/50 mt-1">
+                Geometry trace will appear after scan
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -131,47 +220,63 @@ export function GeometryScanTrace({
   if (!data.axes || data.axes.length === 0) {
     return (
       <div className="forensic-panel">
-        <div className="forensic-panel-header">Geometry Scan Trace</div>
+        <div className="forensic-panel-header flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Hexagon className="w-4 h-4 text-muted-foreground" />
+            <span>Geometry Scan Trace</span>
+          </div>
+          <span className="text-xs text-muted-foreground">EMPTY</span>
+        </div>
         <div className="forensic-panel-content">
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No geometry trace available
-          </p>
-          <p className="text-xs text-muted-foreground text-center">
-            No geometry trace data was returned for this scan.
-          </p>
+          <div className="h-32 bg-muted/10 rounded-lg border border-dashed border-border/30 flex flex-col items-center justify-center">
+            <Hexagon className="w-8 h-8 text-muted-foreground/30 mb-2" />
+            <p className="text-xs text-muted-foreground">No geometry trace available</p>
+          </div>
         </div>
       </div>
     );
   }
 
+  const exceededCount = data.axes.filter(a => a.exceeded).length;
+  const passCount = data.axes.filter(a => !a.exceeded).length;
+
   // Data available state
   return (
     <div className="forensic-panel">
-      <div className="forensic-panel-header">Geometry Scan Trace</div>
-      <p className="text-xs text-muted-foreground mb-3">
-        Execution trace of geometry checks performed by the verification engine
+      <div className="forensic-panel-header flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Hexagon className="w-4 h-4 text-forensic-cyan" />
+          <span>Geometry Scan Trace</span>
+        </div>
+        {/* Summary */}
+        <div className="flex items-center gap-2">
+          {exceededCount > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 flex items-center gap-1">
+              <XCircle className="w-3 h-3" />
+              {exceededCount}
+            </span>
+          )}
+          {passCount > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" />
+              {passCount}
+            </span>
+          )}
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground px-4 pb-2">
+        Execution trace of CR-G geometry constraints
       </p>
-      <div className="forensic-panel-content">
-        {/* Column headers */}
-        <div className="grid grid-cols-3 gap-3 text-xs font-medium text-muted-foreground border-b border-border pb-2 mb-2 px-3">
-          <span>{ROW_LABELS.axis}</span>
-          <span>{ROW_LABELS.exceeded}</span>
-          <span className="text-right">{ROW_LABELS.metrics}</span>
-        </div>
+      <div className="forensic-panel-content space-y-2">
+        {data.axes.map((axis, idx) => (
+          <AxisRow key={idx} axis={axis} index={idx} />
+        ))}
 
-        {/* Axis rows */}
-        <div className="space-y-2">
-          {data.axes.map((axis, idx) => (
-            <AxisRow key={idx} axis={axis} />
-          ))}
-        </div>
-
-        {/* Fixed Disclaimer */}
-        <div className={cn(
-          "mt-4 pt-3 border-t border-border/30",
-          "text-xs text-muted-foreground text-center italic"
-        )}>
-          This trace is display-only. No analysis or interpretation is performed in the UI.
+        {/* Disclaimer */}
+        <div className="mt-4 pt-3 border-t border-border/30 text-center">
+          <p className="text-[10px] text-muted-foreground italic">
+            Display-only trace. No analysis or interpretation performed in UI.
+          </p>
         </div>
       </div>
     </div>

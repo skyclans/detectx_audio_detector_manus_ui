@@ -6,7 +6,7 @@
  * All text is verbatim from DetectX specification.
  */
 
-import { Layers } from "lucide-react";
+import { Layers, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StemWaveformPlayer } from "./StemWaveformPlayer";
 

@@ -81,10 +81,20 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <!-- Umami Analytics (only loads if environment variables are set) -->
+    <script>
+      (function() {
+        var endpoint = "%VITE_ANALYTICS_ENDPOINT%";
+        var websiteId = "%VITE_ANALYTICS_WEBSITE_ID%";
+        if (endpoint && !endpoint.startsWith("%") && websiteId && !websiteId.startsWith("%")) {
+          var script = document.createElement("script");
+          script.defer = true;
+          script.src = endpoint + "/umami";
+          script.dataset.websiteId = websiteId;
+          document.body.appendChild(script);
+        }
+      })();
+    </script>
   </body>
 
 </html>

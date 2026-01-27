@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
-// Initialize Resend with API key from environment
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend with API key from environment (optional - email features disabled if not set)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 interface ContactEmailParams {
   inquiryType: string;
@@ -29,8 +29,8 @@ const inquiryTypeLabels: Record<string, string> = {
 export async function sendContactEmail(params: ContactEmailParams): Promise<{ success: boolean; error?: string }> {
   const { inquiryType, name, organization, email, subject, message } = params;
   
-  if (!process.env.RESEND_API_KEY) {
-    console.error("[Email] RESEND_API_KEY not configured");
+  if (!resend) {
+    console.warn("[Email] RESEND_API_KEY not configured - email disabled");
     return { success: false, error: "Email service not configured" };
   }
 

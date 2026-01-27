@@ -179,9 +179,9 @@ export const adminRouter = router({
         const runpodStats = await fetchRunPodUserStats(input.userId);
         usageCount = runpodStats.totalVerifications;
         stats = {
-          totalVerifications: runpodStats.totalVerifications,
-          aiDetected: runpodStats.observedCount,
-          humanDetected: runpodStats.notObservedCount,
+          total: runpodStats.totalVerifications,
+          observed: runpodStats.observedCount,
+          notObserved: runpodStats.notObservedCount,
         };
       } catch (error) {
         console.error("Failed to fetch RunPod user stats:", error);

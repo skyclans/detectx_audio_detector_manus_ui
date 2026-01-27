@@ -132,7 +132,7 @@ export const appRouter = router({
           const formData = new FormData();
           formData.append("file", blob, input.fileName);
 
-          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
+          const apiUrl = `${DETECTX_API_URL}/api/verify-audio?orientation=${input.orientation}`;
           console.log(`[Verification] Calling DetectX API: ${apiUrl}`);
 
           // Use native fetch with FormData - do NOT set Content-Type header manually
@@ -317,7 +317,7 @@ export const appRouter = router({
           const formData = new FormData();
           formData.append("file", blob, input.fileName);
 
-          const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${input.orientation}`;
+          const apiUrl = `${DETECTX_API_URL}/api/verify-audio?orientation=${input.orientation}`;
           console.log(`[VerificationWithStorage] Calling DetectX API: ${apiUrl}`);
 
           const response = await fetch(apiUrl, {

@@ -17,6 +17,7 @@ import {
   fetchRunPodUserVerifications,
   fetchRunPodUserStats,
   fetchRunPodHealth,
+  fetchRunPodAllUsersStats,
 } from "./runpodApi";
 import {
   getAllUsers,
@@ -86,19 +87,38 @@ export const adminRouter = router({
     )
     .query(async ({ input }) => {
       const result = await getAllUsers(input);
+
+      // Fetch usage stats from RunPod
+      let runpodStats: Map<number, { totalVerifications: number; observedCount: number; notObservedCount: number }> = new Map();
+      try {
+        const allStats = await fetchRunPodAllUsersStats();
+        allStats.users.forEach(stat => {
+          runpodStats.set(stat.userId, {
+            totalVerifications: stat.totalVerifications,
+            observedCount: stat.observedCount,
+            notObservedCount: stat.notObservedCount,
+          });
+        });
+      } catch (error) {
+        console.error("Failed to fetch RunPod stats:", error);
+      }
+
       return {
-        users: result.users.map(user => ({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          plan: user.plan,
-          usageCount: user.usageCount,
-          monthlyLimit: user.monthlyLimit,
-          usageResetDate: user.usageResetDate,
-          createdAt: user.createdAt,
-          lastSignedIn: user.lastSignedIn,
-        })),
+        users: result.users.map(user => {
+          const stats = runpodStats.get(user.id);
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            plan: user.plan,
+            usageCount: stats?.totalVerifications ?? user.usageCount,
+            monthlyLimit: user.monthlyLimit,
+            usageResetDate: user.usageResetDate,
+            createdAt: user.createdAt,
+            lastSignedIn: user.lastSignedIn,
+          };
+        }),
         total: result.total,
         page: input?.page || 1,
         limit: input?.limit || 20,
@@ -116,13 +136,23 @@ export const adminRouter = router({
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       }
+
+      // Fetch usage from RunPod
+      let usageCount = user.usageCount;
+      try {
+        const runpodStats = await fetchRunPodUserStats(input.userId);
+        usageCount = runpodStats.totalVerifications;
+      } catch (error) {
+        console.error("Failed to fetch RunPod user stats:", error);
+      }
+
       return {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
         plan: user.plan,
-        usageCount: user.usageCount,
+        usageCount: usageCount,
         monthlyLimit: user.monthlyLimit,
         usageResetDate: user.usageResetDate,
         createdAt: user.createdAt,
@@ -140,9 +170,23 @@ export const adminRouter = router({
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       }
-      
-      const stats = await getUserVerificationStats(input.userId);
-      
+
+      // Fetch stats from RunPod instead of local DB
+      let stats = await getUserVerificationStats(input.userId);
+      let usageCount = user.usageCount;
+
+      try {
+        const runpodStats = await fetchRunPodUserStats(input.userId);
+        usageCount = runpodStats.totalVerifications;
+        stats = {
+          totalVerifications: runpodStats.totalVerifications,
+          aiDetected: runpodStats.observedCount,
+          humanDetected: runpodStats.notObservedCount,
+        };
+      } catch (error) {
+        console.error("Failed to fetch RunPod user stats:", error);
+      }
+
       return {
         user: {
           id: user.id,
@@ -150,7 +194,7 @@ export const adminRouter = router({
           email: user.email,
           role: user.role,
           plan: user.plan,
-          usageCount: user.usageCount,
+          usageCount: usageCount,
           monthlyLimit: user.monthlyLimit,
           usageResetDate: user.usageResetDate,
           createdAt: user.createdAt,

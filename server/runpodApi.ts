@@ -142,3 +142,15 @@ export async function fetchRunPodUserStats(userId: number): Promise<RunPodUserSt
   }
   return response.json();
 }
+
+export interface AllUsersStatsResponse {
+  users: RunPodUserStats[];
+}
+
+export async function fetchRunPodAllUsersStats(): Promise<AllUsersStatsResponse> {
+  const response = await fetch(`${RUNPOD_API_BASE_URL}/api/users/stats/all`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch all users stats: ${response.status}`);
+  }
+  return response.json();
+}

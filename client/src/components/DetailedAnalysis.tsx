@@ -3,22 +3,21 @@
  * 
  * Professional audio analyzer style visualization.
  * UI displays data only. No interpretation.
- * All text is verbatim from DetectX specification.
+ * Dynamically displays axes data from server response.
  */
 
 import { Gauge, CheckCircle2, AlertTriangle, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Axis definitions (fixed order from specification)
-type AxisId = "G1-A" | "G1-B" | "G2-A" | "G2-B" | "G3-A";
 
 interface AxisMetric {
   name: string;
   value: string;
 }
 
+// Dynamic axis data from server - no hardcoded axis IDs
 interface AxisData {
-  id: AxisId;
+  id: string;
+  name?: string; // Optional display name from server
   status: "exceeded" | "within_bounds";
   metrics: AxisMetric[];
 }
@@ -28,63 +27,11 @@ interface DetailedAnalysisProps {
   isProcessing?: boolean;
 }
 
-// Axis card headers (fixed from specification)
-const AXIS_HEADERS: Record<AxisId, { title: string; shortTitle: string; note?: string }> = {
-  "G1-A": {
-    title: "G1-A — Residual Trajectory Curvature",
-    shortTitle: "Trajectory Curvature",
-    note: "Observational axis",
-  },
-  "G1-B": {
-    title: "G1-B — Residual Persistence Length",
-    shortTitle: "Persistence Length",
-  },
-  "G2-A": {
-    title: "G2-A — Cross-Stem Coupling",
-    shortTitle: "Cross-Stem Coupling",
-  },
-  "G2-B": {
-    title: "G2-B — Residual Symmetry",
-    shortTitle: "Residual Symmetry",
-  },
-  "G3-A": {
-    title: "G3-A — Band Geometry",
-    shortTitle: "Band Geometry",
-  },
-};
-
-// Fixed axis order
-const AXIS_ORDER: AxisId[] = ["G1-A", "G1-B", "G2-A", "G2-B", "G3-A"];
-
-function AxisCard({ axis, axisId }: { axis: AxisData | null; axisId: AxisId }) {
-  const header = AXIS_HEADERS[axisId];
-  const isExceeded = axis?.status === "exceeded";
+// Dynamic axis card that displays any axis from server
+function AxisCard({ axis }: { axis: AxisData }) {
+  const isExceeded = axis.status === "exceeded";
+  const displayName = axis.name || axis.id; // Use name if provided, otherwise use id
   
-  // Empty Axis State
-  if (!axis) {
-    return (
-      <div className="group relative bg-muted/10 rounded-lg border border-border/30 overflow-hidden">
-        {/* Header bar */}
-        <div className="flex items-center justify-between px-3 py-2 bg-muted/20 border-b border-border/20">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-muted/30 flex items-center justify-center">
-              <Gauge className="w-3.5 h-3.5 text-muted-foreground/50" />
-            </div>
-            <span className="text-xs font-medium text-muted-foreground">{axisId}</span>
-          </div>
-          <span className="text-[10px] text-muted-foreground/50">NO DATA</span>
-        </div>
-        {/* Content */}
-        <div className="p-3">
-          <p className="text-xs text-muted-foreground/50">{header.shortTitle}</p>
-          {header.note && (
-            <p className="text-[10px] text-muted-foreground/30 italic mt-0.5">{header.note}</p>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={cn(
       "group relative rounded-lg border overflow-hidden transition-all",
@@ -117,7 +64,7 @@ function AxisCard({ axis, axisId }: { axis: AxisData | null; axisId: AxisId }) {
             )}
           </div>
           <span className={cn(
-            "text-xs font-bold",
+            "text-xs font-bold uppercase",
             isExceeded ? "text-red-400" : "text-emerald-400"
           )}>
             {axis.id}
@@ -135,13 +82,10 @@ function AxisCard({ axis, axisId }: { axis: AxisData | null; axisId: AxisId }) {
       
       {/* Content */}
       <div className="p-3 pl-4">
-        <p className="text-xs text-foreground font-medium">{header.shortTitle}</p>
-        {header.note && (
-          <p className="text-[10px] text-muted-foreground italic mt-0.5">{header.note}</p>
-        )}
+        <p className="text-xs text-foreground font-medium">{displayName}</p>
         
         {/* Metrics */}
-        {axis.metrics.length > 0 && (
+        {axis.metrics && axis.metrics.length > 0 && (
           <div className="mt-3 space-y-1.5">
             {axis.metrics.map((metric, idx) => (
               <div key={idx} className="flex items-center justify-between text-xs">
@@ -180,10 +124,10 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
           </div>
         </div>
         <div className="forensic-panel-content">
-          {/* Scanning animation for each axis */}
+          {/* Scanning animation */}
           <div className="space-y-2">
-            {AXIS_ORDER.map((axisId) => (
-              <div key={axisId} className="relative h-16 bg-muted/20 rounded overflow-hidden">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="relative h-16 bg-muted/20 rounded overflow-hidden">
                 <div className="absolute inset-0 flex items-center px-3 gap-3">
                   <div className="w-8 h-8 rounded bg-muted/30 flex items-center justify-center">
                     <div className="w-4 h-4 border-2 border-forensic-cyan/30 border-t-forensic-cyan rounded-full animate-spin" />
@@ -203,7 +147,7 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
   }
 
   // Before Verification state
-  if (!axes) {
+  if (!axes || axes.length === 0) {
     return (
       <div className="forensic-panel h-full">
         <div className="forensic-panel-header flex items-center justify-between">
@@ -213,33 +157,24 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
           </div>
         </div>
         <div className="forensic-panel-content">
-          {/* Empty state with axis placeholders */}
-          <div className="space-y-2">
-            {AXIS_ORDER.map((axisId) => (
-              <div key={axisId} className="h-14 bg-muted/10 rounded border border-dashed border-border/30 flex items-center px-3 gap-3">
-                <div className="w-6 h-6 rounded bg-muted/20 flex items-center justify-center">
-                  <Gauge className="w-3 h-3 text-muted-foreground/30" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground/50">{axisId}</p>
-                  <p className="text-[10px] text-muted-foreground/30">{AXIS_HEADERS[axisId].shortTitle}</p>
-                </div>
-              </div>
-            ))}
+          {/* Empty state */}
+          <div className="h-40 bg-muted/10 rounded-lg border border-dashed border-border/30 flex flex-col items-center justify-center">
+            <Gauge className="w-8 h-8 text-muted-foreground/30 mb-2" />
+            <p className="text-xs text-muted-foreground">Awaiting verification</p>
+            <p className="text-[10px] text-muted-foreground/50 mt-1">
+              Analysis axes will appear after scan
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            Awaiting verification
-          </p>
         </div>
       </div>
     );
   }
 
-  // Create axis map for lookup
-  const axisMap = new Map(axes.map(a => [a.id, a]));
+  // Calculate summary counts
   const exceededCount = axes.filter(a => a.status === "exceeded").length;
   const withinCount = axes.filter(a => a.status === "within_bounds").length;
 
+  // Data available state - dynamically display all axes from server
   return (
     <div className="forensic-panel h-full">
       <div className="forensic-panel-header flex items-center justify-between">
@@ -262,19 +197,15 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
         </div>
       </div>
       <p className="text-xs text-muted-foreground px-4 pb-2">
-        CR-G axis geometry metrics from verification engine
+        Analysis axes from verification engine
       </p>
       <div className="forensic-panel-content space-y-2 max-h-[450px] overflow-y-auto">
-        {AXIS_ORDER.map((axisId) => (
-          <AxisCard 
-            key={axisId} 
-            axis={axisMap.get(axisId) || null} 
-            axisId={axisId}
-          />
+        {axes.map((axis, idx) => (
+          <AxisCard key={axis.id || idx} axis={axis} />
         ))}
       </div>
     </div>
   );
 }
 
-export type { AxisData, AxisMetric, AxisId };
+export type { AxisData, AxisMetric };

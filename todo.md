@@ -1151,3 +1151,13 @@
 - [x] Apply professional audio analysis program design
 - [x] Dark forensic theme with technical aesthetics
 - [x] Precision-focused UI elements
+
+
+## Server Data Binding Fix (2025-01-28)
+
+### Issue: UI not reading server data correctly
+- [x] DetailedAnalysis: Remove hardcoded G1-A, G1-B, G2-A, G2-B, G3-A - use dynamic axes from server
+- [x] TimelineAnalysis: Connect to detailed_analysis.timeline_events
+- [x] TemporalAnalysis: Connect to detailed_analysis.timeline_events
+- [x] GeometryScanTrace: Connect to detailed_analysis.geometry_trace
+- [x] Update Home.tsx to pass correct data structure from server response

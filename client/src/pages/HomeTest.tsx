@@ -715,7 +715,12 @@ export default function HomeTest() {
             isProcessing={isVerifying}
           />
           <TemporalAnalysis
-            data={null}
+            events={verificationResult?.detailedAnalysis?.timelineEvents?.map((e: TimelineEventData) => ({
+              time: e.time,
+              eventType: e.eventType,
+              axis: e.axis,
+              note: e.note || undefined,
+            })) || null}
             isProcessing={isVerifying}
           />
         </div>

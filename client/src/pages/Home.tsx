@@ -832,23 +832,29 @@ export default function Home() {
           <TimelineAnalysis
             events={verificationResult?.detailedAnalysis?.timelineEvents?.map((e: TimelineEventData) => ({
               time: e.time,
-              eventType: e.eventType as "Structural Event" | "Signal Anomaly" | "Pattern Break" | "Spectral Shift",
+              eventType: e.eventType,
               axis: e.axis,
               note: e.note || undefined,
             })) || null}
             isProcessing={isVerifying}
           />
           <TemporalAnalysis
-            data={null}
+            events={verificationResult?.detailedAnalysis?.timelineEvents?.map((e: TimelineEventData) => ({
+              time: e.time,
+              eventType: e.eventType,
+              axis: e.axis,
+              note: e.note || undefined,
+            })) || null}
             isProcessing={isVerifying}
           />
         </div>
         <div className="flex flex-col gap-4 lg:gap-6">
           <DetailedAnalysis
             axes={verificationResult?.detailedAnalysis?.axes?.map((a: AxisDetail) => ({
-              id: a.id as "G1-A" | "G1-B" | "G2-A" | "G2-B" | "G3-A",
+              id: a.id,
+              name: a.name,
               status: a.status,
-              metrics: a.metrics,
+              metrics: a.metrics || [],
             })) || null}
             isProcessing={isVerifying}
           />
@@ -877,7 +883,7 @@ export default function Home() {
             axes: verificationResult.detailedAnalysis.geometryTrace.map((g: GeometryTraceAxisData) => ({
               axis: g.axis,
               exceeded: g.exceeded,
-              metrics: g.metrics,
+              metrics: g.metrics || [],
             })),
           } : null}
           isProcessing={isVerifying}

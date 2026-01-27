@@ -42,6 +42,8 @@ interface StemWaveformPlayerProps {
   onDownload?: () => void;
   /** Whether this stem is available */
   available: boolean;
+  /** Auto-load audio on mount (no click required) */
+  autoLoad?: boolean;
 }
 
 /**
@@ -70,6 +72,7 @@ export function StemWaveformPlayer({
   color,
   onDownload,
   available,
+  autoLoad = false,
 }: StemWaveformPlayerProps) {
   // Audio state
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
@@ -84,6 +87,11 @@ export function StemWaveformPlayer({
   const [rangeEnd, setRangeEnd] = useState(0);
   const [isRangeMode, setIsRangeMode] = useState(false);
   const [isDraggingRange, setIsDraggingRange] = useState<'start' | 'end' | null>(null);
+
+  // Refs for range values (to avoid stale closures in animation loop)
+  const rangeStartRef = useRef(0);
+  const rangeEndRef = useRef(0);
+  const isRangeModeRef = useRef(false);
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -133,6 +141,20 @@ export function StemWaveformPlayer({
     observer.observe(container);
     return () => observer.disconnect();
   }, []);
+
+  // Auto-load audio on mount if autoLoad is true
+  useEffect(() => {
+    if (autoLoad && available && downloadUrl && !audioBuffer && !isLoading) {
+      loadAudio();
+    }
+  }, [autoLoad, available, downloadUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync range refs with state (to avoid stale closures in animation loop)
+  useEffect(() => {
+    rangeStartRef.current = rangeStart;
+    rangeEndRef.current = rangeEnd;
+    isRangeModeRef.current = isRangeMode;
+  }, [rangeStart, rangeEnd, isRangeMode]);
 
   // Load audio from URL
   const loadAudio = useCallback(async () => {
@@ -342,21 +364,46 @@ export function StemWaveformPlayer({
     ctx.stroke();
   }, [currentTime, dimensions, audioBuffer, isRangeMode, rangeStart, rangeEnd, color.waveform]);
 
-  // Animation loop for playhead
+  // Animation loop for playhead (uses refs to avoid stale closures)
   const updatePlayhead = useCallback(() => {
-    if (!audioContextRef.current || !isPlayingRef.current) return;
+    if (!audioContextRef.current || !isPlayingRef.current || !audioBuffer) return;
 
     const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
-    const duration = audioBuffer?.duration || 0;
+    const duration = audioBuffer.duration;
     let newTime = Math.min(offsetRef.current + elapsed, duration);
 
-    // Handle range loop
-    if (isRangeMode && newTime >= rangeEnd) {
-      // Loop back to range start
-      stopPlayback();
-      offsetRef.current = rangeStart;
-      playAudio();
-      newTime = rangeStart;
+    // Handle range loop (use refs for current values)
+    if (isRangeModeRef.current && newTime >= rangeEndRef.current) {
+      // Stop current source and restart from range start
+      if (sourceRef.current) {
+        try {
+          sourceRef.current.stop();
+          sourceRef.current.disconnect();
+        } catch {}
+        sourceRef.current = null;
+      }
+
+      // Create new source and start from range start
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(gainRef.current!);
+
+      const loopStart = rangeStartRef.current;
+      const loopDuration = rangeEndRef.current - loopStart;
+
+      startTimeRef.current = audioContextRef.current.currentTime;
+      offsetRef.current = loopStart;
+
+      source.start(0, loopStart, loopDuration);
+      sourceRef.current = source;
+      newTime = loopStart;
+
+      // Handle natural end of looped segment
+      source.onended = () => {
+        if (isPlayingRef.current && isRangeModeRef.current) {
+          // Will be handled by next animation frame
+        }
+      };
     }
 
     setCurrentTime(newTime);
@@ -364,7 +411,7 @@ export function StemWaveformPlayer({
     if (isPlayingRef.current) {
       animationRef.current = requestAnimationFrame(updatePlayhead);
     }
-  }, [audioBuffer, isRangeMode, rangeStart, rangeEnd]);
+  }, [audioBuffer]);
 
   // Play audio
   const playAudio = useCallback(() => {
@@ -387,8 +434,13 @@ export function StemWaveformPlayer({
     source.buffer = audioBuffer;
     source.connect(gainRef.current);
 
-    const startOffset = isRangeMode ? Math.max(offsetRef.current, rangeStart) : offsetRef.current;
-    const duration = isRangeMode ? rangeEnd - startOffset : undefined;
+    // Use refs for current range values to avoid stale closures
+    const inRangeMode = isRangeModeRef.current;
+    const rangeStartVal = rangeStartRef.current;
+    const rangeEndVal = rangeEndRef.current;
+
+    const startOffset = inRangeMode ? Math.max(offsetRef.current, rangeStartVal) : offsetRef.current;
+    const duration = inRangeMode ? rangeEndVal - startOffset : undefined;
 
     startTimeRef.current = audioContextRef.current.currentTime;
     offsetRef.current = startOffset;
@@ -401,21 +453,16 @@ export function StemWaveformPlayer({
     // Start animation loop
     animationRef.current = requestAnimationFrame(updatePlayhead);
 
-    // Handle natural end
+    // Handle natural end (non-loop case)
     source.onended = () => {
-      if (isPlayingRef.current) {
-        if (isRangeMode) {
-          // Loop in range mode
-          offsetRef.current = rangeStart;
-          playAudio();
-        } else {
-          stopPlayback();
-          offsetRef.current = 0;
-          setCurrentTime(0);
-        }
+      if (isPlayingRef.current && !isRangeModeRef.current) {
+        stopPlayback();
+        offsetRef.current = 0;
+        setCurrentTime(0);
       }
+      // Loop case is handled by updatePlayhead
     };
-  }, [audioBuffer, isRangeMode, rangeStart, rangeEnd, updatePlayhead]);
+  }, [audioBuffer, updatePlayhead]);
 
   // Stop playback
   const stopPlayback = useCallback(() => {
@@ -472,12 +519,38 @@ export function StemWaveformPlayer({
 
     if (e.shiftKey) {
       // Shift+click sets range end
-      setRangeEnd(Math.max(rangeStart, targetTime));
+      const newRangeEnd = Math.max(rangeStart, targetTime);
+      setRangeEnd(newRangeEnd);
       setIsRangeMode(true);
+
+      // If playing and current position is outside new range, seek to range start
+      if (isPlayingRef.current && currentTime > newRangeEnd) {
+        const wasPlaying = true;
+        stopPlayback();
+        offsetRef.current = rangeStart;
+        setCurrentTime(rangeStart);
+        if (wasPlaying) {
+          // Small delay to ensure state is updated
+          setTimeout(() => playAudio(), 0);
+        }
+      }
     } else if (e.altKey) {
       // Alt+click sets range start
-      setRangeStart(Math.min(targetTime, rangeEnd));
+      const newRangeStart = Math.min(targetTime, rangeEnd);
+      setRangeStart(newRangeStart);
       setIsRangeMode(true);
+
+      // If playing and current position is before new range start, seek to range start
+      if (isPlayingRef.current && currentTime < newRangeStart) {
+        const wasPlaying = true;
+        stopPlayback();
+        offsetRef.current = newRangeStart;
+        setCurrentTime(newRangeStart);
+        if (wasPlaying) {
+          // Small delay to ensure state is updated
+          setTimeout(() => playAudio(), 0);
+        }
+      }
     } else {
       // Normal click seeks
       const wasPlaying = isPlayingRef.current;
@@ -489,7 +562,7 @@ export function StemWaveformPlayer({
         playAudio();
       }
     }
-  }, [audioBuffer, stopPlayback, playAudio, rangeStart, rangeEnd]);
+  }, [audioBuffer, stopPlayback, playAudio, rangeStart, rangeEnd, currentTime]);
 
   // Handle initial load click
   const handleLoadClick = useCallback(() => {

@@ -6,16 +6,7 @@
  * All text is verbatim from DetectX specification.
  */
 
-import { useState } from "react";
-import { Layers, Download, Volume2, Music, Mic2, Drum, Guitar, Waves, ChevronDown, ChevronUp } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StemWaveformPlayer } from "./StemWaveformPlayer";
 
@@ -40,16 +31,6 @@ interface SourceComponentsProps {
   apiBaseUrl?: string;
 }
 
-// Stem icons mapping
-const STEM_ICONS: Record<string, typeof Music> = {
-  vocals: Mic2,
-  drums: Drum,
-  bass: Guitar,
-  other: Waves,
-  piano: Music,
-  guitar: Guitar,
-};
-
 // Stem colors with waveform color
 const STEM_COLORS: Record<string, { bg: string; text: string; border: string; waveform: string }> = {
   vocals: { bg: "bg-purple-500/10", text: "text-purple-400", border: "border-purple-500/30", waveform: "oklch(0.65 0.25 300)" },
@@ -62,127 +43,6 @@ const STEM_COLORS: Record<string, { bg: string; text: string; border: string; wa
 
 const DEFAULT_COLOR = { bg: "bg-muted/20", text: "text-muted-foreground", border: "border-border/30", waveform: "oklch(0.60 0.01 260)" };
 
-function StemRow({
-  stem,
-  volume,
-  onVolumeChange,
-  onDownload,
-}: {
-  stem: StemComponent;
-  volume: number;
-  onVolumeChange: (volume: number) => void;
-  onDownload: () => void;
-}) {
-  const stemKey = stem.id.toLowerCase();
-  const Icon = STEM_ICONS[stemKey] || Music;
-  const colors = STEM_COLORS[stemKey] || DEFAULT_COLOR;
-  
-  return (
-    <div className={cn(
-      "group relative rounded-lg border overflow-hidden transition-all",
-      stem.available 
-        ? `${colors.bg} ${colors.border} hover:ring-1 hover:ring-current ${colors.text}`
-        : "bg-muted/10 border-border/20 opacity-60"
-    )}>
-      {/* Status indicator */}
-      <div className={cn(
-        "absolute top-0 left-0 w-1 h-full",
-        stem.available ? colors.text.replace("text-", "bg-") : "bg-muted-foreground/30"
-      )} />
-      
-      <div className="flex items-center gap-3 p-3 pl-4">
-        {/* Icon */}
-        <div className={cn(
-          "w-10 h-10 rounded-lg flex items-center justify-center",
-          stem.available ? colors.bg : "bg-muted/20"
-        )}>
-          <Icon className={cn(
-            "w-5 h-5",
-            stem.available ? colors.text : "text-muted-foreground/50"
-          )} />
-        </div>
-        
-        {/* Name and status */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className={cn(
-              "text-sm font-medium",
-              stem.available ? "text-foreground" : "text-muted-foreground"
-            )}>
-              {stem.name}
-            </span>
-            <span className={cn(
-              "text-[10px] px-1.5 py-0.5 rounded",
-              stem.available 
-                ? `${colors.bg} ${colors.text}` 
-                : "bg-muted/20 text-muted-foreground/50"
-            )}>
-              {stem.available ? "READY" : "N/A"}
-            </span>
-          </div>
-          
-          {/* Volume slider */}
-          <div className="flex items-center gap-2 mt-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Volume2 className={cn(
-                    "w-3.5 h-3.5 flex-shrink-0",
-                    stem.available ? "text-muted-foreground" : "text-muted-foreground/30"
-                  )} />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">Playback level (inspection only)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <Slider
-              value={[volume]}
-              min={0}
-              max={100}
-              step={1}
-              onValueChange={([v]) => onVolumeChange(v)}
-              className="flex-1"
-              disabled={!stem.available}
-            />
-            <span className={cn(
-              "text-xs font-mono w-10 text-right",
-              stem.available ? "text-foreground" : "text-muted-foreground/50"
-            )}>
-              {volume}%
-            </span>
-          </div>
-        </div>
-        
-        {/* Download button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={onDownload}
-                disabled={!stem.available}
-                className={cn(
-                  "w-9 h-9 rounded-lg flex items-center justify-center transition-all",
-                  stem.available
-                    ? `${colors.bg} ${colors.border} border hover:scale-105 ${colors.text}`
-                    : "bg-muted/10 border border-border/10 text-muted-foreground/30 cursor-not-allowed"
-                )}
-              >
-                <Download className="w-4 h-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs">
-                {stem.available ? "Download stem component" : "Not available"}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    </div>
-  );
-}
-
 export function SourceComponents({
   data,
   isProcessing = false,
@@ -191,7 +51,7 @@ export function SourceComponents({
   onDownload,
   apiBaseUrl = "https://emjvw2an6oynf9-8000.proxy.runpod.net",
 }: SourceComponentsProps) {
-  const [expandedView, setExpandedView] = useState(false);
+  // Always show waveform view (no compact mode)
   // During Verification state
   if (isProcessing) {
     return (
@@ -311,66 +171,30 @@ export function SourceComponents({
           <Layers className="w-4 h-4 text-forensic-cyan" />
           <span>Source Components</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-forensic-cyan/20 text-forensic-cyan">
-            {availableCount}/{data.components.length} available
-          </span>
-          {/* Toggle expanded view */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 px-2 text-xs"
-            onClick={() => setExpandedView(!expandedView)}
-          >
-            {expandedView ? (
-              <>
-                <ChevronUp className="w-3 h-3 mr-1" />
-                Compact
-              </>
-            ) : (
-              <>
-                <ChevronDown className="w-3 h-3 mr-1" />
-                Waveform
-              </>
-            )}
-          </Button>
-        </div>
+        <span className="text-[10px] px-1.5 py-0.5 rounded bg-forensic-cyan/20 text-forensic-cyan">
+          {availableCount}/{data.components.length} available
+        </span>
       </div>
       <p className="text-xs text-muted-foreground px-4 pb-2">
-        {expandedView
-          ? "Click waveform to load audio. Alt+click for loop start, Shift+click for loop end."
-          : "Analytical stem components from verification engine"}
+        Alt+click for loop start, Shift+click for loop end
       </p>
       <div className="forensic-panel-content space-y-2">
-        {expandedView ? (
-          // Expanded view with waveform players
-          data.components.map((stem) => {
-            const stemKey = stem.id.toLowerCase();
-            const colors = STEM_COLORS[stemKey] || DEFAULT_COLOR;
-            return (
-              <StemWaveformPlayer
-                key={stem.id}
-                stemId={stem.id}
-                name={stem.name}
-                downloadUrl={buildFullUrl(stem.downloadUrl)}
-                color={colors}
-                available={stem.available}
-                onDownload={() => onDownload?.(stem.id)}
-              />
-            );
-          })
-        ) : (
-          // Compact view with basic controls
-          data.components.map((stem) => (
-            <StemRow
+        {data.components.map((stem) => {
+          const stemKey = stem.id.toLowerCase();
+          const colors = STEM_COLORS[stemKey] || DEFAULT_COLOR;
+          return (
+            <StemWaveformPlayer
               key={stem.id}
-              stem={stem}
-              volume={stemVolumes[stem.id] ?? 80}
-              onVolumeChange={(v) => onVolumeChange?.(stem.id, v)}
+              stemId={stem.id}
+              name={stem.name}
+              downloadUrl={buildFullUrl(stem.downloadUrl)}
+              color={colors}
+              available={stem.available}
               onDownload={() => onDownload?.(stem.id)}
+              autoLoad={true}
             />
-          ))
-        )}
+          );
+        })}
       </div>
     </div>
   );

@@ -170,6 +170,7 @@ export function SourceComponents({
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-forensic-cyan" />
           <span>Source Components</span>
+          <span className="text-[10px] text-muted-foreground/70 italic">— Activated when AI signals detected</span>
         </div>
         <span className="text-[10px] px-1.5 py-0.5 rounded bg-forensic-cyan/20 text-forensic-cyan">
           {availableCount}/{data.components.length} available

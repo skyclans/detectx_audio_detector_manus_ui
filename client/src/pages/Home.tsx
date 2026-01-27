@@ -898,7 +898,7 @@ export default function Home() {
                 id: s.id,
                 name: s.name,
                 available: s.available,
-                downloadUrl: s.downloadUrl,
+                downloadUrl: s.downloadUrl || undefined,
               })),
             } : null}
             isProcessing={isVerifying}

@@ -332,6 +332,28 @@ export function StemWaveformPlayer({
     }
   }, [audioBuffer]);
 
+  // Stop playback (defined before playAudio since playAudio depends on it)
+  const stopPlayback = useCallback(() => {
+    isPlayingRef.current = false;
+    setIsPlaying(false);
+
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+
+    // Clear ref BEFORE stopping to prevent onended from triggering reset
+    const source = sourceRef.current;
+    sourceRef.current = null;
+
+    if (source) {
+      try {
+        source.stop();
+        source.disconnect();
+      } catch {}
+    }
+  }, []);
+
   // Play audio from current offset
   const playAudio = useCallback(() => {
     if (!audioBuffer || !audioContextRef.current || !gainRef.current) return;
@@ -341,11 +363,13 @@ export function StemWaveformPlayer({
       audioContextRef.current.resume();
     }
 
-    // Stop existing source
-    if (sourceRef.current) {
+    // Stop existing source - clear ref first to prevent onended issues
+    const oldSource = sourceRef.current;
+    sourceRef.current = null;
+    if (oldSource) {
       try {
-        sourceRef.current.stop();
-        sourceRef.current.disconnect();
+        oldSource.stop();
+        oldSource.disconnect();
       } catch {}
     }
 
@@ -366,34 +390,16 @@ export function StemWaveformPlayer({
     // Start animation loop
     animationRef.current = requestAnimationFrame(updatePlayhead);
 
-    // Handle natural end
+    // Handle natural end - ONLY if this source is still the active one
     source.onended = () => {
-      if (isPlayingRef.current) {
+      // Check if this source is still current (not replaced by seek)
+      if (sourceRef.current === source && isPlayingRef.current) {
         stopPlayback();
         offsetRef.current = 0;
         setCurrentTime(0);
       }
     };
-  }, [audioBuffer, updatePlayhead]);
-
-  // Stop playback
-  const stopPlayback = useCallback(() => {
-    isPlayingRef.current = false;
-    setIsPlaying(false);
-
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-
-    if (sourceRef.current) {
-      try {
-        sourceRef.current.stop();
-        sourceRef.current.disconnect();
-      } catch {}
-      sourceRef.current = null;
-    }
-  }, []);
+  }, [audioBuffer, updatePlayhead, stopPlayback]);
 
   // Pause playback
   const pausePlayback = useCallback(() => {

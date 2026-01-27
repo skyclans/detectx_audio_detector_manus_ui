@@ -25,12 +25,19 @@ export function initializeGoogleOAuth(app: Express) {
   }
 
   // Configure passport
+  // Use absolute callback URL for local development
+  const callbackURL = ENV.isProduction
+    ? "https://detectx.app/api/auth/google/callback"
+    : "http://localhost:3000/api/auth/google/callback";
+
+  console.log("[Google OAuth] Using callback URL:", callbackURL);
+
   passport.use(
     new GoogleStrategy(
       {
         clientID,
         clientSecret,
-        callbackURL: "/api/auth/google/callback",
+        callbackURL,
         scope: ["profile", "email"],
       },
       async (accessToken, refreshToken, profile, done) => {
@@ -113,8 +120,8 @@ export function registerGoogleOAuthRoutes(app: Express) {
         const cookieOptions = getSessionCookieOptions(req);
         res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-        // Redirect to mode selection page
-        res.redirect(302, "/select-mode");
+        // Redirect to home page after successful login
+        res.redirect(302, "/");
       } catch (error) {
         console.error("[Google OAuth] Callback error:", error);
         res.redirect("/login?error=callback_failed");

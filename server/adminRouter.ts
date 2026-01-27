@@ -12,6 +12,13 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import {
+  fetchRunPodStats,
+  fetchRunPodVerifications,
+  fetchRunPodUserVerifications,
+  fetchRunPodUserStats,
+  fetchRunPodHealth,
+} from "./runpodApi";
+import {
   getAllUsers,
   getUserById,
   updateUserPlan,
@@ -566,6 +573,152 @@ export const adminRouter = router({
         limit: input?.limit || 20,
         totalPages: Math.ceil(result.total / (input?.limit || 20)),
       };
+    }),
+  
+  // ============================================
+  // RunPod API Integration
+  // ============================================
+  
+  /**
+   * Check RunPod API health
+   */
+  checkRunPodHealth: adminProcedure.query(async () => {
+    try {
+      const health = await fetchRunPodHealth();
+      return { connected: true, ...health };
+    } catch (error) {
+      return { connected: false, error: (error as Error).message };
+    }
+  }),
+  
+  /**
+   * Get verification stats from RunPod API
+   */
+  getRunPodStats: adminProcedure.query(async () => {
+    try {
+      const stats = await fetchRunPodStats();
+      return stats;
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Failed to fetch RunPod stats: ${(error as Error).message}`,
+      });
+    }
+  }),
+  
+  /**
+   * Get all verifications from RunPod API
+   */
+  getRunPodVerifications: adminProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        status: z.enum(["pending", "processing", "completed", "failed"]).optional(),
+        verdict: z.enum(["observed", "not_observed"]).optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      try {
+        const result = await fetchRunPodVerifications({
+          page: input?.page || 1,
+          limit: input?.limit || 20,
+          status: input?.status,
+          verdict: input?.verdict,
+          startDate: input?.startDate,
+          endDate: input?.endDate,
+          search: input?.search,
+        });
+        
+        return {
+          verifications: result.verifications.map(v => ({
+            id: v.id,
+            userId: v.userId,
+            fileName: v.fileName,
+            fileSize: v.fileSize,
+            duration: v.duration,
+            verdict: v.verdict,
+            crgStatus: v.crgStatus,
+            status: v.status,
+            createdAt: v.createdAt,
+          })),
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: Math.ceil(result.total / result.limit),
+        };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch RunPod verifications: ${(error as Error).message}`,
+        });
+      }
+    }),
+  
+  /**
+   * Get user verifications from RunPod API
+   */
+  getRunPodUserVerifications: adminProcedure
+    .input(
+      z.object({
+        userId: z.number(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const result = await fetchRunPodUserVerifications(input.userId, {
+          page: input.page,
+          limit: input.limit,
+          startDate: input.startDate,
+          endDate: input.endDate,
+        });
+        
+        return {
+          verifications: result.verifications.map(v => ({
+            id: v.id,
+            fileName: v.fileName,
+            fileSize: v.fileSize,
+            duration: v.duration,
+            verdict: v.verdict,
+            crgStatus: v.crgStatus,
+            status: v.status,
+            createdAt: v.createdAt,
+          })),
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: Math.ceil(result.total / result.limit),
+        };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch RunPod user verifications: ${(error as Error).message}`,
+        });
+      }
+    }),
+  
+  /**
+   * Get user stats from RunPod API
+   */
+  getRunPodUserStats: adminProcedure
+    .input(z.object({ userId: z.number() }))
+    .query(async ({ input }) => {
+      try {
+        const stats = await fetchRunPodUserStats(input.userId);
+        return stats;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch RunPod user stats: ${(error as Error).message}`,
+        });
+      }
     }),
   
   // ============================================

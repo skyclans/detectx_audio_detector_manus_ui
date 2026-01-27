@@ -3,8 +3,8 @@
  * 
  * Displays detailed user information including:
  * - User profile and plan info
- * - Verification statistics (total, AI observed, not observed)
- * - Verification history with date filtering
+ * - Verification statistics from RunPod API (total, AI observed, not observed)
+ * - Verification history from RunPod API with date filtering
  */
 
 import { useState } from "react";
@@ -25,7 +25,9 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
-  Search
+  Search,
+  Server,
+  AlertCircle
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
@@ -55,26 +57,34 @@ export default function AdminUserDetail() {
   const [page, setPage] = useState(1);
   const limit = 20;
   
-  // Fetch user stats
-  const { data: statsData, isLoading: statsLoading, refetch: refetchStats } = trpc.admin.getUserStats.useQuery(
+  // Check RunPod API health
+  const { data: healthData } = trpc.admin.checkRunPodHealth.useQuery();
+  
+  // Fetch user info from Manus DB
+  const { data: userData, isLoading: userLoading, refetch: refetchUser } = trpc.admin.getUser.useQuery(
     { userId },
     { enabled: userId > 0 }
   );
   
-  // Fetch user verifications
-  const { data: verificationsData, isLoading: verificationsLoading, refetch: refetchVerifications } = trpc.admin.getUserVerifications.useQuery(
+  // Fetch user stats from RunPod API
+  const { data: runpodStats, isLoading: statsLoading, refetch: refetchStats } = trpc.admin.getRunPodUserStats.useQuery(
+    { userId },
+    { enabled: userId > 0 }
+  );
+  
+  // Fetch user verifications from RunPod API
+  const { data: verificationsData, isLoading: verificationsLoading, refetch: refetchVerifications, error: verificationsError } = trpc.admin.getRunPodUserVerifications.useQuery(
     { 
       userId,
       page,
       limit,
-      startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate + "T23:59:59") : undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
     },
     { enabled: userId > 0 }
   );
   
-  const user = statsData?.user;
-  const stats = statsData?.stats;
+  const user = userData;
   const verifications = verificationsData?.verifications || [];
   const totalPages = verificationsData?.totalPages || 1;
   const totalVerifications = verificationsData?.total || 0;
@@ -88,6 +98,12 @@ export default function AdminUserDetail() {
     setStartDate("");
     setEndDate("");
     setPage(1);
+    refetchVerifications();
+  };
+  
+  const handleRefreshAll = () => {
+    refetchUser();
+    refetchStats();
     refetchVerifications();
   };
   
@@ -111,7 +127,7 @@ export default function AdminUserDetail() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
   
-  if (statsLoading) {
+  if (userLoading) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
@@ -154,10 +170,27 @@ export default function AdminUserDetail() {
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={() => { refetchStats(); refetchVerifications(); }}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-4">
+            {/* RunPod API Status */}
+            <div className="flex items-center gap-2">
+              <Server className="h-4 w-4 text-muted-foreground" />
+              {healthData?.connected ? (
+                <span className="text-sm text-green-500 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  RunPod
+                </span>
+              ) : (
+                <span className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  Offline
+                </span>
+              )}
+            </div>
+            <Button variant="outline" onClick={handleRefreshAll}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
         </div>
         
         {/* User Info Card */}
@@ -221,7 +254,7 @@ export default function AdminUserDetail() {
           </CardContent>
         </Card>
         
-        {/* Statistics Cards */}
+        {/* Statistics Cards - From RunPod API */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardContent className="pt-6">
@@ -230,7 +263,9 @@ export default function AdminUserDetail() {
                   <FileAudio className="h-6 w-6 text-blue-500" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{stats?.total || 0}</div>
+                  <div className="text-2xl font-bold">
+                    {statsLoading ? "..." : runpodStats?.totalVerifications || 0}
+                  </div>
                   <div className="text-sm text-muted-foreground">Total Verifications</div>
                 </div>
               </div>
@@ -244,7 +279,9 @@ export default function AdminUserDetail() {
                   <Bot className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{stats?.observed || 0}</div>
+                  <div className="text-2xl font-bold">
+                    {statsLoading ? "..." : runpodStats?.observedCount || 0}
+                  </div>
                   <div className="text-sm text-muted-foreground">AI Observed</div>
                 </div>
               </div>
@@ -258,7 +295,9 @@ export default function AdminUserDetail() {
                   <UserCheck className="h-6 w-6 text-green-500" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{stats?.notObserved || 0}</div>
+                  <div className="text-2xl font-bold">
+                    {statsLoading ? "..." : runpodStats?.notObservedCount || 0}
+                  </div>
                   <div className="text-sm text-muted-foreground">Not Observed</div>
                 </div>
               </div>
@@ -266,15 +305,28 @@ export default function AdminUserDetail() {
           </Card>
         </div>
         
-        {/* Verification History */}
+        {/* Error State */}
+        {verificationsError && (
+          <Card className="border-red-500/50 bg-red-500/10">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-red-500">
+                <AlertCircle className="h-5 w-5" />
+                <span>Failed to fetch verifications from RunPod API: {verificationsError.message}</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Verification History - From RunPod API */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileAudio className="h-5 w-5" />
               Verification History ({totalVerifications} total)
+              <span className="text-xs text-muted-foreground font-normal ml-2">(RunPod Server)</span>
             </CardTitle>
             <CardDescription>
-              View all verification records for this user
+              View all verification records for this user from RunPod server
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -323,8 +375,10 @@ export default function AdminUserDetail() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-border">
+                        <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">ID</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">File</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Result</th>
+                        <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Status</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Duration</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Size</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Date (UTC)</th>
@@ -333,6 +387,9 @@ export default function AdminUserDetail() {
                     <tbody>
                       {verifications.map((v) => (
                         <tr key={v.id} className="border-b border-border hover:bg-muted/50">
+                          <td className="py-3 px-4 text-sm text-muted-foreground">
+                            #{v.id}
+                          </td>
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
                               <FileAudio className="h-4 w-4 text-muted-foreground" />
@@ -353,8 +410,19 @@ export default function AdminUserDetail() {
                                 <span className="text-green-500 text-sm font-medium">Not Observed</span>
                               </div>
                             ) : (
-                              <span className="text-muted-foreground text-sm">Pending</span>
+                              <span className="text-muted-foreground text-sm">-</span>
                             )}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm px-2 py-1 rounded ${
+                              v.status === "completed" ? "bg-green-500/20 text-green-500" :
+                              v.status === "pending" ? "bg-yellow-500/20 text-yellow-500" :
+                              v.status === "processing" ? "bg-blue-500/20 text-blue-500" :
+                              v.status === "failed" ? "bg-red-500/20 text-red-500" :
+                              "bg-muted text-muted-foreground"
+                            }`}>
+                              {v.status || "unknown"}
+                            </span>
                           </td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">
                             {formatDuration(v.duration)}

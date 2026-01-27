@@ -1070,3 +1070,56 @@
 - [x] Keep publicProcedure for anonymous stateless verification
 - [x] Save verification results to audio_verifications table for logged-in users
 - [x] Update user usage count after verification
+
+
+## RunPod DB Data Synchronization (Jan 27)
+- [x] Pull latest code from Git
+- [x] Analyze RunPod DB schema (users, admin_users, admin_logs, audio_verifications)
+- [x] Implement RunPod DB connection via SSH tunnel (replaced with API)
+- [ ] Test RunPod API connection
+- [ ] Create RunPod API client functions
+- [ ] Add tRPC router for RunPod API proxy
+- [ ] Update admin Verifications page to fetch from RunPod API
+- [ ] Update History page to fetch from RunPod API
+- [ ] Test RunPod API integration
+
+
+## RunPod API Integration (2025-01-28)
+
+### RunPod API Client Implementation
+- [x] Create RunPod API client module (server/runpodApi.ts)
+- [x] Implement fetchRunPodHealth() for API health check
+- [x] Implement fetchRunPodStats() for overall statistics
+- [x] Implement fetchRunPodVerifications() with pagination and filters
+- [x] Implement fetchRunPodVerificationById() for single record
+- [x] Implement fetchRunPodUserVerifications() for user-specific records
+- [x] Implement fetchRunPodUserStats() for user statistics
+
+### Admin Router RunPod Integration
+- [x] Add checkRunPodHealth procedure to admin router
+- [x] Add getRunPodStats procedure for verification statistics
+- [x] Add getRunPodVerifications procedure with filtering support
+- [x] Add getRunPodUserVerifications procedure for user history
+- [x] Add getRunPodUserStats procedure for user statistics
+
+### Admin Verifications Page Update
+- [x] Replace Manus DB queries with RunPod API calls
+- [x] Add RunPod API connection status indicator
+- [x] Add stats cards showing verification counts from RunPod
+- [x] Add status filter (pending/processing/completed/failed)
+- [x] Implement pagination with RunPod API
+- [x] Add error handling for API failures
+
+### User Detail Page Update
+- [x] Fetch user stats from RunPod API
+- [x] Fetch user verification history from RunPod API
+- [x] Add RunPod API connection status indicator
+- [x] Display verification stats from RunPod (total/observed/not_observed)
+- [x] Add status column to verification table
+- [x] Add error handling for API failures
+
+### Unit Tests
+- [x] Create runpodApi.test.ts with 13 test cases
+- [x] Test all API client functions with mocked fetch
+- [x] Test error handling for API failures
+- [x] All 76 tests passing

@@ -176,7 +176,7 @@ export function SourceComponents({
         </span>
       </div>
       <p className="text-xs text-muted-foreground px-4 pb-2">
-        Alt+click for loop start, Shift+click for loop end
+        Click waveform to seek
       </p>
       <div className="forensic-panel-content space-y-2">
         {data.components.map((stem) => {

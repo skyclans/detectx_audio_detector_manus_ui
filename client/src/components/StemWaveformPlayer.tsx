@@ -5,7 +5,7 @@
  * - Load audio from URL and decode
  * - Waveform visualization
  * - Playback controls (play/pause/stop)
- * - Range selection for loop playback
+ * - Click to seek
  * - Volume control
  */
 
@@ -21,7 +21,6 @@ import {
   VolumeX,
   Download,
   Loader2,
-  RotateCcw,
 } from "lucide-react";
 
 interface StemWaveformPlayerProps {
@@ -82,17 +81,6 @@ export function StemWaveformPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(0.8);
 
-  // Range selection state
-  const [rangeStart, setRangeStart] = useState(0);
-  const [rangeEnd, setRangeEnd] = useState(0);
-  const [isRangeMode, setIsRangeMode] = useState(false);
-  const [isDraggingRange, setIsDraggingRange] = useState<'start' | 'end' | null>(null);
-
-  // Refs for range values (to avoid stale closures in animation loop)
-  const rangeStartRef = useRef(0);
-  const rangeEndRef = useRef(0);
-  const isRangeModeRef = useRef(false);
-
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
   const waveformCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -149,13 +137,6 @@ export function StemWaveformPlayer({
     }
   }, [autoLoad, available, downloadUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync range refs with state (to avoid stale closures in animation loop)
-  useEffect(() => {
-    rangeStartRef.current = rangeStart;
-    rangeEndRef.current = rangeEnd;
-    isRangeModeRef.current = isRangeMode;
-  }, [rangeStart, rangeEnd, isRangeMode]);
-
   // Load audio from URL
   const loadAudio = useCallback(async () => {
     if (!downloadUrl || !available) return;
@@ -182,7 +163,6 @@ export function StemWaveformPlayer({
       const buffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
 
       setAudioBuffer(buffer);
-      setRangeEnd(buffer.duration);
       setLoadError(null);
     } catch (error) {
       console.error('Failed to load stem audio:', error);
@@ -302,7 +282,7 @@ export function StemWaveformPlayer({
     ctx.stroke();
   }, [waveformData, dimensions, isLoading, loadError, available, color.waveform]);
 
-  // Draw overlay (playhead, range selection)
+  // Draw overlay (playhead only)
   useEffect(() => {
     const canvas = overlayCanvasRef.current;
     if (!canvas) return;
@@ -326,33 +306,6 @@ export function StemWaveformPlayer({
 
     if (duration <= 0) return;
 
-    // Draw range selection
-    if (isRangeMode && rangeStart !== rangeEnd) {
-      const startX = (rangeStart / duration) * width;
-      const endX = (rangeEnd / duration) * width;
-
-      // Range highlight
-      ctx.fillStyle = color.waveform + "22"; // 13% opacity
-      ctx.fillRect(startX, 0, endX - startX, height);
-
-      // Range borders
-      ctx.strokeStyle = color.waveform;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([4, 2]);
-
-      ctx.beginPath();
-      ctx.moveTo(startX, 0);
-      ctx.lineTo(startX, height);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(endX, 0);
-      ctx.lineTo(endX, height);
-      ctx.stroke();
-
-      ctx.setLineDash([]);
-    }
-
     // Draw playhead
     const playheadX = (currentTime / duration) * width;
 
@@ -362,49 +315,15 @@ export function StemWaveformPlayer({
     ctx.moveTo(playheadX, 0);
     ctx.lineTo(playheadX, height);
     ctx.stroke();
-  }, [currentTime, dimensions, audioBuffer, isRangeMode, rangeStart, rangeEnd, color.waveform]);
+  }, [currentTime, dimensions, audioBuffer, color.waveform]);
 
-  // Animation loop for playhead (uses refs to avoid stale closures)
+  // Animation loop for playhead
   const updatePlayhead = useCallback(() => {
     if (!audioContextRef.current || !isPlayingRef.current || !audioBuffer) return;
 
     const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
     const duration = audioBuffer.duration;
-    let newTime = Math.min(offsetRef.current + elapsed, duration);
-
-    // Handle range loop (use refs for current values)
-    if (isRangeModeRef.current && newTime >= rangeEndRef.current) {
-      // Stop current source and restart from range start
-      if (sourceRef.current) {
-        try {
-          sourceRef.current.stop();
-          sourceRef.current.disconnect();
-        } catch {}
-        sourceRef.current = null;
-      }
-
-      // Create new source and start from range start
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(gainRef.current!);
-
-      const loopStart = rangeStartRef.current;
-      const loopDuration = rangeEndRef.current - loopStart;
-
-      startTimeRef.current = audioContextRef.current.currentTime;
-      offsetRef.current = loopStart;
-
-      source.start(0, loopStart, loopDuration);
-      sourceRef.current = source;
-      newTime = loopStart;
-
-      // Handle natural end of looped segment
-      source.onended = () => {
-        if (isPlayingRef.current && isRangeModeRef.current) {
-          // Will be handled by next animation frame
-        }
-      };
-    }
+    const newTime = Math.min(offsetRef.current + elapsed, duration);
 
     setCurrentTime(newTime);
 
@@ -413,7 +332,7 @@ export function StemWaveformPlayer({
     }
   }, [audioBuffer]);
 
-  // Play audio
+  // Play audio from current offset
   const playAudio = useCallback(() => {
     if (!audioBuffer || !audioContextRef.current || !gainRef.current) return;
 
@@ -434,18 +353,12 @@ export function StemWaveformPlayer({
     source.buffer = audioBuffer;
     source.connect(gainRef.current);
 
-    // Use refs for current range values to avoid stale closures
-    const inRangeMode = isRangeModeRef.current;
-    const rangeStartVal = rangeStartRef.current;
-    const rangeEndVal = rangeEndRef.current;
-
-    const startOffset = inRangeMode ? Math.max(offsetRef.current, rangeStartVal) : offsetRef.current;
-    const duration = inRangeMode ? rangeEndVal - startOffset : undefined;
+    // Start from current offset
+    const startOffset = offsetRef.current;
 
     startTimeRef.current = audioContextRef.current.currentTime;
-    offsetRef.current = startOffset;
 
-    source.start(0, startOffset, duration);
+    source.start(0, startOffset);
     sourceRef.current = source;
     isPlayingRef.current = true;
     setIsPlaying(true);
@@ -453,14 +366,13 @@ export function StemWaveformPlayer({
     // Start animation loop
     animationRef.current = requestAnimationFrame(updatePlayhead);
 
-    // Handle natural end (non-loop case)
+    // Handle natural end
     source.onended = () => {
-      if (isPlayingRef.current && !isRangeModeRef.current) {
+      if (isPlayingRef.current) {
         stopPlayback();
         offsetRef.current = 0;
         setCurrentTime(0);
       }
-      // Loop case is handled by updatePlayhead
     };
   }, [audioBuffer, updatePlayhead]);
 
@@ -496,9 +408,9 @@ export function StemWaveformPlayer({
   // Reset playback
   const resetPlayback = useCallback(() => {
     stopPlayback();
-    offsetRef.current = isRangeMode ? rangeStart : 0;
-    setCurrentTime(isRangeMode ? rangeStart : 0);
-  }, [stopPlayback, isRangeMode, rangeStart]);
+    offsetRef.current = 0;
+    setCurrentTime(0);
+  }, [stopPlayback]);
 
   // Handle volume change
   useEffect(() => {
@@ -507,7 +419,7 @@ export function StemWaveformPlayer({
     }
   }, [volume]);
 
-  // Handle waveform click (seek or range selection)
+  // Handle waveform click - seek to position
   const handleWaveformClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const container = containerRef.current;
     if (!container || !audioBuffer) return;
@@ -517,36 +429,20 @@ export function StemWaveformPlayer({
     const clickRatio = Math.max(0, Math.min(1, clickX / rect.width));
     const targetTime = clickRatio * audioBuffer.duration;
 
-    if (e.shiftKey) {
-      // Shift+click sets range end - DON'T interrupt playback
-      // Just update the visual range, loop will be handled by updatePlayhead
-      const newRangeEnd = Math.max(rangeStart, targetTime);
-      setRangeEnd(newRangeEnd);
-      setIsRangeMode(true);
-      // Update ref immediately for animation loop
-      rangeEndRef.current = newRangeEnd;
-      isRangeModeRef.current = true;
-    } else if (e.altKey) {
-      // Alt+click sets range start - DON'T interrupt playback
-      // Just update the visual range
-      const newRangeStart = Math.min(targetTime, rangeEnd);
-      setRangeStart(newRangeStart);
-      setIsRangeMode(true);
-      // Update ref immediately for animation loop
-      rangeStartRef.current = newRangeStart;
-      isRangeModeRef.current = true;
-    } else {
-      // Normal click seeks to position
-      const wasPlaying = isPlayingRef.current;
-      stopPlayback();
-      offsetRef.current = targetTime;
-      setCurrentTime(targetTime);
+    // Seek to clicked position
+    const wasPlaying = isPlayingRef.current;
 
-      if (wasPlaying) {
-        playAudio();
-      }
+    if (wasPlaying) {
+      stopPlayback();
     }
-  }, [audioBuffer, stopPlayback, playAudio, rangeStart, rangeEnd]);
+
+    offsetRef.current = targetTime;
+    setCurrentTime(targetTime);
+
+    if (wasPlaying) {
+      playAudio();
+    }
+  }, [audioBuffer, stopPlayback, playAudio]);
 
   // Handle initial load click
   const handleLoadClick = useCallback(() => {
@@ -554,21 +450,6 @@ export function StemWaveformPlayer({
       loadAudio();
     }
   }, [audioBuffer, available, isLoading, loadAudio]);
-
-  // Toggle range mode
-  const toggleRangeMode = useCallback(() => {
-    if (isRangeMode) {
-      setIsRangeMode(false);
-      setRangeStart(0);
-      setRangeEnd(audioBuffer?.duration || 0);
-    } else {
-      setIsRangeMode(true);
-      // Set default range to middle 50%
-      const duration = audioBuffer?.duration || 0;
-      setRangeStart(duration * 0.25);
-      setRangeEnd(duration * 0.75);
-    }
-  }, [isRangeMode, audioBuffer]);
 
   const duration = audioBuffer?.duration || 0;
 
@@ -582,52 +463,24 @@ export function StemWaveformPlayer({
         "flex items-center justify-between px-3 py-2 border-b",
         available ? color.border : "border-border/20"
       )}>
-        <div className="flex items-center gap-2">
-          <span className={cn(
-            "text-sm font-medium",
-            available ? "text-foreground" : "text-muted-foreground"
-          )}>
-            {name}
-          </span>
-          {isRangeMode && (
-            <span className={cn(
-              "text-[10px] px-1.5 py-0.5 rounded",
-              color.bg, color.text
-            )}>
-              LOOP
-            </span>
-          )}
-        </div>
+        <span className={cn(
+          "text-sm font-medium",
+          available ? "text-foreground" : "text-muted-foreground"
+        )}>
+          {name}
+        </span>
 
-        <div className="flex items-center gap-1">
-          {/* Range mode toggle */}
-          {audioBuffer && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-7 w-7",
-                isRangeMode && `${color.bg} ${color.text}`
-              )}
-              onClick={toggleRangeMode}
-              title={isRangeMode ? "Disable loop" : "Enable loop (Alt+click start, Shift+click end)"}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </Button>
-          )}
-
-          {/* Download button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={onDownload}
-            disabled={!available}
-            title="Download stem"
-          >
-            <Download className="w-3.5 h-3.5" />
-          </Button>
-        </div>
+        {/* Download button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={onDownload}
+          disabled={!available}
+          title="Download stem"
+        >
+          <Download className="w-3.5 h-3.5" />
+        </Button>
       </div>
 
       {/* Waveform */}
@@ -640,7 +493,7 @@ export function StemWaveformPlayer({
         onClick={audioBuffer ? handleWaveformClick : handleLoadClick}
         title={
           audioBuffer
-            ? "Click to seek, Alt+click for loop start, Shift+click for loop end"
+            ? "Click to seek"
             : available
               ? "Click to load and view waveform"
               : "Stem not available"
@@ -659,7 +512,7 @@ export function StemWaveformPlayer({
           className="absolute inset-0 w-full h-full"
         />
 
-        {/* Overlay canvas (playhead, range) */}
+        {/* Overlay canvas (playhead) */}
         <canvas
           ref={overlayCanvasRef}
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -711,12 +564,7 @@ export function StemWaveformPlayer({
           <div className="flex items-center gap-2 text-xs font-mono">
             <span className={color.text}>{formatTime(currentTime)}</span>
             <span className="text-muted-foreground">/</span>
-            <span className="text-muted-foreground">
-              {isRangeMode
-                ? `${formatTimeShort(rangeStart)} - ${formatTimeShort(rangeEnd)}`
-                : formatTimeShort(duration)
-              }
-            </span>
+            <span className="text-muted-foreground">{formatTimeShort(duration)}</span>
           </div>
 
           {/* Volume */}

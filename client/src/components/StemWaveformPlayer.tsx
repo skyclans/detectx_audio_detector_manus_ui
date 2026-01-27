@@ -518,41 +518,25 @@ export function StemWaveformPlayer({
     const targetTime = clickRatio * audioBuffer.duration;
 
     if (e.shiftKey) {
-      // Shift+click sets range end
+      // Shift+click sets range end - DON'T interrupt playback
+      // Just update the visual range, loop will be handled by updatePlayhead
       const newRangeEnd = Math.max(rangeStart, targetTime);
       setRangeEnd(newRangeEnd);
       setIsRangeMode(true);
-
-      // If playing and current position is outside new range, seek to range start
-      if (isPlayingRef.current && currentTime > newRangeEnd) {
-        const wasPlaying = true;
-        stopPlayback();
-        offsetRef.current = rangeStart;
-        setCurrentTime(rangeStart);
-        if (wasPlaying) {
-          // Small delay to ensure state is updated
-          setTimeout(() => playAudio(), 0);
-        }
-      }
+      // Update ref immediately for animation loop
+      rangeEndRef.current = newRangeEnd;
+      isRangeModeRef.current = true;
     } else if (e.altKey) {
-      // Alt+click sets range start
+      // Alt+click sets range start - DON'T interrupt playback
+      // Just update the visual range
       const newRangeStart = Math.min(targetTime, rangeEnd);
       setRangeStart(newRangeStart);
       setIsRangeMode(true);
-
-      // If playing and current position is before new range start, seek to range start
-      if (isPlayingRef.current && currentTime < newRangeStart) {
-        const wasPlaying = true;
-        stopPlayback();
-        offsetRef.current = newRangeStart;
-        setCurrentTime(newRangeStart);
-        if (wasPlaying) {
-          // Small delay to ensure state is updated
-          setTimeout(() => playAudio(), 0);
-        }
-      }
+      // Update ref immediately for animation loop
+      rangeStartRef.current = newRangeStart;
+      isRangeModeRef.current = true;
     } else {
-      // Normal click seeks
+      // Normal click seeks to position
       const wasPlaying = isPlayingRef.current;
       stopPlayback();
       offsetRef.current = targetTime;
@@ -562,7 +546,7 @@ export function StemWaveformPlayer({
         playAudio();
       }
     }
-  }, [audioBuffer, stopPlayback, playAudio, rangeStart, rangeEnd, currentTime]);
+  }, [audioBuffer, stopPlayback, playAudio, rangeStart, rangeEnd]);
 
   // Handle initial load click
   const handleLoadClick = useCallback(() => {

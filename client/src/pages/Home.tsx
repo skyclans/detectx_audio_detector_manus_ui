@@ -74,6 +74,7 @@ interface StemComponentData {
   id: string;
   name: string;
   available: boolean;
+  downloadUrl?: string | null;
 }
 
 interface GeometryTraceAxisData {
@@ -119,6 +120,7 @@ function convertDetailedAnalysis(data: any): DetailedAnalysisData | null {
       id: s.id,
       name: s.name,
       available: s.available,
+      downloadUrl: s.download_url || s.downloadUrl || null,
     })),
     geometryTrace: (data.geometry_trace || data.geometryTrace || []).map((g: any) => ({
       axis: g.axis,
@@ -896,12 +898,31 @@ export default function Home() {
                 id: s.id,
                 name: s.name,
                 available: s.available,
+                downloadUrl: s.downloadUrl,
               })),
             } : null}
             isProcessing={isVerifying}
             stemVolumes={{}}
             onVolumeChange={(stemId, volume) => console.log(`Volume change: ${stemId} = ${volume}`)}
-            onDownload={(stemId) => console.log(`Download: ${stemId}`)}
+            onDownload={(stemId) => {
+              // Find the stem component with the download URL
+              const stem = verificationResult?.detailedAnalysis?.stemComponents?.find(
+                (s: StemComponentData) => s.id === stemId
+              );
+              if (stem?.downloadUrl) {
+                // Build full URL: API base + download path
+                const fullUrl = DETECTX_API_URL.replace('/api', '') + stem.downloadUrl;
+                // Trigger download via anchor element
+                const link = document.createElement('a');
+                link.href = fullUrl;
+                link.download = `${stemId}.wav`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              } else {
+                console.warn(`No download URL available for stem: ${stemId}`);
+              }
+            }}
           />
         </div>
       </div>

@@ -1383,3 +1383,10 @@
 - [x] UserDetail.tsx - tRPC → REST fetch 전환
 - [x] Verifications.tsx - tRPC → REST fetch 전환
 - [x] Logs.tsx - tRPC → REST fetch 전환
+
+
+## 홈페이지 히어로 이미지 교체 (2026-01-31)
+
+- [x] 현재 AI 생성 느낌의 히어로 이미지 확인
+- [x] 나노바나나로 자연스럽고 인간적인 이미지 생성
+- [x] Landing.tsx에 새 이미지 적용

@@ -249,7 +249,7 @@ export default function Landing() {
               {/* Image - Right */}
               <div className="order-first md:order-last">
                 <img
-                  src="/images/herosection.png"
+                  src="/images/herosection_new.png"
                   alt="Audio forensic analysis workstation"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />

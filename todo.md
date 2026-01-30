@@ -1161,3 +1161,29 @@
 - [x] TemporalAnalysis: Connect to detailed_analysis.timeline_events
 - [x] GeometryScanTrace: Connect to detailed_analysis.geometry_trace
 - [x] Update Home.tsx to pass correct data structure from server response
+
+
+## Phase 3: Blur Overlay Implementation (2026-01-30)
+
+### API Call Modifications
+- [x] Remove user_id query parameter from API calls
+- [x] Add JWT Authorization header for logged-in users
+- [x] Update Home.tsx API call logic
+- [ ] Update HomeTest.tsx API call logic
+
+### Preview Response Handling
+- [x] Add previewMode state
+- [x] Add previewMessage state
+- [x] Handle preview === true response from server
+- [x] Show blur overlay when preview mode is active
+
+### Blur Overlay UI
+- [x] Create blur overlay component with skeleton placeholders
+- [x] Add lock icon and login CTA
+- [x] Implement backdrop-blur effect
+- [x] Add Google login button in overlay
+
+### Testing
+- [ ] Test non-logged-in user scan (should show blur)
+- [ ] Test logged-in user scan (should show full results)
+- [ ] Test login CTA button functionality

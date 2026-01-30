@@ -15,6 +15,7 @@ import { SourceComponents } from "@/components/SourceComponents";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
+import { BlurOverlay } from "@/components/BlurOverlay";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -210,6 +211,10 @@ export default function Home() {
   const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [verificationError, setVerificationError] = useState<string | null>(null);
+  
+  // Preview mode state (for non-logged-in users)
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewMessage, setPreviewMessage] = useState<string | null>(null);
 
   // Session time state
   const [sessionStartTime] = useState<Date>(new Date());
@@ -614,11 +619,8 @@ export default function Home() {
       const formData = new FormData();
       formData.append("file", selectedFileRef.current);
 
-      // Build API URL with orientation and optional user_id
-      let apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
-      if (user?.id) {
-        apiUrl += `&user_id=${user.id}`;
-      }
+      // Build API URL with orientation (user_id removed - JWT header used instead)
+      const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
 
       console.log(`[Verification] Calling RunPod API directly: ${apiUrl}`);
       console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);
@@ -681,6 +683,19 @@ export default function Home() {
         });
 
         xhr.open("POST", apiUrl);
+        
+        // Add JWT Authorization header for logged-in users
+        // The session token is stored in cookies - we need to read it
+        if (isAuthenticated && user) {
+          const sessionCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('app_session_id='));
+          if (sessionCookie) {
+            const token = sessionCookie.split('=')[1];
+            xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          }
+        }
+        
         xhr.send(formData);
       });
 
@@ -688,6 +703,19 @@ export default function Home() {
 
       // Wait for animation to complete before showing result
       await animationPromise;
+      
+      // Check for preview mode (non-logged-in user response)
+      if (result.preview === true) {
+        setPreviewMode(true);
+        setPreviewMessage(result.message || "Sign in to view full analysis results");
+        setScanComplete(true);
+        setIsVerifying(false);
+        return;
+      }
+      
+      // Reset preview mode for logged-in users
+      setPreviewMode(false);
+      setPreviewMessage(null);
       
       // Update result - API returns full verdict text directly
       // e.g., "AI signal evidence was observed." or "AI signal evidence was not observed."
@@ -858,7 +886,16 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Extended analysis sections */}
+      {/* Preview Mode: Blur Overlay for non-logged-in users */}
+      {previewMode && scanComplete && (
+        <BlurOverlay
+          message={previewMessage || undefined}
+          onLogin={() => window.location.href = "/api/auth/google"}
+        />
+      )}
+
+      {/* Extended analysis sections - hidden in preview mode */}
+      {!previewMode && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mt-4 lg:mt-6">
         <div className="flex flex-col gap-4 lg:gap-6">
           <TimelineAnalysis
@@ -926,8 +963,10 @@ export default function Home() {
           />
         </div>
       </div>
+      )}
 
-      {/* Geometry Scan Trace */}
+      {/* Geometry Scan Trace - hidden in preview mode */}
+      {!previewMode && (
       <div className="mt-6">
         <GeometryScanTrace
           data={verificationResult?.detailedAnalysis?.geometryTrace ? {
@@ -940,8 +979,10 @@ export default function Home() {
           isProcessing={isVerifying}
         />
       </div>
+      )}
 
-      {/* Export section */}
+      {/* Export section - hidden in preview mode */}
+      {!previewMode && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <ExportPanel 
           data={{
@@ -967,6 +1008,7 @@ export default function Home() {
           isProcessing={isVerifying}
         />
       </div>
+      )}
     </ForensicLayout>
   );
 }

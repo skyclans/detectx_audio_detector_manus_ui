@@ -1359,3 +1359,12 @@
 - [x] Home.tsx - HTTP 429 응답 처리 추가 (사용량 한도 초과)
 - [x] HomeTest.tsx - 동일 변경
 - [x] 429 응답 시 /plan 페이지로 리디렉션
+
+
+## Hotfix 검증 완료 (2026-01-31)
+
+- [x] incrementUsageMutation 완전 삭제 확인 (선언 및 호출 모두 제거됨)
+- [x] HTTP 429 처리 확인 (Home.tsx:713, HomeTest.tsx:606)
+- [x] result.usage_info 실시간 업데이트 확인 (Home.tsx:812-832)
+- [x] await animationPromise 제거 확인 (주석 처리됨)
+- [x] 전체 124개 테스트 통과

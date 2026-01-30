@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { AudioUploadPanel } from "@/components/AudioUploadPanel";
 import { MetadataPanel } from "@/components/MetadataPanel";
-import { Clock } from "lucide-react";
+import { Clock, Lock } from "lucide-react";
 import { WaveformVisualization } from "@/components/WaveformVisualization";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 import { LiveScanConsole, type ScanLogEntry } from "@/components/LiveScanConsole";
@@ -15,7 +15,7 @@ import { SourceComponents } from "@/components/SourceComponents";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
-import { BlurOverlay } from "@/components/BlurOverlay";
+import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -212,9 +212,8 @@ export default function Home() {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [verificationError, setVerificationError] = useState<string | null>(null);
   
-  // Preview mode state (for non-logged-in users)
-  const [previewMode, setPreviewMode] = useState(false);
-  const [previewMessage, setPreviewMessage] = useState<string | null>(null);
+  // Login prompt state (for non-logged-in users)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Session time state
   const [sessionStartTime] = useState<Date>(new Date());
@@ -573,6 +572,12 @@ export default function Home() {
   const handleVerify = useCallback(async () => {
     if (!selectedFile || !metadata || !selectedFileRef.current) return;
     
+    // Check if user is logged in (pre-scan block for non-logged-in users)
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
     // Check if user needs to select a mode first (for logged-in users)
     // Skip mode selection for enterprise/master plan users (their plan is set by admin)
     const dbPlan = (user as any)?.plan as string | undefined;
@@ -655,6 +660,13 @@ export default function Home() {
             } catch (e) {
               reject(new Error("Failed to parse response"));
             }
+          } else if (xhr.status === 401) {
+            // Handle 401 Unauthorized - show login prompt
+            setShowLoginPrompt(true);
+            setIsVerifying(false);
+            setScanComplete(false);
+            setUploadProgress(null);
+            reject(new Error("Please sign in to use this feature."));
           } else {
             console.error(`[Verification] RunPod API error: ${xhr.status} - ${xhr.responseText}`);
             // Try to parse error detail from server response
@@ -703,19 +715,6 @@ export default function Home() {
 
       // Wait for animation to complete before showing result
       await animationPromise;
-      
-      // Check for preview mode (non-logged-in user response)
-      if (result.preview === true) {
-        setPreviewMode(true);
-        setPreviewMessage(result.message || "Sign in to view full analysis results");
-        setScanComplete(true);
-        setIsVerifying(false);
-        return;
-      }
-      
-      // Reset preview mode for logged-in users
-      setPreviewMode(false);
-      setPreviewMessage(null);
       
       // Update result - API returns full verdict text directly
       // e.g., "AI signal evidence was observed." or "AI signal evidence was not observed."
@@ -886,16 +885,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Preview Mode: Blur Overlay for non-logged-in users */}
-      {previewMode && scanComplete && (
-        <BlurOverlay
-          message={previewMessage || undefined}
-          onLogin={() => window.location.href = "/api/auth/google"}
-        />
+      {/* Login Prompt for non-logged-in users */}
+      {showLoginPrompt && (
+        <div className="flex flex-col items-center justify-center py-12 px-8 border border-border rounded-xl bg-muted/30 mt-4">
+          <Lock className="w-10 h-10 mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">Please sign in to continue</h3>
+          <p className="text-sm text-muted-foreground mb-6 text-center">
+            Sign in to analyze your audio files with DetectX.
+          </p>
+          <Button onClick={() => window.location.href = "/api/auth/google"}>
+            Sign in with Google
+          </Button>
+        </div>
       )}
 
-      {/* Extended analysis sections - hidden in preview mode */}
-      {!previewMode && (
+      {/* Extended analysis sections */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mt-4 lg:mt-6">
         <div className="flex flex-col gap-4 lg:gap-6">
           <TimelineAnalysis
@@ -963,10 +967,8 @@ export default function Home() {
           />
         </div>
       </div>
-      )}
 
-      {/* Geometry Scan Trace - hidden in preview mode */}
-      {!previewMode && (
+      {/* Geometry Scan Trace */}
       <div className="mt-6">
         <GeometryScanTrace
           data={verificationResult?.detailedAnalysis?.geometryTrace ? {
@@ -979,10 +981,8 @@ export default function Home() {
           isProcessing={isVerifying}
         />
       </div>
-      )}
 
-      {/* Export section - hidden in preview mode */}
-      {!previewMode && (
+      {/* Export section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <ExportPanel 
           data={{
@@ -1008,7 +1008,6 @@ export default function Home() {
           isProcessing={isVerifying}
         />
       </div>
-      )}
     </ForensicLayout>
   );
 }

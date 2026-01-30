@@ -1187,3 +1187,23 @@
 - [ ] Test non-logged-in user scan (should show blur)
 - [ ] Test logged-in user scan (should show full results)
 - [ ] Test login CTA button functionality
+
+
+## Phase 3 UX Change: Pre-scan Block (2026-01-30)
+
+### Home.tsx Modifications
+- [x] Add showLoginPrompt state
+- [x] Add login check at start of handleVerify (before API call)
+- [x] Add login prompt UI component
+- [x] Handle 401 error response from server
+
+### HomeTest.tsx Modifications
+- [x] Add showLoginPrompt state
+- [x] Add login check at start of handleVerify
+- [x] Add login prompt UI component
+- [x] Handle 401 error response
+
+### Remove Blur Overlay (no longer needed)
+- [x] Remove previewMode and previewMessage states
+- [x] Remove BlurOverlay component usage
+- [x] Remove preview response handling logic

@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { AudioUploadPanel } from "@/components/AudioUploadPanel";
 import { MetadataPanel } from "@/components/MetadataPanel";
-import { Clock } from "lucide-react";
+import { Clock, Lock } from "lucide-react";
 import { WaveformVisualization } from "@/components/WaveformVisualization";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 import { LiveScanConsole, type ScanLogEntry } from "@/components/LiveScanConsole";
@@ -15,6 +15,7 @@ import { SourceComponents } from "@/components/SourceComponents";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
+import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -173,6 +174,9 @@ export default function HomeTest() {
   const [scanComplete, setScanComplete] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  
+  // Login prompt state (for non-logged-in users)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Session time state
   const [sessionStartTime] = useState<Date>(new Date());
@@ -467,6 +471,12 @@ export default function HomeTest() {
   const handleVerify = useCallback(async () => {
     if (!selectedFile || !metadata || !selectedFileRef.current) return;
     
+    // Check if user is logged in (pre-scan block for non-logged-in users)
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
     // Check if user needs to select a mode first (for logged-in users)
     if (isAuthenticated && !isMasterUser && !selectedMode) {
       setLocation("/select-mode");
@@ -547,6 +557,13 @@ export default function HomeTest() {
             } catch (e) {
               reject(new Error("Failed to parse response"));
             }
+          } else if (xhr.status === 401) {
+            // Handle 401 Unauthorized - show login prompt
+            setShowLoginPrompt(true);
+            setIsVerifying(false);
+            setScanComplete(false);
+            setUploadProgress(null);
+            reject(new Error("Please sign in to use this feature."));
           } else {
             console.error(`[Verification] RunPod API error: ${xhr.status} - ${xhr.responseText}`);
             reject(new Error(`RunPod API returned ${xhr.status}`));
@@ -701,6 +718,20 @@ export default function HomeTest() {
           />
         </div>
       </div>
+
+      {/* Login Prompt for non-logged-in users */}
+      {showLoginPrompt && (
+        <div className="flex flex-col items-center justify-center py-12 px-8 border border-border rounded-xl bg-muted/30 mt-4">
+          <Lock className="w-10 h-10 mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">Please sign in to continue</h3>
+          <p className="text-sm text-muted-foreground mb-6 text-center">
+            Sign in to analyze your audio files with DetectX.
+          </p>
+          <Button onClick={() => window.location.href = "/api/auth/google"}>
+            Sign in with Google
+          </Button>
+        </div>
+      )}
 
       {/* Extended analysis sections */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mt-4 lg:mt-6">

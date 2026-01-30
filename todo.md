@@ -1368,3 +1368,18 @@
 - [x] result.usage_info 실시간 업데이트 확인 (Home.tsx:812-832)
 - [x] await animationPromise 제거 확인 (주석 처리됨)
 - [x] 전체 124개 테스트 통과
+
+
+## Admin 페이지 tRPC → REST API 전환 (2026-01-31)
+
+### 핵심 변경
+- [x] User ID 타입 변경: number → string (UUID)
+- [x] ADMIN_EMAILS 하드코딩 제거 → /api/admin/check-status 사용
+
+### 파일별 수정
+- [x] AdminLayout.tsx - 접근 제어를 서버 API로 전환
+- [x] Dashboard.tsx - 인증 헤더 추가
+- [x] Users.tsx - tRPC → REST fetch 전환
+- [x] UserDetail.tsx - tRPC → REST fetch 전환
+- [x] Verifications.tsx - tRPC → REST fetch 전환
+- [x] Logs.tsx - tRPC → REST fetch 전환

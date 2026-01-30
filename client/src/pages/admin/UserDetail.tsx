@@ -7,7 +7,7 @@
  * - Verification history from RunPod API with date filtering
  */
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useLocation } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -29,7 +29,45 @@ import {
   Server,
   AlertCircle
 } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { fetchWithAuth } from "@/lib/api";
+
+// Types
+interface UserData {
+  id: string;
+  name: string | null;
+  email: string;
+  plan: string;
+  role: string;
+  usageCount: number;
+  monthlyLimit: number;
+  usageResetDate: string | null;
+  createdAt: string;
+  lastSignedIn: string | null;
+}
+
+interface UserStats {
+  totalVerifications: number;
+  observedCount: number;
+  notObservedCount: number;
+}
+
+interface Verification {
+  id: number;
+  fileName: string;
+  verdict: string | null;
+  status: string;
+  duration: number | null;
+  fileSize: number | null;
+  createdAt: string;
+}
+
+interface VerificationsResponse {
+  verifications: Verification[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 // Plan badge colors
 const PLAN_COLORS: Record<string, string> = {
@@ -49,7 +87,19 @@ const PLAN_LABELS: Record<string, string> = {
 export default function AdminUserDetail() {
   const params = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
-  const userId = parseInt(params.id || "0", 10);
+  const userId = params.id || "";
+  
+  // Data states
+  const [user, setUser] = useState<UserData | null>(null);
+  const [runpodStats, setRunpodStats] = useState<UserStats | null>(null);
+  const [verificationsData, setVerificationsData] = useState<VerificationsResponse | null>(null);
+  const [healthConnected, setHealthConnected] = useState(false);
+  
+  // Loading states
+  const [userLoading, setUserLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [verificationsLoading, setVerificationsLoading] = useState(true);
+  const [verificationsError, setVerificationsError] = useState<string | null>(null);
   
   // Date filter states
   const [startDate, setStartDate] = useState("");
@@ -58,53 +108,109 @@ export default function AdminUserDetail() {
   const limit = 20;
   
   // Check RunPod API health
-  const { data: healthData } = trpc.admin.checkRunPodHealth.useQuery();
+  const checkHealth = useCallback(async () => {
+    try {
+      const response = await fetchWithAuth("/api/admin/health");
+      if (response.ok) {
+        const data = await response.json();
+        setHealthConnected(data.connected ?? true);
+      }
+    } catch {
+      setHealthConnected(false);
+    }
+  }, []);
   
-  // Fetch user info from Manus DB
-  const { data: userData, isLoading: userLoading, refetch: refetchUser } = trpc.admin.getUser.useQuery(
-    { userId },
-    { enabled: userId > 0 }
-  );
+  // Fetch user info
+  const fetchUser = useCallback(async () => {
+    if (!userId) return;
+    try {
+      setUserLoading(true);
+      const response = await fetchWithAuth(`/api/admin/users/${userId}`);
+      if (response.ok) {
+        const data: UserData = await response.json();
+        setUser(data);
+      }
+    } catch (error) {
+      console.error("[UserDetail] Failed to fetch user:", error);
+    } finally {
+      setUserLoading(false);
+    }
+  }, [userId]);
   
   // Fetch user stats from RunPod API
-  const { data: runpodStats, isLoading: statsLoading, refetch: refetchStats } = trpc.admin.getRunPodUserStats.useQuery(
-    { userId },
-    { enabled: userId > 0 }
-  );
+  const fetchStats = useCallback(async () => {
+    if (!userId) return;
+    try {
+      setStatsLoading(true);
+      const response = await fetchWithAuth(`/api/admin/users/${userId}/stats`);
+      if (response.ok) {
+        const data: UserStats = await response.json();
+        setRunpodStats(data);
+      }
+    } catch (error) {
+      console.error("[UserDetail] Failed to fetch stats:", error);
+    } finally {
+      setStatsLoading(false);
+    }
+  }, [userId]);
   
   // Fetch user verifications from RunPod API
-  const { data: verificationsData, isLoading: verificationsLoading, refetch: refetchVerifications, error: verificationsError } = trpc.admin.getRunPodUserVerifications.useQuery(
-    { 
-      userId,
-      page,
-      limit,
-      startDate: startDate || undefined,
-      endDate: endDate || undefined,
-    },
-    { enabled: userId > 0 }
-  );
+  const fetchVerifications = useCallback(async () => {
+    if (!userId) return;
+    try {
+      setVerificationsLoading(true);
+      setVerificationsError(null);
+      
+      const params = new URLSearchParams();
+      params.set("page", String(page));
+      params.set("limit", String(limit));
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+      
+      const response = await fetchWithAuth(`/api/admin/users/${userId}/verifications?${params.toString()}`);
+      if (response.ok) {
+        const data: VerificationsResponse = await response.json();
+        setVerificationsData(data);
+      } else {
+        const error = await response.json();
+        setVerificationsError(error.detail || "Failed to fetch verifications");
+      }
+    } catch (error) {
+      setVerificationsError(error instanceof Error ? error.message : "Unknown error");
+    } finally {
+      setVerificationsLoading(false);
+    }
+  }, [userId, page, limit, startDate, endDate]);
   
-  const user = userData;
+  useEffect(() => {
+    checkHealth();
+    fetchUser();
+    fetchStats();
+  }, [checkHealth, fetchUser, fetchStats]);
+  
+  useEffect(() => {
+    fetchVerifications();
+  }, [fetchVerifications]);
+  
   const verifications = verificationsData?.verifications || [];
   const totalPages = verificationsData?.totalPages || 1;
   const totalVerifications = verificationsData?.total || 0;
   
   const handleSearch = () => {
     setPage(1);
-    refetchVerifications();
+    fetchVerifications();
   };
   
   const handleReset = () => {
     setStartDate("");
     setEndDate("");
     setPage(1);
-    refetchVerifications();
   };
   
   const handleRefreshAll = () => {
-    refetchUser();
-    refetchStats();
-    refetchVerifications();
+    fetchUser();
+    fetchStats();
+    fetchVerifications();
   };
   
   const formatDate = (date: Date | string | null | undefined) => {
@@ -174,7 +280,7 @@ export default function AdminUserDetail() {
             {/* RunPod API Status */}
             <div className="flex items-center gap-2">
               <Server className="h-4 w-4 text-muted-foreground" />
-              {healthData?.connected ? (
+              {healthConnected ? (
                 <span className="text-sm text-green-500 flex items-center gap-1">
                   <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                   RunPod
@@ -311,7 +417,7 @@ export default function AdminUserDetail() {
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 text-red-500">
                 <AlertCircle className="h-5 w-5" />
-                <span>Failed to fetch verifications from RunPod API: {verificationsError.message}</span>
+                <span>Failed to fetch verifications from RunPod API: {verificationsError}</span>
               </div>
             </CardContent>
           </Card>

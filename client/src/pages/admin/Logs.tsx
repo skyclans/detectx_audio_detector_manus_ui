@@ -5,7 +5,7 @@
  * Features: Search, filter by action type, date range, pagination
  */
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,27 @@ import {
   Settings,
   RotateCcw
 } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { fetchWithAuth } from "@/lib/api";
+
+// Types
+interface Log {
+  id: number;
+  adminEmail: string;
+  action: string;
+  targetEmail: string | null;
+  details: string | null;
+  previousValue: unknown;
+  newValue: unknown;
+  createdAt: string;
+}
+
+interface LogsResponse {
+  logs: Log[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 // Action type icons and labels
 const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
@@ -42,15 +62,38 @@ export default function AdminLogs() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   
+  // Data states
+  const [data, setData] = useState<LogsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
   // Fetch logs from API
-  const { data, isLoading, refetch } = trpc.admin.getLogs.useQuery({
-    adminEmail: searchTerm || undefined,
-    action: actionFilter !== "all" ? actionFilter : undefined,
-    startDate: startDate ? new Date(startDate) : undefined,
-    endDate: endDate ? new Date(endDate) : undefined,
-    page,
-    limit: 20,
-  });
+  const fetchLogs = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      
+      const params = new URLSearchParams();
+      if (searchTerm) params.set("adminEmail", searchTerm);
+      if (actionFilter !== "all") params.set("action", actionFilter);
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+      params.set("page", String(page));
+      params.set("limit", "20");
+      
+      const response = await fetchWithAuth(`/api/admin/logs?${params.toString()}`);
+      if (response.ok) {
+        const result: LogsResponse = await response.json();
+        setData(result);
+      }
+    } catch (error) {
+      console.error("[Logs] Failed to fetch logs:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchTerm, actionFilter, startDate, endDate, page]);
+  
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
   
   const logs = data?.logs || [];
   const totalPages = data?.totalPages || 1;
@@ -58,7 +101,7 @@ export default function AdminLogs() {
   
   const handleSearch = () => {
     setPage(1);
-    refetch();
+    fetchLogs();
   };
   
   const handleReset = () => {
@@ -106,7 +149,7 @@ export default function AdminLogs() {
               Audit trail of all admin activities
             </p>
           </div>
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => fetchLogs()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>

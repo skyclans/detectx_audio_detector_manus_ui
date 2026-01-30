@@ -1,5 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useState, useEffect } from "react";
+import { fetchWithAuth } from "@/lib/api";
 import { 
   LayoutDashboard, 
   Users, 
@@ -11,25 +13,52 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Admin access control - only these emails can access admin pages
-const ADMIN_EMAILS = [
-  "ceo@detectx.app",
-  "skyclans2@gmail.com",
-  "support@detectx.app",
-  "coolkimy@naver.com",
-  "skyclans@naver.com"
-];
+interface AdminStatus {
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
+}
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, loading: isLoading } = useAuth();
+  const { user, loading: isAuthLoading, isAuthenticated } = useAuth();
   const [location] = useLocation();
+  const [adminStatus, setAdminStatus] = useState<AdminStatus | null>(null);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
-  // Check if user is authorized admin
-  const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email);
+  // Check admin status from server
+  useEffect(() => {
+    async function checkAdminStatus() {
+      if (!isAuthenticated) {
+        setIsCheckingAdmin(false);
+        return;
+      }
+
+      try {
+        const response = await fetchWithAuth("/api/admin/check-status");
+        if (response.ok) {
+          const data: AdminStatus = await response.json();
+          setAdminStatus(data);
+        } else {
+          setAdminStatus({ isAdmin: false, isSuperAdmin: false });
+        }
+      } catch (error) {
+        console.error("[AdminLayout] Failed to check admin status:", error);
+        setAdminStatus({ isAdmin: false, isSuperAdmin: false });
+      } finally {
+        setIsCheckingAdmin(false);
+      }
+    }
+
+    if (!isAuthLoading) {
+      checkAdminStatus();
+    }
+  }, [isAuthenticated, isAuthLoading]);
+
+  const isLoading = isAuthLoading || isCheckingAdmin;
+  const isAdmin = adminStatus?.isAdmin ?? false;
 
   if (isLoading) {
     return (
@@ -42,7 +71,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  if (!user) {
+  if (!user || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-8">
@@ -106,6 +135,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
               <span className="font-semibold">DetectX Admin</span>
+              {adminStatus?.isSuperAdmin && (
+                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                  Super Admin
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -154,6 +188,29 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   );
 }
 
-export function isAdminEmail(email: string | undefined): boolean {
-  return email ? ADMIN_EMAILS.includes(email) : false;
+// Export admin status hook for use in child components
+export function useAdminStatus() {
+  const [adminStatus, setAdminStatus] = useState<AdminStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        const response = await fetchWithAuth("/api/admin/check-status");
+        if (response.ok) {
+          const data: AdminStatus = await response.json();
+          setAdminStatus(data);
+        } else {
+          setAdminStatus({ isAdmin: false, isSuperAdmin: false });
+        }
+      } catch (error) {
+        setAdminStatus({ isAdmin: false, isSuperAdmin: false });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    checkStatus();
+  }, []);
+
+  return { adminStatus, isLoading, isSuperAdmin: adminStatus?.isSuperAdmin ?? false };
 }

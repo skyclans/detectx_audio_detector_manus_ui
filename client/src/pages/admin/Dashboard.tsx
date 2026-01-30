@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
+import { fetchWithAuth } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   FileCheck, 
@@ -17,7 +18,7 @@ import {
   Activity
 } from "lucide-react";
 
-const API_BASE = "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
+// API calls use fetchWithAuth which automatically adds JWT authentication
 
 interface DashboardData {
   total_verifications: number;
@@ -48,7 +49,7 @@ export default function AdminDashboard() {
   const fetchDashboard = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/admin/dashboard`);
+      const response = await fetchWithAuth("/api/admin/dashboard");
       if (!response.ok) {
         throw new Error("Failed to fetch dashboard data");
       }

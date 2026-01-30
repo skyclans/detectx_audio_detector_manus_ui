@@ -2,10 +2,10 @@
  * Admin Verifications Page
  * 
  * Displays all verification records from RunPod API with filtering and export capabilities.
- * Uses tRPC to call RunPod API endpoints
+ * Uses REST API to call RunPod API endpoints
  */
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,34 @@ import {
   Server,
   AlertCircle
 } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { fetchWithAuth } from "@/lib/api";
+
+// Types
+interface Verification {
+  id: number;
+  fileName: string;
+  userId: string | null;
+  verdict: string | null;
+  status: string;
+  duration: number | null;
+  fileSize: number | null;
+  createdAt: string;
+}
+
+interface VerificationsResponse {
+  verifications: Verification[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface StatsData {
+  totalVerifications: number;
+  observedCount: number;
+  notObservedCount: number;
+  pendingCount: number;
+}
 
 export default function AdminVerifications() {
   const [search, setSearch] = useState("");
@@ -32,22 +59,77 @@ export default function AdminVerifications() {
   const [page, setPage] = useState(1);
   const limit = 20;
 
+  // Data states
+  const [data, setData] = useState<VerificationsResponse | null>(null);
+  const [statsData, setStatsData] = useState<StatsData | null>(null);
+  const [healthConnected, setHealthConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   // Check RunPod API health
-  const { data: healthData } = trpc.admin.checkRunPodHealth.useQuery();
+  const checkHealth = useCallback(async () => {
+    try {
+      const response = await fetchWithAuth("/api/admin/health");
+      if (response.ok) {
+        const data = await response.json();
+        setHealthConnected(data.connected ?? true);
+      }
+    } catch {
+      setHealthConnected(false);
+    }
+  }, []);
 
   // Fetch verifications from RunPod API
-  const { data, isLoading, refetch, error } = trpc.admin.getRunPodVerifications.useQuery({
-    search: search || undefined,
-    verdict: verdictFilter !== "all" ? (verdictFilter as "observed" | "not_observed") : undefined,
-    status: statusFilter !== "all" ? (statusFilter as "pending" | "processing" | "completed" | "failed") : undefined,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
-    page,
-    limit,
-  });
+  const fetchVerifications = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      if (verdictFilter !== "all") params.set("verdict", verdictFilter);
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+      params.set("page", String(page));
+      params.set("limit", String(limit));
+      
+      const response = await fetchWithAuth(`/api/admin/verifications?${params.toString()}`);
+      if (response.ok) {
+        const result: VerificationsResponse = await response.json();
+        setData(result);
+      } else {
+        const err = await response.json();
+        setError(err.detail || "Failed to fetch verifications");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [search, verdictFilter, statusFilter, startDate, endDate, page, limit]);
 
   // Fetch stats from RunPod API
-  const { data: statsData } = trpc.admin.getRunPodStats.useQuery();
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await fetchWithAuth("/api/admin/stats");
+      if (response.ok) {
+        const result: StatsData = await response.json();
+        setStatsData(result);
+      }
+    } catch (err) {
+      console.error("[Verifications] Failed to fetch stats:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkHealth();
+    fetchStats();
+  }, [checkHealth, fetchStats]);
+
+  useEffect(() => {
+    fetchVerifications();
+  }, [fetchVerifications]);
 
   const verifications = data?.verifications || [];
   const totalPages = data?.totalPages || 1;
@@ -55,7 +137,7 @@ export default function AdminVerifications() {
 
   const handleSearch = () => {
     setPage(1);
-    refetch();
+    fetchVerifications();
   };
 
   const handleReset = () => {
@@ -65,7 +147,6 @@ export default function AdminVerifications() {
     setStartDate("");
     setEndDate("");
     setPage(1);
-    refetch();
   };
 
   const formatFileSize = (bytes: number | null | undefined) => {
@@ -100,7 +181,7 @@ export default function AdminVerifications() {
           {/* RunPod API Status */}
           <div className="flex items-center gap-2">
             <Server className="h-4 w-4 text-muted-foreground" />
-            {healthData?.connected ? (
+            {healthConnected ? (
               <span className="text-sm text-green-500 flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 RunPod API Connected
@@ -212,7 +293,7 @@ export default function AdminVerifications() {
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 text-red-500">
                 <AlertCircle className="h-5 w-5" />
-                <span>Failed to fetch verifications from RunPod API: {error.message}</span>
+                <span>Failed to fetch verifications from RunPod API: {error}</span>
               </div>
             </CardContent>
           </Card>

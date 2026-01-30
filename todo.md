@@ -1290,3 +1290,13 @@
 - [x] Store returnUrl in cookie before Google login redirect
 - [x] Modify Google OAuth callback to detect new vs existing users
 - [x] Redirect new users to /login?welcome=true, existing users to returnUrl or /verify-audio
+
+
+## E2E Login Flow Test (2026-01-30)
+- [x] Login redirect logic unit tests (14 tests)
+- [x] New user → /login?welcome=true redirect
+- [x] Existing user → returnUrl or /verify-audio redirect
+- [x] returnUrl security validation (must start with /)
+- [x] Welcome page for new users with personalized greeting
+- [x] Welcome page CTA redirects to /verify-audio
+- [x] Logout redirects to login page

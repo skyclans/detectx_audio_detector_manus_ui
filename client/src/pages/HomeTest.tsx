@@ -178,6 +178,17 @@ export default function HomeTest() {
   // Login prompt state (for non-logged-in users)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
+  // ESC key to close login modal
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showLoginPrompt) {
+        setShowLoginPrompt(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
+  }, [showLoginPrompt]);
+
   // Session time state
   const [sessionStartTime] = useState<Date>(new Date());
   const [sessionElapsed, setSessionElapsed] = useState<string>("00:00:00");
@@ -232,6 +243,34 @@ export default function HomeTest() {
       ctx.close();
     };
   }, []);
+
+  // Restore pending file info after login (display only - user needs to re-upload)
+  useEffect(() => {
+    if (isAuthenticated) {
+      const pendingFileStr = localStorage.getItem("detectx_pending_file");
+      if (pendingFileStr) {
+        try {
+          const pendingFile = JSON.parse(pendingFileStr);
+          // Set metadata to show the file info in upload panel
+          setMetadata({
+            fileName: pendingFile.name,
+            duration: null,
+            sampleRate: null,
+            bitDepth: null,
+            channels: null,
+            codec: pendingFile.name.split('.').pop()?.toUpperCase() || null,
+            fileHash: null,
+            fileSize: pendingFile.size,
+          });
+          // Clear the pending file from localStorage
+          localStorage.removeItem("detectx_pending_file");
+        } catch (e) {
+          console.warn("Failed to restore pending file info:", e);
+          localStorage.removeItem("detectx_pending_file");
+        }
+      }
+    }
+  }, [isAuthenticated]);
 
   // Session timer - updates every second
   useEffect(() => {
@@ -721,14 +760,14 @@ export default function HomeTest() {
 
       {/* Login Prompt Modal for non-logged-in users */}
       {showLoginPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center animate-in fade-in duration-200">
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowLoginPrompt(false)}
           />
           {/* Modal */}
-          <div className="relative z-10 flex flex-col items-center justify-center py-10 px-12 border border-border rounded-2xl bg-background shadow-2xl max-w-md mx-4">
+          <div className="relative z-10 flex flex-col items-center justify-center py-10 px-12 border border-border rounded-2xl bg-background shadow-2xl max-w-md mx-4 animate-in zoom-in-95 duration-200">
             {/* Close button */}
             <button
               onClick={() => setShowLoginPrompt(false)}
@@ -741,7 +780,18 @@ export default function HomeTest() {
             <p className="text-sm text-muted-foreground mb-8 text-center">
               Sign in to analyze your audio files with DetectX.
             </p>
-            <Button size="lg" onClick={() => window.location.href = "/api/auth/google"}>
+            <Button size="lg" onClick={() => {
+              // Save file info to localStorage before redirect so it persists after login
+              if (selectedFile) {
+                localStorage.setItem("detectx_pending_file", JSON.stringify({
+                  name: selectedFile.name,
+                  size: selectedFile.size,
+                  type: selectedFile.type,
+                  lastModified: selectedFile.lastModified
+                }));
+              }
+              window.location.href = "/api/auth/google";
+            }}>
               Sign in with Google
             </Button>
           </div>

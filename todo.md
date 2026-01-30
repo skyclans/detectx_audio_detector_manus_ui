@@ -1228,3 +1228,37 @@
 ### Plan Page
 - [x] Ensure Plan page is accessible to all users (logged-in and non-logged-in)
 - [x] Remove any authentication requirements if present
+
+
+## Login Modal UX Improvements (2026-01-30)
+
+### Animation
+- [ ] Add fade-in animation for backdrop
+- [ ] Add scale animation for modal content
+
+### Keyboard Support
+- [ ] Add ESC key to close modal
+- [ ] Add useEffect for keyboard event listener
+
+### File Persistence After Login
+- [ ] Save uploaded file info to localStorage before login redirect
+- [ ] Restore file info after login and display in upload panel
+- [ ] Apply to Home.tsx and HomeTest.tsx
+
+
+## Login Modal UX Improvements (2026-01-30)
+
+### Animation
+- [x] Add fade-in animation to modal backdrop
+- [x] Add zoom-in-95 scale animation to modal content
+- [x] Apply to Home.tsx and HomeTest.tsx
+
+### ESC Key Close
+- [x] Add useEffect for ESC key listener
+- [x] Close modal when ESC is pressed
+- [x] Apply to Home.tsx and HomeTest.tsx
+
+### File Persistence After Login
+- [x] Save file info to localStorage before Google login redirect
+- [x] Restore file metadata after login
+- [x] Display file info in upload panel after login

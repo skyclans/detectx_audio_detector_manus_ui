@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { AudioUploadPanel } from "@/components/AudioUploadPanel";
 import { MetadataPanel } from "@/components/MetadataPanel";
-import { Clock, Lock } from "lucide-react";
+import { Clock, Lock, X } from "lucide-react";
 import { WaveformVisualization } from "@/components/WaveformVisualization";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 import { LiveScanConsole, type ScanLogEntry } from "@/components/LiveScanConsole";
@@ -719,17 +719,32 @@ export default function HomeTest() {
         </div>
       </div>
 
-      {/* Login Prompt for non-logged-in users */}
+      {/* Login Prompt Modal for non-logged-in users */}
       {showLoginPrompt && (
-        <div className="flex flex-col items-center justify-center py-12 px-8 border border-border rounded-xl bg-muted/30 mt-4">
-          <Lock className="w-10 h-10 mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">Please sign in to continue</h3>
-          <p className="text-sm text-muted-foreground mb-6 text-center">
-            Sign in to analyze your audio files with DetectX.
-          </p>
-          <Button onClick={() => window.location.href = "/api/auth/google"}>
-            Sign in with Google
-          </Button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowLoginPrompt(false)}
+          />
+          {/* Modal */}
+          <div className="relative z-10 flex flex-col items-center justify-center py-10 px-12 border border-border rounded-2xl bg-background shadow-2xl max-w-md mx-4">
+            {/* Close button */}
+            <button
+              onClick={() => setShowLoginPrompt(false)}
+              className="absolute top-4 right-4 p-1 rounded-full hover:bg-muted transition-colors"
+            >
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <Lock className="w-12 h-12 mb-5 text-primary" />
+            <h3 className="text-xl font-semibold mb-3">Please sign in to continue</h3>
+            <p className="text-sm text-muted-foreground mb-8 text-center">
+              Sign in to analyze your audio files with DetectX.
+            </p>
+            <Button size="lg" onClick={() => window.location.href = "/api/auth/google"}>
+              Sign in with Google
+            </Button>
+          </div>
         </div>
       )}
 

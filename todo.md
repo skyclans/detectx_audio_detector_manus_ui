@@ -1207,3 +1207,13 @@
 - [x] Remove previewMode and previewMessage states
 - [x] Remove BlurOverlay component usage
 - [x] Remove preview response handling logic
+
+
+## Login Prompt Popup Modal (2026-01-30)
+
+### UI Change
+- [x] Change login prompt from inline to centered popup modal
+- [x] Add backdrop overlay with blur effect
+- [x] Add close button (X) to dismiss modal
+- [x] Apply to Home.tsx
+- [x] Apply to HomeTest.tsx

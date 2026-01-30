@@ -16,9 +16,7 @@ import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { AudioRuntime } from "@/lib/audioRuntime";
 import { startDualTimeLoop } from "@/lib/timeLoop";
@@ -231,12 +229,11 @@ export default function Home() {
   const [sessionElapsed, setSessionElapsed] = useState<string>("00:00:00");
 
   // Mode and auth state
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUser } = useAuth();
   const [, setLocation] = useLocation();
   const [usageCount, setUsageCount] = useState(0);
   const [modeLimit, setModeLimit] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
-  const incrementUsageMutation = trpc.usage.increment.useMutation();
 
   // Master emails with unlimited access
   const MASTER_EMAILS = [
@@ -791,27 +788,26 @@ export default function Home() {
       });
       
       setScanComplete(true);
-      
-      // History is saved server-side in api.py (no duplicate tRPC call needed)
 
-      // Increment usage count (skip for master users)
-      if (!isMasterUser) {
-        if (isAuthenticated && user?.id) {
-          // Increment in Manus DB (lightweight — no file re-upload)
-          setUsageCount((prev: number) => prev + 1);
-          try {
-            await incrementUsageMutation.mutateAsync();
-          } catch (e) {
-            console.error("[Usage] Failed to increment in DB:", e);
-          }
-        } else {
-          // For non-authenticated users, use localStorage
-          setUsageCount((prev: number) => {
-            const newCount = prev + 1;
-            localStorage.setItem("detectx_usage_count", newCount.toString());
-            return newCount;
-          });
+      // Usage is incremented server-side in /verify-audio (single source of truth)
+      // Update local state + sidebar from server response
+      if (result.usage_info) {
+        const { usage_count, monthly_limit, remaining } = result.usage_info;
+        setUsageCount(usage_count);
+        localStorage.setItem("detectx_usage_count", String(usage_count));
+        if (monthly_limit !== undefined) {
+          localStorage.setItem("detectx_mode_limit", String(monthly_limit));
         }
+        // Refresh useAuth user object so sidebar PlanUsageDisplay updates
+        refreshUser();
+      } else if (!isMasterUser) {
+        // Fallback: increment locally if no usage_info in response
+        setUsageCount((prev: number) => {
+          const newCount = prev + 1;
+          localStorage.setItem("detectx_usage_count", newCount.toString());
+          return newCount;
+        });
+        refreshUser();
       }
     } catch (error) {
       console.error("Verification failed:", error);
@@ -823,7 +819,7 @@ export default function Home() {
     } finally {
       setIsVerifying(false);
     }
-  }, [selectedFile, metadata, orientation, user, isAuthenticated, isMasterUser, selectedMode, modeLimit, setLocation, DETECTX_API_URL]);
+  }, [selectedFile, metadata, orientation, user, isAuthenticated, isMasterUser, selectedMode, modeLimit, setLocation, DETECTX_API_URL, refreshUser]);
 
   // Debug: Log verification result changes
   useEffect(() => {

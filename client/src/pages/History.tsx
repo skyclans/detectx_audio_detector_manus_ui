@@ -19,6 +19,9 @@ import {
   X,
 } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Lock } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
 
@@ -332,6 +335,7 @@ function DateRangePicker({
 }
 
 export default function History() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [history, setHistory] = useState<HistoryRecord[]>([]);
   const [stats, setStats] = useState<HistoryStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -488,6 +492,37 @@ export default function History() {
   };
 
   const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <ForensicLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </ForensicLayout>
+    );
+  }
+
+  // Show login prompt for non-authenticated users
+  if (!isAuthenticated) {
+    return (
+      <ForensicLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center justify-center py-10 px-12 border border-border rounded-2xl bg-muted/30 max-w-md">
+            <Lock className="w-12 h-12 mb-5 text-primary" />
+            <h3 className="text-xl font-semibold mb-3">Please sign in to continue</h3>
+            <p className="text-sm text-muted-foreground mb-8 text-center">
+              Sign in to view your verification history.
+            </p>
+            <Button size="lg" onClick={() => window.location.href = "/api/auth/google"}>
+              Sign in with Google
+            </Button>
+          </div>
+        </div>
+      </ForensicLayout>
+    );
+  }
 
   return (
     <ForensicLayout>

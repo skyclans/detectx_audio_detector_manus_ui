@@ -1217,3 +1217,14 @@
 - [x] Add close button (X) to dismiss modal
 - [x] Apply to Home.tsx
 - [x] Apply to HomeTest.tsx
+
+
+## Page Access Control (2026-01-30)
+
+### History Page
+- [x] Add isAuthenticated check to History page
+- [x] Redirect non-logged-in users to login or show login prompt
+
+### Plan Page
+- [x] Ensure Plan page is accessible to all users (logged-in and non-logged-in)
+- [x] Remove any authentication requirements if present

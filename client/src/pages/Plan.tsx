@@ -129,30 +129,7 @@ export default function Plan() {
     }
   };
 
-  if (!authLoading && !isAuthenticated) {
-    return (
-      <ForensicLayout title="Plan" subtitle="Subscription management">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6">
-            <LogIn className="w-10 h-10 text-muted-foreground" />
-          </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            Authentication Required
-          </h2>
-          <p className="text-muted-foreground mb-6 max-w-md">
-            Sign in to view and manage your subscription plan.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => (window.location.href = getLoginUrl())}
-          >
-            Sign In to Continue
-          </Button>
-        </div>
-      </ForensicLayout>
-    );
-  }
-
+  // Plan page is accessible to all users (logged-in and non-logged-in)
   return (
     <ForensicLayout title="Plan" subtitle="Subscription management">
       <div className="max-w-6xl">

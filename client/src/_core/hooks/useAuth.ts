@@ -29,11 +29,20 @@ type UseAuthOptions = {
   redirectPath?: string;
 };
 
+// Custom event for cross-instance user state sync.
+// When any useAuth() instance refreshes user data, ALL other instances
+// (e.g., PlanUsageDisplay sidebar) receive the update immediately.
+const USER_UPDATED_EVENT = "detectx-user-updated";
+
 /**
  * Authentication hook using RunPod JWT
- * 
+ *
  * Replaces the previous tRPC-based authentication with direct
  * RunPod API calls using JWT tokens stored in localStorage.
+ *
+ * Cross-instance sync: When refreshUser() fetches new data, a CustomEvent
+ * broadcasts the update to all other useAuth() instances on the page.
+ * This ensures the sidebar PlanUsageDisplay updates when Home.tsx refreshes.
  */
 export function useAuth(options?: UseAuthOptions) {
   const { redirectOnUnauthenticated = false, redirectPath = "/login" } =
@@ -59,7 +68,7 @@ export function useAuth(options?: UseAuthOptions) {
    */
   const fetchUser = useCallback(async () => {
     const currentToken = localStorage.getItem("detectx_token");
-    
+
     if (!currentToken) {
       setUser(null);
       setIsLoading(false);
@@ -83,7 +92,7 @@ export function useAuth(options?: UseAuthOptions) {
 
       if (res.ok) {
         const userData = await res.json();
-        
+
         // Map RunPod response to include legacy compatibility fields
         const mappedUser: User = {
           ...userData,
@@ -91,16 +100,21 @@ export function useAuth(options?: UseAuthOptions) {
           usageCount: userData.usage_count,
           monthlyLimit: userData.monthly_limit,
         };
-        
+
         setUser(mappedUser);
         localStorage.setItem("detectx_user", JSON.stringify(mappedUser));
-        
+
         // Also update legacy localStorage keys for backward compatibility
         localStorage.setItem("detectx_selected_mode", userData.plan || "free");
         localStorage.setItem("detectx_usage_count", String(userData.usage_count || 0));
         localStorage.setItem("detectx_mode_limit", String(userData.monthly_limit || 5));
         localStorage.setItem("manus-runtime-user-info", JSON.stringify(mappedUser));
-        
+
+        // Broadcast to ALL other useAuth() instances (sidebar PlanUsageDisplay, etc.)
+        window.dispatchEvent(
+          new CustomEvent(USER_UPDATED_EVENT, { detail: mappedUser })
+        );
+
         setError(null);
       } else {
         console.error("[Auth] Failed to fetch user:", res.status);
@@ -119,6 +133,21 @@ export function useAuth(options?: UseAuthOptions) {
     fetchUser();
   }, [fetchUser]);
 
+  // Listen for user updates from OTHER useAuth() instances.
+  // When Home.tsx calls refreshUser(), this listener updates the sidebar's user state.
+  useEffect(() => {
+    const handleUserUpdated = (e: Event) => {
+      const detail = (e as CustomEvent<User | null>).detail;
+      if (detail) {
+        setUser(detail);
+      }
+    };
+    window.addEventListener(USER_UPDATED_EVENT, handleUserUpdated);
+    return () => {
+      window.removeEventListener(USER_UPDATED_EVENT, handleUserUpdated);
+    };
+  }, []);
+
   /**
    * Logout - clear tokens and redirect to login
    */
@@ -131,15 +160,16 @@ export function useAuth(options?: UseAuthOptions) {
     localStorage.removeItem("detectx_user_id");
     localStorage.removeItem("detectx_usage_count");
     localStorage.removeItem("manus-runtime-user-info");
-    
+
     setUser(null);
-    
+
     // Redirect to login page
     window.location.href = "/login";
   }, []);
 
   /**
-   * Refresh user info (call after verification to update usage count)
+   * Refresh user info (call after verification to update usage count).
+   * Fetches /auth/me and broadcasts the result to ALL useAuth() instances.
    */
   const refreshUser = useCallback(() => {
     return fetchUser();

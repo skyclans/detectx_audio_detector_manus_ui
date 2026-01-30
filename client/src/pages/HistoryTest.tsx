@@ -365,7 +365,12 @@ export default function History() {
         params.append("end_date", formatApiDate(endDate)!);
       }
 
-      const response = await fetch(`${API_BASE}/history?${params}`);
+      // Get JWT token for Bearer authentication
+      const token = localStorage.getItem("detectx_token");
+      
+      const response = await fetch(`${API_BASE}/history?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch history: ${response.statusText}`);
       }
@@ -381,7 +386,11 @@ export default function History() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/history/stats`);
+      // Get JWT token for Bearer authentication
+      const token = localStorage.getItem("detectx_token");
+      const response = await fetch(`${API_BASE}/history/stats`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (response.ok) {
         const data: HistoryStats = await response.json();
         setStats(data);

@@ -92,7 +92,7 @@ export default function Settings() {
                   Login Method
                 </span>
                 <span className="text-sm text-foreground">
-                  {user?.loginMethod || "—"}
+                  Google OAuth
                 </span>
               </div>
             </div>

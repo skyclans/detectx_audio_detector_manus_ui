@@ -1306,3 +1306,32 @@
 - [x] Investigate why free user usage count resets on site update
 - [x] Fix usage count persistence issue (DB as single source of truth)
 - [x] Add unit tests for usage count management (14 tests)
+
+
+## Phase 2: Google OAuth JWT 인증 전환 (2026-01-31)
+
+### 우선순위 1 (필수)
+- [x] AuthCallback.tsx 신규 생성 - OAuth 콜백 페이지
+- [x] App.tsx에 /auth/callback 라우트 추가
+- [x] useAuth.ts 수정 - tRPC → RunPod fetch 전환
+- [x] Login.tsx OAuth URL 변경 - RunPod /auth/google
+- [x] Home.tsx Bearer 헤더 추가, user_id 제거
+- [x] HomeTest.tsx 동일 변경
+- [x] History.tsx Bearer 헤더 추가, user_id 제거
+- [x] HistoryTest.tsx 동일 변경
+- [x] 환경변수 VITE_DETECTX_API_URL 추가 (기본값 사용)
+
+### 우선순위 2 (권장)
+- [x] api.ts 공통 API 헬퍼 생성
+- [x] 401 에러 글로벌 처리 추가
+- [x] JWT 인증 플로우 단위 테스트 18개 추가
+
+### 테스트 시나리오
+- [ ] Sign in with Google 클릭 → RunPod /auth/google 이동
+- [ ] Google 로그인 완료 → /auth/callback?token=xxx 리다이렉트
+- [ ] AuthCallback 페이지 → 토큰 저장 → /verify-audio 이동
+- [ ] 로그인 후 네비게이션바 유저 정보 표시
+- [ ] Verify 클릭 (로그인 상태) → Bearer 토큰 전송
+- [ ] History 페이지 정상 로드
+- [ ] 로그아웃 → 토큰 삭제 → /login 이동
+- [ ] 만료된 토큰 → 401 → 자동 로그아웃

@@ -144,10 +144,15 @@ export default function Login() {
 
   const canLogin = termsAgreed && privacyAgreed;
 
+  // RunPod API URL for OAuth
+  const RUNPOD_API_URL = import.meta.env.VITE_DETECTX_API_URL
+    || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+
   // Direct OAuth login handlers
   const handleGoogleLogin = () => {
     if (!canLogin) return;
-    window.location.href = "/api/auth/google";
+    // Redirect to RunPod OAuth endpoint
+    window.location.href = `${RUNPOD_API_URL}/auth/google`;
   };
 
   const handleAppleLogin = () => {

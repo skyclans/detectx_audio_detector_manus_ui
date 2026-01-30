@@ -557,11 +557,11 @@ export default function HomeTest() {
       const formData = new FormData();
       formData.append("file", selectedFileRef.current);
 
-      // Build API URL with orientation and optional user_id
-      let apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
-      if (user?.id) {
-        apiUrl += `&user_id=${user.id}`;
-      }
+      // Build API URL with orientation (user_id removed - server identifies user from JWT)
+      const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
+      
+      // Get JWT token for Bearer authentication
+      const token = localStorage.getItem("detectx_token");
 
       console.log(`[Verification] Calling RunPod API directly: ${apiUrl}`);
       console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);
@@ -625,6 +625,12 @@ export default function HomeTest() {
         });
 
         xhr.open("POST", apiUrl);
+        
+        // Add Bearer token for authenticated users
+        if (token) {
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        }
+        
         xhr.send(formData);
       });
 
@@ -799,9 +805,12 @@ export default function HomeTest() {
                   lastModified: selectedFile.lastModified
                 }));
               }
-              // Set returnUrl cookie so OAuth callback knows where to redirect
-              document.cookie = "returnUrl=/verify-audio; path=/; max-age=300";
-              window.location.href = "/api/auth/google";
+              // Set returnUrl in localStorage so AuthCallback knows where to redirect
+              localStorage.setItem("detectx_return_url", "/verify-audio");
+              // Redirect to RunPod OAuth endpoint
+              const RUNPOD_API_URL = import.meta.env.VITE_DETECTX_API_URL
+                || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+              window.location.href = `${RUNPOD_API_URL}/auth/google`;
             }}>
               Sign in with Google
             </Button>

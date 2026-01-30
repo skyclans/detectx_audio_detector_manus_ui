@@ -369,12 +369,12 @@ export default function History() {
         params.append("end_date", formatApiDate(endDate)!);
       }
       
-      // Add user_id for authenticated users
-      if (user?.id) {
-        params.append("user_id", String(user.id));
-      }
-
-      const response = await fetch(`${API_BASE}/history?${params}`);
+      // Get JWT token for Bearer authentication (user_id removed - server identifies user from JWT)
+      const token = localStorage.getItem("detectx_token");
+      
+      const response = await fetch(`${API_BASE}/history?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch history: ${response.statusText}`);
       }
@@ -386,14 +386,15 @@ export default function History() {
     } finally {
       setLoading(false);
     }
-  }, [page, startDate, endDate, user?.id]);
+  }, [page, startDate, endDate]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const statsUrl = user?.id 
-        ? `${API_BASE}/history/stats?user_id=${user.id}`
-        : `${API_BASE}/history/stats`;
-      const response = await fetch(statsUrl);
+      // Get JWT token for Bearer authentication
+      const token = localStorage.getItem("detectx_token");
+      const response = await fetch(`${API_BASE}/history/stats`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (response.ok) {
         const data: HistoryStats = await response.json();
         setStats(data);
@@ -401,7 +402,7 @@ export default function History() {
     } catch {
       // Stats are optional, don't show error
     }
-  }, [user?.id]);
+  }, []);
 
   useEffect(() => {
     fetchHistory();

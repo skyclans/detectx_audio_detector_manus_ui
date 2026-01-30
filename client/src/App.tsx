@@ -16,6 +16,7 @@ import Updates from "./pages/Updates";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 import ModeSelection from "./pages/ModeSelection";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -57,6 +58,7 @@ function Router() {
       
       {/* Auth pages */}
       <Route path="/login" component={Login} />
+      <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/select-mode" component={ModeSelection} />
       
       {/* Legal pages */}

@@ -669,12 +669,21 @@ export default function HomeTest() {
       setScanComplete(true);
       
       // Increment usage count (skip for master users)
+      // For authenticated users, DB is incremented server-side via incrementUserUsage()
+      // Only update localStorage for non-authenticated users
       if (!isMasterUser) {
-        setUsageCount((prev: number) => {
-          const newCount = prev + 1;
-          localStorage.setItem("detectx_usage_count", newCount.toString());
-          return newCount;
-        });
+        if (isAuthenticated && user?.id) {
+          // For authenticated users, just update local state
+          // DB is already incremented server-side in verificationWithStorage.process
+          setUsageCount((prev: number) => prev + 1);
+        } else {
+          // For non-authenticated users, use localStorage
+          setUsageCount((prev: number) => {
+            const newCount = prev + 1;
+            localStorage.setItem("detectx_usage_count", newCount.toString());
+            return newCount;
+          });
+        }
       }
     } catch (error) {
       console.error("Verification failed:", error);

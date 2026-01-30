@@ -1300,3 +1300,9 @@
 - [x] Welcome page for new users with personalized greeting
 - [x] Welcome page CTA redirects to /verify-audio
 - [x] Logout redirects to login page
+
+
+## Bug Fix: Free User Usage Reset (2026-01-30)
+- [x] Investigate why free user usage count resets on site update
+- [x] Fix usage count persistence issue (DB as single source of truth)
+- [x] Add unit tests for usage count management (14 tests)

@@ -65,6 +65,26 @@ function PlanUsageDisplay() {
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
 
   useEffect(() => {
+    // PRIORITY: Use DB data for authenticated users (single source of truth)
+    if (isAuthenticated && user) {
+      const dbPlan = (user as any).plan as string | undefined;
+      const dbMonthlyLimit = (user as any).monthlyLimit as number | undefined;
+      const dbUsageCount = (user as any).usageCount as number | undefined;
+      
+      if (dbPlan) {
+        setSelectedMode(dbPlan);
+        setModeLimit(dbPlan === "master" ? null : (dbMonthlyLimit ?? 5));
+        setUsageCount(dbUsageCount ?? 0);
+        
+        // Sync to localStorage as cache (not source of truth)
+        localStorage.setItem("detectx_selected_mode", dbPlan);
+        localStorage.setItem("detectx_mode_limit", dbPlan === "master" ? "unlimited" : String(dbMonthlyLimit ?? 5));
+        localStorage.setItem("detectx_usage_count", String(dbUsageCount ?? 0));
+        return;
+      }
+    }
+    
+    // Fallback to localStorage only for non-authenticated users
     const mode = localStorage.getItem("detectx_selected_mode");
     const limit = localStorage.getItem("detectx_mode_limit");
     
@@ -80,46 +100,12 @@ function PlanUsageDisplay() {
       setModeLimit(5);
     }
     
-    // Get usage count from localStorage
+    // Get usage count from localStorage for non-authenticated users
     const storedUsage = localStorage.getItem("detectx_usage_count");
     if (storedUsage) {
       setUsageCount(parseInt(storedUsage, 10));
     }
-
-    // Listen for storage changes (when usage updates)
-    const handleStorageChange = () => {
-      const newUsage = localStorage.getItem("detectx_usage_count");
-      if (newUsage) {
-        setUsageCount(parseInt(newUsage, 10));
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    
-    // Also poll for changes (for same-tab updates)
-    const interval = setInterval(() => {
-      const newUsage = localStorage.getItem("detectx_usage_count");
-      const newMode = localStorage.getItem("detectx_selected_mode");
-      const newLimit = localStorage.getItem("detectx_mode_limit");
-      
-      if (newUsage) {
-        setUsageCount(parseInt(newUsage, 10));
-      }
-      if (newMode !== selectedMode) {
-        setSelectedMode(newMode);
-        if (newLimit === "unlimited" || newMode === "master") {
-          setModeLimit(null);
-        } else {
-          setModeLimit(parseInt(newLimit || "5", 10));
-        }
-      }
-    }, 1000);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, [selectedMode]);
+  }, [isAuthenticated, user]);
 
   // Determine plan name
   const getPlanName = () => {

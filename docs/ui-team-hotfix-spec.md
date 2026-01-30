@@ -2,6 +2,66 @@
 
 **작성일:** 2026-01-31
 **우선순위:** 긴급
+**업데이트:** 2026-01-31 — 근본 원인 분석 추가
+
+---
+
+## 근본 원인 분석: "첫 스캔 빠름 → 두 번째부터 느림 → F5 누르면 다시 빠름"
+
+### 증상
+
+1. 사이트 처음 들어갔을 때 첫 번째 곡: verdict 결과 **빠르게** 나옴
+2. 두 번째 곡부터: 결과가 보여지는 데 **한참** 걸림 (30~60초)
+3. 좌측 사이드바에 **실시간 차감 안 됨** (F5 필요)
+4. F5 누르고 다시 시작하면 **다시 빠르게** 나옴
+
+### 원인: `incrementUsageMutation.mutateAsync()`가 `isVerifying` 상태를 블로킹
+
+`handleVerify` 함수의 실행 흐름:
+
+```
+Home.tsx 실행 순서:
+
+Line 639: setIsVerifying(true)          ← 버튼 비활성화 시작
+   │
+   ▼
+Line 753: await animationPromise        ← ~5초 애니메이션 대기 (수정 3에서 해결)
+   │
+   ▼
+          XHR로 /verify-audio 호출 → 서버 응답 수신
+   │
+   ▼
+Line 793: setScanComplete(true)         ← 결과 화면 표시 ✅ (여기까지는 빠름)
+   │
+   ▼
+Line 803: await incrementUsageMutation  ← ⚠️ Manus tRPC 호출 (30~60초 타임아웃!)
+          .mutateAsync()                   이 호출이 완료될 때까지 finally 블록 미실행
+   │
+   ▼ (30~60초 후 타임아웃)
+   │
+Line 824: setIsVerifying(false)         ← finally 블록 — 여기서 버튼 다시 활성화
+```
+
+**핵심:**
+- `setIsVerifying(false)`는 `finally` 블록(Line 824)에 있음
+- `finally`는 `await incrementUsageMutation.mutateAsync()` 완료 후에만 실행됨
+- 이 mutation은 **Manus tRPC**를 호출하는데, 현재 Manus 서버가 응답 안 함 → **30~60초 타임아웃**
+- 타임아웃 동안 `isVerifying = true` 유지 → **Verify 버튼 비활성화**
+- 사용자에게는 "두 번째 스캔이 느리다"로 보임 (실제로는 버튼이 잠겨 있음)
+- F5 누르면 React state 초기화 → `isVerifying = false` → 다시 빠르게 동작
+
+### 해결: `incrementUsageMutation` 완전 삭제
+
+**삭제 대상:**
+1. **Line 239**: `const incrementUsageMutation = trpc.usage.increment.useMutation();` ← 선언 삭제
+2. **Line 803**: `await incrementUsageMutation.mutateAsync();` ← 호출 삭제
+3. **관련 import**: tRPC usage 관련 import 삭제
+
+서버(`/verify-audio`)가 이미 사용량을 자동 증가시키므로, 프론트에서 별도로 증가시킬 필요 없음.
+이 코드를 삭제하면:
+- 이중 차감 버그 해결 (1스캔 = 2차감 → 1차감)
+- Verify 버튼 블로킹 해결 (30~60초 → 즉시)
+- tRPC/Manus 의존성 제거
 
 ---
 
@@ -182,3 +242,16 @@ setScanComplete(true);
 | 3 | 스캔 1회 후 /auth/me 확인 | usage_count가 정확히 1 증가 (2가 아님) |
 | 4 | 서버 응답 후 결과 표시 | 5초 대기 없이 즉시 표시 |
 | 5 | Master 유저 스캔 | 한도 없이 무제한 사용 |
+| 6 | **연속 스캔 (핵심)** | 첫 스캔 → 결과 즉시 표시 → **두 번째 스캔도 즉시 가능** (30~60초 대기 없음) |
+| 7 | F5 없이 2~3곡 연속 스캔 | 모두 빠르게 결과 표시 + 사이드바 사용량 즉시 업데이트 |
+
+---
+
+## 수정 우선순위 요약
+
+| 순위 | 수정 | 해결되는 문제 |
+|------|------|-------------|
+| **1** | `incrementUsageMutation` 완전 삭제 | 두 번째 스캔 30~60초 블로킹 + 이중 차감 |
+| **2** | HTTP 429 처리 | Free 유저 무제한 사용 |
+| **3** | `result.usage_info`로 실시간 업데이트 | 사이드바 F5 없이 갱신 |
+| **4** | `await animationPromise` 제거 | 첫 스캔도 ~5초 → 즉시 |

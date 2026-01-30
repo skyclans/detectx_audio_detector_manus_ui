@@ -425,6 +425,17 @@ export const appRouter = router({
       }),
   }),
 
+  /**
+   * Usage tracking — lightweight increment only (no file re-processing)
+   */
+  usage: router({
+    increment: protectedProcedure.mutation(async ({ ctx }) => {
+      const { incrementUserUsage } = await import("./db");
+      await incrementUserUsage(ctx.user.id);
+      return { success: true };
+    }),
+  }),
+
   contact: router({
     /**
      * Submit contact form inquiry

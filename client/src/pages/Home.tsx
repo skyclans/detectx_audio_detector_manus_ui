@@ -16,6 +16,7 @@ import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
+import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
@@ -235,6 +236,7 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [modeLimit, setModeLimit] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
+  const incrementUsageMutation = trpc.usage.increment.useMutation();
 
   // Master emails with unlimited access
   const MASTER_EMAILS = [
@@ -787,13 +789,15 @@ export default function Home() {
       // History is saved server-side in api.py (no duplicate tRPC call needed)
 
       // Increment usage count (skip for master users)
-      // For authenticated users, DB is incremented server-side via incrementUserUsage()
-      // Only update localStorage for non-authenticated users
       if (!isMasterUser) {
         if (isAuthenticated && user?.id) {
-          // For authenticated users, just update local state
-          // DB is already incremented server-side in verificationWithStorage.process
+          // Increment in Manus DB (lightweight — no file re-upload)
           setUsageCount((prev: number) => prev + 1);
+          try {
+            await incrementUsageMutation.mutateAsync();
+          } catch (e) {
+            console.error("[Usage] Failed to increment in DB:", e);
+          }
         } else {
           // For non-authenticated users, use localStorage
           setUsageCount((prev: number) => {

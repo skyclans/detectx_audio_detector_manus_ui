@@ -16,7 +16,6 @@ import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
@@ -236,9 +235,6 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [modeLimit, setModeLimit] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
-
-  // Mutation to save verification to database for logged-in users
-  const saveVerificationMutation = trpc.verificationWithStorage.process.useMutation();
 
   // Master emails with unlimited access
   const MASTER_EMAILS = [
@@ -740,19 +736,6 @@ export default function Home() {
         });
 
         xhr.open("POST", apiUrl);
-        
-        // Add JWT Authorization header for logged-in users
-        // The session token is stored in cookies - we need to read it
-        if (isAuthenticated && user) {
-          const sessionCookie = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('app_session_id='));
-          if (sessionCookie) {
-            const token = sessionCookie.split('=')[1];
-            xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-          }
-        }
-        
         xhr.send(formData);
       });
 
@@ -801,34 +784,8 @@ export default function Home() {
       
       setScanComplete(true);
       
-      // Save verification to database for logged-in users
-      if (user?.id && selectedFileRef.current) {
-        try {
-          // Convert file to base64 for tRPC call
-          const reader = new FileReader();
-          reader.onload = async () => {
-            const base64 = (reader.result as string).split(',')[1];
-            try {
-              await saveVerificationMutation.mutateAsync({
-                fileName: selectedFileRef.current!.name,
-                fileData: base64,
-                fileSize: selectedFileRef.current!.size,
-                duration: metadata?.duration || undefined,
-                sampleRate: metadata?.sampleRate || undefined,
-                orientation: "balanced" as const, // Enhanced mode maps to balanced
-              });
-              console.log("[Verification] Saved to database for user", user.id);
-            } catch (dbError) {
-              console.error("[Verification] Failed to save to DB:", dbError);
-              // Don't fail the verification - just log the error
-            }
-          };
-          reader.readAsDataURL(selectedFileRef.current);
-        } catch (e) {
-          console.error("[Verification] Error preparing file for DB save:", e);
-        }
-      }
-      
+      // History is saved server-side in api.py (no duplicate tRPC call needed)
+
       // Increment usage count (skip for master users)
       // For authenticated users, DB is incremented server-side via incrementUserUsage()
       // Only update localStorage for non-authenticated users

@@ -1277,3 +1277,16 @@
 ### History.tsx
 - [x] Add user_id query param to history API call
 - [x] Add user_id query param to history/stats API call
+
+
+## Login Redirect Logic Fix (2026-01-30)
+
+### Requirements
+- [x] Existing users logging in from verify-audio should return to /verify-audio
+- [x] New users (first-time signup) should go to /login page after OAuth
+- [x] After signup completion, login should redirect to /verify-audio
+
+### Implementation
+- [x] Store returnUrl in cookie before Google login redirect
+- [x] Modify Google OAuth callback to detect new vs existing users
+- [x] Redirect new users to /login?welcome=true, existing users to returnUrl or /verify-audio

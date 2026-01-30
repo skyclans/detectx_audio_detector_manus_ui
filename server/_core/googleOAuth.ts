@@ -104,8 +104,8 @@ export function registerGoogleOAuthRoutes(app: Express) {
           return res.redirect("/login?error=no_user_info");
         }
 
-        // Upsert user in database
-        await db.upsertUser({
+        // Upsert user in database and check if new user
+        const { isNewUser } = await db.upsertUser({
           openId: userInfo.openId,
           name: userInfo.name,
           email: userInfo.email,
@@ -120,8 +120,25 @@ export function registerGoogleOAuthRoutes(app: Express) {
         const cookieOptions = getSessionCookieOptions(req);
         res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-        // Redirect to home page after successful login
-        res.redirect(302, "/");
+        // Determine redirect URL
+        // - New users go to /login (welcome/onboarding page)
+        // - Existing users go to returnUrl from cookie or /verify-audio
+        let redirectUrl = "/verify-audio";
+        
+        if (isNewUser) {
+          // New user - redirect to login/welcome page
+          redirectUrl = "/login?welcome=true";
+        } else {
+          // Existing user - check for returnUrl cookie
+          const returnUrl = req.cookies?.returnUrl;
+          if (returnUrl && returnUrl.startsWith("/")) {
+            redirectUrl = returnUrl;
+            // Clear the returnUrl cookie
+            res.clearCookie("returnUrl");
+          }
+        }
+
+        res.redirect(302, redirectUrl);
       } catch (error) {
         console.error("[Google OAuth] Callback error:", error);
         res.redirect("/login?error=callback_failed");

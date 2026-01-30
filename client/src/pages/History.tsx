@@ -523,7 +523,11 @@ export default function History() {
             <p className="text-sm text-muted-foreground mb-8 text-center">
               Sign in to view your verification history.
             </p>
-            <Button size="lg" onClick={() => window.location.href = "/api/auth/google"}>
+            <Button size="lg" onClick={() => {
+              // Set returnUrl cookie so OAuth callback knows where to redirect
+              document.cookie = "returnUrl=/history; path=/; max-age=300";
+              window.location.href = "/api/auth/google";
+            }}>
               Sign in with Google
             </Button>
           </div>

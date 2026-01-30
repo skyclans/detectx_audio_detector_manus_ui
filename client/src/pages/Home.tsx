@@ -962,6 +962,8 @@ export default function Home() {
                   lastModified: selectedFile.lastModified
                 }));
               }
+              // Set returnUrl cookie so OAuth callback knows where to redirect
+              document.cookie = "returnUrl=/verify-audio; path=/; max-age=300";
               window.location.href = "/api/auth/google";
             }}>
               Sign in with Google

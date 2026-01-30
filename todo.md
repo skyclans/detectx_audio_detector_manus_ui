@@ -1262,3 +1262,18 @@
 - [x] Save file info to localStorage before Google login redirect
 - [x] Restore file metadata after login
 - [x] Display file info in upload panel after login
+
+
+## Phase 3 Urgent Fix: user_id Query Param Restoration (2026-01-30)
+
+### Home.tsx
+- [x] Restore user_id query param in verify-audio API call
+- [x] Add user.id to API URL when user is authenticated
+
+### HomeTest.tsx
+- [x] Restore user_id query param in verify-audio API call (already done)
+- [x] Add user.id to API URL when user is authenticated (already done)
+
+### History.tsx
+- [x] Add user_id query param to history API call
+- [x] Add user_id query param to history/stats API call

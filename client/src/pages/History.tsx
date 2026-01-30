@@ -335,7 +335,7 @@ function DateRangePicker({
 }
 
 export default function History() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, user } = useAuth();
   const [history, setHistory] = useState<HistoryRecord[]>([]);
   const [stats, setStats] = useState<HistoryStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -368,6 +368,11 @@ export default function History() {
       if (endDate) {
         params.append("end_date", formatApiDate(endDate)!);
       }
+      
+      // Add user_id for authenticated users
+      if (user?.id) {
+        params.append("user_id", String(user.id));
+      }
 
       const response = await fetch(`${API_BASE}/history?${params}`);
       if (!response.ok) {
@@ -381,11 +386,14 @@ export default function History() {
     } finally {
       setLoading(false);
     }
-  }, [page, startDate, endDate]);
+  }, [page, startDate, endDate, user?.id]);
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/history/stats`);
+      const statsUrl = user?.id 
+        ? `${API_BASE}/history/stats?user_id=${user.id}`
+        : `${API_BASE}/history/stats`;
+      const response = await fetch(statsUrl);
       if (response.ok) {
         const data: HistoryStats = await response.json();
         setStats(data);
@@ -393,7 +401,7 @@ export default function History() {
     } catch {
       // Stats are optional, don't show error
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     fetchHistory();

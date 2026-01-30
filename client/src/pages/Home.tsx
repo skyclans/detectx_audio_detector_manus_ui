@@ -666,8 +666,11 @@ export default function Home() {
       const formData = new FormData();
       formData.append("file", selectedFileRef.current);
 
-      // Build API URL with orientation (user_id removed - JWT header used instead)
-      const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
+      // Build API URL with orientation and user_id for logged-in users
+      let apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
+      if (user?.id) {
+        apiUrl += `&user_id=${user.id}`;
+      }
 
       console.log(`[Verification] Calling RunPod API directly: ${apiUrl}`);
       console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);

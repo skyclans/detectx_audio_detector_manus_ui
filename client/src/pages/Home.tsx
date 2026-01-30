@@ -710,6 +710,19 @@ export default function Home() {
             setScanComplete(false);
             setUploadProgress(null);
             reject(new Error("Please sign in to use this feature."));
+          } else if (xhr.status === 429) {
+            // Handle 429 Too Many Requests - usage limit exceeded
+            setIsVerifying(false);
+            setScanComplete(false);
+            setUploadProgress(null);
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              alert(errorResponse.detail || "Monthly limit reached. Please upgrade your plan.");
+            } catch {
+              alert("Monthly limit reached. Please upgrade your plan.");
+            }
+            setLocation("/plan");
+            reject(new Error("Monthly limit reached"));
           } else {
             console.error(`[Verification] RunPod API error: ${xhr.status} - ${xhr.responseText}`);
             // Try to parse error detail from server response

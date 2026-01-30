@@ -1335,3 +1335,20 @@
 - [ ] History 페이지 정상 로드
 - [ ] 로그아웃 → 토큰 삭제 → /login 이동
 - [ ] 만료된 토큰 → 401 → 자동 로그아웃
+
+
+## 사용량 실시간 표시 + 버그 수정 + 성능 개선 (2026-01-31)
+
+### 긴급 수정
+- [x] 이중 차감 버그 수정 - incrementUsageMutation 제거
+- [x] 사용량 실시간 표시 - 서버 응답의 usage_info 반영
+- [x] 애니메이션 블로킹 제거 - await animationPromise 제거
+
+### 파일 수정
+- [x] Home.tsx - usage_info 반영, incrementUsageMutation 제거
+- [x] HomeTest.tsx - 동일 변경
+
+### 테스트 시나리오
+- [ ] Free 유저 스캔 성공 → usage_info 확인
+- [ ] 이중 차감 확인 → 1회 스캔 시 usage_count 정확히 1 증가
+- [ ] 성능 → 서버 응답 후 즉시 결과 표시

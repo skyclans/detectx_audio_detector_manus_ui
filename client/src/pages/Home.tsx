@@ -236,7 +236,7 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [modeLimit, setModeLimit] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
-  const incrementUsageMutation = trpc.usage.increment.useMutation();
+  // incrementUsageMutation removed - server handles usage increment in /verify-audio
 
   // Master emails with unlimited access
   const MASTER_EMAILS = [
@@ -749,8 +749,9 @@ export default function Home() {
 
       console.log("[Verification] RunPod API response:", result);
 
-      // Wait for animation to complete before showing result
-      await animationPromise;
+      // Performance: Don't wait for animation - show result immediately after server response
+      // Animation continues in background but doesn't block result display
+      // await animationPromise; // Removed for performance - was blocking result for ~5 seconds
       
       // Update result - API returns full verdict text directly
       // e.g., "AI signal evidence was observed." or "AI signal evidence was not observed."
@@ -794,24 +795,33 @@ export default function Home() {
       
       // History is saved server-side in api.py (no duplicate tRPC call needed)
 
-      // Increment usage count (skip for master users)
-      if (!isMasterUser) {
-        if (isAuthenticated && user?.id) {
-          // Increment in Manus DB (lightweight — no file re-upload)
-          setUsageCount((prev: number) => prev + 1);
+      // Update usage from server response (server already incremented in /verify-audio)
+      if (result.usage_info) {
+        const { usage_count, monthly_limit, remaining } = result.usage_info;
+        setUsageCount(usage_count);
+        // Update localStorage cache for consistency
+        localStorage.setItem("detectx_usage_count", String(usage_count));
+        localStorage.setItem("detectx_mode_limit", String(monthly_limit));
+
+        // Also update the cached user data
+        const cachedUser = localStorage.getItem("detectx_user");
+        if (cachedUser) {
           try {
-            await incrementUsageMutation.mutateAsync();
-          } catch (e) {
-            console.error("[Usage] Failed to increment in DB:", e);
-          }
-        } else {
-          // For non-authenticated users, use localStorage
-          setUsageCount((prev: number) => {
-            const newCount = prev + 1;
-            localStorage.setItem("detectx_usage_count", newCount.toString());
-            return newCount;
-          });
+            const userData = JSON.parse(cachedUser);
+            userData.usage_count = usage_count;
+            userData.usageCount = usage_count;
+            userData.remaining = remaining;
+            localStorage.setItem("detectx_user", JSON.stringify(userData));
+          } catch {}
         }
+        console.log(`[Usage] Updated from server: ${usage_count}/${monthly_limit} (remaining: ${remaining})`);
+      } else if (!isMasterUser) {
+        // Fallback for non-authenticated users or if usage_info is missing
+        setUsageCount((prev: number) => {
+          const newCount = prev + 1;
+          localStorage.setItem("detectx_usage_count", newCount.toString());
+          return newCount;
+        });
       }
     } catch (error) {
       console.error("Verification failed:", error);

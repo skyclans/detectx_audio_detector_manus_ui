@@ -1390,3 +1390,18 @@
 - [x] 현재 AI 생성 느낌의 히어로 이미지 확인
 - [x] 나노바나나로 자연스럽고 인간적인 이미지 생성
 - [x] Landing.tsx에 새 이미지 적용
+
+
+## RECON V3 엔진 결과 표시 업데이트 (2026-02-04)
+
+### 신규 기능
+- [x] v2_confidence (RECON Confidence) 최상단 표시
+- [x] recon_version (Engine Version) 표시
+- [x] 확장 메트릭 4개 추가 (Mid Diff, High-Mid Diff, Spectral Flatness, Stereo Recon Loss)
+- [x] TypeScript 타입 업데이트
+- [x] 하위 호환성 처리 (V1 응답 시 기존 그대로)
+
+### 파일 수정
+- [x] Home.tsx - RECON V3 메트릭 표시 구현
+- [x] HomeTest.tsx - 동일 변경 적용
+- [x] ReconV3Display.tsx - 신규 컴포넌트 생성

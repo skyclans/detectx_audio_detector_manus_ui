@@ -13,6 +13,7 @@ import { TemporalAnalysis } from "@/components/TemporalAnalysis";
 import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { SourceComponents } from "@/components/SourceComponents";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
+import { ReconV3Display } from "@/components/ReconV3Display";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
@@ -89,6 +90,28 @@ interface DetailedAnalysisData {
   geometryTrace: GeometryTraceAxisData[];
 }
 
+// RECON V3 metrics interface (from ui-team-recon-v3-display-spec.md)
+interface ReconMetrics {
+  // V1 existing fields
+  band_bass_diff?: number | null;
+  band_low_mid_diff?: number | null;
+  l1_diff?: number | null;
+  snr?: number | null;
+  energy_ratio?: number | null;
+  phase_coherence?: number | null;
+  band_high_ratio?: number | null;
+  ai_signals?: number | null;
+  
+  // V3 new fields
+  recon_version?: string | null;          // "v1" | "v2"
+  v2_confidence?: number | null;          // 0.0 ~ 1.0 (XGBoost probability)
+  band_mid_diff?: number | null;          // 500-2000Hz band
+  band_high_mid_diff?: number | null;     // 2000-4000Hz band
+  spectral_flatness_mean?: number | null;
+  stereo_recon_loss?: number | null;
+  v2_features?: Record<string, number> | null;  // 42 full features
+}
+
 // Verification result interface
 interface VerdictResult {
   verdict: DetectXVerificationResult | null;
@@ -96,6 +119,7 @@ interface VerdictResult {
   primaryExceededAxis?: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
   detailedAnalysis?: DetailedAnalysisData | null;
+  reconMetrics?: ReconMetrics | null;  // V3 RECON metrics
 }
 
 // Helper function to convert snake_case server response to camelCase for UI
@@ -800,6 +824,7 @@ export default function Home() {
         primaryExceededAxis: result.primaryExceededAxis || result.primary_exceeded_axis,
         timelineMarkers: result.timelineMarkers || result.timeline_markers || [],
         detailedAnalysis: convertDetailedAnalysis(result.detailedAnalysis || result.detailed_analysis),
+        reconMetrics: result.recon_metrics || result.reconMetrics || null,  // V3 RECON metrics
       });
       
       setScanComplete(true);
@@ -992,6 +1017,11 @@ export default function Home() {
               status: a.status,
               metrics: a.metrics || [],
             })) || null}
+            isProcessing={isVerifying}
+          />
+          {/* RECON V3 Metrics Display */}
+          <ReconV3Display
+            metrics={verificationResult?.reconMetrics || null}
             isProcessing={isVerifying}
           />
         </div>

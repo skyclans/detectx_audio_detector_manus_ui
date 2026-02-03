@@ -919,17 +919,17 @@ export default function Home() {
             onSeekBackward={handleSeekBackward}
             onVolumeChange={handleVolumeChange}
           />
-          {/* Live Console with height limit */}
+          {/* Verification Result - now above Live Console */}
+          <VerdictPanel
+            verdict={verificationResult?.verdict ?? null}
+            isProcessing={isVerifying}
+          />
+          
+          {/* Live Console with height limit - now below Verification Result */}
           <LiveScanConsole
             logs={scanLogs}
             isVerifying={isVerifying}
             isComplete={scanComplete}
-          />
-          
-          {/* Verification Result - directly below Live Console */}
-          <VerdictPanel
-            verdict={verificationResult?.verdict ?? null}
-            isProcessing={isVerifying}
           />
 
           {/* Error Message Display */}

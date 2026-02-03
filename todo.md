@@ -1405,3 +1405,9 @@
 - [x] Home.tsx - RECON V3 메트릭 표시 구현
 - [x] HomeTest.tsx - 동일 변경 적용
 - [x] ReconV3Display.tsx - 신규 컴포넌트 생성
+
+
+## UI 레이아웃 변경: Live Scan Console ↔ Verification Result 위치 교체 (2026-02-04)
+
+- [x] Home.tsx에서 Live Scan Console과 Verification Result 위치 교체
+- [x] HomeTest.tsx에 동일 변경 적용

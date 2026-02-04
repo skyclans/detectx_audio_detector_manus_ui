@@ -1411,3 +1411,9 @@
 
 - [x] Home.tsx에서 Live Scan Console과 Verification Result 위치 교체
 - [x] HomeTest.tsx에 동일 변경 적용
+
+
+## 롤백: Waveform Analysis와 플레이어 컨트롤 분리 문제 (2026-02-04)
+
+- [x] Waveform Analysis 창과 볼륨/플레이어 컨트롤이 분리된 문제 확인
+- [x] 통합된 카드로 복원 (rounded-lg border bg-card overflow-hidden)

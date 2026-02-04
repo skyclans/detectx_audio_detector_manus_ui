@@ -900,25 +900,28 @@ export default function Home() {
         
         {/* Right column - Waveform and Player */}
         <div className="lg:col-span-2 flex flex-col gap-4 lg:gap-6">
-          <WaveformVisualization
-            audioBuffer={audioBuffer}
-            currentTime={currentTime}
-            duration={duration}
-            isDecoding={false}
-            onSeek={handleSeek}
-          />
-          <AudioPlayerBar
-            isPlaying={isPlaying}
-            currentTime={currentTime}
-            duration={duration}
-            volume={volume}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onStop={handleStop}
-            onSeekForward={handleSeekForward}
-            onSeekBackward={handleSeekBackward}
-            onVolumeChange={handleVolumeChange}
-          />
+          {/* Unified Waveform + Player Card */}
+          <div className="rounded-lg border border-border bg-card overflow-hidden">
+            <WaveformVisualization
+              audioBuffer={audioBuffer}
+              currentTime={currentTime}
+              duration={duration}
+              isDecoding={false}
+              onSeek={handleSeek}
+            />
+            <AudioPlayerBar
+              isPlaying={isPlaying}
+              currentTime={currentTime}
+              duration={duration}
+              volume={volume}
+              onPlay={handlePlay}
+              onPause={handlePause}
+              onStop={handleStop}
+              onSeekForward={handleSeekForward}
+              onSeekBackward={handleSeekBackward}
+              onVolumeChange={handleVolumeChange}
+            />
+          </div>
           {/* Verification Result - now above Live Console */}
           <VerdictPanel
             verdict={verificationResult?.verdict ?? null}

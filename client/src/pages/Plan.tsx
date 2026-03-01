@@ -20,7 +20,6 @@
  * - 1,000 verifications per month ($0.40/song)
  * - Full API access (REST)
  * - Batch processing
- * - Team accounts
  * - Priority support
  *
  * ENTERPRISE (Custom/Contact Sales):
@@ -95,14 +94,13 @@ const plans = [
     price: "$399",
     period: "month",
     icon: Music,
-    positioning: "High-volume batch analysis for studios and teams.",
+    positioning: "High-volume batch analysis for studios.",
     perSong: "$0.40 / song",
     features: [
       "1,000 verifications per month",
       "Full analysis report with metrics",
       "All export formats",
       "Batch processing (bulk upload)",
-      "Team accounts (up to 5 seats)",
       "Priority support",
     ],
     restrictions: [

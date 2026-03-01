@@ -18,10 +18,10 @@ import { fetchWithAuth } from "@/lib/api";
 import { LogIn, User, Info, Shield, Cpu, CreditCard, AlertTriangle, Gift, ArrowDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-// Version constants - v1.0 FINAL
-const APP_VERSION = "1.0.0";
-const BUILD_DATE = "2025-01-10";
-const ENGINE_VERSION = "CR-G v1.0";
+// Version constants - v2.0
+const APP_VERSION = "2.0.0";
+const BUILD_DATE = "2026-03-02";
+const ENGINE_VERSION = "CR-G v2.0 + Voice SSL v2";
 
 const cancelReasons = [
   "Too expensive",

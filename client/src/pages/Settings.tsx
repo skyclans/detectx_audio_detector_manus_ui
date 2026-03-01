@@ -8,19 +8,84 @@
  * - System information panel
  */
 
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getLoginUrl } from "@/const";
-import { LogIn, User, Info, Shield, Cpu } from "lucide-react";
+import { fetchWithAuth } from "@/lib/api";
+import { LogIn, User, Info, Shield, Cpu, CreditCard, AlertTriangle, Gift, ArrowDown, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // Version constants - v1.0 FINAL
 const APP_VERSION = "1.0.0";
 const BUILD_DATE = "2025-01-10";
 const ENGINE_VERSION = "CR-G v1.0";
 
+const cancelReasons = [
+  "Too expensive",
+  "Not using it enough",
+  "Found a better alternative",
+  "Missing features I need",
+  "Just testing, not ready yet",
+  "Other",
+];
+
 export default function Settings() {
   const { user, loading: authLoading, isAuthenticated, logout } = useAuth();
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelStep, setCancelStep] = useState<"reason" | "offer" | "confirm">("reason");
+  const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [loadingPortal, setLoadingPortal] = useState(false);
+
+  const userPlan = (user as any)?.plan || "free";
+  const isPaid = userPlan !== "free";
+
+  const openCancelFlow = () => {
+    setCancelStep("reason");
+    setSelectedReason(null);
+    setShowCancelModal(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    setCancelling(true);
+    try {
+      const res = await fetchWithAuth("/api/stripe/cancel-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: selectedReason }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to cancel subscription");
+      }
+      toast.success("Subscription cancelled. You'll retain access until the end of your billing period.");
+      setShowCancelModal(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to cancel. Please try again.");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    setLoadingPortal(true);
+    try {
+      const res = await fetchWithAuth("/api/stripe/create-portal-session", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to open billing portal");
+      }
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+    } catch (err: any) {
+      toast.error(err.message || "Failed to open billing portal.");
+    } finally {
+      setLoadingPortal(false);
+    }
+  };
 
   if (!authLoading && !isAuthenticated) {
     return (
@@ -99,11 +164,61 @@ export default function Settings() {
           </div>
         </div>
 
+        {/* Subscription Management */}
+        {isPaid && (
+          <div className="forensic-panel">
+            <div className="forensic-panel-header">
+              <CreditCard className="w-4 h-4 mr-2 inline" />
+              Subscription
+            </div>
+            <div className="forensic-panel-content space-y-4">
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                  Current Plan
+                </span>
+                <span className="text-sm font-medium text-forensic-cyan capitalize">
+                  {userPlan}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                  Status
+                </span>
+                <span className="text-sm font-medium text-emerald-500">
+                  Active
+                </span>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleManageBilling}
+                  disabled={loadingPortal}
+                >
+                  {loadingPortal ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <CreditCard className="w-4 h-4 mr-2" />
+                  )}
+                  Manage Billing
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-muted-foreground hover:text-red-500"
+                  onClick={openCancelFlow}
+                >
+                  Cancel Plan
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Account Actions */}
         <div className="forensic-panel">
           <div className="forensic-panel-header">
             <Shield className="w-4 h-4 mr-2 inline" />
-            Account Actions
+            Account
           </div>
           <div className="forensic-panel-content">
             <Button
@@ -197,6 +312,163 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Cancellation Prevention Modal */}
+      <Dialog open={showCancelModal} onOpenChange={setShowCancelModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {cancelStep === "reason" && "We're sorry to see you go"}
+              {cancelStep === "offer" && "Before you go..."}
+              {cancelStep === "confirm" && "Confirm cancellation"}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Step 1: Reason */}
+          {cancelStep === "reason" && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Help us improve — why are you cancelling?
+              </p>
+              <div className="space-y-2">
+                {cancelReasons.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => setSelectedReason(reason)}
+                    className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-colors ${
+                      selectedReason === reason
+                        ? "border-forensic-cyan bg-forensic-cyan/10 text-foreground"
+                        : "border-border hover:border-muted-foreground/30 text-muted-foreground"
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowCancelModal(false)}
+                >
+                  Keep My Plan
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex-1 text-muted-foreground"
+                  disabled={!selectedReason}
+                  onClick={() => setCancelStep("offer")}
+                >
+                  Continue
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Retention Offer */}
+          {cancelStep === "offer" && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">
+                      You'll lose access to:
+                    </p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>- Full analysis reports & detailed metrics</li>
+                      <li>- PDF export & Human Verification Certificate</li>
+                      <li>- Priority processing queue</li>
+                      {userPlan === "studio" && <li>- Batch processing & team accounts</li>}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {selectedReason === "Too expensive" && (
+                  <button
+                    onClick={() => { setShowCancelModal(false); window.location.href = "/plan"; }}
+                    className="w-full p-4 rounded-lg border border-forensic-cyan/30 bg-forensic-cyan/5 hover:bg-forensic-cyan/10 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <ArrowDown className="w-5 h-5 text-forensic-cyan" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Downgrade instead?</p>
+                        <p className="text-xs text-muted-foreground">Switch to a lower plan and keep your features.</p>
+                      </div>
+                    </div>
+                  </button>
+                )}
+
+                {(selectedReason === "Not using it enough" || selectedReason === "Just testing, not ready yet") && (
+                  <button
+                    onClick={() => { setShowCancelModal(false); toast.info("Contact support@detectx.app to pause your subscription."); }}
+                    className="w-full p-4 rounded-lg border border-forensic-cyan/30 bg-forensic-cyan/5 hover:bg-forensic-cyan/10 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Gift className="w-5 h-5 text-forensic-cyan" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Pause instead?</p>
+                        <p className="text-xs text-muted-foreground">Take a break — pause billing for up to 3 months.</p>
+                      </div>
+                    </div>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  onClick={() => setShowCancelModal(false)}
+                >
+                  Keep My Plan
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex-1 text-muted-foreground"
+                  onClick={() => setCancelStep("confirm")}
+                >
+                  Still cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Final Confirm */}
+          {cancelStep === "confirm" && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                <p className="text-sm text-foreground">
+                  Your <strong className="capitalize">{userPlan}</strong> subscription will be cancelled.
+                  You'll keep access until the end of your current billing period.
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  onClick={() => setShowCancelModal(false)}
+                >
+                  Keep My Plan
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={handleCancelConfirm}
+                  disabled={cancelling}
+                >
+                  {cancelling ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : null}
+                  Cancel Subscription
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </ForensicLayout>
   );
 }

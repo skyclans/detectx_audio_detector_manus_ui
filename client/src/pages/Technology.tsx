@@ -30,11 +30,11 @@ export default function Technology() {
               <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Research
               </Link>
+              <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </Link>
               <Link href="/updates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Updates
-              </Link>
-              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Blog
               </Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 About
@@ -80,10 +80,10 @@ export default function Technology() {
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX develops forensic verification systems for detecting structural AI signal evidence in media content. The platform is designed to provide deterministic, reproducible analysis that can be independently verified.
+                DetectX develops proprietary forensic verification systems for detecting AI-generated content across music and voice. Our patent-pending technology provides deterministic, reproducible analysis that can be independently verified.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Unlike probabilistic detection systems that output confidence scores, DetectX systems report binary structural observations: either AI signal evidence was observed, or it was not. This approach eliminates the ambiguity inherent in percentage-based classifications.
+                Unlike probabilistic detection systems that output confidence scores, DetectX reports binary structural observations: either AI signal evidence was observed, or it was not. This approach eliminates the ambiguity inherent in percentage-based classifications.
               </p>
             </div>
           </section>
@@ -91,20 +91,17 @@ export default function Technology() {
           {/* DetectX Audio — Engine Overview */}
           <section className="mb-16">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              DetectX Audio — Enhanced Mode Architecture
+              DetectX Audio — Verification Architecture
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX Audio uses a dual-engine verification system called Enhanced Mode. This architecture combines two complementary engines to maximize human protection while maintaining effective AI detection.
+                DetectX Audio uses a proprietary multi-stage verification architecture. Multiple independent analysis engines work in concert to maximize human protection while maintaining effective AI detection. The specific engine design and interaction model are protected under pending patent applications.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                <strong className="text-foreground">DetectX Engine (Primary):</strong> A deep learning engine trained on over 30,000,000 verified human music samples. This engine serves as the primary filter, optimized for near-zero false positives on human content. If the DetectX Engine determines content is human, the verdict is trusted immediately.
+                <strong className="text-foreground">Human Protection Priority:</strong> The architecture is designed so that human-created content passes verification with near-zero false positive rates. When no AI signal evidence is found, the verdict is trusted immediately without additional processing.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                <strong className="text-foreground">Reconstruction Engine (Secondary):</strong> When the DetectX Engine score exceeds the threshold, the Reconstruction Engine activates. This engine separates audio into stem components, reconstructs the signal, and compares the reconstruction against known patterns. This secondary analysis boosts AI detection accuracy.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                The dual-engine approach ensures human creators are protected (&lt;1% false positive rate) while maintaining strong AI detection for confirmed AI-generated content.
+                <strong className="text-foreground">AI Detection Depth:</strong> When initial analysis detects potential AI signals, additional proprietary verification stages activate to confirm or reject the finding. This multi-layered approach ensures high-confidence verdicts.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 <strong className="text-foreground">Genre Note:</strong> Some genres may exhibit signal characteristics similar to AI-generated music due to heavy processing: Electronic/EDM, Hip-hop (heavily produced), Dance/House, and Lo-fi. These genres may have slightly higher false positive rates. The system prioritizes human artist protection as its primary design constraint.
@@ -114,9 +111,30 @@ export default function Technology() {
             <div className="mt-8">
               <img
                 src="/images/tech-architecture.png"
-                alt="Dual-engine audio verification architecture"
+                alt="Multi-stage audio verification architecture"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
+            </div>
+          </section>
+
+          {/* DetectX Voice */}
+          <section className="mb-16">
+            <h2 className="text-2xl font-medium text-foreground mb-6">
+              DetectX Voice — Deepfake Voice Detection
+            </h2>
+            <div className="prose prose-neutral dark:prose-invert max-w-none">
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                DetectX Voice detects AI-generated speech and deepfake voices using proprietary self-supervised learning technology. The system achieves 97.8% detection rate across major commercial TTS engines including real-time phone call conditions.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <strong className="text-foreground">Phone-Ready:</strong> Optimized for telephony conditions — G.711 codec, 8kHz sampling, background noise. Phone environments actually improve detection as codec artifacts amplify AI signal evidence.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <strong className="text-foreground">Multilingual:</strong> 100% detection rate on Korean, Japanese, and Chinese voice deepfakes. Minimum 2 seconds of audio required for reliable detection.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">Use Cases:</strong> Voice phishing prevention for financial institutions, voice evidence verification for law enforcement, and consumer protection against deepfake voice scams.
+              </p>
             </div>
           </section>
 
@@ -129,7 +147,7 @@ export default function Technology() {
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Deterministic Processing</h3>
                 <p className="text-muted-foreground leading-relaxed mb-4">
-                  Every step in the verification pipeline produces identical output for identical input. There are no random seeds, no stochastic sampling, and no model inference variability. The same audio file will always produce the same verdict.
+                  Every step in the verification pipeline produces identical output for identical input. The same audio file will always produce the same verdict — a requirement for forensic credibility.
                 </p>
                 <img
                   src="/images/tech-deterministic.png"
@@ -138,21 +156,21 @@ export default function Technology() {
                 />
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
-                <h3 className="text-lg font-medium text-foreground mb-3">Human-Safe Baseline Construction</h3>
+                <h3 className="text-lg font-medium text-foreground mb-3">Human-Safe by Design</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Baselines are constructed exclusively from verified human-created content. The system is calibrated to ensure that human creative work does not trigger false positives. Human safety is a design constraint, not an optimization target.
+                  The system is calibrated to ensure that human creative work does not trigger false positives. Human safety is a hard design constraint, not an optimization target. Detection sensitivity is sacrificed before human safety is compromised.
                 </p>
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
-                <h3 className="text-lg font-medium text-foreground mb-3">Dual-Engine Verification</h3>
+                <h3 className="text-lg font-medium text-foreground mb-3">Proprietary Multi-Stage Verification</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The system uses two complementary engines: DetectX Engine for human protection and Reconstruction Engine for AI detection boost. The DetectX Engine is trained on 30,000,000+ verified human samples to ensure &lt;1% false positives.
+                  Multiple independent engines cross-validate results to minimize false positives while maintaining strong AI detection. The architecture and engine interaction model are protected under pending patent applications.
                 </p>
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Binary Verdict Model</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  DetectX does not output confidence percentages or likelihood ratios. The system reports binary structural observations only: evidence was observed, or evidence was not observed. This eliminates the misinterpretation risks associated with probabilistic outputs.
+                  DetectX does not output confidence percentages or likelihood ratios. The system reports binary structural observations only: evidence was observed, or evidence was not observed.
                 </p>
               </div>
             </div>
@@ -286,6 +304,9 @@ export default function Technology() {
             <div>
               <p className="text-sm text-muted-foreground">
                 DetectX does not determine authorship. It reports structural signal observations only.
+              </p>
+              <p className="text-xs text-muted-foreground/50 mt-2">
+                © {new Date().getFullYear()} DetectX Inc. All rights reserved. Patent pending.
               </p>
             </div>
             <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">

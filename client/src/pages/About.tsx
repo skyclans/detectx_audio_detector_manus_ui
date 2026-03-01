@@ -30,11 +30,11 @@ export default function About() {
               <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Research
               </Link>
+              <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </Link>
               <Link href="/updates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Updates
-              </Link>
-              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Blog
               </Link>
               <Link href="/about" className="text-sm text-foreground font-medium">
                 About
@@ -80,7 +80,11 @@ export default function About() {
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX is a forensic verification platform that analyzes structural signal evidence in media content. The system provides deterministic, reproducible analysis that can be independently verified.
+                DetectX is a forensic verification platform that detects AI-generated content across music and voice. The system uses proprietary, patent-pending technology to provide deterministic, reproducible analysis.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                <strong className="text-foreground">DetectX Audio</strong> detects AI-generated music with 98.89% human protection accuracy.{" "}
+                <strong className="text-foreground">DetectX Voice</strong> detects deepfake voices and AI-generated speech with 97.8% accuracy, including real-time telephony conditions.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 DetectX is not a content moderation tool, a copyright enforcement system, or an authorship certification service. It is a technical verification reference designed to support professional decision-making.
@@ -164,7 +168,7 @@ export default function About() {
                 Human safety is not an optimization target—it is a hard constraint. Every design decision in the DetectX system prioritizes the protection of human creators.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                The Classifier Engine is trained on over 30,000,000 verified human-created audio samples, ensuring the system recognizes the full breadth of human creative expression. This extensive training prioritizes &lt;1% false positives for human content.
+                Our proprietary engines are trained on millions of verified human-created samples, ensuring the system recognizes the full breadth of human creative expression. This extensive training prioritizes minimal false positives for human content.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 This means:
@@ -172,7 +176,7 @@ export default function About() {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>The Classifier Engine is optimized to protect human creators with &lt;1% false positive rate</span>
+                  <span>Detection engines are optimized to protect human creators with minimal false positive rates</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
@@ -214,7 +218,11 @@ export default function About() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span><strong className="text-foreground">Institutions and associations</strong> establishing shared verification standards</span>
+                  <span><strong className="text-foreground">Financial institutions</strong> detecting voice phishing and deepfake fraud</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-foreground mt-1">•</span>
+                  <span><strong className="text-foreground">Law enforcement</strong> verifying voice evidence authenticity</span>
                 </li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-4">
@@ -273,6 +281,9 @@ export default function About() {
             <div>
               <p className="text-sm text-muted-foreground">
                 DetectX does not determine authorship. It reports structural signal observations only.
+              </p>
+              <p className="text-xs text-muted-foreground/50 mt-2">
+                © {new Date().getFullYear()} DetectX Inc. All rights reserved. Patent pending.
               </p>
             </div>
             <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">

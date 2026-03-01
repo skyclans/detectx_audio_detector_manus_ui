@@ -214,35 +214,35 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-8">
-                  A forensic verification engine for AI-generated music detection.
+                  Forensic verification for AI-generated music and voice.
                 </h1>
                 <div className="space-y-3 mb-10">
                   <p className="text-lg text-muted-foreground">
-                    DetectX Audio uses multi-stage verification to detect AI-generated music
-                    with strong AI detection while protecting human artists at 98.89% accuracy.
+                    DetectX uses proprietary multi-stage verification to detect AI-generated
+                    content while protecting human creators at 98.89% accuracy.
                   </p>
                   <p className="text-lg text-muted-foreground">
-                    Immune to codec conversion, pitch shifting, and other evasion techniques
-                    that defeat single-layer detection systems.
+                    Robust against codec conversion, pitch shifting, and other evasion
+                    techniques that defeat single-layer detection systems.
                   </p>
                 </div>
                 {/* Performance Stats */}
                 <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-10">
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
-                    <div className="text-lg sm:text-2xl font-bold text-foreground">Strong</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">AI Detection</div>
-                  </div>
-                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">98.89%</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">Human Accuracy</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Human Protection</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
-                    <div className="text-lg sm:text-2xl font-bold text-foreground">30M+</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">Training Samples</div>
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">97.8%</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Voice Deepfake</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
-                    <div className="text-lg sm:text-2xl font-bold text-foreground">60 sec</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">Analysis Depth</div>
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">2 sec</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Min Detection</div>
+                  </div>
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">Patent</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Pending</div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -252,7 +252,7 @@ export default function Landing() {
                     </Button>
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    Verify your audio with our Classifier Engine trained on 30,000,000+ human music samples.
+                    Verify your audio with our proprietary detection engine. Patent pending.
                   </p>
                 </div>
               </div>
@@ -287,17 +287,17 @@ export default function Landing() {
                 </h2>
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    DetectX Audio is a multi-stage forensic verification system
+                    DetectX Audio is a proprietary multi-stage forensic verification system
                     designed to detect AI-generated music while protecting human artists.
                   </p>
                   <p>
-                    The system runs a multi-stage pipeline: spectral analysis, stem separation,
-                    reconstruction comparison, and cross-stem geometry analysis.
-                    Each stage produces independent evidence, minimizing false positives.
+                    The system uses multiple independent analysis stages, each producing
+                    separate evidence signals. This multi-layered approach minimizes false
+                    positives while maintaining strong AI detection capability.
                   </p>
                   <p>
                     Unlike surface-level detectors vulnerable to codec conversion or pitch shifting,
-                    DetectX analyzes structural properties of music that survive any post-processing.
+                    DetectX analyzes structural properties that survive any post-processing.
                   </p>
                 </div>
                 <div className="mt-10">
@@ -305,10 +305,10 @@ export default function Landing() {
                     Key Principles
                   </h3>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Multi-stage verification (DetectX Engine + Stem Separation + Reconstruction Analysis)</li>
-                    <li>• Human-safe by design (98.89% accuracy on human music)</li>
+                    <li>• Proprietary multi-stage verification pipeline</li>
+                    <li>• Human-safe by design (98.89% accuracy on human content)</li>
                     <li>• Evasion-resistant structural analysis</li>
-                    <li>• Forensic-grade evidence with 7 independent metrics</li>
+                    <li>• Multiple independent metrics for forensic evidence</li>
                   </ul>
                 </div>
               </div>
@@ -328,15 +328,15 @@ export default function Landing() {
                 <ol className="space-y-4 text-muted-foreground">
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">1.</span>
-                    <span>Audio is processed through the DetectX Engine.</span>
+                    <span>Audio is ingested and preprocessed through our proprietary pipeline.</span>
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">2.</span>
-                    <span>If classifier score exceeds 90%, Reconstruction Engine activates.</span>
+                    <span>Multiple independent analysis engines evaluate structural signals.</span>
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">3.</span>
-                    <span>Audio is separated into stems and reconstructed for comparison.</span>
+                    <span>Cross-validation across engines eliminates false positives.</span>
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">4.</span>
@@ -344,10 +344,9 @@ export default function Landing() {
                   </li>
                 </ol>
                 <p className="mt-8 text-sm text-muted-foreground/80">
-                  Each track is analyzed across 60 seconds (10-second segments x 6),
-                  providing structural depth that snippet-based detectors cannot match.
-                  If the Classifier Engine says "Human," it is trusted.
-                  Additional analysis only runs when AI signals are initially detected.
+                  The system prioritizes human protection as a hard constraint.
+                  When no AI signal evidence is found, the verdict is trusted immediately.
+                  Additional analysis layers activate only when warranted.
                 </p>
               </div>
               {/* Image - Right */}
@@ -426,17 +425,17 @@ export default function Landing() {
                   Forensic-Grade
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  7 independent metrics provide quantitative evidence
-                  for legally defensible verdicts in copyright disputes.
+                  Multiple independent metrics provide quantitative evidence
+                  for professional verification and dispute resolution.
                 </p>
               </div>
               <div className="p-6 bg-muted/30 rounded-lg">
                 <h3 className="text-sm font-medium text-foreground uppercase tracking-wide mb-3">
-                  Expert-Curated
+                  Patent Pending
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Training data verified by a 20-year veteran composer.
-                  Domain expertise ensures zero AI contamination in datasets.
+                  Proprietary detection architecture protected by pending patents.
+                  Expert-curated training data verified by industry professionals.
                 </p>
               </div>
             </div>
@@ -451,8 +450,8 @@ export default function Landing() {
             </h2>
             <p className="text-muted-foreground mb-8">
               Upload your audio file and get instant AI detection results.
-              Enhanced Mode provides multi-stage verification with strong AI detection
-              and 98.89% human accuracy.
+              Our proprietary multi-stage verification ensures strong AI detection
+              while protecting human creators at 98.89% accuracy.
             </p>
             <Link href="/verify-audio">
               <Button className="px-8 py-3 text-base font-medium">
@@ -477,9 +476,9 @@ export default function Landing() {
                     from being falsely flagged as AI-generated.
                   </p>
                   <p>
-                    With 98.89% accuracy on human music, our Classifier Engine
-                    is trained on over 30 million verified human music samples
-                    to understand the full spectrum of human musical expression.
+                    With 98.89% accuracy on human content, our proprietary engine
+                    is trained on millions of verified human samples
+                    to understand the full spectrum of human creative expression.
                   </p>
                   <p>
                     DetectX does not determine authorship.
@@ -522,15 +521,15 @@ export default function Landing() {
                   who need reliable AI music detection.
                 </p>
                 <ul className="space-y-2 text-muted-foreground mb-8">
-                  <li>• Composers protecting their original work</li>
-                  <li>• Music producers verifying submissions</li>
-                  <li>• Record labels screening releases</li>
-                  <li>• Music associations and copyright organizations</li>
+                  <li>• Composers and artists protecting their original work</li>
+                  <li>• Music producers and record labels screening releases</li>
+                  <li>• Financial institutions detecting voice phishing</li>
+                  <li>• Law enforcement verifying voice evidence</li>
                   <li>• Streaming platforms and distributors</li>
                 </ul>
                 <p className="text-muted-foreground leading-relaxed">
                   Trusted by professionals who need accurate verification
-                  without false positives on human-created music.
+                  across music and voice content.
                 </p>
               </div>
             </div>
@@ -544,15 +543,16 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h2 className="text-xl font-medium text-muted-foreground mb-6">
-                  Other Detection Modalities
+                  Expanding Detection Modalities
                 </h2>
                 <p className="text-sm text-muted-foreground/70 leading-relaxed">
-                  Verification systems for text, image, and video content
-                  are currently under research and development.
+                  DetectX Voice for deepfake voice detection is now available,
+                  with 97.8% detection rate across commercial TTS engines.
                 </p>
                 <p className="text-sm text-muted-foreground/70 leading-relaxed mt-4">
-                  These modalities will be introduced only after they meet
-                  the same forensic reliability and human-safety standards.
+                  Additional modalities for text, image, and video content
+                  are under development and will launch when they meet our
+                  forensic reliability standards.
                 </p>
               </div>
               {/* Image - Right */}

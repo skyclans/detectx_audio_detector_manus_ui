@@ -29,11 +29,11 @@ export default function Research() {
               <Link href="/research" className="text-sm text-foreground font-medium">
                 Research
               </Link>
+              <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </Link>
               <Link href="/updates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Updates
-              </Link>
-              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Blog
               </Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 About
@@ -138,28 +138,10 @@ export default function Research() {
                 The foundation of DetectX verification is the human-normalized baseline: a reference model constructed exclusively from verified human-created content.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                Baseline construction follows strict protocols:
+                Baselines are constructed from verified human-created content spanning diverse genres, languages, production styles, and recording conditions. The calibration process prioritizes minimizing false positive risk above all other metrics.
               </p>
-              <ul className="space-y-3 text-muted-foreground mb-4">
-                <li className="flex items-start gap-3">
-                  <span className="text-foreground mt-1">•</span>
-                  <span>All baseline content is verified human-created through provenance documentation</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-foreground mt-1">•</span>
-                  <span>Baselines span diverse genres, production styles, and recording conditions</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-foreground mt-1">•</span>
-                  <span>Baseline parameters are calibrated to minimize false positive risk</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-foreground mt-1">•</span>
-                  <span>Baseline updates follow documented versioning and validation procedures</span>
-                </li>
-              </ul>
               <p className="text-muted-foreground leading-relaxed">
-                The baseline defines what "human" looks like in signal geometry terms. Content that falls within baseline parameters is reported as showing no AI signal evidence.
+                Content that falls within baseline parameters is reported as showing no AI signal evidence. Baseline updates follow strict versioning and validation procedures.
               </p>
             </div>
             {/* Baseline Visualization */}
@@ -172,31 +154,31 @@ export default function Research() {
             </div>
           </section>
 
-          {/* Dual-Engine Approach */}
+          {/* Multi-Stage Verification */}
           <section className="mb-16">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              Dual-Engine Verification Approach
+              Multi-Stage Verification Approach
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX uses a dual-engine architecture that prioritizes human protection while maintaining effective AI detection:
+                DetectX uses a proprietary multi-stage architecture that prioritizes human protection while maintaining effective AI detection. The specific engine design is protected under pending patent applications.
               </p>
               <div className="grid md:grid-cols-2 gap-6 my-6">
                 <div className="border border-border rounded-lg p-6 bg-card">
-                  <h3 className="text-lg font-medium text-foreground mb-3">DetectX Engine (Primary)</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-3">DetectX Audio</h3>
                   <p className="text-sm text-muted-foreground">
-                    Deep learning engine trained on 30,000,000+ verified human music samples. Optimized for &lt;1% false positives. If the engine says Human, the verdict is trusted immediately.
+                    AI-generated music detection with 98.89% human protection accuracy. Multiple independent analysis stages cross-validate to minimize false positives.
                   </p>
                 </div>
                 <div className="border border-border rounded-lg p-6 bg-card">
-                  <h3 className="text-lg font-medium text-foreground mb-3">Reconstruction Engine (Secondary)</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-3">DetectX Voice</h3>
                   <p className="text-sm text-muted-foreground">
-                    Activates when the DetectX Engine exceeds the threshold. Analyzes stem separation and reconstruction patterns to boost AI detection accuracy.
+                    Deepfake voice detection with 97.8% accuracy. Optimized for telephony conditions including G.711 codec and background noise. 2-second minimum for detection.
                   </p>
                 </div>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                This approach ensures human creators are protected first. The DetectX Engine acts as a protective filter, while the Reconstruction Engine provides secondary verification for suspected AI content.
+                Both products share the same research philosophy: human safety as a hard constraint, deterministic analysis, and binary verdict outputs. Each uses proprietary detection technology developed in-house.
               </p>
             </div>
           </section>
@@ -216,11 +198,7 @@ export default function Research() {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Fixed normalization pipelines with consistent preprocessing</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-foreground mt-1">•</span>
-                  <span>Versioned models and baseline references with documented parameters</span>
+                  <span>Versioned models and baseline references</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
@@ -305,11 +283,11 @@ export default function Research() {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Baseline expansion for additional audio genres and production contexts</span>
+                  <span>Voice deepfake detection across telephony conditions and languages</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Verification systems for image, text, and video content</span>
+                  <span>Baseline expansion for additional audio genres and production contexts</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
@@ -317,11 +295,11 @@ export default function Research() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Cross-modal verification for multimedia content</span>
+                  <span>Verification systems for image, text, and video content</span>
                 </li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-4">
-                New modalities will be introduced only after they meet the same forensic reliability and human-safety standards as DetectX Audio.
+                New modalities will be introduced only after they meet the same forensic reliability and human-safety standards as DetectX Audio and DetectX Voice.
               </p>
             </div>
           </section>
@@ -361,6 +339,9 @@ export default function Research() {
             <div>
               <p className="text-sm text-muted-foreground">
                 DetectX does not determine authorship. It reports structural signal observations only.
+              </p>
+              <p className="text-xs text-muted-foreground/50 mt-2">
+                © {new Date().getFullYear()} DetectX Inc. All rights reserved. Patent pending.
               </p>
             </div>
             <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">

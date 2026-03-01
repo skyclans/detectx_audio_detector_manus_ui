@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
 import Plan from "./pages/Plan";
+import BatchVerify from "./pages/BatchVerify";
 import ComingSoon from "./pages/ComingSoon";
 import Technology from "./pages/Technology";
 import Research from "./pages/Research";
@@ -37,6 +38,7 @@ function Router() {
       
       {/* Verify Audio tool */}
       <Route path="/verify-audio" component={Home} />
+      <Route path="/batch-verify" component={BatchVerify} />
       
       {/* Account pages */}
       <Route path="/history" component={History} />
@@ -87,7 +89,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light" switchable={true}>
+      <ThemeProvider defaultTheme="dark" switchable={true}>
         <TooltipProvider>
           <Toaster />
           <Router />

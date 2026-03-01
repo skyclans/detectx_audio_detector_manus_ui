@@ -18,6 +18,7 @@ import {
   X,
   Zap,
   Sparkles,
+  Layers,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
@@ -41,13 +42,13 @@ const navSections: NavSection[] = [
     title: "Verify",
     items: [
       { label: "Audio", href: "/verify-audio", icon: <AudioLines className="w-4 h-4" /> },
+      { label: "Batch", href: "/batch-verify", icon: <Layers className="w-4 h-4" /> },
     ],
   },
   {
     title: "Account",
     items: [
       { label: "History", href: "/history", icon: <Clock className="w-4 h-4" /> },
-      { label: "Settings", href: "/settings", icon: <Settings className="w-4 h-4" /> },
       { label: "Plan", href: "/plan", icon: <CreditCard className="w-4 h-4" /> },
     ],
   },
@@ -70,15 +71,15 @@ function PlanUsageDisplay() {
       const dbPlan = (user as any).plan as string | undefined;
       const dbMonthlyLimit = (user as any).monthlyLimit as number | undefined;
       const dbUsageCount = (user as any).usageCount as number | undefined;
-      
+
       if (dbPlan) {
         setSelectedMode(dbPlan);
-        setModeLimit(dbPlan === "master" ? null : (dbMonthlyLimit ?? 5));
+        setModeLimit(dbPlan === "enterprise" ? null : (dbMonthlyLimit ?? 3));
         setUsageCount(dbUsageCount ?? 0);
-        
+
         // Sync to localStorage as cache (not source of truth)
         localStorage.setItem("detectx_selected_mode", dbPlan);
-        localStorage.setItem("detectx_mode_limit", dbPlan === "master" ? "unlimited" : String(dbMonthlyLimit ?? 5));
+        localStorage.setItem("detectx_mode_limit", dbPlan === "enterprise" ? "unlimited" : String(dbMonthlyLimit ?? 3));
         localStorage.setItem("detectx_usage_count", String(dbUsageCount ?? 0));
         return;
       }
@@ -90,14 +91,14 @@ function PlanUsageDisplay() {
     
     if (mode) {
       setSelectedMode(mode);
-      if (limit === "unlimited" || mode === "master") {
+      if (limit === "unlimited" || mode === "enterprise") {
         setModeLimit(null); // Unlimited
       } else {
-        setModeLimit(parseInt(limit || "5", 10));
+        setModeLimit(parseInt(limit || "3", 10));
       }
     } else {
       // Default to free plan if no mode selected
-      setModeLimit(5);
+      setModeLimit(3);
     }
     
     // Get usage count from localStorage for non-authenticated users
@@ -110,15 +111,15 @@ function PlanUsageDisplay() {
   // Determine plan name
   const getPlanName = () => {
     if (!selectedMode || selectedMode === "free") return "Free";
-    if (selectedMode === "professional" || selectedMode === "pro") return "Professional (Beta)";
-    if (selectedMode === "master") return "Master";
+    if (selectedMode === "pro") return "Pro";
+    if (selectedMode === "studio") return "Studio";
+    if (selectedMode === "enterprise") return "Enterprise";
     return "Free";
   };
 
   // Calculate remaining
   const remaining = modeLimit !== null ? Math.max(0, modeLimit - usageCount) : null;
-  const isPro = selectedMode === "professional" || selectedMode === "pro";
-  const isMaster = selectedMode === "master";
+  const isPaid = selectedMode === "pro" || selectedMode === "studio" || selectedMode === "enterprise";
 
   // If not authenticated, show login prompt
   if (!isAuthenticated) {
@@ -133,14 +134,14 @@ function PlanUsageDisplay() {
       >
         {/* Plan Badge */}
         <div className="flex items-center gap-2 mb-2">
-          {isPro || isMaster ? (
+          {isPaid ? (
             <Zap className="w-4 h-4 text-forensic-cyan" />
           ) : (
             <Sparkles className="w-4 h-4 text-muted-foreground" />
           )}
           <span className={cn(
             "text-xs font-medium uppercase tracking-wider",
-            isPro || isMaster ? "text-forensic-cyan" : "text-muted-foreground"
+            isPaid ? "text-forensic-cyan" : "text-muted-foreground"
           )}>
             {getPlanName()}
           </span>
@@ -173,10 +174,10 @@ function PlanUsageDisplay() {
         </div>
 
         {/* Upgrade prompt when exhausted */}
-        {remaining === 0 && !isPro && !isMaster && (
+        {remaining === 0 && !isPaid && (
           <div className="mt-2 pt-2 border-t border-border/30">
             <span className="text-[10px] text-forensic-cyan font-medium">
-              Upgrade to Professional →
+              Upgrade to Pro →
             </span>
           </div>
         )}
@@ -226,7 +227,7 @@ function NavItemComponent({ item, isActive, onClick }: { item: NavItem; isActive
 const BRAND_HEIGHT = "h-20"; // 80px - shared between sidebar brand and header
 
 function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMobileClose: () => void }) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, loading, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -321,7 +322,10 @@ function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMob
               </div>
             </div>
           ) : user ? (
-            <div className="flex items-center gap-3 px-3 py-2">
+            <div
+              className="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer hover:bg-sidebar-accent/50 transition-colors"
+              onClick={() => { setLocation("/settings"); onMobileClose(); }}
+            >
               <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                 <User className="w-4 h-4 text-muted-foreground" />
               </div>
@@ -333,14 +337,7 @@ function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMob
                   {user.email || "No email"}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={() => logout()}
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
+              <Settings className="w-4 h-4 text-muted-foreground" />
             </div>
           ) : (
             <Button
@@ -375,6 +372,7 @@ function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const headerLinks = [
     { label: "Technology", href: "/technology" },
     { label: "Research", href: "/research" },
+    { label: "Pricing", href: "/plan" },
     { label: "Updates", href: "/updates" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },

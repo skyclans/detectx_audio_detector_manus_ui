@@ -141,7 +141,7 @@ export async function getAllUsers(options?: {
   }
   
   if (plan && plan !== 'all') {
-    conditions.push(eq(users.plan, plan as "free" | "pro" | "enterprise" | "master"));
+    conditions.push(eq(users.plan, plan as "free" | "pro" | "studio" | "enterprise" | "master"));
   }
   
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -166,18 +166,19 @@ export async function getAllUsers(options?: {
 }
 
 export async function updateUserPlan(
-  userId: number, 
-  plan: "free" | "pro" | "enterprise" | "master"
+  userId: number,
+  plan: "free" | "pro" | "studio" | "enterprise" | "master"
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   // Set monthly limit based on plan
   const planLimits: Record<string, number> = {
-    free: 5,
-    pro: 30,
-    enterprise: 1000,
-    master: -1, // unlimited
+    free: 3,
+    pro: 50,
+    studio: 1000,
+    enterprise: -1, // unlimited (dedicated server)
+    master: -1, // unlimited (internal)
   };
   
   await db.update(users).set({ 
@@ -224,15 +225,16 @@ export async function incrementUserUsage(userId: number): Promise<void> {
 
 export async function bulkUpdateUserPlan(
   userIds: number[],
-  plan: "free" | "pro" | "enterprise" | "master"
+  plan: "free" | "pro" | "studio" | "enterprise" | "master"
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const planLimits: Record<string, number> = {
-    free: 5,
-    pro: 30,
-    enterprise: 1000,
+    free: 3,
+    pro: 50,
+    studio: 1000,
+    enterprise: -1,
     master: -1,
   };
   

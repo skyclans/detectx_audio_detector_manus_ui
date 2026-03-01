@@ -19,8 +19,9 @@ export default function Technology() {
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <nav className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-semibold tracking-tight text-foreground">
-              DetectX
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/detectx-logo.png" alt="DetectX" className="w-8 h-8 object-contain" />
+              <span className="text-xl font-semibold tracking-tight text-foreground">DetectX</span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
               <Link href="/technology" className="text-sm text-foreground font-medium">
@@ -97,10 +98,10 @@ export default function Technology() {
                 DetectX Audio uses a dual-engine verification system called Enhanced Mode. This architecture combines two complementary engines to maximize human protection while maintaining effective AI detection.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                <strong className="text-foreground">Classifier Engine (Primary):</strong> A deep learning classifier trained on over 30,000,000 verified human music samples. This engine serves as the primary filter, optimized for near-zero false positives on human content. If the Classifier Engine determines content is human, the verdict is trusted immediately.
+                <strong className="text-foreground">DetectX Engine (Primary):</strong> A deep learning engine trained on over 30,000,000 verified human music samples. This engine serves as the primary filter, optimized for near-zero false positives on human content. If the DetectX Engine determines content is human, the verdict is trusted immediately.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                <strong className="text-foreground">Reconstruction Engine (Secondary):</strong> When the Classifier Engine score exceeds the 90% threshold, the Reconstruction Engine activates. This engine separates audio into stem components, reconstructs the signal, and compares the reconstruction differential against known patterns. This secondary analysis boosts AI detection accuracy.
+                <strong className="text-foreground">Reconstruction Engine (Secondary):</strong> When the DetectX Engine score exceeds the threshold, the Reconstruction Engine activates. This engine separates audio into stem components, reconstructs the signal, and compares the reconstruction against known patterns. This secondary analysis boosts AI detection accuracy.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 The dual-engine approach ensures human creators are protected (&lt;1% false positive rate) while maintaining strong AI detection for confirmed AI-generated content.
@@ -145,7 +146,7 @@ export default function Technology() {
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Dual-Engine Verification</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The system uses two complementary engines: Classifier Engine (deep learning) for human protection and Reconstruction Engine for AI detection boost. The Classifier Engine is trained on 30,000,000+ verified human samples to ensure &lt;1% false positives.
+                  The system uses two complementary engines: DetectX Engine for human protection and Reconstruction Engine for AI detection boost. The DetectX Engine is trained on 30,000,000+ verified human samples to ensure &lt;1% false positives.
                 </p>
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">

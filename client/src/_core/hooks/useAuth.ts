@@ -57,7 +57,17 @@ export function useAuth(options?: UseAuthOptions) {
       return null;
     }
   });
-  const [isLoading, setIsLoading] = useState(true);
+  // Determine initial loading state from localStorage to avoid blocking UI
+  // while waiting for the /auth/me network response.
+  // - No token → user is definitely not authenticated, show Login immediately
+  // - Token + cached user → show cached user menu immediately (optimistic)
+  // - Token but no cached user → must wait for fetch (rare edge case)
+  const [isLoading, setIsLoading] = useState(() => {
+    const cachedToken = localStorage.getItem("detectx_token");
+    if (!cachedToken) return false;
+    const cachedUser = localStorage.getItem("detectx_user");
+    return !cachedUser;
+  });
   const [error, setError] = useState<Error | null>(null);
 
   const token = localStorage.getItem("detectx_token");

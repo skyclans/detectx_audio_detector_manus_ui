@@ -13,9 +13,9 @@ export const users = mysqlTable("users", {
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   
   // Plan and usage tracking
-  plan: mysqlEnum("plan", ["free", "pro", "enterprise", "master"]).default("free").notNull(),
+  plan: mysqlEnum("plan", ["free", "pro", "studio", "enterprise", "master"]).default("free").notNull(),
   usageCount: int("usageCount").default(0).notNull(),
-  monthlyLimit: int("monthlyLimit").default(5).notNull(),
+  monthlyLimit: int("monthlyLimit").default(3).notNull(),
   usageResetDate: timestamp("usageResetDate"),
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),

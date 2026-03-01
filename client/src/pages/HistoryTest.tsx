@@ -459,7 +459,7 @@ export default function History() {
       "Verification ID",
       "Filename",
       "Verdict",
-      "CNN Score",
+      "DetectX Score",
       "Duration",
       "Mode",
       "Date",
@@ -647,7 +647,7 @@ export default function History() {
                         Verdict
                       </th>
                       <th className="text-left py-2 px-3 font-medium text-muted-foreground hidden md:table-cell">
-                        CNN Score
+                        DetectX Score
                       </th>
                       <th className="text-left py-2 px-3 font-medium text-muted-foreground hidden md:table-cell">
                         Duration
@@ -743,7 +743,7 @@ export default function History() {
         <div className="forensic-panel">
           <div className="forensic-panel-content">
             <div className="text-xs text-muted-foreground">
-              <strong>Enhanced Mode v2.0</strong> — Classifier Engine (CNN trained on
+              <strong>Enhanced Mode v2.0</strong> — DetectX Engine (trained on
               30,000,000+ verified human samples) + Reconstruction Engine (Stem separation
               analysis). History records are stored securely and can be exported for
               institutional reporting.

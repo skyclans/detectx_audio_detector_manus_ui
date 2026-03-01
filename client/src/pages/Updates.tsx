@@ -102,11 +102,11 @@ export default function Updates() {
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">Classifier Engine (Primary):</strong> A deep learning classifier trained on over 30,000,000 verified human music samples. Optimized for near-zero false positives. If the Classifier Engine determines content is human, the verdict is trusted immediately.</span>
+                    <span><strong className="text-foreground">DetectX Engine (Primary):</strong> A deep learning engine trained on over 30,000,000 verified human music samples. Optimized for near-zero false positives. If the DetectX Engine determines content is human, the verdict is trusted immediately.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">Reconstruction Engine (Secondary):</strong> Activates when the Classifier Engine score exceeds 90% threshold. Analyzes stem separation and reconstruction differentials to boost AI detection accuracy.</span>
+                    <span><strong className="text-foreground">Reconstruction Engine (Secondary):</strong> Activates when the DetectX Engine score exceeds the threshold. Analyzes stem separation and reconstruction patterns to boost AI detection accuracy.</span>
                   </li>
                 </ul>
 
@@ -128,7 +128,7 @@ export default function Updates() {
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Design Philosophy</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The dual-engine approach prioritizes human safety as a hard constraint. By using the Classifier Engine as the primary filter, the system ensures that human creative work is never unfairly flagged. The Reconstruction Engine serves as a secondary check only when the primary classifier indicates potential AI content.
+                  The dual-engine approach prioritizes human safety as a hard constraint. By using the DetectX Engine as the primary filter, the system ensures that human creative work is never unfairly flagged. The Reconstruction Engine serves as a secondary check only when the primary engine indicates potential AI content.
                 </p>
 
                 <div className="mt-8 pt-6 border-t border-border">
@@ -186,7 +186,7 @@ export default function Updates() {
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Implementation</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The Classifier Engine has been trained on over 30,000,000 verified human-created audio samples spanning diverse genre categories. Each sample has documented provenance including recording session metadata, artist verification, and production chain attestation.
+                  The DetectX Engine has been trained on over 30,000,000 verified human-created audio samples spanning diverse genre categories. Each sample has documented provenance including recording session metadata, artist verification, and production chain attestation.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Validation Results</h3>

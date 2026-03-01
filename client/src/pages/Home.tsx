@@ -48,6 +48,7 @@ interface FileMetadata {
   artist: string | null;
   title: string | null;
   album: string | null;
+  isrc: string | null;
 }
 
 // Detailed analysis types from server
@@ -324,6 +325,7 @@ export default function Home() {
             artist: null,
             title: null,
             album: null,
+            isrc: null,
           });
           // Clear the pending file from localStorage
           localStorage.removeItem("detectx_pending_file");
@@ -457,8 +459,9 @@ export default function Home() {
       artist: null,
       title: null,
       album: null,
+      isrc: null,
     });
-    
+
     // Store File object for direct upload to RunPod (no Base64 encoding)
     selectedFileRef.current = file;
     
@@ -487,6 +490,7 @@ export default function Home() {
           artist: null,
           title: null,
           album: null,
+          isrc: null,
         });
       } catch (error) {
         // Web Audio API may not support all formats (e.g., FLAC, some WAV variants)
@@ -507,8 +511,9 @@ export default function Home() {
           artist: null,
           title: null,
           album: null,
+          isrc: null,
         });
-        
+
         // Set audioBuffer to null so UI knows preview is unavailable
         setAudioBuffer(null);
         setDuration(0);
@@ -811,6 +816,7 @@ export default function Home() {
           artist: result.metadata.artist ?? prev.artist,
           title: result.metadata.title ?? prev.title,
           album: result.metadata.album ?? prev.album,
+          isrc: result.metadata.isrc ?? prev.isrc,
         } : prev);
       }
       
@@ -1090,6 +1096,10 @@ export default function Home() {
             channels: metadata?.channels || null,
             codec: metadata?.codec || null,
             fileHash: metadata?.fileHash || null,
+            artist: metadata?.artist || null,
+            title: metadata?.title || null,
+            album: metadata?.album || null,
+            isrc: metadata?.isrc || null,
             verdict: verificationResult?.verdict ?? null,
             timelineMarkers: verificationResult?.timelineMarkers || [],
             analysisTimestamp: new Date().toISOString(),

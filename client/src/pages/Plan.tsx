@@ -1,30 +1,30 @@
 /**
  * Plan Page - Subscription Management
- * 
- * v1.1 BETA PRICING CONFIGURATION:
- * 
+ *
+ * v2.0 PRICING STRUCTURE:
+ *
  * FREE ($0/forever):
- * - 5 verifications per month
- * - Basic CR-G analysis
- * - PDF & JSON export
+ * - 3 verifications per month
+ * - Verdict only (AI/Human) — no detailed report
+ * - No PDF export, No certificate
  * - Standard processing queue
- * - Community support
- * - NO API access, NO batch processing, NO priority queue
- * 
- * PROFESSIONAL (BETA - FREE ACCESS This Month Only):
- * - Up to 30 verifications during the beta period
- * - Full CR-G analysis suite
- * - All export formats (PDF, JSON, CSV, Markdown)
- * - Batch processing (UI-based only)
+ *
+ * PRO ($39.99/month):
+ * - 50 verifications per month ($0.80/song)
+ * - Full analysis report + PDF export
+ * - Human Verification Certificate
+ * - Priority processing queue
+ * - Email support
+ *
+ * STUDIO ($399/month):
+ * - 1,000 verifications per month ($0.40/song)
+ * - Full API access (REST)
+ * - Batch processing
+ * - Team accounts
  * - Priority support
- * - NO API access, NO automation, NO webhooks
- * - "Professional is for people, not systems"
- * 
+ *
  * ENTERPRISE (Custom/Contact Sales):
  * - Unlimited verifications
- * - Full API access (REST)
- * - Webhooks
- * - Unlimited batch processing
  * - Dedicated processing infrastructure
  * - SLA guarantee (99.9% uptime)
  * - On-premise deployment option
@@ -32,32 +32,34 @@
  * - Dedicated account manager
  */
 
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
-import { Check, X, LogIn, Zap, Building2, Sparkles } from "lucide-react";
+import { fetchWithAuth } from "@/lib/api";
+import { Check, X, Zap, Building2, Sparkles, Music, Loader2, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 
-// v1.0 FINAL pricing structure - EXACTLY as specified
+// v2.0 pricing structure
 const plans = [
   {
     name: "Free",
     price: "$0",
     period: "forever",
     icon: Sparkles,
-    positioning: "Evaluation and light research use.",
+    positioning: "Quick evaluation — verdict only.",
+    perSong: null,
     features: [
-      "5 verifications per month",
-      "Basic CR-G analysis",
-      "PDF & JSON export",
+      "3 verifications per month",
+      "AI / Human verdict",
       "Standard processing queue",
-      "Community support",
     ],
     restrictions: [
+      "Verdict only — no detailed report",
+      "No PDF export or certificate",
       "No API access",
       "No batch processing",
-      "No priority queue",
     ],
     current: true,
     recommended: false,
@@ -65,50 +67,68 @@ const plans = [
     badgeVariant: "outline" as const,
   },
   {
-    name: "Professional Plan",
-    subtitle: "BETA — FREE ACCESS (This Month Only)",
-    price: "Free",
-    period: "beta",
+    name: "Pro",
+    price: "$39.99",
+    period: "month",
     icon: Zap,
-    positioning: "This plan is currently available as a beta version.",
-    betaDescription: `Free access is provided for this month only while payment infrastructure is being finalized.
-
-During the beta period, up to 30 verification certificates are available for testing and evaluation.`,
+    positioning: "Full forensic analysis for creators and researchers.",
+    perSong: "$0.80 / song",
     features: [
-      "Up to 30 verifications during the beta period",
-      "Full CR-G analysis suite",
+      "50 verifications per month",
+      "Full analysis report with metrics",
+      "PDF export & Human Verification Certificate",
       "All export formats (PDF, JSON, CSV, Markdown)",
-      "Batch processing (UI-based only)",
+      "Priority processing queue",
+      "Email support",
+    ],
+    restrictions: [
+      "No API access",
+      "No batch processing",
+    ],
+    current: false,
+    recommended: true,
+    badgeText: "Get Pro",
+    badgeVariant: "default" as const,
+  },
+  {
+    name: "Studio",
+    price: "$399",
+    period: "month",
+    icon: Music,
+    positioning: "High-volume batch analysis for studios and teams.",
+    perSong: "$0.40 / song",
+    features: [
+      "1,000 verifications per month",
+      "Full analysis report with metrics",
+      "All export formats",
+      "Batch processing (bulk upload)",
+      "Team accounts (up to 5 seats)",
       "Priority support",
     ],
     restrictions: [
-      "NO API access",
-      "NO automation",
-      "NO webhooks",
+      "No API access",
     ],
-    restrictionNote: "Professional is for people, not systems.",
     current: false,
-    recommended: true,
-    badgeText: "Get Professional (Beta)",
+    recommended: false,
+    badgeText: "Get Studio",
     badgeVariant: "default" as const,
-    isBeta: true,
   },
   {
     name: "Enterprise",
     price: "Custom",
     period: "Contact Sales",
     icon: Building2,
-    positioning: "System-level and organizational integration.",
+    positioning: "For labels, publishers, and rights organizations.",
+    perSong: null,
     features: [
       "Unlimited verifications",
-      "Full API access (REST)",
-      "Webhooks",
-      "Unlimited batch processing",
-      "Dedicated processing infrastructure",
+      "REST API + Webhooks",
+      "Dedicated GPU processing cluster",
       "SLA guarantee (99.9% uptime)",
       "On-premise deployment option",
       "Custom integrations",
       "Dedicated account manager",
+      "Unlimited team accounts",
     ],
     restrictions: [],
     current: false,
@@ -120,21 +140,91 @@ During the beta period, up to 30 verification certificates are available for tes
 
 export default function Plan() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
-  const handleUpgrade = (planName: string) => {
+  // Handle payment success/cancel URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
+    const plan = params.get("plan");
+
+    if (payment === "success" && plan) {
+      toast.success(`Successfully subscribed to ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan!`);
+      // Clean URL params
+      window.history.replaceState({}, "", "/plan");
+    } else if (payment === "cancelled") {
+      toast.info("Payment was cancelled.");
+      window.history.replaceState({}, "", "/plan");
+    }
+  }, []);
+
+  const handleUpgrade = async (planName: string) => {
     if (planName === "Enterprise") {
       toast.info("Contact sales@detectx.app for Enterprise pricing");
-    } else {
-      toast.info(`${planName} plan upgrade coming soon`);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      toast.error("Please sign in to upgrade your plan.");
+      return;
+    }
+
+    const planKey = planName.toLowerCase();
+    setLoadingPlan(planKey);
+
+    try {
+      const res = await fetchWithAuth("/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planKey }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Failed to create checkout session`);
+      }
+
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to start checkout. Please try again.");
+    } finally {
+      setLoadingPlan(null);
     }
   };
 
+  const handleManageSubscription = async () => {
+    setLoadingPlan("portal");
+    try {
+      const res = await fetchWithAuth("/api/stripe/create-portal-session", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to open billing portal");
+      }
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to open billing portal.");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  // Determine user's current plan
+  const userPlan = user?.plan || "free";
+
   // Plan page is accessible to all users (logged-in and non-logged-in)
   return (
-    <ForensicLayout title="Plan" subtitle="Subscription management">
+    <ForensicLayout title="Pricing" subtitle="Choose the plan that fits your workflow">
       <div className="max-w-6xl">
         {/* Plan Cards - All badges aligned at same vertical position */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan) => {
             const IconComponent = plan.icon;
             return (
@@ -154,21 +244,19 @@ export default function Plan() {
                   {plan.name}
                 </div>
                 <div className="forensic-panel-content flex flex-col flex-1">
-                  {/* Subtitle for Beta */}
-                  {'subtitle' in plan && plan.subtitle && (
-                    <p className="text-xs text-forensic-cyan font-medium text-center mb-2">
-                      {plan.subtitle}
-                    </p>
-                  )}
-                  
-                  {/* Price - Clear text format to avoid confusion */}
+                  {/* Price */}
                   <div className="flex flex-col items-center mb-2">
                     <span className="text-2xl font-bold text-foreground">
                       {plan.price}
                     </span>
-                    {plan.period !== "forever" && plan.period !== "beta" && plan.price !== "Custom" && (
+                    {plan.period !== "forever" && plan.price !== "Custom" && (
                       <span className="text-xs text-muted-foreground">
                         per {plan.period}
+                      </span>
+                    )}
+                    {plan.perSong && (
+                      <span className="text-[10px] text-forensic-cyan mt-1">
+                        {plan.perSong}
                       </span>
                     )}
                   </div>
@@ -177,13 +265,6 @@ export default function Plan() {
                   <p className="text-xs text-muted-foreground text-center mb-2">
                     {plan.positioning}
                   </p>
-                  
-                  {/* Beta Description */}
-                  {'betaDescription' in plan && plan.betaDescription && (
-                    <p className="text-xs text-muted-foreground text-center mb-4 whitespace-pre-line">
-                      {plan.betaDescription}
-                    </p>
-                  )}
 
                   {/* Features */}
                   <ul className="space-y-2 mb-4">
@@ -199,7 +280,7 @@ export default function Plan() {
                   {plan.restrictions.length > 0 && (
                     <div className="border-t border-border/30 pt-3 mb-4">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
-                        {plan.name.includes("Professional") ? "Restrictions (MANDATORY)" : "Limitations"}
+                        Limitations
                       </p>
                       <ul className="space-y-1">
                         {plan.restrictions.map((restriction) => (
@@ -209,11 +290,6 @@ export default function Plan() {
                           </li>
                         ))}
                       </ul>
-                      {plan.restrictionNote && (
-                        <p className="text-[10px] text-forensic-amber mt-2 italic">
-                          {plan.restrictionNote}
-                        </p>
-                      )}
                     </div>
                   )}
 
@@ -222,26 +298,41 @@ export default function Plan() {
 
                   {/* CTA Button/Badge - ALL aligned at same vertical position */}
                   <div className="mt-auto pt-4">
-                    {plan.current ? (
-                      <Button variant="outline" className="w-full h-10" disabled>
-                        {plan.badgeText}
-                      </Button>
-                    ) : (
-                      <Button
-                        className="w-full h-10"
-                        variant={plan.recommended ? "default" : "outline"}
-                        onClick={() => handleUpgrade(plan.name)}
-                      >
-                        {plan.name === "Enterprise" ? (
-                          <>{plan.badgeText}</>
-                        ) : (
-                          <>
-                            <Zap className="w-4 h-4 mr-2" />
-                            {plan.badgeText}
-                          </>
-                        )}
-                      </Button>
-                    )}
+                    {(() => {
+                      const isCurrent = plan.name.toLowerCase() === userPlan;
+                      const isLoading = loadingPlan === plan.name.toLowerCase();
+
+                      if (isCurrent) {
+                        return (
+                          <Button variant="outline" className="w-full h-10" disabled>
+                            Current Plan
+                          </Button>
+                        );
+                      }
+
+                      return (
+                        <Button
+                          className="w-full h-10"
+                          variant={plan.recommended ? "default" : "outline"}
+                          onClick={() => handleUpgrade(plan.name)}
+                          disabled={isLoading || loadingPlan !== null}
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Redirecting...
+                            </>
+                          ) : plan.name === "Enterprise" ? (
+                            <>{plan.badgeText}</>
+                          ) : (
+                            <>
+                              <Zap className="w-4 h-4 mr-2" />
+                              {plan.badgeText}
+                            </>
+                          )}
+                        </Button>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
@@ -251,46 +342,65 @@ export default function Plan() {
 
         {/* Usage Stats */}
         <div className="forensic-panel mt-6">
-          <div className="forensic-panel-header">Current Usage</div>
+          <div className="forensic-panel-header flex items-center justify-between">
+            <span>Current Usage</span>
+            {userPlan !== "free" && isAuthenticated && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleManageSubscription}
+                disabled={loadingPlan === "portal"}
+              >
+                {loadingPlan === "portal" ? (
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                ) : (
+                  <CreditCard className="w-3 h-3 mr-1" />
+                )}
+                Manage Subscription
+              </Button>
+            )}
+          </div>
           <div className="forensic-panel-content">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                  Plan
+                </p>
+                <p className="text-2xl font-bold text-foreground capitalize">
+                  {userPlan}
+                </p>
+              </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Verifications This Month
                 </p>
                 <p className="text-2xl font-bold text-foreground">
-                  0 <span className="text-sm font-normal text-muted-foreground">/ 5</span>
+                  {user?.usage_count ?? 0}{" "}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    / {(user?.monthly_limit ?? 3) < 0 ? "Unlimited" : user?.monthly_limit ?? 3}
+                  </span>
                 </p>
-                <div className="w-full h-2 bg-muted rounded-full mt-2">
-                  <div className="w-0 h-full bg-forensic-cyan rounded-full" />
-                </div>
+                {(user?.monthly_limit ?? 3) > 0 && (
+                  <div className="w-full h-2 bg-muted rounded-full mt-2">
+                    <div
+                      className="h-full bg-forensic-cyan rounded-full transition-all"
+                      style={{
+                        width: `${Math.min(100, ((user?.usage_count ?? 0) / (user?.monthly_limit ?? 3)) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  Storage Used
+                  Remaining
                 </p>
                 <p className="text-2xl font-bold text-foreground">
-                  0 MB <span className="text-sm font-normal text-muted-foreground">/ 100 MB</span>
+                  {(user?.monthly_limit ?? 3) < 0
+                    ? "Unlimited"
+                    : Math.max(0, (user?.monthly_limit ?? 3) - (user?.usage_count ?? 0))}
                 </p>
-                <div className="w-full h-2 bg-muted rounded-full mt-2">
-                  <div className="w-0 h-full bg-forensic-cyan rounded-full" />
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  API Calls This Month
-                </p>
-                <p className="text-2xl font-bold text-foreground">
-                  0 <span className="text-sm font-normal text-muted-foreground">/ 0</span>
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">Enterprise only</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  Billing Period Ends
-                </p>
-                <p className="text-2xl font-bold text-foreground">N/A</p>
-                <p className="text-xs text-muted-foreground mt-2">Free plan - no billing</p>
               </div>
             </div>
           </div>
@@ -319,10 +429,10 @@ export default function Plan() {
               </div>
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">
-                  Why doesn't Professional include API access?
+                  What's the difference between Free and Pro?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Professional is designed for manual, UI-driven forensic verification. API access and automation are reserved for Enterprise customers with system-level integration needs.
+                  Free provides only the AI/Human verdict. Pro unlocks the full analysis report with detailed metrics, PDF export, and Human Verification Certificate.
                 </p>
               </div>
               <div>

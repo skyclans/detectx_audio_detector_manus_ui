@@ -187,8 +187,9 @@ export default function Login() {
             </Link>
 
             {/* Logo */}
-            <Link href="/" className="text-xl font-semibold tracking-tight text-foreground">
-              DetectX
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/detectx-logo.png" alt="DetectX" className="w-8 h-8 object-contain" />
+              <span className="text-xl font-semibold tracking-tight text-foreground">DetectX</span>
             </Link>
 
             {/* Theme Toggle */}
@@ -268,7 +269,7 @@ export default function Login() {
 
               {/* Terms Agreement Checkboxes */}
               {!isAuthenticated && (
-                <div className="space-y-3 mb-6 p-4 bg-muted/30 rounded-lg border border-border">
+                <div className="space-y-3 mb-6 p-4 bg-muted/30 dark:bg-muted/50 rounded-lg border border-border dark:border-muted-foreground/30">
                   <p className="text-xs text-muted-foreground mb-3">
                     Please agree to the following to continue:
                   </p>

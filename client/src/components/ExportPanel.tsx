@@ -2,7 +2,7 @@
  * Export Panel Component
  *
  * Enhanced Mode v2.0:
- * - Classifier Engine (Primary): CNN trained on 30M+ verified human samples
+ * - DetectX Engine (Primary): trained on 30M+ verified human samples
  * - Reconstruction Engine (Secondary): Stem separation analysis
  * - Human False Positive Rate: <1%
  *
@@ -37,6 +37,10 @@ interface ExportData {
   channels: number | null;
   codec: string | null;
   fileHash: string | null;
+  artist: string | null;
+  title: string | null;
+  album: string | null;
+  isrc: string | null;
   verdict: VerdictResult | null;
   timelineMarkers: { timestamp: number; type: string }[];
   analysisTimestamp: string;
@@ -52,8 +56,8 @@ function getVerdictText(verdict: VerdictResult | null): string {
   return verdict?.verdict || "";
 }
 
-function formatDuration(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
+function formatDuration(seconds: number): string {
+  const totalSeconds = Math.floor(seconds);
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
   return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -68,7 +72,7 @@ function generatePDFContent(data: ExportData): string {
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>DetectX Audio Verification Report</title>
+  <title>DetectX_${data.fileName.replace(/\.[^/.]+$/, "")}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
     h1 { color: #0d9488; border-bottom: 2px solid #0d9488; padding-bottom: 10px; }
@@ -99,6 +103,10 @@ function generatePDFContent(data: ExportData): string {
     <tr><th>Bit Depth</th><td>${data.bitDepth ? `${data.bitDepth}-bit` : "N/A"}</td></tr>
     <tr><th>Channels</th><td>${data.channels || "N/A"}</td></tr>
     <tr><th>Codec</th><td>${data.codec || "N/A"}</td></tr>
+    ${data.artist ? `<tr><th>Artist</th><td>${data.artist}</td></tr>` : ""}
+    ${data.title ? `<tr><th>Title</th><td>${data.title}</td></tr>` : ""}
+    ${data.album ? `<tr><th>Album</th><td>${data.album}</td></tr>` : ""}
+    ${data.isrc ? `<tr><th>ISRC</th><td style="font-family: monospace;">${data.isrc}</td></tr>` : ""}
     <tr><th>SHA-256</th><td style="font-family: monospace; font-size: 12px;">${data.fileHash || "N/A"}</td></tr>
   </table>
 
@@ -118,8 +126,8 @@ function generatePDFContent(data: ExportData): string {
 
   <h2>Verification Engine Details</h2>
   <div class="engine-box">
-    <div class="engine-item"><strong>Classifier Engine (Primary):</strong> Deep learning classifier optimized for human protection</div>
-    <div class="engine-item"><strong>Reconstruction Engine (Secondary):</strong> Stem separation and reconstruction differential analysis</div>
+    <div class="engine-item"><strong>DetectX Engine (Primary):</strong> Deep learning classifier optimized for human protection</div>
+    <div class="engine-item"><strong>Reconstruction Engine (Secondary):</strong> Stem separation and reconstruction analysis</div>
     <div class="engine-item"><strong>Human False Positive Rate:</strong> Less than 1%</div>
   </div>
 
@@ -140,7 +148,7 @@ function generatePDFContent(data: ExportData): string {
   <div class="disclaimer">
     <strong>Disclaimer:</strong> DetectX does not determine authorship, intent, or ownership.
     This verification is based solely on structural signal observations.
-    Some genres with heavy processing (Electronic/EDM, Hip-hop, Dance/House, Lo-fi)
+    Audio with extensive post-processing, synthesis, or heavy digital manipulation
     may exhibit signal characteristics similar to AI-generated music.
   </div>
 
@@ -161,14 +169,14 @@ function generateJSON(data: ExportData): string {
       version: ENGINE_VERSION,
       mode: ENGINE_MODE,
       classifierEngine: {
-        name: "Classifier Engine",
+        name: "DetectX Engine",
         role: "Primary",
-        description: "CNN trained on 30,000,000+ verified human samples",
+        description: "Trained on 30,000,000+ verified human samples",
       },
       reconstructionEngine: {
         name: "Reconstruction Engine",
         role: "Secondary",
-        description: "Stem separation and reconstruction differential analysis",
+        description: "Stem separation and reconstruction analysis",
       },
       humanFpRate: "<1%",
     },
@@ -180,6 +188,10 @@ function generateJSON(data: ExportData): string {
       bitDepth: data.bitDepth,
       channels: data.channels,
       codec: data.codec,
+      artist: data.artist,
+      title: data.title,
+      album: data.album,
+      isrc: data.isrc,
       hash: data.fileHash,
     },
     verification: {
@@ -187,7 +199,7 @@ function generateJSON(data: ExportData): string {
       verdictCode: isHuman ? "AI_NOT_OBSERVED" : "AI_OBSERVED",
     },
     timelineEvents: data.timelineMarkers,
-    disclaimer: "DetectX does not determine authorship, intent, or ownership. Some genres with heavy processing may exhibit signal characteristics similar to AI-generated music.",
+    disclaimer: "DetectX does not determine authorship, intent, or ownership. Audio with extensive post-processing, synthesis, or heavy digital manipulation may exhibit signal characteristics similar to AI-generated music.",
   };
   return JSON.stringify(report, null, 2);
 }
@@ -213,11 +225,15 @@ function generateCSV(data: ExportData): string {
   const headers = [
     "Filename",
     "File Size (bytes)",
-    "Duration (ms)",
+    "Duration (sec)",
     "Sample Rate (Hz)",
     "Bit Depth",
     "Channels",
     "Codec",
+    "Artist",
+    "Title",
+    "Album",
+    "ISRC",
     "SHA-256 Hash",
     "Verdict",
     "Detection Mode",
@@ -234,6 +250,10 @@ function generateCSV(data: ExportData): string {
     data.bitDepth || "",
     data.channels || "",
     escapeCSV(data.codec),
+    escapeCSV(data.artist),
+    escapeCSV(data.title),
+    escapeCSV(data.album),
+    escapeCSV(data.isrc),
     escapeCSV(data.fileHash),
     escapeCSV(getVerdictText(data.verdict)),
     escapeCSV(ENGINE_MODE),
@@ -278,7 +298,7 @@ function generateMarkdown(data: ExportData): string {
 | Bit Depth | ${data.bitDepth ? `${data.bitDepth}-bit` : "N/A"} |
 | Channels | ${data.channels || "N/A"} |
 | Codec | ${data.codec || "N/A"} |
-| SHA-256 | \`${data.fileHash || "N/A"}\` |
+${data.artist ? `| Artist | ${data.artist} |\n` : ""}${data.title ? `| Title | ${data.title} |\n` : ""}${data.album ? `| Album | ${data.album} |\n` : ""}${data.isrc ? `| ISRC | \`${data.isrc}\` |\n` : ""}| SHA-256 | \`${data.fileHash || "N/A"}\` |
 
 ## Verification Result
 
@@ -295,8 +315,8 @@ AI signal evidence was observed in the audio signal.
 
 ## Engine Details
 
-- **Classifier Engine (Primary):** Deep learning classifier optimized for human protection
-- **Reconstruction Engine (Secondary):** Stem separation and reconstruction differential analysis
+- **DetectX Engine (Primary):** Deep learning classifier optimized for human protection
+- **Reconstruction Engine (Secondary):** Stem separation and reconstruction analysis
 - **Human False Positive Rate:** < 1%
 
 `;
@@ -315,7 +335,7 @@ ${data.timelineMarkers.map((m, i) => `| ${i + 1} | ${m.type} | ${formatDuration(
 
 > DetectX does not determine authorship, intent, or ownership.
 > This verification is based solely on structural signal observations.
-> Some genres with heavy processing (Electronic/EDM, Hip-hop, Dance/House, Lo-fi)
+> Audio with extensive post-processing, synthesis, or heavy digital manipulation
 > may exhibit signal characteristics similar to AI-generated music.
 
 ---
@@ -388,7 +408,7 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
     if (!data) return;
     const content = generateJSON(data);
     const baseName = sanitizeFileName(getBaseFileName(data.fileName));
-    downloadFile(content, `${baseName}_report.json`, "application/json");
+    downloadFile(content, `DetectX_${baseName}.json`, "application/json");
   };
 
   const handleExportCSV = () => {
@@ -396,14 +416,14 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
     const content = generateCSV(data);
     const baseName = sanitizeFileName(getBaseFileName(data.fileName));
     // Add UTF-8 BOM for CSV to ensure proper encoding in Excel
-    downloadFile(content, `${baseName}_report.csv`, "text/csv", true);
+    downloadFile(content, `DetectX_${baseName}.csv`, "text/csv", true);
   };
 
   const handleExportMarkdown = () => {
     if (!data) return;
     const content = generateMarkdown(data);
     const baseName = sanitizeFileName(getBaseFileName(data.fileName));
-    downloadFile(content, `${baseName}_report.md`, "text/markdown");
+    downloadFile(content, `DetectX_${baseName}.md`, "text/markdown");
   };
 
   /**
@@ -417,24 +437,24 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
 
     // Add all report formats to ZIP
     const htmlContent = generatePDFContent(data);
-    zip.file(`${baseName}_report.html`, htmlContent);
+    zip.file(`DetectX_${baseName}.html`, htmlContent);
 
     const jsonContent = generateJSON(data);
-    zip.file(`${baseName}_report.json`, jsonContent);
+    zip.file(`DetectX_${baseName}.json`, jsonContent);
 
     // CSV with UTF-8 BOM
     const csvContent = "\uFEFF" + generateCSV(data);
-    zip.file(`${baseName}_report.csv`, csvContent);
+    zip.file(`DetectX_${baseName}.csv`, csvContent);
 
     const mdContent = generateMarkdown(data);
-    zip.file(`${baseName}_report.md`, mdContent);
+    zip.file(`DetectX_${baseName}.md`, mdContent);
 
     // Generate and download ZIP
     const zipBlob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(zipBlob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${baseName}_detectx_reports.zip`;
+    a.download = `DetectX_${baseName}.zip`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

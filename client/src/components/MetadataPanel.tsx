@@ -44,6 +44,7 @@ interface MetadataPanelProps {
     artist?: string | null;
     title?: string | null;
     album?: string | null;
+    isrc?: string | null;
   } | null;
 }
 
@@ -188,7 +189,7 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
   }
 
   // Check if track info (ID3/Vorbis tags) is available
-  const hasTrackInfo = metadata.artist || metadata.title || metadata.album;
+  const hasTrackInfo = metadata.artist || metadata.title || metadata.album || metadata.isrc;
 
   // Track info items (ID3/Vorbis tag metadata)
   const trackInfoItems: MetadataItem[] = [
@@ -206,6 +207,13 @@ export function MetadataPanel({ metadata }: MetadataPanelProps) {
       label: "Album",
       value: metadata.album || null,
       tooltip: "Album name extracted from ID3 (MP3) or Vorbis (OGG/FLAC) tags.",
+    },
+    {
+      label: "ISRC",
+      value: metadata.isrc || null,
+      mono: true,
+      copyable: true,
+      tooltip: "International Standard Recording Code (ISO 3901) extracted from ID3 TSRC tag or Vorbis comment.",
     },
   ];
 

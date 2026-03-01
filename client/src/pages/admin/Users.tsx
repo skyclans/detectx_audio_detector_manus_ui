@@ -71,16 +71,18 @@ interface Admin {
 
 // Plan options with limits
 const PLAN_OPTIONS = [
-  { value: "free", label: "Free", limit: 5 },
-  { value: "pro", label: "Professional", limit: 30 },
-  { value: "enterprise", label: "Enterprise (기관)", limit: 1000 },
-  { value: "master", label: "Master (Unlimited)", limit: -1 },
+  { value: "free", label: "Free", limit: 3 },
+  { value: "pro", label: "Pro ($39.99)", limit: 50 },
+  { value: "studio", label: "Studio ($399)", limit: 1000 },
+  { value: "enterprise", label: "Enterprise (Custom)", limit: -1 },
+  { value: "master", label: "Master (Internal)", limit: -1 },
 ];
 
 // Plan badge colors
 const PLAN_COLORS: Record<string, string> = {
   free: "bg-gray-500/20 text-gray-400",
   pro: "bg-blue-500/20 text-blue-400",
+  studio: "bg-green-500/20 text-green-400",
   enterprise: "bg-purple-500/20 text-purple-400",
   master: "bg-amber-500/20 text-amber-400",
 };
@@ -113,7 +115,7 @@ export default function AdminUsers() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   
   // Edit form states
-  const [newPlan, setNewPlan] = useState<"free" | "pro" | "enterprise" | "master">("free");
+  const [newPlan, setNewPlan] = useState<"free" | "pro" | "studio" | "enterprise" | "master">("free");
   const [newUsageCount, setNewUsageCount] = useState(0);
   const [newMonthlyLimit, setNewMonthlyLimit] = useState(0);
   const [extensionDays, setExtensionDays] = useState(0);
@@ -123,7 +125,7 @@ export default function AdminUsers() {
   
   // Bulk action states
   const [bulkAction, setBulkAction] = useState<"plan" | "reset">("plan");
-  const [bulkPlan, setBulkPlan] = useState<"free" | "pro" | "enterprise" | "master">("free");
+  const [bulkPlan, setBulkPlan] = useState<"free" | "pro" | "studio" | "enterprise" | "master">("free");
   
   // Fetch users from REST API
   const fetchUsers = useCallback(async () => {
@@ -208,7 +210,7 @@ export default function AdminUsers() {
     const user = users.find(u => u.id === userId);
     if (user) {
       setSelectedUserId(userId);
-      setNewPlan(user.plan as "free" | "pro" | "enterprise" | "master");
+      setNewPlan(user.plan as "free" | "pro" | "studio" | "enterprise" | "master");
       setEditPlanModal(true);
     }
   };

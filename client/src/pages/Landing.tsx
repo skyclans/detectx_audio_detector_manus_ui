@@ -48,8 +48,13 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-6 py-4">
           <nav className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="text-xl font-semibold tracking-tight text-foreground">
-              DetectX
+            <Link href="/" className="flex items-center gap-2.5">
+              <img
+                src="/detectx-logo.png"
+                alt="DetectX"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-xl font-semibold tracking-tight text-foreground">DetectX</span>
             </Link>
 
             {/* Navigation Links */}
@@ -60,11 +65,11 @@ export default function Landing() {
               <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Research
               </Link>
+              <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </Link>
               <Link href="/updates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Updates
-              </Link>
-              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Blog
               </Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 About
@@ -134,7 +139,7 @@ export default function Landing() {
                 ) : (
                   <Link href="/login">
                     <Button variant="ghost" className="text-sm font-medium">
-                      Login
+                      Sign In
                     </Button>
                   </Link>
                 )
@@ -167,21 +172,21 @@ export default function Landing() {
                 >
                   Research
                 </Link>
-                <Link 
-                  href="/updates" 
+                <Link
+                  href="/plan"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/updates"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Updates
                 </Link>
-                <Link 
-                  href="/blog" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Blog
-                </Link>
-                <Link 
+                <Link
                   href="/about" 
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
                   onClick={() => setMobileMenuOpen(false)}
@@ -213,15 +218,16 @@ export default function Landing() {
                 </h1>
                 <div className="space-y-3 mb-10">
                   <p className="text-lg text-muted-foreground">
-                    DetectX Audio uses dual-engine analysis to detect AI-generated music
+                    DetectX Audio uses multi-stage verification to detect AI-generated music
                     with strong AI detection while protecting human artists at 98.89% accuracy.
                   </p>
                   <p className="text-lg text-muted-foreground">
-                    It does not determine authorship or probability.
+                    Immune to codec conversion, pitch shifting, and other evasion techniques
+                    that defeat single-layer detection systems.
                   </p>
                 </div>
                 {/* Performance Stats */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-10">
+                <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-10">
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">Strong</div>
                     <div className="text-[10px] sm:text-xs text-muted-foreground">AI Detection</div>
@@ -233,6 +239,10 @@ export default function Landing() {
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">30M+</div>
                     <div className="text-[10px] sm:text-xs text-muted-foreground">Training Samples</div>
+                  </div>
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">60 sec</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Analysis Depth</div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -277,18 +287,17 @@ export default function Landing() {
                 </h2>
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    DetectX Audio is a dual-engine forensic verification system
+                    DetectX Audio is a multi-stage forensic verification system
                     designed to detect AI-generated music while protecting human artists.
                   </p>
                   <p>
-                    The system uses Enhanced Mode by default: Classifier Engine (primary)
-                    trained on 30,000,000+ verified human music samples, combined with
-                    Reconstruction Engine (secondary) for additional AI signal analysis.
+                    The system runs a multi-stage pipeline: spectral analysis, stem separation,
+                    reconstruction comparison, and cross-stem geometry analysis.
+                    Each stage produces independent evidence, minimizing false positives.
                   </p>
                   <p>
-                    By analyzing structural patterns unique to AI-generated audio,
-                    DetectX Audio reports whether AI signal evidence is present
-                    while maintaining near-zero false positives on human music.
+                    Unlike surface-level detectors vulnerable to codec conversion or pitch shifting,
+                    DetectX analyzes structural properties of music that survive any post-processing.
                   </p>
                 </div>
                 <div className="mt-10">
@@ -296,10 +305,10 @@ export default function Landing() {
                     Key Principles
                   </h3>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• Dual-engine verification (Classifier + Reconstruction)</li>
+                    <li>• Multi-stage verification (DetectX Engine + Stem Separation + Reconstruction Analysis)</li>
                     <li>• Human-safe by design (98.89% accuracy on human music)</li>
-                    <li>• Strong AI detection</li>
-                    <li>• Clear binary verdict, no probability scores</li>
+                    <li>• Evasion-resistant structural analysis</li>
+                    <li>• Forensic-grade evidence with 7 independent metrics</li>
                   </ul>
                 </div>
               </div>
@@ -319,7 +328,7 @@ export default function Landing() {
                 <ol className="space-y-4 text-muted-foreground">
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">1.</span>
-                    <span>Audio is processed through the Classifier Engine (CNN).</span>
+                    <span>Audio is processed through the DetectX Engine.</span>
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">2.</span>
@@ -331,13 +340,14 @@ export default function Landing() {
                   </li>
                   <li className="flex gap-4">
                     <span className="text-foreground font-medium">4.</span>
-                    <span>Dual-engine consensus determines the final verdict.</span>
+                    <span>Multi-stage consensus determines the final verdict.</span>
                   </li>
                 </ol>
                 <p className="mt-8 text-sm text-muted-foreground/80">
-                  Enhanced Mode prioritizes human protection: if the Classifier Engine
-                  says "Human," it is trusted. Additional analysis only runs when
-                  AI signals are initially detected.
+                  Each track is analyzed across 60 seconds (10-second segments x 6),
+                  providing structural depth that snippet-based detectors cannot match.
+                  If the Classifier Engine says "Human," it is trusted.
+                  Additional analysis only runs when AI signals are initially detected.
                 </p>
               </div>
               {/* Image - Right */}
@@ -386,7 +396,54 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* 5. Mid-Page Action */}
+        {/* 5. Why DetectX */}
+        <section className="py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl font-medium text-foreground mb-12 text-center">
+              Why DetectX
+            </h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="p-6 bg-muted/30 rounded-lg">
+                <h3 className="text-sm font-medium text-foreground uppercase tracking-wide mb-3">
+                  Evasion-Resistant
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Structural analysis survives codec conversion, pitch shifting,
+                  and noise addition that defeat surface-level detectors.
+                </p>
+              </div>
+              <div className="p-6 bg-muted/30 rounded-lg">
+                <h3 className="text-sm font-medium text-foreground uppercase tracking-wide mb-3">
+                  Independent
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Third-party verification with no platform interests.
+                  Neutral forensic analysis for rights management organizations.
+                </p>
+              </div>
+              <div className="p-6 bg-muted/30 rounded-lg">
+                <h3 className="text-sm font-medium text-foreground uppercase tracking-wide mb-3">
+                  Forensic-Grade
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  7 independent metrics provide quantitative evidence
+                  for legally defensible verdicts in copyright disputes.
+                </p>
+              </div>
+              <div className="p-6 bg-muted/30 rounded-lg">
+                <h3 className="text-sm font-medium text-foreground uppercase tracking-wide mb-3">
+                  Expert-Curated
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Training data verified by a 20-year veteran composer.
+                  Domain expertise ensures zero AI contamination in datasets.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. Mid-Page Action */}
         <section className="py-20 px-6 border-t border-border bg-muted/30">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl font-medium text-foreground mb-6">
@@ -394,7 +451,7 @@ export default function Landing() {
             </h2>
             <p className="text-muted-foreground mb-8">
               Upload your audio file and get instant AI detection results.
-              Enhanced Mode provides dual-engine verification with strong AI detection
+              Enhanced Mode provides multi-stage verification with strong AI detection
               and 98.89% human accuracy.
             </p>
             <Link href="/verify-audio">

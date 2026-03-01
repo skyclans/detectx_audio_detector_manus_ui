@@ -10,8 +10,8 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { 
-  Search, 
+import {
+  Search,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -19,7 +19,8 @@ import {
   UserCheck,
   FileAudio,
   Server,
-  AlertCircle
+  AlertCircle,
+  Download
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
 
@@ -149,6 +150,51 @@ export default function AdminVerifications() {
     setPage(1);
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportCSV = async () => {
+    try {
+      setIsExporting(true);
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      if (verdictFilter !== "all") params.set("verdict", verdictFilter);
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+
+      const response = await fetchWithAuth(`/api/admin/verifications/export?${params.toString()}`);
+      if (!response.ok) throw new Error("Export failed");
+
+      const result = await response.json();
+      const rows = result.verifications as Verification[];
+
+      const csvHeaders = ["ID", "File", "User ID", "Result", "Status", "Duration (sec)", "Size (bytes)", "Date (UTC)"];
+      const csvRows = rows.map((v: Verification) => [
+        v.id,
+        `"${(v.fileName || "").replace(/"/g, '""')}"`,
+        v.userId || "",
+        v.verdict === "observed" ? "AI Observed" : "Not Observed",
+        v.status,
+        v.duration ?? "",
+        v.fileSize ?? "",
+        v.createdAt,
+      ].join(","));
+
+      const csv = [csvHeaders.join(","), ...csvRows].join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.download = `DetectX_verifications_${dateStr}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const formatFileSize = (bytes: number | null | undefined) => {
     if (!bytes) return "N/A";
     if (bytes < 1024) return `${bytes} B`;
@@ -156,11 +202,11 @@ export default function AdminVerifications() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const formatDuration = (ms: number | null | undefined) => {
-    if (!ms) return "N/A";
-    const seconds = Math.floor(ms / 1000);
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+  const formatDuration = (seconds: number | null | undefined) => {
+    if (!seconds) return "N/A";
+    const totalSeconds = Math.floor(seconds);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
@@ -178,20 +224,33 @@ export default function AdminVerifications() {
             <p className="text-muted-foreground">View all verification records from RunPod server ({total} total)</p>
           </div>
           
-          {/* RunPod API Status */}
-          <div className="flex items-center gap-2">
-            <Server className="h-4 w-4 text-muted-foreground" />
-            {healthConnected ? (
-              <span className="text-sm text-green-500 flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                RunPod API Connected
-              </span>
-            ) : (
-              <span className="text-sm text-red-500 flex items-center gap-1">
-                <AlertCircle className="h-4 w-4" />
-                RunPod API Disconnected
-              </span>
-            )}
+          <div className="flex items-center gap-4">
+            {/* Export Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              disabled={isExporting || total === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {isExporting ? "Exporting..." : "Export CSV"}
+            </Button>
+
+            {/* RunPod API Status */}
+            <div className="flex items-center gap-2">
+              <Server className="h-4 w-4 text-muted-foreground" />
+              {healthConnected ? (
+                <span className="text-sm text-green-500 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  RunPod API Connected
+                </span>
+              ) : (
+                <span className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  RunPod API Disconnected
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

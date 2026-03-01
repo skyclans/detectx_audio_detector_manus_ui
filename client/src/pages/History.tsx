@@ -17,8 +17,9 @@ import {
   Filter,
   Calendar,
   X,
+  FileDown,
 } from "lucide-react";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
@@ -346,7 +347,56 @@ export default function History() {
   const [totalCount, setTotalCount] = useState(0);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [openExportId, setOpenExportId] = useState<string | null>(null);
+  const [exportingFormat, setExportingFormat] = useState<string | null>(null);
+  const exportDropdownRef = useRef<HTMLDivElement>(null);
   const pageSize = 20;
+
+  // Close export dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (exportDropdownRef.current && !exportDropdownRef.current.contains(e.target as Node)) {
+        setOpenExportId(null);
+      }
+    };
+    if (openExportId) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [openExportId]);
+
+  const handleExportSingle = async (recordId: string, format: string) => {
+    setExportingFormat(`${recordId}-${format}`);
+    try {
+      const token = localStorage.getItem("detectx_token");
+      const response = await fetch(
+        `${API_BASE}/export/single/${recordId}?format=${format}`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: response.statusText }));
+        throw new Error(err.detail || "Export failed");
+      }
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("content-disposition");
+      let filename = `DetectX_export.${format === "markdown" ? "md" : format}`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
+        if (match) filename = decodeURIComponent(match[1].replace(/"/g, ""));
+      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+    } finally {
+      setExportingFormat(null);
+      setOpenExportId(null);
+    }
+  };
 
   const formatApiDate = (date: Date | null) => {
     if (!date) return null;
@@ -463,7 +513,7 @@ export default function History() {
       "Verification ID",
       "Filename",
       "Verdict",
-      "CNN Score",
+      "DetectX Score",
       "Duration",
       "Mode",
       "Date",
@@ -686,7 +736,7 @@ export default function History() {
                         Verdict
                       </th>
                       <th className="text-left py-2 px-3 font-medium text-muted-foreground hidden md:table-cell">
-                        CNN Score
+                        DetectX Score
                       </th>
                       <th className="text-left py-2 px-3 font-medium text-muted-foreground hidden md:table-cell">
                         Duration
@@ -696,6 +746,9 @@ export default function History() {
                       </th>
                       <th className="text-left py-2 px-3 font-medium text-muted-foreground">
                         Date
+                      </th>
+                      <th className="text-center py-2 px-3 font-medium text-muted-foreground w-10">
+                        Export
                       </th>
                     </tr>
                   </thead>
@@ -744,6 +797,37 @@ export default function History() {
                         <td className="py-2 px-3 text-muted-foreground text-xs">
                           {formatDate(record.created_at)}
                         </td>
+                        <td className="py-2 px-3 text-center">
+                          <div className="relative" ref={openExportId === record.id ? exportDropdownRef : undefined}>
+                            <button
+                              onClick={() => setOpenExportId(openExportId === record.id ? null : record.id)}
+                              className="p-1.5 hover:bg-muted/50 rounded transition-colors text-muted-foreground hover:text-foreground"
+                              title="Export"
+                            >
+                              <FileDown className="w-4 h-4" />
+                            </button>
+                            {openExportId === record.id && (
+                              <div className="absolute right-0 top-full mt-1 z-50 bg-background border border-border rounded-lg shadow-lg py-1 w-32">
+                                {[
+                                  { format: "pdf", label: "PDF", ext: ".pdf" },
+                                  { format: "markdown", label: "Markdown", ext: ".md" },
+                                  { format: "json", label: "JSON", ext: ".json" },
+                                  { format: "xlsx", label: "Excel", ext: ".xlsx" },
+                                ].map(({ format, label, ext }) => (
+                                  <button
+                                    key={format}
+                                    onClick={() => handleExportSingle(record.id, format)}
+                                    disabled={exportingFormat === `${record.id}-${format}`}
+                                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted/50 transition-colors flex items-center justify-between disabled:opacity-50"
+                                  >
+                                    <span>{label}</span>
+                                    <span className="text-muted-foreground">{ext}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -782,7 +866,7 @@ export default function History() {
         <div className="forensic-panel">
           <div className="forensic-panel-content">
             <div className="text-xs text-muted-foreground">
-              <strong>Enhanced Mode v2.0</strong> — Classifier Engine (CNN trained on
+              <strong>Enhanced Mode v2.0</strong> — DetectX Engine (trained on
               30,000,000+ verified human samples) + Reconstruction Engine (Stem separation
               analysis). History records are stored securely and can be exported for
               institutional reporting.

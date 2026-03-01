@@ -183,20 +183,20 @@ export default function Research() {
               </p>
               <div className="grid md:grid-cols-2 gap-6 my-6">
                 <div className="border border-border rounded-lg p-6 bg-card">
-                  <h3 className="text-lg font-medium text-foreground mb-3">Classifier Engine (Primary)</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-3">DetectX Engine (Primary)</h3>
                   <p className="text-sm text-muted-foreground">
-                    Deep learning classifier trained on 30,000,000+ verified human music samples. Optimized for &lt;1% false positives. If the classifier says Human, the verdict is trusted immediately.
+                    Deep learning engine trained on 30,000,000+ verified human music samples. Optimized for &lt;1% false positives. If the engine says Human, the verdict is trusted immediately.
                   </p>
                 </div>
                 <div className="border border-border rounded-lg p-6 bg-card">
                   <h3 className="text-lg font-medium text-foreground mb-3">Reconstruction Engine (Secondary)</h3>
                   <p className="text-sm text-muted-foreground">
-                    Activates when the Classifier Engine exceeds 90% threshold. Analyzes stem separation and reconstruction differentials to boost AI detection accuracy.
+                    Activates when the DetectX Engine exceeds the threshold. Analyzes stem separation and reconstruction patterns to boost AI detection accuracy.
                   </p>
                 </div>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                This approach ensures human creators are protected first. The Classifier Engine acts as a protective filter, while the Reconstruction Engine provides secondary verification for suspected AI content.
+                This approach ensures human creators are protected first. The DetectX Engine acts as a protective filter, while the Reconstruction Engine provides secondary verification for suspected AI content.
               </p>
             </div>
           </section>

@@ -1,24 +1,32 @@
 /**
  * Admin Dashboard Page
- * 
+ *
  * Displays overall statistics, trends, and charts for DetectX admin.
  * API: GET /api/admin/dashboard
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { fetchWithAuth } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  FileCheck, 
-  Users, 
-  Bot, 
+import { Button } from "@/components/ui/button";
+import {
+  FileCheck,
+  Users,
+  Bot,
   User,
   TrendingUp,
   Activity
 } from "lucide-react";
-
-// API calls use fetchWithAuth which automatically adds JWT authentication
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface DashboardData {
   total_verifications: number;
@@ -37,54 +45,45 @@ interface DashboardData {
   };
 }
 
+type TrendPeriod = 7 | 30 | 90;
+
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(7);
 
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  const fetchDashboard = async () => {
+  const fetchDashboard = useCallback(async (days: TrendPeriod) => {
     try {
       setLoading(true);
-      const response = await fetchWithAuth("/api/admin/dashboard");
+      const response = await fetchWithAuth(`/api/admin/dashboard?days=${days}`);
       if (!response.ok) {
         throw new Error("Failed to fetch dashboard data");
       }
       const result = await response.json();
       setData(result);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
-      // Use mock data for development
-      setData({
-        total_verifications: 659,
-        today_verifications: 45,
-        ai_detected: 312,
-        human_detected: 347,
-        ai_detection_rate: 47.3,
-        total_users: 128,
-        active_users_today: 23,
-        active_users_week: 89,
-        verifications_trend: [
-          { date: "2026-01-13", count: 42 },
-          { date: "2026-01-14", count: 56 },
-          { date: "2026-01-15", count: 38 },
-          { date: "2026-01-16", count: 71 },
-          { date: "2026-01-17", count: 63 },
-          { date: "2026-01-18", count: 52 },
-          { date: "2026-01-19", count: 45 },
-        ],
-        plan_distribution: {
-          free: 98,
-          pro: 25,
-          enterprise: 5,
-        },
-      });
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboard(trendPeriod);
+  }, [trendPeriod, fetchDashboard]);
+
+  const handlePeriodChange = (period: TrendPeriod) => {
+    setTrendPeriod(period);
+  };
+
+  const formatChartDate = (dateStr: string) => {
+    const d = new Date(dateStr + "T00:00:00");
+    if (trendPeriod <= 7) {
+      return d.toLocaleDateString("en-US", { weekday: "short" });
+    }
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
   return (
@@ -97,7 +96,7 @@ export default function AdminDashboard() {
 
         {error && (
           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 text-yellow-600 dark:text-yellow-400 text-sm">
-            Using mock data: {error}
+            Failed to load: {error}
           </div>
         )}
 
@@ -179,38 +178,86 @@ export default function AdminDashboard() {
               </Card>
             </div>
 
-            {/* Trend Chart */}
+            {/* Trend Chart with Recharts */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Verification Trend (Last 7 Days)
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Verification Trend
+                  </CardTitle>
+                  <div className="flex gap-1">
+                    {([7, 30, 90] as TrendPeriod[]).map((period) => (
+                      <Button
+                        key={period}
+                        variant={trendPeriod === period ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePeriodChange(period)}
+                        className="text-xs px-3"
+                      >
+                        {period}d
+                      </Button>
+                    ))}
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="h-64 flex items-end justify-between gap-2">
-                  {data.verifications_trend.map((item, index) => {
-                    const maxCount = Math.max(...data.verifications_trend.map(t => t.count));
-                    const height = (item.count / maxCount) * 100;
-                    return (
-                      <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                        <div 
-                          className="w-full bg-primary/80 rounded-t transition-all hover:bg-primary"
-                          style={{ height: `${height}%` }}
-                          title={`${item.count} verifications`}
-                        />
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(item.date).toLocaleDateString("en-US", { weekday: "short" })}
-                        </span>
-                        <span className="text-xs font-medium">{item.count}</span>
-                      </div>
-                    );
-                  })}
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={data.verifications_trend}>
+                      <defs>
+                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={formatChartDate}
+                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                        tickLine={false}
+                        axisLine={{ stroke: "hsl(var(--border))" }}
+                        interval={trendPeriod <= 7 ? 0 : trendPeriod <= 30 ? 2 : 6}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                        tickLine={false}
+                        axisLine={false}
+                        allowDecimals={false}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                          fontSize: "13px",
+                        }}
+                        labelFormatter={(label) => {
+                          const d = new Date(label + "T00:00:00");
+                          return d.toLocaleDateString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          });
+                        }}
+                        formatter={(value: number) => [value, "Verifications"]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="count"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2}
+                        fill="url(#colorCount)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Plan Distribution */}
+            {/* Plan Distribution & User Activity */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
@@ -229,8 +276,8 @@ export default function AdminDashboard() {
                       <span className="font-medium">{data.plan_distribution.free}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-gray-500 h-2 rounded-full" 
+                      <div
+                        className="bg-gray-500 h-2 rounded-full"
                         style={{ width: `${(data.plan_distribution.free / data.total_users) * 100}%` }}
                       />
                     </div>
@@ -243,8 +290,8 @@ export default function AdminDashboard() {
                       <span className="font-medium">{data.plan_distribution.pro}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full" 
+                      <div
+                        className="bg-blue-500 h-2 rounded-full"
                         style={{ width: `${(data.plan_distribution.pro / data.total_users) * 100}%` }}
                       />
                     </div>
@@ -257,8 +304,8 @@ export default function AdminDashboard() {
                       <span className="font-medium">{data.plan_distribution.enterprise}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-yellow-500 h-2 rounded-full" 
+                      <div
+                        className="bg-yellow-500 h-2 rounded-full"
                         style={{ width: `${(data.plan_distribution.enterprise / data.total_users) * 100}%` }}
                       />
                     </div>
@@ -281,8 +328,8 @@ export default function AdminDashboard() {
                         <span className="font-medium">{data.active_users_today}</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className="bg-green-500 h-2 rounded-full" 
+                        <div
+                          className="bg-green-500 h-2 rounded-full"
                           style={{ width: `${(data.active_users_today / data.total_users) * 100}%` }}
                         />
                       </div>
@@ -294,8 +341,8 @@ export default function AdminDashboard() {
                         <span className="font-medium">{data.active_users_week}</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className="bg-blue-500 h-2 rounded-full" 
+                        <div
+                          className="bg-blue-500 h-2 rounded-full"
                           style={{ width: `${(data.active_users_week / data.total_users) * 100}%` }}
                         />
                       </div>

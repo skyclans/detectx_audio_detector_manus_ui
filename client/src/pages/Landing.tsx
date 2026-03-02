@@ -275,7 +275,7 @@ export default function Landing() {
               {/* Image - Left */}
               <div>
                 <img
-                  src="/images/coresection.png"
+                  src="/images/detectx_audio_section.png"
                   alt="DetectX Audio verification system"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
@@ -352,7 +352,7 @@ export default function Landing() {
               {/* Image - Right */}
               <div>
                 <img
-                  src="/images/howitworkssection.png"
+                  src="/images/how_it_works_section.png"
                   alt="Forensic signal analysis workflow"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />

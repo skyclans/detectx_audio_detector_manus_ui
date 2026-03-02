@@ -37,7 +37,7 @@ import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { fetchWithAuth } from "@/lib/api";
-import { Check, X, Zap, Building2, Sparkles, Music, Loader2, CreditCard } from "lucide-react";
+import { Check, X, Zap, Building2, Sparkles, Music, Loader2, CreditCard, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 // v2.0 pricing structure
@@ -139,6 +139,7 @@ const plans = [
 export default function Plan() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [confirmUpgrade, setConfirmUpgrade] = useState<string | null>(null); // plan key awaiting confirmation
 
   // Handle payment success/cancel URL params
   useEffect(() => {
@@ -168,6 +169,14 @@ export default function Plan() {
     }
 
     const planKey = planName.toLowerCase();
+
+    // If user already has a paid plan, show confirmation first
+    if (userPlan !== "free" && userPlan !== planKey && !confirmUpgrade) {
+      setConfirmUpgrade(planKey);
+      return;
+    }
+
+    setConfirmUpgrade(null);
     setLoadingPlan(planKey);
 
     try {
@@ -184,11 +193,9 @@ export default function Plan() {
 
       const result = await res.json();
       if (result.upgraded) {
-        // Plan changed via subscription modify (no checkout needed)
         toast.success(`Successfully upgraded to ${planKey.charAt(0).toUpperCase() + planKey.slice(1)}!`);
         window.location.href = `/plan?payment=success&plan=${planKey}`;
       } else if (result.url) {
-        // New subscription — redirect to Stripe Checkout
         window.location.href = result.url;
       }
     } catch (err: any) {
@@ -450,6 +457,55 @@ export default function Plan() {
           </div>
         </div>
       </div>
+
+      {/* Plan Change Confirmation Modal */}
+      {confirmUpgrade && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="forensic-panel w-full max-w-md mx-4">
+            <div className="forensic-panel-header flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-yellow-500" />
+              Confirm Plan Change
+            </div>
+            <div className="forensic-panel-content space-y-4">
+              <p className="text-sm text-foreground">
+                You are about to change your plan from{" "}
+                <span className="font-semibold capitalize">{userPlan}</span> to{" "}
+                <span className="font-semibold capitalize">{confirmUpgrade}</span>.
+              </p>
+              <div className="bg-muted/50 rounded-md p-3 space-y-1">
+                <p className="text-xs text-muted-foreground">
+                  New price:{" "}
+                  <span className="text-foreground font-medium">
+                    {plans.find((p) => p.name.toLowerCase() === confirmUpgrade)?.price}/month
+                  </span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Your current billing will be prorated automatically.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setConfirmUpgrade(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={() => handleUpgrade(confirmUpgrade.charAt(0).toUpperCase() + confirmUpgrade.slice(1))}
+                  disabled={loadingPlan !== null}
+                >
+                  {loadingPlan ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : null}
+                  Confirm Change
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </ForensicLayout>
   );
 }

@@ -182,9 +182,14 @@ export default function Plan() {
         throw new Error(data.detail || `Failed to create checkout session`);
       }
 
-      const { url } = await res.json();
-      if (url) {
-        window.location.href = url;
+      const result = await res.json();
+      if (result.upgraded) {
+        // Plan changed via subscription modify (no checkout needed)
+        toast.success(`Successfully upgraded to ${planKey.charAt(0).toUpperCase() + planKey.slice(1)}!`);
+        window.location.href = `/plan?payment=success&plan=${planKey}`;
+      } else if (result.url) {
+        // New subscription — redirect to Stripe Checkout
+        window.location.href = result.url;
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to start checkout. Please try again.");

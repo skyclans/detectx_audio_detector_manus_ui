@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getLoginUrl } from "@/const";
 import { fetchWithAuth } from "@/lib/api";
-import { LogIn, User, Info, Shield, Cpu, CreditCard, AlertTriangle, Gift, ArrowDown, Loader2 } from "lucide-react";
+import { LogIn, User, Info, Shield, Cpu, CreditCard, AlertTriangle, Gift, ArrowDown, Loader2, Pause, Play } from "lucide-react";
 import { toast } from "sonner";
 
 // Version constants - v2.0
@@ -39,6 +39,7 @@ export default function Settings() {
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [loadingPortal, setLoadingPortal] = useState(false);
+  const [pausing, setPausing] = useState(false);
 
   const userPlan = (user as any)?.plan || "free";
   const isPaid = userPlan !== "free";
@@ -67,6 +68,25 @@ export default function Settings() {
       toast.error(err.message || "Failed to cancel. Please try again.");
     } finally {
       setCancelling(false);
+    }
+  };
+
+  const handlePause = async () => {
+    setPausing(true);
+    try {
+      const res = await fetchWithAuth("/api/stripe/pause-subscription", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to pause subscription");
+      }
+      toast.success("Subscription paused for 1 month. Billing will resume automatically.");
+      setShowCancelModal(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to pause. Please try again.");
+    } finally {
+      setPausing(false);
     }
   };
 
@@ -403,14 +423,21 @@ export default function Settings() {
 
                 {(selectedReason === "Not using it enough" || selectedReason === "Just testing, not ready yet") && (
                   <button
-                    onClick={() => { setShowCancelModal(false); toast.info("Contact support@detectx.app to pause your subscription."); }}
-                    className="w-full p-4 rounded-lg border border-forensic-cyan/30 bg-forensic-cyan/5 hover:bg-forensic-cyan/10 transition-colors text-left"
+                    onClick={handlePause}
+                    disabled={pausing}
+                    className="w-full p-4 rounded-lg border border-forensic-cyan/30 bg-forensic-cyan/5 hover:bg-forensic-cyan/10 transition-colors text-left disabled:opacity-50"
                   >
                     <div className="flex items-center gap-3">
-                      <Gift className="w-5 h-5 text-forensic-cyan" />
+                      {pausing ? (
+                        <Loader2 className="w-5 h-5 text-forensic-cyan animate-spin" />
+                      ) : (
+                        <Pause className="w-5 h-5 text-forensic-cyan" />
+                      )}
                       <div>
-                        <p className="text-sm font-medium text-foreground">Pause instead?</p>
-                        <p className="text-xs text-muted-foreground">Take a break — pause billing for up to 3 months.</p>
+                        <p className="text-sm font-medium text-foreground">
+                          {pausing ? "Pausing..." : "Pause instead?"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Take a break — pause billing for 1 month. Resumes automatically.</p>
                       </div>
                     </div>
                   </button>

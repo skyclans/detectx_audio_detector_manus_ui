@@ -232,6 +232,8 @@ export default function Plan() {
 
   // Determine user's current plan
   const userPlan = user?.plan || "free";
+  const planRank: Record<string, number> = { free: 0, pro: 1, studio: 2, enterprise: 3 };
+  const userRank = planRank[userPlan] ?? 0;
 
   // Plan page is accessible to all users (logged-in and non-logged-in)
   return (
@@ -241,14 +243,22 @@ export default function Plan() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan) => {
             const IconComponent = plan.icon;
+            const isCurrent = plan.name.toLowerCase() === userPlan;
+            // Only show "Recommended" if user is on a lower plan
+            const showRecommended = plan.recommended && !isCurrent && userRank < (planRank[plan.name.toLowerCase()] ?? 0);
             return (
               <div
                 key={plan.name}
                 className={`forensic-panel relative flex flex-col ${
-                  plan.recommended ? "ring-2 ring-forensic-cyan" : ""
+                  isCurrent ? "ring-2 ring-forensic-green" : showRecommended ? "ring-2 ring-forensic-cyan" : ""
                 }`}
               >
-                {plan.recommended && (
+                {isCurrent && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-forensic-green text-background text-xs font-medium rounded-full">
+                    Your Plan
+                  </div>
+                )}
+                {showRecommended && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-forensic-cyan text-background text-xs font-medium rounded-full">
                     Recommended
                   </div>
@@ -313,13 +323,23 @@ export default function Plan() {
                   {/* CTA Button/Badge - ALL aligned at same vertical position */}
                   <div className="mt-auto pt-4">
                     {(() => {
-                      const isCurrent = plan.name.toLowerCase() === userPlan;
-                      const isLoading = loadingPlan === plan.name.toLowerCase();
+                      const planKey = plan.name.toLowerCase();
+                      const isLoading = loadingPlan === planKey;
+                      const thisRank = planRank[planKey] ?? 0;
 
                       if (isCurrent) {
                         return (
-                          <Button variant="outline" className="w-full h-10" disabled>
-                            Current Plan
+                          <Button variant="outline" className="w-full h-10 border-forensic-green text-forensic-green" disabled>
+                            Your Plan
+                          </Button>
+                        );
+                      }
+
+                      // Free plan card: show "Free Plan" (not a clickable action) when user is on a paid plan
+                      if (planKey === "free" && userRank > 0) {
+                        return (
+                          <Button variant="outline" className="w-full h-10 opacity-50" disabled>
+                            Free Plan
                           </Button>
                         );
                       }
@@ -327,7 +347,7 @@ export default function Plan() {
                       return (
                         <Button
                           className="w-full h-10"
-                          variant={plan.recommended ? "default" : "outline"}
+                          variant={showRecommended ? "default" : "outline"}
                           onClick={() => handleUpgrade(plan.name)}
                           disabled={isLoading || loadingPlan !== null}
                         >
@@ -341,7 +361,7 @@ export default function Plan() {
                           ) : (
                             <>
                               <Zap className="w-4 h-4 mr-2" />
-                              {plan.badgeText}
+                              {thisRank > userRank ? `Get ${plan.name}` : plan.badgeText}
                             </>
                           )}
                         </Button>

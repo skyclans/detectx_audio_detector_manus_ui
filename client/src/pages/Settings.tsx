@@ -8,14 +8,15 @@
  * - System information panel
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getLoginUrl } from "@/const";
 import { fetchWithAuth } from "@/lib/api";
-import { LogIn, User, Info, Shield, Cpu, CreditCard, AlertTriangle, Gift, ArrowDown, Loader2, Pause, Play } from "lucide-react";
+import { LogIn, User, Info, Shield, Cpu, CreditCard, AlertTriangle, Gift, ArrowDown, Loader2, Pause, Play, Users, Mail, X, UserPlus, Crown } from "lucide-react";
 import { toast } from "sonner";
 
 // Version constants - v2.0
@@ -41,8 +42,131 @@ export default function Settings() {
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [pausing, setPausing] = useState(false);
 
+  // Team state
+  const [teamData, setTeamData] = useState<any>(null);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [showCreateTeam, setShowCreateTeam] = useState(false);
+  const [teamName, setTeamName] = useState("My Team");
+  const [creatingTeam, setCreatingTeam] = useState(false);
+
   const userPlan = (user as any)?.plan || "free";
   const isPaid = userPlan !== "free";
+  const isTeamEligible = ["studio", "enterprise", "master"].includes(userPlan);
+  const userTeam = (user as any)?.team;
+  const isTeamOwner = userTeam?.role === "owner";
+
+  const fetchTeamData = async () => {
+    if (!isTeamEligible && !userTeam) return;
+    setTeamLoading(true);
+    try {
+      const res = await fetchWithAuth("/api/team");
+      if (res.ok) {
+        const data = await res.json();
+        setTeamData(data);
+      }
+    } catch {}
+    setTeamLoading(false);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && (isTeamEligible || userTeam)) {
+      fetchTeamData();
+    }
+  }, [isAuthenticated, userPlan]);
+
+  const handleCreateTeam = async () => {
+    setCreatingTeam(true);
+    try {
+      const res = await fetchWithAuth("/api/team", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: teamName }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to create team");
+      }
+      toast.success("Team created!");
+      setShowCreateTeam(false);
+      await fetchTeamData();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setCreatingTeam(false);
+    }
+  };
+
+  const handleInvite = async () => {
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    try {
+      const res = await fetchWithAuth("/api/team/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail.trim().toLowerCase() }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to send invite");
+      }
+      toast.success(`Invite sent to ${inviteEmail}`);
+      setInviteEmail("");
+      setShowInviteModal(false);
+      await fetchTeamData();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setInviting(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string, memberName: string) => {
+    if (!confirm(`Remove ${memberName} from the team?`)) return;
+    try {
+      const res = await fetchWithAuth(`/api/team/members/${memberId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to remove member");
+      }
+      toast.success("Member removed");
+      await fetchTeamData();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleRevokeInvite = async (inviteId: string) => {
+    try {
+      const res = await fetchWithAuth(`/api/team/invite/${inviteId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to revoke invite");
+      }
+      toast.success("Invite revoked");
+      await fetchTeamData();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleLeaveTeam = async () => {
+    if (!confirm("Leave this team? You'll revert to your personal plan.")) return;
+    try {
+      const res = await fetchWithAuth("/api/team/leave", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to leave team");
+      }
+      toast.success("You left the team");
+      setTeamData(null);
+      window.location.reload();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
 
   const openCancelFlow = () => {
     setCancelStep("reason");
@@ -230,6 +354,152 @@ export default function Settings() {
                   Cancel Plan
                 </Button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Team Management */}
+        {(isTeamEligible || userTeam) && (
+          <div className="forensic-panel">
+            <div className="forensic-panel-header">
+              <Users className="w-4 h-4 mr-2 inline" />
+              Team
+            </div>
+            <div className="forensic-panel-content">
+              {teamLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : teamData?.team ? (
+                <div className="space-y-4">
+                  {/* Team Header */}
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Team Name
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      {teamData.team.name}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Your Role
+                    </span>
+                    <span className="text-sm font-medium text-foreground capitalize flex items-center gap-1.5">
+                      {teamData.team.role === "owner" && <Crown className="w-3.5 h-3.5 text-amber-500" />}
+                      {teamData.team.role}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Seats
+                    </span>
+                    <span className="text-sm font-mono text-foreground">
+                      {teamData.team.member_count} / {teamData.team.max_seats}
+                    </span>
+                  </div>
+
+                  {/* Members List */}
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
+                      Members
+                    </p>
+                    <div className="space-y-2">
+                      {teamData.members?.map((m: any) => (
+                        <div key={m.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                              {m.role === "owner" ? (
+                                <Crown className="w-4 h-4 text-amber-500" />
+                              ) : (
+                                <User className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm text-foreground">{m.name || m.email}</p>
+                              <p className="text-xs text-muted-foreground">{m.email}</p>
+                            </div>
+                          </div>
+                          {isTeamOwner && m.role !== "owner" && (
+                            <button
+                              onClick={() => handleRemoveMember(m.id, m.name || m.email)}
+                              className="p-1.5 rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                              title="Remove member"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pending Invites */}
+                  {teamData.pending_invites?.length > 0 && (
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
+                        Pending Invites
+                      </p>
+                      <div className="space-y-2">
+                        {teamData.pending_invites.map((inv: any) => (
+                          <div key={inv.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                            <div className="flex items-center gap-3">
+                              <Mail className="w-4 h-4 text-muted-foreground" />
+                              <div>
+                                <p className="text-sm text-foreground">{inv.email}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Expires {new Date(inv.expires_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            {isTeamOwner && (
+                              <button
+                                onClick={() => handleRevokeInvite(inv.id)}
+                                className="text-xs text-muted-foreground hover:text-red-500 transition-colors"
+                              >
+                                Revoke
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  {isTeamOwner ? (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setShowInviteModal(true)}
+                      disabled={teamData.team.member_count >= teamData.team.max_seats}
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Invite Member
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      className="w-full text-muted-foreground hover:text-red-500"
+                      onClick={handleLeaveTeam}
+                    >
+                      Leave Team
+                    </Button>
+                  )}
+                </div>
+              ) : isTeamEligible ? (
+                /* No team yet — show create button */
+                <div className="text-center py-4">
+                  <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Your Studio plan includes up to 5 team members.
+                  </p>
+                  <Button onClick={() => setShowCreateTeam(true)}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Create Team
+                  </Button>
+                </div>
+              ) : null}
             </div>
           </div>
         )}
@@ -494,6 +764,92 @@ export default function Settings() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Member Modal */}
+      <Dialog open={showInviteModal} onOpenChange={setShowInviteModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invite Team Member</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Enter the email address of the person you'd like to invite. They'll receive an email with a link to join your team.
+            </p>
+            <Input
+              type="email"
+              placeholder="colleague@company.com"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleInvite()}
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowInviteModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleInvite}
+                disabled={inviting || !inviteEmail.trim()}
+              >
+                {inviting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Mail className="w-4 h-4 mr-2" />
+                )}
+                Send Invite
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Team Modal */}
+      <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Team</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Give your team a name. You can invite up to 5 members who will share your Studio plan's verification quota.
+            </p>
+            <Input
+              type="text"
+              placeholder="My Team"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleCreateTeam()}
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowCreateTeam(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleCreateTeam}
+                disabled={creatingTeam || !teamName.trim()}
+              >
+                {creatingTeam ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Users className="w-4 h-4 mr-2" />
+                )}
+                Create Team
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </ForensicLayout>

@@ -21,6 +21,7 @@ import AuthCallback from "./pages/AuthCallback";
 import ModeSelection from "./pages/ModeSelection";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import InviteAccept from "./pages/InviteAccept";
 import HomeTest from "./pages/HomeTest";
 import HistoryTest from "./pages/HistoryTest";
 import { CookieConsent } from "./components/CookieConsent";
@@ -62,6 +63,9 @@ function Router() {
       <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/select-mode" component={ModeSelection} />
       
+      {/* Team invite */}
+      <Route path="/invite/:token" component={InviteAccept} />
+
       {/* Legal pages */}
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />

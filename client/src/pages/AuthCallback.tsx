@@ -56,6 +56,14 @@ export default function AuthCallback() {
           console.log("[Auth] User info fetched:", user.email);
           localStorage.setItem("detectx_user", JSON.stringify(user));
           
+          // Check for pending team invite (set before login redirect from invite page)
+          const pendingInvite = localStorage.getItem("detectx_pending_invite");
+          if (pendingInvite) {
+            localStorage.removeItem("detectx_pending_invite");
+            setLocation(`/invite/${pendingInvite}`);
+            return;
+          }
+
           // Check for returnUrl in localStorage (set before login redirect)
           const returnUrl = localStorage.getItem("detectx_return_url");
           if (returnUrl && returnUrl.startsWith("/")) {

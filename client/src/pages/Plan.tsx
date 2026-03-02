@@ -104,7 +104,7 @@ const plans = [
       "All export formats (PDF, JSON, CSV, Markdown)",
       "Dedicated priority processing queue",
       "Up to 5 team member accounts",
-      "Priority email & chat support",
+      "Priority email support",
     ],
     restrictions: [
       "No REST API access (Enterprise only)",

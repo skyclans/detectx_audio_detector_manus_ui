@@ -86,6 +86,13 @@ export default function Technology() {
                 Unlike probabilistic detection systems that output confidence scores, DetectX reports binary structural observations: either AI signal evidence was observed, or it was not. This approach eliminates the ambiguity inherent in percentage-based classifications.
               </p>
             </div>
+            <div className="mt-8">
+              <img
+                src="/images/01_what_detectx_builds.png"
+                alt="What DetectX builds — forensic verification for music and voice"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
           </section>
 
           {/* DetectX Audio — Engine Overview */}
@@ -110,7 +117,7 @@ export default function Technology() {
             {/* Architecture Diagram */}
             <div className="mt-8">
               <img
-                src="/images/tech-architecture.png"
+                src="/images/02_audio_verification_architecture.png"
                 alt="Multi-stage audio verification architecture"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
@@ -136,6 +143,13 @@ export default function Technology() {
                 <strong className="text-foreground">Use Cases:</strong> Voice phishing prevention for financial institutions, voice evidence verification for law enforcement, and consumer protection against deepfake voice scams.
               </p>
             </div>
+            <div className="mt-8">
+              <img
+                src="/images/03_voice_deepfake_detection.png"
+                alt="Voice deepfake detection across phone and multilingual conditions"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
           </section>
 
           {/* Core Technical Principles */}
@@ -146,14 +160,9 @@ export default function Technology() {
             <div className="space-y-6">
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Deterministic Processing</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
+                <p className="text-muted-foreground leading-relaxed">
                   Every step in the verification pipeline produces identical output for identical input. The same audio file will always produce the same verdict — a requirement for forensic credibility.
                 </p>
-                <img
-                  src="/images/tech-deterministic.png"
-                  alt="Deterministic processing visualization"
-                  className="w-full h-auto rounded-lg mt-4"
-                />
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Human-Safe by Design</h3>
@@ -173,6 +182,13 @@ export default function Technology() {
                   DetectX does not output confidence percentages or likelihood ratios. The system reports binary structural observations only: evidence was observed, or evidence was not observed.
                 </p>
               </div>
+            </div>
+            <div className="mt-8">
+              <img
+                src="/images/04_core_technical_principles.png"
+                alt="Core technical principles — deterministic, human-safe verification"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
             </div>
           </section>
 
@@ -275,6 +291,13 @@ export default function Technology() {
               <p className="text-muted-foreground leading-relaxed mt-6">
                 The system provides a shared, deterministic reference that all parties can independently verify.
               </p>
+            </div>
+            <div className="mt-8">
+              <img
+                src="/images/05_deployment_contexts.png"
+                alt="Deployment contexts — labels, studios, rights holders, creators"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
             </div>
           </section>
 

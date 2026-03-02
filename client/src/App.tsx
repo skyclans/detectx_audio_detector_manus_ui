@@ -54,7 +54,6 @@ function Router() {
       <Route path="/technology" component={Technology} />
       <Route path="/research" component={Research} />
       <Route path="/updates" component={Updates} />
-      <Route path="/blog" component={ComingSoon} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       

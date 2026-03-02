@@ -19,8 +19,9 @@ export default function Research() {
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <nav className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-semibold tracking-tight text-foreground">
-              DetectX
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/detectx-logo.png" alt="DetectX" className="w-8 h-8 object-contain" />
+              <span className="text-xl font-semibold tracking-tight text-foreground">DetectX</span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
               <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

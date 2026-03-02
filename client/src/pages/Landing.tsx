@@ -623,9 +623,6 @@ export default function Landing() {
             <Link href="/updates" className="hover:text-muted-foreground transition-colors">
               Updates
             </Link>
-            <Link href="/blog" className="hover:text-muted-foreground transition-colors">
-              Blog
-            </Link>
             <Link href="/about" className="hover:text-muted-foreground transition-colors">
               About
             </Link>

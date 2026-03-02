@@ -16,8 +16,9 @@ export default function Privacy() {
               <span className="text-sm">Back to Home</span>
             </Link>
 
-            <Link href="/" className="text-xl font-semibold tracking-tight text-foreground">
-              DetectX
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/detectx-logo.png" alt="DetectX" className="w-8 h-8 object-contain" />
+              <span className="text-xl font-semibold tracking-tight text-foreground">DetectX</span>
             </Link>
 
             <button

@@ -137,11 +137,11 @@ const plans = [
 ];
 
 export default function Plan() {
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { user, loading: authLoading, isAuthenticated, refreshUser } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [confirmUpgrade, setConfirmUpgrade] = useState<string | null>(null); // plan key awaiting confirmation
 
-  // Handle payment success/cancel URL params
+  // Handle payment success/cancel URL params (return from Stripe Checkout)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const payment = params.get("payment");
@@ -149,13 +149,15 @@ export default function Plan() {
 
     if (payment === "success" && plan) {
       toast.success(`Successfully subscribed to ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan!`);
+      // Refresh user data to reflect the new plan
+      refreshUser();
       // Clean URL params
       window.history.replaceState({}, "", "/plan");
     } else if (payment === "cancelled") {
       toast.info("Payment was cancelled.");
       window.history.replaceState({}, "", "/plan");
     }
-  }, []);
+  }, [refreshUser]);
 
   const handleUpgrade = async (planName: string) => {
     if (planName === "Enterprise") {
@@ -170,8 +172,8 @@ export default function Plan() {
 
     const planKey = planName.toLowerCase();
 
-    // If user already has a paid plan, show confirmation first
-    if (userPlan !== "free" && userPlan !== planKey && !confirmUpgrade) {
+    // Show confirmation for any plan change (except clicking same plan)
+    if (userPlan !== planKey && !confirmUpgrade) {
       setConfirmUpgrade(planKey);
       return;
     }
@@ -193,9 +195,11 @@ export default function Plan() {
 
       const result = await res.json();
       if (result.upgraded) {
+        // Direct upgrade (existing subscription modified) — refresh user data in-place
         toast.success(`Successfully upgraded to ${planKey.charAt(0).toUpperCase() + planKey.slice(1)}!`);
-        window.location.href = `/plan?payment=success&plan=${planKey}`;
+        await refreshUser();
       } else if (result.url) {
+        // New subscription — redirect to Stripe Checkout
         window.location.href = result.url;
       }
     } catch (err: any) {
@@ -463,25 +467,40 @@ export default function Plan() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="forensic-panel w-full max-w-md mx-4">
             <div className="forensic-panel-header flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-yellow-500" />
-              Confirm Plan Change
+              {userPlan === "free" ? (
+                <Zap className="w-4 h-4 text-forensic-cyan" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-yellow-500" />
+              )}
+              {userPlan === "free" ? "Confirm Subscription" : "Confirm Plan Change"}
             </div>
             <div className="forensic-panel-content space-y-4">
               <p className="text-sm text-foreground">
-                You are about to change your plan from{" "}
-                <span className="font-semibold capitalize">{userPlan}</span> to{" "}
-                <span className="font-semibold capitalize">{confirmUpgrade}</span>.
+                {userPlan === "free" ? (
+                  <>
+                    You are about to subscribe to the{" "}
+                    <span className="font-semibold capitalize">{confirmUpgrade}</span> plan.
+                  </>
+                ) : (
+                  <>
+                    You are about to change your plan from{" "}
+                    <span className="font-semibold capitalize">{userPlan}</span> to{" "}
+                    <span className="font-semibold capitalize">{confirmUpgrade}</span>.
+                  </>
+                )}
               </p>
               <div className="bg-muted/50 rounded-md p-3 space-y-1">
                 <p className="text-xs text-muted-foreground">
-                  New price:{" "}
+                  Price:{" "}
                   <span className="text-foreground font-medium">
                     {plans.find((p) => p.name.toLowerCase() === confirmUpgrade)?.price}/month
                   </span>
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Your current billing will be prorated automatically.
-                </p>
+                {userPlan !== "free" && (
+                  <p className="text-xs text-muted-foreground">
+                    Your current billing will be prorated automatically.
+                  </p>
+                )}
               </div>
               <div className="flex gap-3">
                 <Button
@@ -499,7 +518,7 @@ export default function Plan() {
                   {loadingPlan ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : null}
-                  Confirm Change
+                  {userPlan === "free" ? "Subscribe" : "Confirm Change"}
                 </Button>
               </div>
             </div>

@@ -72,6 +72,265 @@ export default function Updates() {
             </p>
           </div>
 
+          {/* Update Entry: 2026-03-02 */}
+          <article className="mb-16 border border-border rounded-lg overflow-hidden">
+            <div className="bg-muted/30 px-6 py-4 border-b border-border">
+              <time className="text-sm font-mono text-muted-foreground">2026-03-02</time>
+            </div>
+            <div className="p-6">
+              <h2 className="text-xl font-medium text-foreground mb-6">
+                Voice SSL v5: External False Positive Rate Reduced to 0.02%
+              </h2>
+
+              <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
+                <p className="text-muted-foreground leading-relaxed">
+                  The v5 multi-bonafide training approach resolved the critical external false positive problem identified in v2. By training on diverse bonafide sources beyond the original ASVspoof VCTK corpus, the model now correctly identifies real human speech from previously unseen recording environments.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Problem</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Voice SSL v2 achieved strong detection metrics (EER 1.0%, 99.54% detection rate) but exhibited ~49% false positive rate on external bonafide datasets — LibriSpeech, FLEURS, and CommonVoice recordings were frequently misclassified as AI-generated. Root cause: the model had only seen VCTK-environment bonafide during training.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Solution</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  v5 training incorporated bonafide samples from ASVspoof VCTK, LibriSpeech (~12,000), FLEURS (~7,000), and CommonVoice, totaling ~21,580 bonafide samples with domain-weighted sampling to maintain source balance.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Results</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2 pr-4 text-foreground font-medium">Metric</th>
+                        <th className="text-left py-2 pr-4 text-foreground font-medium">v2</th>
+                        <th className="text-left py-2 text-foreground font-medium">v5 (pc4)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted-foreground">
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">EER</td>
+                        <td className="py-2 pr-4">1.00%</td>
+                        <td className="py-2">1.00%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">Overall Detection</td>
+                        <td className="py-2 pr-4">99.54%</td>
+                        <td className="py-2">98.96%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">External Bonafide FP</td>
+                        <td className="py-2 pr-4">~49%</td>
+                        <td className="py-2 font-medium text-foreground">0.02% (2/8,775)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  Training reproducibility was verified across 4 independent PCs with different hardware configurations. The pc4 model (Ultra 9 285K + RTX 5060) was selected as the v5 reference model.
+                </p>
+
+                <div className="mt-8 pt-6 border-t border-border">
+                  <p className="text-sm text-muted-foreground italic">
+                    v5 trade-off: A18 (waveform filter VC) detection dropped from 97.5% to 90.5%. A18 is a specialized ASVspoof 2019 synthesis method with limited real-world relevance.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          {/* Update Entry: 2026-03-01b */}
+          <article className="mb-16 border border-border rounded-lg overflow-hidden">
+            <div className="bg-muted/30 px-6 py-4 border-b border-border">
+              <time className="text-sm font-mono text-muted-foreground">2026-03-01</time>
+            </div>
+            <div className="p-6">
+              <h2 className="text-xl font-medium text-foreground mb-6">
+                Mass TTS Evaluation: 97.8% Detection Across Phone Conditions
+              </h2>
+
+              <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
+                <p className="text-muted-foreground leading-relaxed">
+                  Large-scale evaluation of the Voice SSL v2 engine across 5,328 TTS samples confirmed robust detection under real-world telephony conditions. The test covered 4 commercial TTS engines, 32 voices, and 8 phone environment simulations.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Test Matrix</h3>
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">TTS Engines:</strong> ElevenLabs, OpenAI TTS-1, Google Cloud Neural2, Microsoft Edge TTS</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Languages:</strong> English, Korean, Japanese, Chinese</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Phone Conditions:</strong> G.711 codec, 8kHz resampling, background noise (SNR 10dB), short utterances (2 seconds), combined phone environment</span>
+                  </li>
+                </ul>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Key Findings</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2 pr-4 text-foreground font-medium">Condition</th>
+                        <th className="text-left py-2 text-foreground font-medium">Detection Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted-foreground">
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">Overall</td>
+                        <td className="py-2 font-medium text-foreground">97.8%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">Phone environment (combined)</td>
+                        <td className="py-2">99.5%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">G.711 codec</td>
+                        <td className="py-2">99.8%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">Background noise (SNR 10dB)</td>
+                        <td className="py-2">100%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">2-second utterances</td>
+                        <td className="py-2">98.2%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">Korean / Japanese / Chinese</td>
+                        <td className="py-2">100%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  A counterintuitive finding: phone codec artifacts (G.711, 8kHz resampling) actually amplify AI signal evidence, making detection easier under telephony conditions than in clean audio. All 115 missed detections were English-language clean audio samples.
+                </p>
+
+                <div className="mt-8 pt-6 border-t border-border">
+                  <p className="text-sm text-muted-foreground italic">
+                    This evaluation used the Voice SSL v2 model trained exclusively on ASVspoof 2019 data, detecting commercial TTS engines released in 2025–2026.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          {/* Update Entry: 2026-03-01a */}
+          <article className="mb-16 border border-border rounded-lg overflow-hidden">
+            <div className="bg-muted/30 px-6 py-4 border-b border-border">
+              <time className="text-sm font-mono text-muted-foreground">2026-03-01</time>
+            </div>
+            <div className="p-6">
+              <h2 className="text-xl font-medium text-foreground mb-6">
+                Patent Application: Audio + Voice + Triple Engine
+              </h2>
+
+              <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
+                <p className="text-muted-foreground leading-relaxed">
+                  USPTO provisional patent specification completed, covering three core inventions: the multi-stage Audio verification engine (CNN + Reconstruction), the Voice deepfake detection engine (SSL-based), and the Triple Engine architecture that combines both for music containing vocal content.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Coverage</h3>
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Audio Engine:</strong> Multi-stage forensic verification with independent analysis engines and cross-validation consensus</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Voice Engine:</strong> Self-supervised learning approach for deepfake voice detection optimized for telephony conditions</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-foreground mt-1">•</span>
+                    <span><strong className="text-foreground">Triple Engine:</strong> Unified architecture applying both audio and voice analysis to vocal-containing music for comprehensive verification</span>
+                  </li>
+                </ul>
+
+                <div className="mt-8 pt-6 border-t border-border">
+                  <p className="text-sm text-muted-foreground italic">
+                    Filing status: Patent pending. Specific technical details are protected under the pending application.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          {/* Update Entry: 2026-02-27 */}
+          <article className="mb-16 border border-border rounded-lg overflow-hidden">
+            <div className="bg-muted/30 px-6 py-4 border-b border-border">
+              <time className="text-sm font-mono text-muted-foreground">2026-02-27</time>
+            </div>
+            <div className="p-6">
+              <h2 className="text-xl font-medium text-foreground mb-6">
+                DetectX Voice Engine: SSL v2 Approved for Production
+              </h2>
+
+              <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
+                <p className="text-muted-foreground leading-relaxed">
+                  The Voice deepfake detection engine reached production readiness. Voice SSL v2 uses wav2vec 2.0 large (317M parameters) with partial fine-tuning and weighted layer aggregation, achieving EER 1.0% on the ASVspoof 2019 LA evaluation set.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Architecture Decision</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  The original voice PoC used mel-spectrogram + ResNet18, which achieved functional but suboptimal results (EER 2–6%). Analysis of published research showed self-supervised learning frontends outperform spectrogram approaches by 10–50x on equal error rate. The architecture was upgraded to SSL (wav2vec 2.0) with an Attention Pooling + MLP backend.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Performance</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2 pr-4 text-foreground font-medium">Metric</th>
+                        <th className="text-left py-2 pr-4 text-foreground font-medium">PoC (mel+ResNet)</th>
+                        <th className="text-left py-2 pr-4 text-foreground font-medium">SSL PoC</th>
+                        <th className="text-left py-2 text-foreground font-medium">SSL v2</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted-foreground">
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">EER</td>
+                        <td className="py-2 pr-4">~4%</td>
+                        <td className="py-2 pr-4">1.5%</td>
+                        <td className="py-2 font-medium text-foreground">1.0%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">Overall Detection</td>
+                        <td className="py-2 pr-4">89.96%</td>
+                        <td className="py-2 pr-4">98.5%</td>
+                        <td className="py-2 font-medium text-foreground">99.54%</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 pr-4">Weakest System</td>
+                        <td className="py-2 pr-4">A17: 52%</td>
+                        <td className="py-2 pr-4">A17: 96.5%</td>
+                        <td className="py-2 font-medium text-foreground">A18: 97.5%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  All 13 unseen attack systems in ASVspoof 2019 LA were detected at 97.5% or above. The AASIST graph attention backend (v3) was evaluated and rejected — it exhibited overfitting and worse performance than the simpler Attention Pooling + MLP approach.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Real-World TTS Validation</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Initial validation against 55 commercial TTS samples (ElevenLabs, OpenAI, Google Cloud — 13 voices, 2 languages) achieved 100% detection rate. The model was trained only on ASVspoof 2019 academic data but successfully generalized to 2025–2026 commercial TTS engines.
+                </p>
+
+                <div className="mt-8 pt-6 border-t border-border">
+                  <p className="text-sm text-muted-foreground italic">
+                    This update documents the progression from PoC to production-ready voice detection. The Voice engine is the foundation for DetectX's voice phishing prevention capabilities.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
           {/* Update Entry: 2026-01-17 */}
           <article className="mb-16 border border-border rounded-lg overflow-hidden">
             <div className="bg-muted/30 px-6 py-4 border-b border-border">

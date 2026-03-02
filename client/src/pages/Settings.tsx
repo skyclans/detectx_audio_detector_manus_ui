@@ -56,7 +56,7 @@ export default function Settings() {
   const isPaid = userPlan !== "free";
   const isTeamEligible = ["studio", "enterprise", "master"].includes(userPlan);
   const userTeam = (user as any)?.team;
-  const isTeamOwner = userTeam?.role === "owner";
+  const isTeamOwner = teamData?.team?.role === "owner" || userTeam?.role === "owner";
 
   const fetchTeamData = async () => {
     if (!isTeamEligible && !userTeam) return;

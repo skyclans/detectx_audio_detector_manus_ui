@@ -91,7 +91,7 @@ export default function Updates() {
                 {/* Dual-Engine Diagram */}
                 <div className="my-6">
                   <img
-                    src="/images/updates-dualengine.png"
+                    src="/images/update1_dual_engine_architecture.png"
                     alt="Dual-engine architecture release"
                     className="w-full h-auto rounded-lg shadow-lg"
                   />
@@ -159,7 +159,7 @@ export default function Updates() {
                 {/* Baseline Strategy Diagram */}
                 <div className="my-6">
                   <img
-                    src="/images/updates-baseline.png"
+                    src="/images/update2_human_baseline_minimal_strategy.png"
                     alt="Baseline strategy comparison: minimal vs expansive"
                     className="w-full h-auto rounded-lg shadow-lg"
                   />

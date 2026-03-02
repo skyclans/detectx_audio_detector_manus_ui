@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,31 +11,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Sun, Moon, CheckCircle } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { Sun, Moon, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 
-/**
- * Contact Page
- * 
- * Purpose: Professional and institutional inquiries only
- * Tone: Calm, technical, institutional
- */
+const SUPPORT_EMAIL = "support@detectx.app";
 
 const inquiryTypes = [
+  { value: "billing-payment", label: "Billing / Payment" },
+  { value: "refund-request", label: "Refund Request" },
+  { value: "service-issue", label: "Service Issue / Bug Report" },
+  { value: "enterprise-sales", label: "Enterprise Sales" },
   { value: "artist-creator", label: "Artist / Creator" },
   { value: "producer-studio", label: "Producer / Studio" },
   { value: "record-label", label: "Record Label / Publisher" },
   { value: "distributor-platform", label: "Distributor / Platform" },
-  { value: "streaming-service", label: "Streaming Service" },
-  { value: "association-institution", label: "Association / Institution" },
-  { value: "research-academic", label: "Research / Academic Inquiry" },
-  { value: "other-professional", label: "Other Professional Inquiry" },
+  { value: "research-academic", label: "Research / Academic" },
+  { value: "other", label: "Other" },
 ];
 
 export default function Contact() {
   const { theme, toggleTheme } = useTheme();
-  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     inquiryType: "",
     name: "",
@@ -45,28 +40,42 @@ export default function Contact() {
     message: "",
   });
 
-  const contactMutation = trpc.contact.submit.useMutation({
-    onSuccess: () => {
-      setSubmitted(true);
-    },
-    onError: (error: { message?: string }) => {
-      toast.error(error.message || "Failed to submit inquiry. Please try again.");
-    },
-  });
+  // Pre-fill inquiry type from URL params (e.g., /contact?type=enterprise-sales)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get("type");
+    if (type && inquiryTypes.some((t) => t.value === type)) {
+      setFormData((prev) => ({ ...prev, inquiryType: type }));
+      window.history.replaceState({}, "", "/contact");
+    }
+  }, []);
+
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.inquiryType || !formData.name || !formData.email || !formData.subject || !formData.message) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
-    contactMutation.mutate(formData);
-  };
+    const typeLabel = inquiryTypes.find((t) => t.value === formData.inquiryType)?.label || formData.inquiryType;
+    const subject = `[${typeLabel}] ${formData.subject}`;
+    const body = [
+      `Name: ${formData.name}`,
+      formData.organization ? `Organization: ${formData.organization}` : null,
+      `Email: ${formData.email}`,
+      `Inquiry Type: ${typeLabel}`,
+      "",
+      formData.message,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -122,177 +131,159 @@ export default function Contact() {
           {/* Page Title */}
           <div className="mb-12">
             <h1 className="text-3xl md:text-4xl font-medium text-foreground mb-6">
-              Contact
+              Contact Us
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Professional and institutional inquiries.
+              We're here to help. Reach out for billing questions, technical support, enterprise inquiries, or any other feedback.
             </p>
           </div>
 
-          {/* Disclaimer */}
+          {/* Direct Email */}
           <div className="mb-12 border border-border rounded-lg p-6 bg-muted/30">
-            <h2 className="text-lg font-medium text-foreground mb-4">Before You Contact Us</h2>
-            <ul className="space-y-3 text-muted-foreground text-sm">
-              <li className="flex items-start gap-3">
-                <span className="text-foreground mt-1">•</span>
-                <span>This is not consumer support. DetectX does not provide individual user assistance.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-foreground mt-1">•</span>
-                <span>DetectX does not provide authorship certification or legal documentation.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-foreground mt-1">•</span>
-                <span>Inquiries are reviewed for forensic relevance only. Not all inquiries will receive a response.</span>
-              </li>
-            </ul>
+            <div className="flex items-center gap-3 mb-3">
+              <Mail className="w-5 h-5 text-cyan-500" />
+              <h2 className="text-lg font-medium text-foreground">Email Us Directly</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              For all inquiries, you can email us at:
+            </p>
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="text-cyan-500 hover:text-cyan-400 font-medium text-lg transition-colors"
+            >
+              {SUPPORT_EMAIL}
+            </a>
+            <p className="text-xs text-muted-foreground mt-3">
+              We typically respond within 1-2 business days. Pro and Studio subscribers receive priority support.
+            </p>
           </div>
 
-          {submitted ? (
-            /* Success State */
-            <div className="text-center py-16 border border-border rounded-lg bg-card">
-              <CheckCircle className="h-16 w-16 text-cyan-500 mx-auto mb-6" />
-              <h2 className="text-2xl font-medium text-foreground mb-4">
-                Inquiry Submitted
-              </h2>
-              <p className="text-muted-foreground mb-2">
-                Your inquiry has been received and will be reviewed for forensic relevance.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Not all inquiries will receive a response. Professional and institutional inquiries are prioritized.
-              </p>
+          {/* Contact Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <h2 className="text-lg font-medium text-foreground">Or use the form below</h2>
+
+            {/* Inquiry Type */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Inquiry Type <span className="text-red-500">*</span>
+              </label>
+              <Select
+                value={formData.inquiryType}
+                onValueChange={(value) => handleChange("inquiryType", value)}
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder="Select inquiry type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {inquiryTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          ) : (
-            /* Contact Form */
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Inquiry Type */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Inquiry Type <span className="text-red-500">*</span>
-                </label>
-                <Select
-                  value={formData.inquiryType}
-                  onValueChange={(value) => handleChange("inquiryType", value)}
-                >
-                  <SelectTrigger className="w-full bg-background">
-                    <SelectValue placeholder="Select inquiry type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {inquiryTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
-              {/* Name and Organization */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="contact-name" className="block text-sm font-medium text-foreground mb-2">
-                    Name <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="contact-name"
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                    onInput={(e) => handleChange("name", (e.target as HTMLInputElement).value)}
-                    placeholder="Your name"
-                    className="bg-background"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="contact-organization" className="block text-sm font-medium text-foreground mb-2">
-                    Organization <span className="text-muted-foreground text-xs">(optional)</span>
-                  </label>
-                  <Input
-                    id="contact-organization"
-                    name="organization"
-                    type="text"
-                    autoComplete="organization"
-                    value={formData.organization}
-                    onChange={(e) => handleChange("organization", e.target.value)}
-                    onInput={(e) => handleChange("organization", (e.target as HTMLInputElement).value)}
-                    placeholder="Your organization"
-                    className="bg-background"
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
+            {/* Name and Organization */}
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="contact-email" className="block text-sm font-medium text-foreground mb-2">
-                  Email Address <span className="text-red-500">*</span>
+                <label htmlFor="contact-name" className="block text-sm font-medium text-foreground mb-2">
+                  Name <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  onInput={(e) => handleChange("email", (e.target as HTMLInputElement).value)}
-                  placeholder="your@email.com"
-                  className="bg-background"
-                />
-              </div>
-
-              {/* Subject */}
-              <div>
-                <label htmlFor="contact-subject" className="block text-sm font-medium text-foreground mb-2">
-                  Subject <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="contact-subject"
-                  name="subject"
+                  id="contact-name"
+                  name="name"
                   type="text"
-                  autoComplete="off"
-                  value={formData.subject}
-                  onChange={(e) => handleChange("subject", e.target.value)}
-                  onInput={(e) => handleChange("subject", (e.target as HTMLInputElement).value)}
-                  placeholder="Brief description of your inquiry"
+                  autoComplete="name"
+                  value={formData.name}
+                  onChange={(e) => handleChange("name", e.target.value)}
+                  placeholder="Your name"
                   className="bg-background"
                 />
               </div>
-
-              {/* Message */}
               <div>
-                <label htmlFor="contact-message" className="block text-sm font-medium text-foreground mb-2">
-                  Message <span className="text-red-500">*</span>
+                <label htmlFor="contact-organization" className="block text-sm font-medium text-foreground mb-2">
+                  Organization <span className="text-muted-foreground text-xs">(optional)</span>
                 </label>
-                <Textarea
-                  id="contact-message"
-                  name="message"
-                  autoComplete="off"
-                  value={formData.message}
-                  onChange={(e) => handleChange("message", e.target.value)}
-                  onInput={(e) => handleChange("message", (e.target as HTMLTextAreaElement).value)}
-                  placeholder="Describe your inquiry in detail"
-                  rows={6}
-                  className="bg-background resize-none"
+                <Input
+                  id="contact-organization"
+                  name="organization"
+                  type="text"
+                  autoComplete="organization"
+                  value={formData.organization}
+                  onChange={(e) => handleChange("organization", e.target.value)}
+                  placeholder="Your organization"
+                  className="bg-background"
                 />
               </div>
+            </div>
 
-              {/* Submit Button */}
-              <div className="pt-4">
-                <Button
-                  type="submit"
-                  disabled={contactMutation.isPending}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white w-full md:w-auto"
-                >
-                  {contactMutation.isPending ? "Submitting..." : "Submit Inquiry"}
-                </Button>
-              </div>
+            {/* Email */}
+            <div>
+              <label htmlFor="contact-email" className="block text-sm font-medium text-foreground mb-2">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <Input
+                id="contact-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="your@email.com"
+                className="bg-background"
+              />
+            </div>
 
-              <p className="text-xs text-muted-foreground">
-                By submitting this form, you acknowledge that DetectX does not provide consumer support, authorship certification, or legal documentation. Inquiries are reviewed for forensic relevance only.
-              </p>
-            </form>
-          )}
+            {/* Subject */}
+            <div>
+              <label htmlFor="contact-subject" className="block text-sm font-medium text-foreground mb-2">
+                Subject <span className="text-red-500">*</span>
+              </label>
+              <Input
+                id="contact-subject"
+                name="subject"
+                type="text"
+                autoComplete="off"
+                value={formData.subject}
+                onChange={(e) => handleChange("subject", e.target.value)}
+                placeholder="Brief description of your inquiry"
+                className="bg-background"
+              />
+            </div>
+
+            {/* Message */}
+            <div>
+              <label htmlFor="contact-message" className="block text-sm font-medium text-foreground mb-2">
+                Message <span className="text-red-500">*</span>
+              </label>
+              <Textarea
+                id="contact-message"
+                name="message"
+                autoComplete="off"
+                value={formData.message}
+                onChange={(e) => handleChange("message", e.target.value)}
+                placeholder="Describe your inquiry in detail"
+                rows={6}
+                className="bg-background resize-none"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-4">
+              <Button
+                type="submit"
+                className="bg-cyan-600 hover:bg-cyan-700 text-white w-full md:w-auto"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Send Inquiry
+              </Button>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Clicking "Send Inquiry" will open your email client with the form details pre-filled.
+            </p>
+          </form>
         </div>
       </main>
 
@@ -302,7 +293,7 @@ export default function Contact() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <div>
               <p className="text-sm text-muted-foreground">
-                DetectX does not determine authorship. It reports structural signal observations only.
+                DetectX — AI-generated audio detection and verification.
               </p>
             </div>
             <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">

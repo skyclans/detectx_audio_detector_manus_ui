@@ -161,7 +161,7 @@ export default function Plan() {
 
   const handleUpgrade = async (planName: string) => {
     if (planName === "Enterprise") {
-      toast.info("Contact sales@detectx.app for Enterprise pricing");
+      window.location.href = "/contact?type=enterprise-sales";
       return;
     }
 

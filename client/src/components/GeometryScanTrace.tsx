@@ -265,7 +265,7 @@ export function GeometryScanTrace({
         </div>
       </div>
       <p className="text-xs text-muted-foreground px-4 pb-2">
-        Execution trace of CR-G geometry constraints
+        Execution trace of DetectX geometry constraints
       </p>
       <div className="forensic-panel-content space-y-2">
         {data.axes.map((axis, idx) => (

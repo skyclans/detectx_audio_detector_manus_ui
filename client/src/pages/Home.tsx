@@ -154,7 +154,7 @@ function convertDetailedAnalysis(data: any): DetailedAnalysisData | null {
   };
 }
 
-// Scan sequence stages for Enhanced Mode (CNN + Reconstruction Engine)
+// Scan sequence stages for Enhanced Mode (DetectX Engine v3 + Reconstruction Engine)
 type ScanStage =
   | "init" | "upload" | "decode" | "classifier" | "classifier_check"
   | "recon_init" | "recon_stems" | "recon_compare" | "recon_eval"
@@ -171,22 +171,22 @@ function generateScanLogs(stage: ScanStage): ScanLog {
 
   const stageMessages: Record<ScanStage, { message: string; type: ScanLog["type"] }> = {
     // Enhanced Mode Philosophy
-    philosophy_1: { message: "Enhanced Mode: Dual-engine verification active", type: "philosophy" },
-    philosophy_2: { message: "Classifier Engine (primary) protecting human creativity", type: "philosophy" },
-    philosophy_3: { message: "Trained on 30,000,000+ verified human music samples", type: "philosophy" },
+    philosophy_1: { message: "DetectX Enhanced Mode: Dual-engine verification active", type: "philosophy" },
+    philosophy_2: { message: "DetectX Engine v3 (primary) — trained on 30M+ verified human samples", type: "philosophy" },
+    philosophy_3: { message: "Reconstruction Engine (secondary) — stem separation differential analysis", type: "philosophy" },
 
     // Scan Process
-    init: { message: "Initializing Enhanced Mode pipeline", type: "process" },
-    upload: { message: "Processing audio file", type: "process" },
-    decode: { message: "Extracting audio features", type: "process" },
-    classifier: { message: "Running Classifier Engine analysis", type: "process" },
-    classifier_check: { message: "Evaluating classifier threshold (90%)", type: "process" },
+    init: { message: "Initializing forensic analysis pipeline", type: "process" },
+    upload: { message: "Ingesting audio stream — verifying file integrity", type: "process" },
+    decode: { message: "Extracting mel-spectrogram features (224×224, 44.1kHz)", type: "process" },
+    classifier: { message: "Running DetectX Engine v3 — segment-level inference", type: "process" },
+    classifier_check: { message: "Evaluating detection threshold against baseline", type: "process" },
 
-    // Reconstruction Engine (only runs if classifier >= 90%)
-    recon_init: { message: "Classifier threshold exceeded — activating Reconstruction Engine", type: "process" },
-    recon_stems: { message: "Separating audio into stem components", type: "process" },
-    recon_compare: { message: "Comparing original vs reconstructed signal", type: "process" },
-    recon_eval: { message: "Evaluating reconstruction differential metrics", type: "process" },
+    // Reconstruction Engine (only runs if primary threshold exceeded)
+    recon_init: { message: "Primary threshold exceeded — activating Reconstruction Engine", type: "process" },
+    recon_stems: { message: "Demucs v4 stem separation: vocals / drums / bass / other", type: "process" },
+    recon_compare: { message: "Computing reconstruction differential — 7-metric evaluation", type: "process" },
+    recon_eval: { message: "Analyzing spectral band differences and phase coherence", type: "process" },
 
     // Constraints
     constraint_1: { message: "No probabilistic inference is performed", type: "constraint" },
@@ -194,8 +194,8 @@ function generateScanLogs(stage: ScanStage): ScanLog {
     constraint_3: { message: "Absence of evidence is a valid outcome", type: "constraint" },
 
     // Pre-Verdict
-    pre_verdict: { message: "Finalizing dual-engine verdict", type: "info" },
-    complete: { message: "Enhanced Mode scan complete", type: "complete" },
+    pre_verdict: { message: "Correlating dual-engine results — generating verdict", type: "info" },
+    complete: { message: "DetectX Enhanced Mode scan complete", type: "complete" },
   };
 
   const { message, type } = stageMessages[stage];

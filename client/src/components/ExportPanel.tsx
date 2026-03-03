@@ -117,7 +117,7 @@ function generatePDFContent(data: ExportData): string {
 
   ${isHuman ? `
   <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
-  The Classifier Engine (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
+  DetectX Engine v3 (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
   This result indicates that the signal is consistent with human musical creation.</p>
   ` : `
   <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
@@ -126,7 +126,7 @@ function generatePDFContent(data: ExportData): string {
 
   <h2>Verification Engine Details</h2>
   <div class="engine-box">
-    <div class="engine-item"><strong>DetectX Engine (Primary):</strong> Deep learning classifier optimized for human protection</div>
+    <div class="engine-item"><strong>DetectX Engine v3 (Primary):</strong> Deep learning classifier optimized for human protection</div>
     <div class="engine-item"><strong>Reconstruction Engine (Secondary):</strong> Stem separation and reconstruction analysis</div>
     <div class="engine-item"><strong>Human False Positive Rate:</strong> Less than 1%</div>
   </div>
@@ -169,7 +169,7 @@ function generateJSON(data: ExportData): string {
       version: ENGINE_VERSION,
       mode: ENGINE_MODE,
       classifierEngine: {
-        name: "DetectX Engine",
+        name: "DetectX Engine v3",
         role: "Primary",
         description: "Trained on 30,000,000+ verified human samples",
       },
@@ -306,7 +306,7 @@ ${data.artist ? `| Artist | ${data.artist} |\n` : ""}${data.title ? `| Title | $
 
 ${isHuman ? `
 This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
-The Classifier Engine (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
+DetectX Engine v3 (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
 This result indicates that the signal is consistent with human musical creation.
 ` : `
 This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
@@ -315,7 +315,7 @@ AI signal evidence was observed in the audio signal.
 
 ## Engine Details
 
-- **DetectX Engine (Primary):** Deep learning classifier optimized for human protection
+- **DetectX Engine v3 (Primary):** Deep learning classifier optimized for human protection
 - **Reconstruction Engine (Secondary):** Stem separation and reconstruction analysis
 - **Human False Positive Rate:** < 1%
 

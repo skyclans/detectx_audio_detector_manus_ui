@@ -1,7 +1,7 @@
 /**
  * History Page - Verification History with Server Integration
  *
- * Enhanced Mode: Classifier Engine + Reconstruction Engine
+ * Enhanced Mode: DetectX Engine v3 + Reconstruction Engine
  * Connects to server History API for verification records.
  * Includes calendar-based date range filtering.
  */

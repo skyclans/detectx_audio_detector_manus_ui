@@ -149,7 +149,7 @@ export default function Research() {
             <div className="mt-8">
               <img
                 src="/images/research-baseline.png"
-                alt="Human-normalized baseline with 30M+ samples"
+                alt="Human-normalized baseline trained on millions of verified samples"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </div>

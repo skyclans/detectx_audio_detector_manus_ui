@@ -173,8 +173,8 @@ function generateScanLogs(stage: ScanStage): ScanLog {
   const stageMessages: Record<ScanStage, { message: string; type: ScanLog["type"] }> = {
     // Enhanced Mode Philosophy
     philosophy_1: { message: "DetectX Enhanced Mode: Dual-engine verification active", type: "philosophy" },
-    philosophy_2: { message: "DetectX Engine v3 (primary) — trained on 30M+ verified human samples", type: "philosophy" },
-    philosophy_3: { message: "Reconstruction Engine (secondary) — stem separation differential analysis", type: "philosophy" },
+    philosophy_2: { message: "DetectX Engine v3 (primary) — trained on millions of verified human samples", type: "philosophy" },
+    philosophy_3: { message: "Reconstruction Engine (secondary) — confirms AI signal via stem separation differential", type: "philosophy" },
 
     // Scan Process
     init: { message: "Initializing forensic analysis pipeline", type: "process" },
@@ -184,7 +184,7 @@ function generateScanLogs(stage: ScanStage): ScanLog {
     classifier_check: { message: "Evaluating detection threshold against baseline", type: "process" },
 
     // Reconstruction Engine (only runs if primary threshold exceeded)
-    recon_init: { message: "Primary threshold exceeded — activating Reconstruction Engine", type: "process" },
+    recon_init: { message: "AI signal detected by primary engine — activating Reconstruction Engine for confirmation", type: "process" },
     recon_stems: { message: "Demucs v4 stem separation: vocals / drums / bass / other", type: "process" },
     recon_compare: { message: "Computing reconstruction differential — 7-metric evaluation", type: "process" },
     recon_eval: { message: "Analyzing spectral band differences and phase coherence", type: "process" },

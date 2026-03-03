@@ -31,6 +31,7 @@ interface NavItem {
   icon: React.ReactNode;
   active?: boolean;
   comingSoon?: boolean;
+  badge?: string;
 }
 
 interface NavSection {
@@ -40,11 +41,16 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    title: "Verify",
+    title: "Audio",
     items: [
-      { label: "Audio", href: "/verify-audio", icon: <AudioLines className="w-4 h-4" /> },
-      { label: "Voice", href: "/verify-voice", icon: <Mic className="w-4 h-4" /> },
+      { label: "Single", href: "/verify-audio", icon: <AudioLines className="w-4 h-4" /> },
       { label: "Batch", href: "/batch-verify", icon: <Layers className="w-4 h-4" /> },
+    ],
+  },
+  {
+    title: "Voice",
+    items: [
+      { label: "Verify", href: "/verify-voice", icon: <Mic className="w-4 h-4" />, badge: "Beta" },
     ],
   },
   {
@@ -216,6 +222,11 @@ function NavItemComponent({ item, isActive, onClick }: { item: NavItem; isActive
       >
         {item.icon}
         <span>{item.label}</span>
+        {item.badge && (
+          <span className="ml-1 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded bg-forensic-cyan/15 text-forensic-cyan">
+            {item.badge}
+          </span>
+        )}
         {isActive && <ChevronRight className="w-4 h-4 ml-auto opacity-50" />}
       </div>
     </Link>

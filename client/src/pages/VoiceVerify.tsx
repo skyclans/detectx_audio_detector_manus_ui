@@ -173,8 +173,9 @@ export default function VoiceVerify() {
           </div>
           <div className="forensic-panel-content">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Detect AI-generated deepfake voices using SSL v6 engine.
-              Upload a voice recording to verify if it's from a real human or synthesized by AI (ElevenLabs, OpenAI TTS, Google TTS, etc.).
+              Detect AI-generated speech (TTS deepfake) using SSL v6 engine.
+              Upload a voice clip to check if it's real or synthesized by AI (ElevenLabs, OpenAI TTS, Google TTS, etc.).
+              For spoken voice only — singing/vocal not yet supported.
             </p>
             <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">

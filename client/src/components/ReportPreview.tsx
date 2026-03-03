@@ -3,7 +3,7 @@
  * 
  * REQUIREMENTS:
  * - Display current verdict text (if available)
- * - Show CR-G status and structural findings summary
+ * - Show DetectX status and structural findings summary
  * - Clearly labeled as preview
  * - NO probabilities, confidence scores, or AI attribution
  * 
@@ -17,7 +17,7 @@ import { FileText, AlertCircle, CheckCircle } from "lucide-react";
 
 interface VerdictResult {
   verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
-  authority: "CR-G";
+  authority: "DetectX";
   exceeded_axes: string[];
 }
 
@@ -33,7 +33,7 @@ interface ReportPreviewProps {
 
 /**
  * Get verdict text - displayed verbatim from props
- * CR-G is the SOLE verdict authority
+ * DetectX is the SOLE verdict authority
  */
 function getVerdictText(verdict: VerdictResult | null): string {
   return verdict?.verdict || "";
@@ -125,10 +125,10 @@ export function ReportPreview({
           </div>
         </div>
 
-        {/* CR-G Status */}
+        {/* Engine Status */}
         <div className="space-y-2">
           <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-            CR-G Status
+            Engine Status
           </div>
           <div className="py-2 px-3 bg-muted/20 rounded">
             <span className="text-xs font-mono text-foreground">

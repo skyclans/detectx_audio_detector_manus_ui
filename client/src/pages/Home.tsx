@@ -824,7 +824,7 @@ export default function Home() {
       setVerificationResult({
         verdict: verdictText ? {
           verdict: verdictText,
-          authority: "CR-G",
+          authority: "DetectX",
           exceeded_axes: result.exceeded_axes || (result.primaryExceededAxis ? [result.primaryExceededAxis] : []),
         } : null,
         crgStatus: result.crgStatus || result.crg_status,

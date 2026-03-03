@@ -22,7 +22,7 @@ import { toast } from "sonner";
 // Version constants - v2.0
 const APP_VERSION = "2.0.0";
 const BUILD_DATE = "2026-03-02";
-const ENGINE_VERSION = "CR-G v2.0 + Voice SSL v2";
+const ENGINE_VERSION = "DetectX Engine v3 + Voice SSL v6";
 
 const cancelReasons = [
   "Too expensive",
@@ -583,8 +583,8 @@ export default function Settings() {
                   <strong className="text-foreground">Evidence-Only Approach:</strong>{" "}
                   This system provides structural signal evidence only. It does not 
                   estimate probability, attribute authorship, or reference any specific 
-                  AI model names. All verdicts are based on CR-G (Computational 
-                  Reproducibility Geometry) analysis.
+                  AI model names. All verdicts are based on DetectX structural
+                  signal analysis.
                 </p>
               </div>
 

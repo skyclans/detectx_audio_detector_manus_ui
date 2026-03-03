@@ -15,7 +15,7 @@ import React from "react";
  * - The UI must render the verdict text verbatim.
  * - The UI must not derive verdicts from exceeded_axes or any other fields.
  * - The UI must not compute probabilities, scores, confidence levels, or classifications.
- * - The UI must not implement or simulate CR-G logic, thresholds, or decision rules.
+ * - The UI must not implement or simulate DetectX logic, thresholds, or decision rules.
  * - exceeded_axes may be displayed only as contextual information and must not affect behavior.
  * 
  * This UI is a forensic evidence viewer only.
@@ -34,7 +34,7 @@ type DetectXVerdictText =
 
 interface DetectXVerificationResult {
   verdict: DetectXVerdictText;
-  authority: "CR-G";
+  authority: "DetectX";
   exceeded_axes: string[];
 }
 
@@ -112,22 +112,22 @@ export function VerdictPanel({
           </p>
         </div>
 
-        {/* Authority - displayed verbatim */}
+        {/* Engine - displayed verbatim */}
         <div className="space-y-3">
           <div className="flex justify-between items-center py-2 border-b border-border/50">
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Authority
+              Engine
             </span>
             <span className="text-sm font-mono text-foreground">
               {verdict.authority}
             </span>
           </div>
 
-          {/* Exceeded axes - contextual information only, does not affect behavior */}
+          {/* Exceeded engines - contextual information only, does not affect behavior */}
           {verdict.exceeded_axes.length > 0 && (
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                Exceeded Axes
+                Detected By
               </span>
               <span className="text-sm font-mono text-foreground">
                 {verdict.exceeded_axes.join(", ")}

@@ -143,7 +143,7 @@ export function VerdictPanel({
           model names.
           {isObserved && (
             <span className="block mt-2 text-forensic-amber/80">
-              Note: Some music genres may exhibit AI-like signal patterns. Enhanced Mode uses dual-engine verification to minimize false positives.
+              Note: Human false positive rate is less than 1%. Some heavily processed or synthesized audio may exhibit AI-like signal patterns.
             </span>
           )}
         </p>

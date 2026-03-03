@@ -26,6 +26,9 @@ import { Lock } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
 
+const ENGINE_VERSION = "v3";
+const ENGINE_MODE = "Enhanced Mode";
+
 interface HistoryRecord {
   id: string;
   verification_id: string;
@@ -54,6 +57,219 @@ interface HistoryResponse {
   history: HistoryRecord[];
   count: number;
   total: number;
+}
+
+// ============================================================
+// Client-side export helpers (matches verify-audio ExportPanel format)
+// ============================================================
+
+function formatDurationExport(seconds: number | null): string {
+  if (seconds === null) return "N/A";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function sanitizeFileName(name: string): string {
+  const base = name.replace(/\.[^/.]+$/, "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").substring(0, 100);
+  return base || "unknown";
+}
+
+function downloadFile(content: string, filename: string, mimeType: string, addBOM = false) {
+  const blob = new Blob(
+    [addBOM ? "\uFEFF" + content : content],
+    { type: `${mimeType};charset=utf-8` }
+  );
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function generateRecordPDF(record: HistoryRecord): string {
+  const isAI = record.verdict.includes("was observed");
+  const verdictText = record.verdict;
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>DetectX_${sanitizeFileName(record.original_filename)}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+    h1 { color: #0d9488; border-bottom: 2px solid #0d9488; padding-bottom: 10px; }
+    h2 { color: #555; margin-top: 30px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #f5f5f5; width: 200px; }
+    .verdict { font-size: 18px; padding: 20px; background: #f0fdf4; border-left: 4px solid #22c55e; margin: 20px 0; }
+    .verdict.observed { background: #fef3c7; border-left-color: #f59e0b; }
+    .engine-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0; }
+    .engine-item { margin: 8px 0; }
+    .footer { margin-top: 40px; font-size: 12px; color: #888; border-top: 1px solid #ddd; padding-top: 20px; }
+    .disclaimer { background: #fefce8; border: 1px solid #fef08a; border-radius: 4px; padding: 12px; margin-top: 20px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>DetectX Audio Verification Report</h1>
+  <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+  <p><strong>Verification ID:</strong> ${record.verification_id}</p>
+  <p><strong>Detection Mode:</strong> ${ENGINE_MODE}</p>
+  <p><strong>Engine Version:</strong> ${ENGINE_VERSION}</p>
+
+  <h2>File Information</h2>
+  <table>
+    <tr><th>Filename</th><td>${record.original_filename}</td></tr>
+    <tr><th>Duration</th><td>${formatDurationExport(record.duration_sec)}</td></tr>
+    <tr><th>Sample Rate</th><td>${record.sample_rate ? `${record.sample_rate} Hz` : "N/A"}</td></tr>
+    <tr><th>Mode</th><td style="text-transform: capitalize;">${record.orientation}</td></tr>
+  </table>
+
+  <h2>Verification Result</h2>
+  <div class="verdict ${isAI ? "observed" : ""}">
+    <strong>${verdictText}</strong>
+  </div>
+
+  ${!isAI ? `
+  <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+  DetectX Engine v3 (trained on millions of verified human music samples) determined that no AI signal evidence was observed.
+  This result indicates that the signal is consistent with human musical creation.</p>
+  ` : `
+  <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+  AI signal evidence was observed in the audio signal.</p>
+  `}
+
+  <h2>Verification Engine Details</h2>
+  <div class="engine-box">
+    <div class="engine-item"><strong>DetectX Engine v3 (Primary):</strong> Deep learning classifier optimized for human protection</div>
+    <div class="engine-item"><strong>Reconstruction Engine (Secondary):</strong> Stem separation and reconstruction analysis</div>
+    <div class="engine-item"><strong>Human False Positive Rate:</strong> Less than 1%</div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Disclaimer:</strong> DetectX does not determine authorship, intent, or ownership.
+    This verification is based solely on structural signal observations.
+    Audio with extensive post-processing, synthesis, or heavy digital manipulation
+    may exhibit signal characteristics similar to AI-generated music.
+  </div>
+
+  <div class="footer">
+    <p>DetectX Audio AI Detector &mdash; Engine ${ENGINE_VERSION} (${ENGINE_MODE})</p>
+  </div>
+</body>
+</html>`;
+}
+
+function generateRecordJSON(record: HistoryRecord): string {
+  const isAI = record.verdict.includes("was observed");
+  const report = {
+    reportVersion: "3.0.0",
+    generatedAt: new Date().toISOString(),
+    engine: {
+      version: ENGINE_VERSION,
+      mode: ENGINE_MODE,
+      classifierEngine: {
+        name: "DetectX Engine v3",
+        role: "Primary",
+        description: "Trained on millions of verified human samples",
+      },
+      reconstructionEngine: {
+        name: "Reconstruction Engine",
+        role: "Secondary",
+        description: "Stem separation and reconstruction analysis",
+      },
+      humanFpRate: "<1%",
+    },
+    file: {
+      name: record.original_filename,
+      duration: record.duration_sec,
+      sampleRate: record.sample_rate,
+    },
+    verification: {
+      id: record.verification_id,
+      verdict: record.verdict,
+      verdictCode: isAI ? "AI_OBSERVED" : "AI_NOT_OBSERVED",
+      mode: record.orientation,
+      exceededAxes: record.exceeded_axes,
+    },
+    disclaimer: "DetectX does not determine authorship, intent, or ownership.",
+  };
+  return JSON.stringify(report, null, 2);
+}
+
+function generateRecordMarkdown(record: HistoryRecord): string {
+  const isAI = record.verdict.includes("was observed");
+  const emoji = !isAI ? "\u{1F7E2}" : "\u{1F534}";
+
+  return `# DetectX Audio Verification Report
+
+**Generated:** ${new Date().toLocaleString()}
+**Verification ID:** ${record.verification_id}
+**Detection Mode:** ${ENGINE_MODE}
+**Engine Version:** ${ENGINE_VERSION}
+
+## File Information
+
+| Field | Value |
+|-------|-------|
+| Filename | ${record.original_filename} |
+| Duration | ${formatDurationExport(record.duration_sec)} |
+| Sample Rate | ${record.sample_rate ? `${record.sample_rate} Hz` : "N/A"} |
+| Mode | ${record.orientation} |
+
+## Verification Result
+
+> ${emoji} **${record.verdict}**
+
+${!isAI
+    ? `This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+DetectX Engine v3 (trained on millions of verified human music samples) determined that no AI signal evidence was observed.`
+    : `This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
+AI signal evidence was observed in the audio signal.`}
+
+## Engine Details
+
+- **DetectX Engine v3 (Primary):** Deep learning classifier optimized for human protection
+- **Reconstruction Engine (Secondary):** Stem separation and reconstruction analysis
+- **Human False Positive Rate:** Less than 1%
+
+---
+*DetectX does not determine authorship, intent, or ownership.*
+*DetectX Audio AI Detector — Engine ${ENGINE_VERSION} (${ENGINE_MODE})*
+`;
+}
+
+function generateRecordCSV(record: HistoryRecord): string {
+  const escapeCSV = (v: string | number | null | undefined): string => {
+    if (v === null || v === undefined) return "";
+    const s = String(v);
+    if (s.includes(",") || s.includes('"') || s.includes("\n") || /[^\x00-\x7F]/.test(s)) {
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+    return s;
+  };
+
+  const isAI = record.verdict.includes("was observed");
+  const headers = [
+    "Verification ID", "Filename", "Duration (sec)", "Sample Rate (Hz)",
+    "Verdict", "Verdict Code", "Mode", "Detection Mode", "Engine Version", "Generated",
+  ];
+  const values = [
+    escapeCSV(record.verification_id),
+    escapeCSV(record.original_filename),
+    record.duration_sec ?? "",
+    record.sample_rate ?? "",
+    escapeCSV(record.verdict),
+    isAI ? "AI_OBSERVED" : "AI_NOT_OBSERVED",
+    escapeCSV(record.orientation),
+    escapeCSV(ENGINE_MODE),
+    escapeCSV(ENGINE_VERSION),
+    escapeCSV(new Date().toISOString()),
+  ];
+
+  return headers.join(",") + "\n" + values.join(",");
 }
 
 // Mini Calendar Component
@@ -348,7 +564,6 @@ export default function History() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [openExportId, setOpenExportId] = useState<string | null>(null);
-  const [exportingFormat, setExportingFormat] = useState<string | null>(null);
   const exportDropdownRef = useRef<HTMLDivElement>(null);
   const pageSize = 20;
 
@@ -365,37 +580,29 @@ export default function History() {
     }
   }, [openExportId]);
 
-  const handleExportSingle = async (recordId: string, format: string) => {
-    setExportingFormat(`${recordId}-${format}`);
-    try {
-      const token = localStorage.getItem("detectx_token");
-      const response = await fetch(
-        `${API_BASE}/export/single/${recordId}?format=${format}`,
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-      );
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({ detail: response.statusText }));
-        throw new Error(err.detail || "Export failed");
+  const handleExportSingle = (recordId: string, format: string) => {
+    const record = filteredHistory.find(r => r.id === recordId) || history.find(r => r.id === recordId);
+    if (!record) return;
+
+    const baseName = sanitizeFileName(record.original_filename);
+
+    if (format === "pdf") {
+      const content = generateRecordPDF(record);
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.write(content);
+        printWindow.document.close();
+        printWindow.print();
       }
-      const blob = await response.blob();
-      const contentDisposition = response.headers.get("content-disposition");
-      let filename = `DetectX_export.${format === "markdown" ? "md" : format}`;
-      if (contentDisposition) {
-        const match = contentDisposition.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
-        if (match) filename = decodeURIComponent(match[1].replace(/"/g, ""));
-      }
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Export failed:", err);
-    } finally {
-      setExportingFormat(null);
-      setOpenExportId(null);
+    } else if (format === "json") {
+      downloadFile(generateRecordJSON(record), `DetectX_${baseName}.json`, "application/json");
+    } else if (format === "markdown") {
+      downloadFile(generateRecordMarkdown(record), `DetectX_${baseName}.md`, "text/markdown");
+    } else if (format === "csv") {
+      downloadFile(generateRecordCSV(record), `DetectX_${baseName}.csv`, "text/csv", true);
     }
+
+    setOpenExportId(null);
   };
 
   const formatApiDate = (date: Date | null) => {
@@ -480,7 +687,9 @@ export default function History() {
   });
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Server stores UTC without "Z" suffix — append it so JS converts to local time
+    const utcStr = dateStr.endsWith("Z") ? dateStr : dateStr + "Z";
+    const date = new Date(utcStr);
     return date.toLocaleString();
   };
 
@@ -812,13 +1021,12 @@ export default function History() {
                                   { format: "pdf", label: "PDF", ext: ".pdf" },
                                   { format: "markdown", label: "Markdown", ext: ".md" },
                                   { format: "json", label: "JSON", ext: ".json" },
-                                  { format: "xlsx", label: "Excel", ext: ".xlsx" },
+                                  { format: "csv", label: "CSV", ext: ".csv" },
                                 ].map(({ format, label, ext }) => (
                                   <button
                                     key={format}
                                     onClick={() => handleExportSingle(record.id, format)}
-                                    disabled={exportingFormat === `${record.id}-${format}`}
-                                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted/50 transition-colors flex items-center justify-between disabled:opacity-50"
+                                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted/50 transition-colors flex items-center justify-between"
                                   >
                                     <span>{label}</span>
                                     <span className="text-muted-foreground">{ext}</span>

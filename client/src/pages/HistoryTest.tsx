@@ -426,7 +426,9 @@ export default function History() {
   });
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Server stores UTC without "Z" suffix — append it so JS converts to local time
+    const utcStr = dateStr.endsWith("Z") ? dateStr : dateStr + "Z";
+    const date = new Date(utcStr);
     return date.toLocaleString();
   };
 

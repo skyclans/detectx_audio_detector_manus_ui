@@ -806,6 +806,7 @@ export default function HomeTest() {
           <VerdictPanel
             verdict={verificationResult?.verdict ?? null}
             isProcessing={isVerifying}
+            progress={Math.round((scanLogs.length / 17) * 100)}
           />
           
           {/* Live Console with height limit - now below Verification Result */}

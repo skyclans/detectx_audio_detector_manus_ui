@@ -43,28 +43,48 @@ interface VerdictPanelProps {
   verdict: DetectXVerificationResult | null;
   /** Whether verification is in progress */
   isProcessing?: boolean;
+  /** Scan progress 0-100 */
+  progress?: number;
 }
 
 /**
  * VerdictPanel Component
- * 
+ *
  * Displays DetectX verification result verbatim.
  * No derivation, interpretation, or calculation.
  */
 export function VerdictPanel({
   verdict,
   isProcessing = false,
+  progress = 0,
 }: VerdictPanelProps) {
-  // Processing state - neutral "inspecting structural signals" state
+  // Processing state - progress bar with stage info
   if (isProcessing) {
+    const clampedProgress = Math.min(Math.max(progress, 0), 100);
+    const stageLabel =
+      clampedProgress < 20 ? "Initializing engines..." :
+      clampedProgress < 50 ? "Running DetectX Engine..." :
+      clampedProgress < 75 ? "Reconstruction analysis..." :
+      clampedProgress < 95 ? "Evaluating constraints..." :
+      "Finalizing verdict...";
+
     return (
       <div className="forensic-panel">
         <div className="forensic-panel-header">Verification Result</div>
         <div className="forensic-panel-content">
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-sm text-muted-foreground">
-              Inspecting structural signals...
+          <div className="flex flex-col items-center justify-center py-6 px-4">
+            <p className="text-sm font-medium text-foreground mb-3">
+              {stageLabel}
+            </p>
+            {/* Progress bar */}
+            <div className="w-full max-w-xs h-2 bg-muted/30 rounded-full overflow-hidden mb-2">
+              <div
+                className="h-full bg-forensic-cyan rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${clampedProgress}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">
+              {clampedProgress}%
             </p>
           </div>
         </div>

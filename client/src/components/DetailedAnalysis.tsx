@@ -112,7 +112,7 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
   // During Verification state
   if (isProcessing) {
     return (
-      <div className="forensic-panel h-full">
+      <div className="forensic-panel">
         <div className="forensic-panel-header flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Gauge className="w-4 h-4 text-forensic-cyan" />
@@ -149,7 +149,7 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
   // Before Verification state
   if (!axes || axes.length === 0) {
     return (
-      <div className="forensic-panel h-full">
+      <div className="forensic-panel">
         <div className="forensic-panel-header flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Gauge className="w-4 h-4 text-muted-foreground" />
@@ -176,7 +176,7 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
 
   // Data available state - dynamically display all axes from server
   return (
-    <div className="forensic-panel h-full">
+    <div className="forensic-panel">
       <div className="forensic-panel-header flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Gauge className="w-4 h-4 text-forensic-cyan" />
@@ -199,7 +199,7 @@ export function DetailedAnalysis({ axes, isProcessing = false }: DetailedAnalysi
       <p className="text-xs text-muted-foreground px-4 pb-2">
         Analysis axes from verification engine
       </p>
-      <div className="forensic-panel-content space-y-2 max-h-[450px] overflow-y-auto">
+      <div className="forensic-panel-content space-y-2">
         {axes.map((axis, idx) => (
           <AxisCard key={axis.id || idx} axis={axis} />
         ))}

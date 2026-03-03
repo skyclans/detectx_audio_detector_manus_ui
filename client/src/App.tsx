@@ -10,6 +10,7 @@ import History from "./pages/History";
 import Settings from "./pages/Settings";
 import Plan from "./pages/Plan";
 import BatchVerify from "./pages/BatchVerify";
+import VoiceVerify from "./pages/VoiceVerify";
 import ComingSoon from "./pages/ComingSoon";
 import Technology from "./pages/Technology";
 import Research from "./pages/Research";
@@ -39,8 +40,9 @@ function Router() {
       
       {/* Verify Audio tool */}
       <Route path="/verify-audio" component={Home} />
+      <Route path="/verify-voice" component={VoiceVerify} />
       <Route path="/batch-verify" component={BatchVerify} />
-      
+
       {/* Account pages */}
       <Route path="/history" component={History} />
       <Route path="/settings" component={Settings} />

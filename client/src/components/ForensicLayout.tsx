@@ -11,6 +11,7 @@ import {
   Settings,
   User,
   AudioLines,
+  Mic,
   Sun,
   Moon,
   Home,
@@ -42,6 +43,7 @@ const navSections: NavSection[] = [
     title: "Verify",
     items: [
       { label: "Audio", href: "/verify-audio", icon: <AudioLines className="w-4 h-4" /> },
+      { label: "Voice", href: "/verify-voice", icon: <Mic className="w-4 h-4" /> },
       { label: "Batch", href: "/batch-verify", icon: <Layers className="w-4 h-4" /> },
     ],
   },

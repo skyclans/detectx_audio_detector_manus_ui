@@ -1,8 +1,8 @@
 /**
  * Export Panel Component
  *
- * Enhanced Mode v2.0:
- * - DetectX Engine (Primary): trained on 30M+ verified human samples
+ * Enhanced Mode v3:
+ * - DetectX Engine v3 (Primary): trained on millions of verified human samples
  * - Reconstruction Engine (Secondary): Stem separation analysis
  * - Human False Positive Rate: <1%
  *
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { FileJson, FileSpreadsheet, FileText, FileType, Download } from "lucide-react";
 import JSZip from "jszip";
 
-const ENGINE_VERSION = "v2.0";
+const ENGINE_VERSION = "v3";
 const ENGINE_MODE = "Enhanced Mode";
 
 interface VerdictResult {
@@ -117,7 +117,7 @@ function generatePDFContent(data: ExportData): string {
 
   ${isHuman ? `
   <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
-  DetectX Engine v3 (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
+  DetectX Engine v3 (trained on millions of verified human music samples) determined that no AI signal evidence was observed.
   This result indicates that the signal is consistent with human musical creation.</p>
   ` : `
   <p>This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
@@ -163,7 +163,7 @@ function generatePDFContent(data: ExportData): string {
 function generateJSON(data: ExportData): string {
   const isHuman = data.verdict?.verdict === "AI signal evidence was not observed.";
   const report = {
-    reportVersion: "2.0.0",
+    reportVersion: "3.0.0",
     generatedAt: data.analysisTimestamp,
     engine: {
       version: ENGINE_VERSION,
@@ -171,7 +171,7 @@ function generateJSON(data: ExportData): string {
       classifierEngine: {
         name: "DetectX Engine v3",
         role: "Primary",
-        description: "Trained on 30,000,000+ verified human samples",
+        description: "Trained on millions of verified human samples",
       },
       reconstructionEngine: {
         name: "Reconstruction Engine",
@@ -306,7 +306,7 @@ ${data.artist ? `| Artist | ${data.artist} |\n` : ""}${data.title ? `| Title | $
 
 ${isHuman ? `
 This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.
-DetectX Engine v3 (trained on 30,000,000+ verified human music samples) determined that no AI signal evidence was observed.
+DetectX Engine v3 (trained on millions of verified human music samples) determined that no AI signal evidence was observed.
 This result indicates that the signal is consistent with human musical creation.
 ` : `
 This audio file has been analyzed using DetectX Enhanced Mode, a dual-engine verification system.

@@ -359,7 +359,7 @@ export default function Updates() {
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">DetectX Engine (Primary):</strong> A deep learning engine trained on over 30,000,000 verified human music samples. Optimized for near-zero false positives. If the DetectX Engine determines content is human, the verdict is trusted immediately.</span>
+                    <span><strong className="text-foreground">DetectX Engine (Primary):</strong> A deep learning engine trained on millions of verified human music samples. Optimized for near-zero false positives. If the DetectX Engine determines content is human, the verdict is trusted immediately.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
@@ -443,7 +443,7 @@ export default function Updates() {
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Implementation</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The DetectX Engine has been trained on over 30,000,000 verified human-created audio samples spanning diverse genre categories. Each sample has documented provenance including recording session metadata, artist verification, and production chain attestation.
+                  The DetectX Engine has been trained on millions of verified human-created audio samples spanning diverse genre categories. Each sample has documented provenance including recording session metadata, artist verification, and production chain attestation.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Validation Results</h3>

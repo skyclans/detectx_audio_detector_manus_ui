@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { toLocalTimestamp } from "@/lib/utils";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { AudioUploadPanel } from "@/components/AudioUploadPanel";
 import { MetadataPanel } from "@/components/MetadataPanel";
@@ -943,7 +944,7 @@ export default function HomeTest() {
             fileHash: metadata?.fileHash || null,
             verdict: verificationResult?.verdict ?? null,
             timelineMarkers: verificationResult?.timelineMarkers || [],
-            analysisTimestamp: new Date().toISOString(),
+            analysisTimestamp: toLocalTimestamp(),
           }}
         />
         <ReportPreview 

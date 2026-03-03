@@ -49,7 +49,7 @@ export function VerdictOrientationSlider({ disabled }: { disabled?: boolean }) {
                 <div className="text-xs text-zinc-300 leading-relaxed">
                   <span className="text-zinc-500 font-medium block mb-1">About Enhanced Mode:</span>
                   Enhanced Mode uses a dual-engine approach: DetectX Engine as primary filter (protecting human music with &lt;1% false positive),
-                  and Reconstruction Engine as secondary for AI detection boost. Trained on 30,000,000+ verified human music samples.
+                  and Reconstruction Engine as secondary for AI detection boost. Trained on millions of verified human music samples.
                   <span className="block mt-2 text-zinc-400">Note: Some genres with signal characteristics similar to AI-generated music (Electronic/EDM, Hip-hop, Dance/House, Lo-fi) may have slightly higher false positive rates.</span>
                 </div>
                 {/* Arrow */}

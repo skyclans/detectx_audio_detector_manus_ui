@@ -24,7 +24,7 @@ import {
   Clock,
   Lock,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, toLocalTimestamp } from "@/lib/utils";
 import JSZip from "jszip";
 
 // RunPod API URL
@@ -342,7 +342,7 @@ export default function BatchVerify() {
 
   // ── Export helpers ──
 
-  const batchTimestamp = new Date().toISOString();
+  const batchTimestamp = toLocalTimestamp();
   const batchDate = batchTimestamp.slice(0, 10);
 
   const getDoneFiles = useCallback(() => files.filter((f) => f.status === "done"), [files]);
@@ -380,7 +380,7 @@ export default function BatchVerify() {
         escapeCSV(verdictCode(f.verdict)),
         escapeCSV(f.verdict),
         "Enhanced Mode",
-        "v2.0",
+        "v3",
         escapeCSV(batchTimestamp),
       ].join(",")
     );
@@ -390,9 +390,9 @@ export default function BatchVerify() {
   const generateBatchJSON = useCallback(() => {
     const done = getDoneFiles();
     const report = {
-      reportVersion: "2.0.0",
+      reportVersion: "3.0.0",
       generatedAt: batchTimestamp,
-      engine: { version: "v2.0", mode: "Enhanced Mode" },
+      engine: { version: "v3", mode: "Enhanced Mode" },
       summary: {
         total: totalFiles,
         verified: doneCount,
@@ -422,7 +422,7 @@ export default function BatchVerify() {
     let md = `# DetectX Batch Verification Report\n\n`;
     md += `**Generated:** ${batchTimestamp}  \n`;
     md += `**Detection Mode:** Enhanced Mode  \n`;
-    md += `**Engine Version:** v2.0\n\n`;
+    md += `**Engine Version:** v3\n\n`;
     md += `## Summary\n\n`;
     md += `| Metric | Count |\n|--------|-------|\n`;
     md += `| Total Files | ${totalFiles} |\n`;
@@ -440,7 +440,7 @@ export default function BatchVerify() {
     md += `\n## Disclaimer\n\n`;
     md += `> DetectX does not determine authorship, intent, or ownership.\n`;
     md += `> Audio with extensive post-processing, synthesis, or heavy digital manipulation may exhibit AI-like signal characteristics.\n\n`;
-    md += `---\n\n*DetectX Audio AI Detector — Engine v2.0 (Enhanced Mode)*\n`;
+    md += `---\n\n*DetectX Audio AI Detector — Engine v3 (Enhanced Mode)*\n`;
     return md;
   }, [getDoneFiles, batchTimestamp, totalFiles, aiCount, humanCount, errorCount, skippedCount]);
 
@@ -476,7 +476,7 @@ export default function BatchVerify() {
 </style></head><body>
 <h1>DetectX Batch Verification Report</h1>
 <p><strong>Generated:</strong> ${batchTimestamp}</p>
-<p><strong>Detection Mode:</strong> Enhanced Mode &nbsp;|&nbsp; <strong>Engine:</strong> v2.0</p>
+<p><strong>Detection Mode:</strong> Enhanced Mode &nbsp;|&nbsp; <strong>Engine:</strong> v3</p>
 <h2>Summary</h2>
 <div class="summary-grid">
   <div class="summary-item"><div class="num">${totalFiles}</div><div class="label">Total</div></div>
@@ -489,7 +489,7 @@ export default function BatchVerify() {
 <table><thead><tr><th>#</th><th>Filename</th><th>Format</th><th>Size</th><th>Duration</th><th>Verdict</th></tr></thead>
 <tbody>${rows}</tbody></table>
 <div class="disclaimer"><strong>Disclaimer:</strong> DetectX does not determine authorship, intent, or ownership. Audio with extensive post-processing may exhibit AI-like signal characteristics.</div>
-<div class="footer"><p>DetectX Audio AI Detector — Engine v2.0 (Enhanced Mode)</p></div>
+<div class="footer"><p>DetectX Audio AI Detector — Engine v3 (Enhanced Mode)</p></div>
 </body></html>`;
   }, [getDoneFiles, batchTimestamp, batchDate, totalFiles, aiCount, humanCount, errorCount, skippedCount]);
 

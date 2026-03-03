@@ -29,15 +29,29 @@ import {
 export default function Landing() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user, loading, isAuthenticated, logout } = useAuth();
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      setSubscribed(true);
-      setEmail("");
+    if (!email || subscribing) return;
+    setSubscribing(true);
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setSubscribed(true);
+        setEmail("");
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setSubscribing(false);
     }
   };
 
@@ -591,8 +605,8 @@ export default function Landing() {
                   className="flex-1"
                   required
                 />
-                <Button type="submit" variant="outline">
-                  Subscribe
+                <Button type="submit" variant="outline" disabled={subscribing}>
+                  {subscribing ? "Subscribing..." : "Subscribe"}
                 </Button>
               </form>
             )}

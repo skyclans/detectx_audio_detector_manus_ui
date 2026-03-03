@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { ForensicLayout } from "@/components/ForensicLayout";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { fetchWithAuth } from "@/lib/api";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import {
@@ -21,7 +22,6 @@ import {
 
 const SUPPORTED_FORMATS = ["audio/wav", "audio/mpeg", "audio/mp3", "audio/flac", "audio/ogg", "audio/m4a", "audio/x-m4a", "audio/mp4"];
 const SUPPORTED_EXTENSIONS = [".wav", ".mp3", ".flac", ".ogg", ".m4a"];
-const DETECTX_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
 
 interface VoiceResult {
   score: number;
@@ -132,13 +132,9 @@ export default function VoiceVerify() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await fetch(`${DETECTX_API_URL}/verify-voice`, {
+      const response = await fetchWithAuth("/api/verify-voice", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("detectx_token") || ""}`,
-        },
         body: formData,
-        credentials: "include",
       });
 
       if (!response.ok) {

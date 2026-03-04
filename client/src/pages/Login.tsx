@@ -356,15 +356,6 @@ export default function Login() {
             </div>
           )}
 
-          {/* Beta Notice - Only show if not welcome page */}
-          {(!isAuthenticated || !isWelcome) && (
-            <div className="mt-6 p-4 bg-muted/50 border border-border rounded-lg">
-              <p className="text-xs text-muted-foreground text-center">
-                <span className="font-medium text-foreground">Beta Mode</span> — 
-                DetectX is currently in beta. All features are free during this period.
-              </p>
-            </div>
-          )}
 
           {/* Account Selection Info - Only show if not logged in */}
           {!isAuthenticated && (

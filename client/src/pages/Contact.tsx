@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Sun, Moon, Mail, Send } from "lucide-react";
+import { Sun, Moon, Mail, Send, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const SUPPORT_EMAIL = "support@detectx.app";
@@ -39,6 +39,8 @@ export default function Contact() {
     subject: "",
     message: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   // Pre-fill inquiry type from URL params (e.g., /contact?type=enterprise-sales)
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.inquiryType || !formData.name || !formData.email || !formData.subject || !formData.message) {
@@ -62,20 +64,34 @@ export default function Contact() {
       return;
     }
 
-    const typeLabel = inquiryTypes.find((t) => t.value === formData.inquiryType)?.label || formData.inquiryType;
-    const subject = `[${typeLabel}] ${formData.subject}`;
-    const body = [
-      `Name: ${formData.name}`,
-      formData.organization ? `Organization: ${formData.organization}` : null,
-      `Email: ${formData.email}`,
-      `Inquiry Type: ${typeLabel}`,
-      "",
-      formData.message,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to send inquiry");
+      }
+
+      setSubmitted(true);
+      toast.success("Your inquiry has been sent. We'll get back to you soon!");
+      setFormData({
+        inquiryType: "",
+        name: "",
+        organization: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -270,16 +286,29 @@ export default function Contact() {
             <div className="pt-4">
               <Button
                 type="submit"
+                disabled={submitting}
                 className="bg-cyan-600 hover:bg-cyan-700 text-white w-full md:w-auto"
               >
-                <Send className="w-4 h-4 mr-2" />
-                Send Inquiry
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Inquiry
+                  </>
+                )}
               </Button>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              Clicking "Send Inquiry" will open your email client with the form details pre-filled.
-            </p>
+            {submitted && (
+              <div className="flex items-center gap-2 text-sm text-green-500">
+                <CheckCircle className="w-4 h-4" />
+                <span>Thank you! We've received your inquiry and will respond within 1-2 business days.</span>
+              </div>
+            )}
           </form>
         </div>
       </main>

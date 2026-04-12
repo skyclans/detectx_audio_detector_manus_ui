@@ -235,7 +235,8 @@ export default function Home() {
   const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [verificationError, setVerificationError] = useState<string | null>(null);
-  
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   // Login prompt state (for non-logged-in users)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
@@ -623,6 +624,10 @@ export default function Home() {
       xhrRef.current.abort();
       xhrRef.current = null;
     }
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
     setIsVerifying(false);
     setUploadProgress(null);
     setScanLogs([]);
@@ -685,114 +690,121 @@ export default function Home() {
     const animationPromise = runScanAnimation();
 
     try {
-      // DIRECT RUNPOD API CALL - FormData with actual File object
-      // This bypasses tRPC Base64 encoding which causes boundary parsing errors
-      // Runs in PARALLEL with scan animation
-      // Uses XMLHttpRequest for upload progress tracking
+      // ASYNC POLLING: Upload file → get job_id → poll for result
+      // Solves Cloudflare 100s proxy timeout issue
       const formData = new FormData();
       formData.append("file", selectedFileRef.current);
 
-      // Build API URL with orientation (user_id removed - server identifies user from JWT)
       const apiUrl = `${DETECTX_API_URL}/verify-audio?orientation=${orientation}`;
-      
-      // Get JWT token for Bearer authentication
       const token = localStorage.getItem("detectx_token");
 
-      console.log(`[Verification] Calling RunPod API directly: ${apiUrl}`);
+      console.log(`[Verification] Uploading to: ${apiUrl}`);
       console.log(`[Verification] File: ${selectedFileRef.current.name}, Size: ${selectedFileRef.current.size}`);
 
-      // Use XMLHttpRequest for upload progress tracking
-      // Timeout set to 5 minutes for large WAV files
-      const result = await new Promise<any>((resolve, reject) => {
+      // Phase 1: Upload file via XHR (for upload progress tracking)
+      // Server returns 202 with {request_id} immediately
+      const submitResponse = await new Promise<any>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhrRef.current = xhr; // Store ref for cancel functionality
-        xhr.timeout = 300000; // 5 minutes timeout for large files
+        xhrRef.current = xhr;
+        xhr.timeout = 120000; // 2 min upload timeout (upload only, not processing)
 
-        // Track upload progress
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
             const percentComplete = Math.round((event.loaded / event.total) * 100);
             setUploadProgress(percentComplete);
-            console.log(`[Upload Progress] ${percentComplete}%`);
           }
         });
 
         xhr.upload.addEventListener("load", () => {
           setUploadProgress(100);
-          console.log("[Upload] Complete, waiting for server response...");
+          console.log("[Upload] Complete, server processing in background...");
         });
 
         xhr.addEventListener("load", () => {
-          setUploadProgress(null); // Clear progress after response
-          if (xhr.status >= 200 && xhr.status < 300) {
+          xhrRef.current = null;
+          if (xhr.status === 202) {
             try {
-              const response = JSON.parse(xhr.responseText);
-              resolve(response);
-            } catch (e) {
+              resolve(JSON.parse(xhr.responseText));
+            } catch {
               reject(new Error("Failed to parse response"));
             }
           } else if (xhr.status === 401) {
-            // Handle 401 Unauthorized - show login prompt
             setShowLoginPrompt(true);
             setIsVerifying(false);
             setScanComplete(false);
             setUploadProgress(null);
             reject(new Error("Please sign in to use this feature."));
           } else if (xhr.status === 429) {
-            // Handle 429 Too Many Requests - usage limit exceeded
             setIsVerifying(false);
             setScanComplete(false);
             setUploadProgress(null);
             try {
-              const errorResponse = JSON.parse(xhr.responseText);
-              alert(errorResponse.detail || "Monthly limit reached. Please upgrade your plan.");
+              const err = JSON.parse(xhr.responseText);
+              alert(err.detail || "Monthly limit reached. Please upgrade your plan.");
             } catch {
               alert("Monthly limit reached. Please upgrade your plan.");
             }
             setLocation("/plan");
             reject(new Error("Monthly limit reached"));
           } else {
-            console.error(`[Verification] RunPod API error: ${xhr.status} - ${xhr.responseText}`);
-            // Try to parse error detail from server response
             try {
-              const errorResponse = JSON.parse(xhr.responseText);
-              reject(new Error(errorResponse.detail || `Server error: ${xhr.status}`));
+              const err = JSON.parse(xhr.responseText);
+              reject(new Error(err.detail || `Server error: ${xhr.status}`));
             } catch {
               reject(new Error(`Server error: ${xhr.status}`));
             }
           }
         });
 
-        xhr.addEventListener("error", () => {
-          setUploadProgress(null);
-          reject(new Error("Network error during upload"));
-        });
-
-        xhr.addEventListener("abort", () => {
-          setUploadProgress(null);
-          reject(new Error("Upload aborted"));
-        });
-
-        xhr.addEventListener("timeout", () => {
-          setUploadProgress(null);
-          reject(new Error("Request timeout - file too large or slow connection"));
-        });
+        xhr.addEventListener("error", () => { xhrRef.current = null; setUploadProgress(null); reject(new Error("Network error during upload")); });
+        xhr.addEventListener("abort", () => { xhrRef.current = null; setUploadProgress(null); reject(new Error("Upload aborted")); });
+        xhr.addEventListener("timeout", () => { xhrRef.current = null; setUploadProgress(null); reject(new Error("Upload timeout")); });
 
         xhr.open("POST", apiUrl);
-        
-        // Add Bearer token for authenticated users
         if (token) {
           xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         }
-        
         xhr.send(formData);
       });
 
-      console.log("[Verification] RunPod API response:", result);
+      console.log("[Verification] Job submitted:", submitResponse.request_id);
+      setUploadProgress(null);
 
-      // Performance: Don't wait for animation - show result immediately after server response
-      // Animation continues in background but doesn't block result display
-      // await animationPromise; // Removed for performance - was blocking result for ~5 seconds
+      // Phase 2: Poll for result every 2 seconds
+      const result = await new Promise<any>((resolve, reject) => {
+        const doPoll = async () => {
+          try {
+            const resp = await fetch(`${DETECTX_API_URL}/job/${submitResponse.request_id}`, {
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            if (!resp.ok) {
+              clearInterval(pollIntervalRef.current!);
+              pollIntervalRef.current = null;
+              reject(new Error(`Poll failed: ${resp.status}`));
+              return;
+            }
+            const data = await resp.json();
+            if (data.status === "completed") {
+              clearInterval(pollIntervalRef.current!);
+              pollIntervalRef.current = null;
+              resolve(data.result);
+            } else if (data.status === "failed") {
+              clearInterval(pollIntervalRef.current!);
+              pollIntervalRef.current = null;
+              reject(new Error(data.error || "Verification failed"));
+            }
+            // else queued/processing — keep polling
+          } catch (err) {
+            clearInterval(pollIntervalRef.current!);
+            pollIntervalRef.current = null;
+            reject(err);
+          }
+        };
+        pollIntervalRef.current = setInterval(doPoll, 2000);
+        doPoll(); // immediate first poll
+      });
+
+      console.log("[Verification] Result received:", result);
       
       // Update result - API returns full verdict text directly
       // e.g., "AI signal evidence was observed." or "AI signal evidence was not observed."

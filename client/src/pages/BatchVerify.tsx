@@ -112,6 +112,7 @@ export default function BatchVerify() {
   const [processedCount, setProcessedCount] = useState(0);
   const cancelRef = useRef(false);
   const xhrRef = useRef<XMLHttpRequest | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Check plan access
   const userPlan = (user as any)?.plan || "free";
@@ -145,14 +146,55 @@ export default function BatchVerify() {
   }, [isProcessing]);
 
   /**
-   * Verify a single file via XMLHttpRequest (upload progress tracking)
+   * Poll job status until completed/failed
+   */
+  const pollForResult = useCallback(
+    (requestId: string): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        const token = localStorage.getItem("detectx_token");
+        const doPoll = async () => {
+          try {
+            const resp = await fetch(`${DETECTX_API_URL}/job/${requestId}`, {
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            if (!resp.ok) {
+              clearInterval(pollIntervalRef.current!);
+              pollIntervalRef.current = null;
+              reject(new Error(`Poll error: ${resp.status}`));
+              return;
+            }
+            const data = await resp.json();
+            if (data.status === "completed") {
+              clearInterval(pollIntervalRef.current!);
+              pollIntervalRef.current = null;
+              resolve(data.result);
+            } else if (data.status === "failed") {
+              clearInterval(pollIntervalRef.current!);
+              pollIntervalRef.current = null;
+              reject(new Error(data.error || "Verification failed"));
+            }
+          } catch (err) {
+            clearInterval(pollIntervalRef.current!);
+            pollIntervalRef.current = null;
+            reject(err);
+          }
+        };
+        pollIntervalRef.current = setInterval(doPoll, 2000);
+        doPoll();
+      });
+    },
+    []
+  );
+
+  /**
+   * Upload file + poll for result (async polling pattern)
    */
   const verifyFile = useCallback(
     (file: File): Promise<any> => {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhrRef.current = xhr;
-        xhr.timeout = 300000; // 5 min
+        xhr.timeout = 120000; // 2 min upload timeout
 
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
@@ -167,9 +209,18 @@ export default function BatchVerify() {
 
         xhr.addEventListener("load", () => {
           xhrRef.current = null;
-          if (xhr.status >= 200 && xhr.status < 300) {
+          if (xhr.status === 202) {
+            // Job accepted — start polling for result
             try {
-              resolve(JSON.parse(xhr.responseText));
+              const submitResp = JSON.parse(xhr.responseText);
+              setFiles((prev) =>
+                prev.map((f) =>
+                  f.file === file ? { ...f, uploadProgress: undefined } : f
+                )
+              );
+              pollForResult(submitResp.request_id)
+                .then(resolve)
+                .catch(reject);
             } catch {
               reject(new Error("Invalid server response"));
             }
@@ -187,18 +238,9 @@ export default function BatchVerify() {
           }
         });
 
-        xhr.addEventListener("error", () => {
-          xhrRef.current = null;
-          reject(new Error("Network error"));
-        });
-        xhr.addEventListener("abort", () => {
-          xhrRef.current = null;
-          reject(new Error("CANCELLED"));
-        });
-        xhr.addEventListener("timeout", () => {
-          xhrRef.current = null;
-          reject(new Error("Request timeout"));
-        });
+        xhr.addEventListener("error", () => { xhrRef.current = null; reject(new Error("Network error")); });
+        xhr.addEventListener("abort", () => { xhrRef.current = null; reject(new Error("CANCELLED")); });
+        xhr.addEventListener("timeout", () => { xhrRef.current = null; reject(new Error("Upload timeout")); });
 
         const formData = new FormData();
         formData.append("file", file);
@@ -211,7 +253,7 @@ export default function BatchVerify() {
         xhr.send(formData);
       });
     },
-    []
+    [pollForResult]
   );
 
   /**
@@ -322,6 +364,10 @@ export default function BatchVerify() {
     cancelRef.current = true;
     if (xhrRef.current) {
       xhrRef.current.abort();
+    }
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
     }
   }, []);
 

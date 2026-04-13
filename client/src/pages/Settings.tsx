@@ -19,10 +19,10 @@ import { fetchWithAuth } from "@/lib/api";
 import { LogIn, User, Info, Shield, Cpu, CreditCard, AlertTriangle, Gift, ArrowDown, Loader2, Pause, Play, Users, Mail, X, UserPlus, Crown } from "lucide-react";
 import { toast } from "sonner";
 
-// Version constants - v2.0
-const APP_VERSION = "2.0.0";
-const BUILD_DATE = "2026-03-02";
-const ENGINE_VERSION = "DetectX Engine v3 + Voice SSL v6";
+// Build-time constants injected by Vite (vite.config.ts define)
+const APP_VERSION = __APP_VERSION__;
+const BUILD_DATE = __BUILD_DATE__;
+const ENGINE_VERSION = "DetectX Audio v3 + Voice SSL v6";
 
 const cancelReasons = [
   "Too expensive",
@@ -569,22 +569,29 @@ export default function Settings() {
         <div className="forensic-panel">
           <div className="forensic-panel-header">
             <Info className="w-4 h-4 mr-2 inline" />
-            About DetectX Audio
+            About DetectX
           </div>
           <div className="forensic-panel-content">
             <div className="space-y-4">
               <p className="text-sm text-foreground">
-                DetectX Audio is a forensic audio verification platform for
-                detecting AI-generated content through structural signal analysis.
+                DetectX is a forensic verification platform that detects
+                AI-generated music and deepfake voice through proprietary
+                multi-stage structural signal analysis.
               </p>
-              
+              <p className="text-sm text-muted-foreground">
+                <strong className="text-foreground">DetectX Audio</strong> — AI-generated music detection with 98.89% human protection accuracy. Dual-engine verification pipeline resistant to codec conversion and pitch shifting.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <strong className="text-foreground">DetectX Voice</strong> — Deepfake voice detection with 97.8% accuracy across commercial TTS engines. Real-time capable for voice phishing prevention.
+              </p>
+
               <div className="bg-muted/20 rounded p-3 border border-border/30">
                 <p className="text-xs text-muted-foreground">
                   <strong className="text-foreground">Evidence-Only Approach:</strong>{" "}
-                  This system provides structural signal evidence only. It does not 
-                  estimate probability, attribute authorship, or reference any specific 
-                  AI model names. All verdicts are based on DetectX structural
-                  signal analysis.
+                  This system provides structural signal evidence only. It does not
+                  estimate probability, attribute authorship, or reference any specific
+                  AI model names. Final determination is the responsibility of the
+                  reviewing authority.
                 </p>
               </div>
 

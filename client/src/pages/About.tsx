@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Sun, Moon } from "lucide-react";
+import SEO from "@/components/SEO";
 
 /**
  * About Page
@@ -15,6 +16,11 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="About"
+        description="About DetectX: an independent forensic analysis platform for AI-generated content detection. Evidence-only approach — we report signals, not verdicts."
+        path="/about"
+      />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-6xl px-6 py-4">

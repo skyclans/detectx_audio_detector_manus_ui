@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Sun, Moon } from "lucide-react";
+import SEO from "@/components/SEO";
 
 /**
  * Updates Page
@@ -15,6 +16,11 @@ export default function Updates() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Updates"
+        description="DetectX changelog: latest system updates, engine improvements, and feature releases. Track our AI music detection accuracy and capability evolution."
+        path="/updates"
+      />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-6xl px-6 py-4">

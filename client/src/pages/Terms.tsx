@@ -1,12 +1,18 @@
 import { Link } from "wouter";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Sun, Moon, ArrowLeft } from "lucide-react";
+import SEO from "@/components/SEO";
 
 export default function Terms() {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Terms of Service"
+        description="DetectX Terms of Service. Read our terms for using the AI music and voice detection platform, including usage limits, data handling, and user responsibilities."
+        path="/terms"
+      />
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="mx-auto max-w-4xl px-6 py-4">

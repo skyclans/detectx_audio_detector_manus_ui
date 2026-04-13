@@ -17,10 +17,56 @@ export default function Technology() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="Technology"
-        description="How DetectX works: CNN (ResNet18) mel-spectrogram analysis and RECON reconstruction-difference engine. Dual-engine forensic AI music detection with 98.89% human protection accuracy."
+        title="How AI Music Detection Works — Technology"
+        description="How DetectX AI music detector works: multi-stage forensic verification detects Suno, Udio, and AI-generated songs. Plus voice deepfake detection technology. 98.89% human protection accuracy."
         path="/technology"
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What technology does DetectX use to detect AI-generated music?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX uses a proprietary multi-stage verification architecture with multiple independent analysis engines. The system analyzes structural signal patterns in audio through mel-spectrogram analysis and reconstruction-difference techniques. The patent-pending architecture cross-validates across engines to achieve 98.89% accuracy on human content."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can AI-generated music from Suno be detected?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. DetectX achieves 83% detection rate on Suno AI-generated music. The system identifies structural artifacts specific to Suno's neural audio generation process, including characteristic patterns in the mel-spectrogram that distinguish AI-generated output from human compositions."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does voice deepfake detection work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX Voice uses self-supervised learning (SSL) technology based on wav2vec2 to detect AI-generated speech. It achieves 97.8% detection rate across commercial TTS engines including ElevenLabs, Google TTS, and OpenAI. The system is optimized for phone conditions (G.711 codec, 8kHz) and requires only 2 seconds of audio."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is DetectX detection evasion-resistant?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. DetectX analyzes deep structural properties that survive common evasion techniques including MP3/AAC codec conversion, pitch shifting, tempo changes, noise addition, and re-encoding. The multi-stage architecture ensures detection persists through any standard audio post-processing."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What makes DetectX different from single-model AI detectors?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Single-model detectors rely on one neural network and output ambiguous confidence percentages. DetectX uses multiple independent engines that cross-validate results, producing binary verdicts (AI signal observed or not observed). This eliminates the gray area of percentage-based systems and provides forensic-grade reliability."
+            }
+          }
+        ]
+      }) }} />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-6xl px-6 py-4">
@@ -72,10 +118,11 @@ export default function Technology() {
           {/* Page Title */}
           <div className="mb-16">
             <h1 className="text-3xl md:text-4xl font-medium text-foreground mb-6">
-              Technology
+              How AI Music Detection Technology Works
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Technical architecture and implementation details of the DetectX verification system.
+              Technical architecture behind DetectX — the AI music detector that identifies
+              AI-generated songs from Suno, Udio, and other AI audio generators with forensic-grade accuracy.
             </p>
           </div>
 
@@ -95,7 +142,7 @@ export default function Technology() {
             <div className="mt-8">
               <img
                 src="/images/01_what_detectx_builds.png"
-                alt="What DetectX builds — forensic verification for music and voice"
+                alt="AI music and voice detector system overview — forensic verification for detecting AI-generated songs and deepfake audio"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </div>
@@ -104,7 +151,7 @@ export default function Technology() {
           {/* DetectX Audio — Engine Overview */}
           <section className="mb-16">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              DetectX Audio — Verification Architecture
+              AI Music Detection Architecture — How We Detect AI-Generated Songs
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
@@ -124,7 +171,7 @@ export default function Technology() {
             <div className="mt-8">
               <img
                 src="/images/02_audio_verification_architecture.png"
-                alt="Multi-stage audio verification architecture"
+                alt="AI music detection architecture diagram — multi-stage verification pipeline for detecting Suno and Udio AI-generated audio"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </div>
@@ -152,7 +199,7 @@ export default function Technology() {
             <div className="mt-8">
               <img
                 src="/images/03_voice_deepfake_detection.png"
-                alt="Voice deepfake detection across phone and multilingual conditions"
+                alt="Voice deepfake detector — AI voice detection technology achieving 97.8% accuracy across phone codecs and multilingual speech"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </div>
@@ -192,7 +239,7 @@ export default function Technology() {
             <div className="mt-8">
               <img
                 src="/images/04_core_technical_principles.png"
-                alt="Core technical principles — deterministic, human-safe verification"
+                alt="AI audio detection core principles — deterministic processing and human-safe AI music checker design"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </div>
@@ -201,7 +248,7 @@ export default function Technology() {
           {/* Verdict Model */}
           <section className="mb-16">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              Verdict Model
+              AI Detection Verdict Model
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none mb-6">
               <p className="text-muted-foreground leading-relaxed">
@@ -270,7 +317,7 @@ export default function Technology() {
           {/* Deployment Contexts */}
           <section className="mb-16">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              Deployment Contexts
+              AI Music Detection Use Cases
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
@@ -301,7 +348,7 @@ export default function Technology() {
             <div className="mt-8">
               <img
                 src="/images/05_deployment_contexts.png"
-                alt="Deployment contexts — labels, studios, rights holders, creators"
+                alt="AI music detection use cases — record labels, music distributors, rights management organizations, and independent creators using AI song detector"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </div>
@@ -311,10 +358,10 @@ export default function Technology() {
           <section className="border-t border-border pt-12">
             <div className="text-center">
               <h3 className="text-xl font-medium text-foreground mb-4">
-                Verify an audio signal
+                Try the AI Music Detector Free
               </h3>
               <p className="text-muted-foreground mb-6">
-                Analyze audio using a deterministic, human-safe verification baseline.
+                Upload any audio file and check if it's AI-generated. Detect Suno, Udio, and other AI music instantly.
               </p>
               <Link href="/verify-audio">
                 <Button className="bg-cyan-600 hover:bg-cyan-700 text-white">

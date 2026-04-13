@@ -59,10 +59,96 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="DetectX — Free AI Music & Voice Detector | Detect Suno & Udio AI Tracks"
-        description="Free AI music detector with 98.89% accuracy. Dual-engine forensic analysis detects AI-generated songs from Suno, Udio & more. Plus voice deepfake detection for fraud prevention."
+        title="DetectX — Free AI Music Detector | Detect Suno & Udio AI-Generated Songs"
+        description="Free AI music detector with 98.89% accuracy. Detect AI-generated songs from Suno, Udio, and other AI music generators. Dual-engine forensic audio analysis plus voice deepfake detection."
         path="/"
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How does DetectX detect AI-generated music?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX uses a proprietary multi-stage forensic verification pipeline. Audio is analyzed through multiple independent engines that examine structural signal patterns in the audio. The system cross-validates results across engines to achieve 98.89% accuracy on human content while maintaining strong AI detection capability."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can DetectX detect Suno AI songs?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. DetectX detects Suno AI-generated music with 83% detection rate. The system analyzes structural patterns unique to Suno's generation process, including mel-spectrogram signatures and reconstruction artifacts that persist even after format conversion or pitch shifting."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can DetectX detect Udio AI music?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. DetectX detects Udio AI-generated tracks through forensic audio analysis. The detection system identifies structural artifacts specific to Udio's AI generation model, providing reliable identification even after post-processing."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is DetectX free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, DetectX offers a free tier that allows you to verify audio files for AI-generated content. Free users can scan tracks with our full dual-engine analysis. Professional plans are available for batch processing, API access, and higher volume needs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How accurate is AI music detection?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX achieves 98.89% accuracy protecting human-created music (near-zero false positives). For AI detection, the system achieves 83% on Suno-generated tracks and 58% on Udio tracks. The system prioritizes protecting human artists over maximizing AI detection rate."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can DetectX detect AI-generated voice and deepfakes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. DetectX Voice detects AI-generated speech and deepfake voices with 97.8% accuracy across major commercial TTS engines including ElevenLabs, Google TTS, and OpenAI. It works under real phone call conditions (G.711 codec, 8kHz) with just 2 seconds of audio."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can AI music still be detected after MP3 conversion or pitch shifting?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. DetectX analyzes structural properties that survive post-processing including MP3/AAC codec conversion, pitch shifting, tempo changes, and noise addition. Unlike surface-level detectors, DetectX's forensic approach examines deep signal patterns that persist through any standard audio transformation."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What audio formats does DetectX support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX supports WAV, MP3, FLAC, AAC, and OGG formats. Maximum file size is 200MB per analysis. The system works with any audio quality from low-bitrate MP3 to lossless studio masters."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is DetectX different from other AI music detectors?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX is the only AI music detector using a proprietary multi-stage verification architecture with patent-pending technology. Unlike single-model detectors, DetectX cross-validates across multiple independent engines and reports binary verdicts (AI signal observed or not) rather than ambiguous confidence percentages. The system also combines music and voice deepfake detection in one platform."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does DetectX work for detecting AI-generated audio in podcasts or audiobooks?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX Audio is optimized for music detection. For speech content like podcasts or audiobooks, use DetectX Voice which is specifically designed to detect AI-generated speech and deepfake voices with 97.8% accuracy, including content from ElevenLabs, Google TTS, OpenAI, and other commercial TTS engines."
+            }
+          }
+        ]
+      }) }} />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-6xl px-6 py-4">
@@ -234,7 +320,7 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-8">
-                  Forensic verification for AI-generated music and voice.
+                  AI Music Detector — Forensic Analysis for AI-Generated Audio
                 </h1>
                 <div className="space-y-3 mb-10">
                   <p className="text-lg text-muted-foreground">
@@ -280,7 +366,7 @@ export default function Landing() {
               <div className="order-first md:order-last">
                 <img
                   src="/images/herosection_new.png"
-                  alt="Audio forensic analysis workstation"
+                  alt="DetectX AI music detector dashboard — forensic audio analysis detecting AI-generated songs from Suno and Udio"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
@@ -296,14 +382,14 @@ export default function Landing() {
               <div>
                 <img
                   src="/images/detectx_audio_section.png"
-                  alt="DetectX Audio verification system"
+                  alt="AI music detection engine analyzing audio waveform — detect AI-generated music with dual-engine verification"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
               {/* Text - Right */}
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-8">
-                  DetectX Audio
+                  AI Music Detection Engine — Detect Suno, Udio & AI-Generated Songs
                 </h2>
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
@@ -343,7 +429,7 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-10">
-                  How It Works
+                  How AI Music Detection Works
                 </h2>
                 <ol className="space-y-4 text-muted-foreground">
                   <li className="flex gap-4">
@@ -373,7 +459,7 @@ export default function Landing() {
               <div>
                 <img
                   src="/images/how_it_works_section.png"
-                  alt="Forensic signal analysis workflow"
+                  alt="How AI music detection works — multi-stage verification pipeline for detecting AI-generated audio"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
@@ -389,7 +475,7 @@ export default function Landing() {
               <div>
                 <img
                   src="/images/ClearVerdictSemanticssection.png"
-                  alt="Clear verdict semantics diagram"
+                  alt="AI music detector verdict system — binary classification showing AI-generated vs human-created music results"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
@@ -419,7 +505,7 @@ export default function Landing() {
         <section className="py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl font-medium text-foreground mb-12 text-center">
-              Why DetectX
+              Why Choose DetectX AI Audio Detector
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="p-6 bg-muted/30 rounded-lg">
@@ -466,7 +552,7 @@ export default function Landing() {
         <section className="py-20 px-6 border-t border-border bg-muted/30">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl font-medium text-foreground mb-6">
-              Verify your music
+              Check If Your Music Is AI-Generated
             </h2>
             <p className="text-muted-foreground mb-8">
               Upload your audio file and get instant AI detection results.
@@ -511,7 +597,7 @@ export default function Landing() {
               <div>
                 <img
                   src="/images/ProtectingHumanCreativitysection.png"
-                  alt="Music producer at mixing console"
+                  alt="Human music producer protected by AI audio detector — 98.89% accuracy preventing false positives on real music"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
@@ -527,14 +613,14 @@ export default function Landing() {
               <div>
                 <img
                   src="/images/WhoUsesDetectXAudiosection.png"
-                  alt="Professional audio studio environment"
+                  alt="Record labels and music distributors using AI music detection for catalog verification and AI song screening"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
               {/* Text - Right */}
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-8">
-                  Who Uses DetectX Audio
+                  Who Uses AI Music Detection
                 </h2>
                 <p className="text-muted-foreground mb-6">
                   DetectX Audio is designed for creators and institutions
@@ -563,7 +649,7 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h2 className="text-xl font-medium text-muted-foreground mb-6">
-                  Expanding Detection Modalities
+                  AI Voice Detector & Expanding Modalities
                 </h2>
                 <p className="text-sm text-muted-foreground/70 leading-relaxed">
                   DetectX Voice for deepfake voice detection is now available,
@@ -579,7 +665,7 @@ export default function Landing() {
               <div>
                 <img
                   src="/images/othermodalities.png"
-                  alt="Future detection modalities under development"
+                  alt="AI voice deepfake detector and expanding content detection — voice phishing prevention and AI audio checker"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>

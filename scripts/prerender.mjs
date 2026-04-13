@@ -86,10 +86,17 @@ async function prerender() {
   await new Promise((resolve) => server.listen(port, resolve));
   console.log(`[prerender] Static server on http://localhost:${port}`);
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+  } catch (err) {
+    console.warn(`[prerender] Chrome not available, skipping prerender: ${err.message}`);
+    server.close();
+    return;
+  }
 
   let success = 0;
 

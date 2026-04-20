@@ -1,17 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <!-- Homepage -->
   <url>
     <loc>https://detectx.app/</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+
+  <!-- Multilingual Landing Pages -->
+  <url>
+    <loc>https://detectx.app/en/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
+  </url>
+
+  <url>
+    <loc>https://detectx.app/ko/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
+  </url>
+
+  <url>
+    <loc>https://detectx.app/ja/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
+  </url>
+
+  <url>
+    <loc>https://detectx.app/es/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
+  </url>
+
+  <url>
+    <loc>https://detectx.app/de/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
+  </url>
+
+  <url>
+    <loc>https://detectx.app/fr/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
+  </url>
+
+  <url>
+    <loc>https://detectx.app/pt/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
+  </url>
+
+  <url>
+    <loc>https://detectx.app/zh/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://detectx.app/en/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://detectx.app/ko/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://detectx.app/ja/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://detectx.app/es/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://detectx.app/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://detectx.app/fr/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://detectx.app/pt/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://detectx.app/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://detectx.app/" />
   </url>
 
   <!-- Main Features -->
   <url>
     <loc>https://detectx.app/verify-audio</loc>
-    <lastmod>2026-04-13</lastmod>
+    <lastmod>2026-04-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -21,6 +151,28 @@
     <lastmod>2026-04-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://detectx.app/batch-verify</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Competitor Comparison Pages -->
+  <url>
+    <loc>https://detectx.app/vs-acrcloud</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://detectx.app/vs-resemble</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <!-- Information Pages -->
@@ -39,21 +191,14 @@
   </url>
 
   <url>
-    <loc>https://detectx.app/research/whitepaper.html</loc>
+    <loc>https://detectx.app/blog/how-to-detect-ai-generated-music</loc>
     <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://detectx.app/updates</loc>
-    <lastmod>2026-04-13</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://detectx.app/blog</loc>
+    <loc>https://detectx.app/updates</loc>
     <lastmod>2026-04-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

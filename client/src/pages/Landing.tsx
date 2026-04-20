@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LanguageSelector, { useLanguageRedirect } from "@/components/LanguageSelector";
 
 /**
  * DetectX Landing Page (HOME)
@@ -34,6 +35,8 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user, loading, isAuthenticated, logout } = useAuth();
+
+  useLanguageRedirect();
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +63,7 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="DetectX — Free AI Music Detector | Detect Suno & Udio AI-Generated Songs"
-        description="Free AI music detector with 98.89% accuracy. Detect AI-generated songs from Suno, Udio, and other AI music generators. Dual-engine forensic audio analysis plus voice deepfake detection."
+        description="Free AI music detector with 98.89% accuracy. Detect AI-generated songs from Suno, Udio, and other AI music generators. Patent-pending AI detection technology plus voice deepfake detection."
         path="/"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -72,7 +75,7 @@ export default function Landing() {
             "name": "How does DetectX detect AI-generated music?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX uses a proprietary multi-stage forensic verification pipeline. Audio is analyzed through multiple independent engines that examine structural signal patterns in the audio. The system cross-validates results across engines to achieve 98.89% accuracy on human content while maintaining strong AI detection capability."
+              "text": "DetectX uses proprietary multi-layer deep learning analysis. Audio is analyzed through multiple independent engines that examine structural signal patterns. The system cross-validates results across engines to achieve 98.89% accuracy on human content while maintaining strong AI detection capability."
             }
           },
           {
@@ -80,7 +83,7 @@ export default function Landing() {
             "name": "Can DetectX detect Suno AI songs?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. DetectX detects Suno AI-generated music with 83% detection rate. The system analyzes structural patterns unique to Suno's generation process, including mel-spectrogram signatures and reconstruction artifacts that persist even after format conversion or pitch shifting."
+              "text": "Yes. DetectX detects Suno AI-generated music with 96.8% detection rate. The system analyzes structural patterns unique to Suno's generation process, identifying AI artifacts that persist even after format conversion or pitch shifting."
             }
           },
           {
@@ -88,7 +91,7 @@ export default function Landing() {
             "name": "Can DetectX detect Udio AI music?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. DetectX detects Udio AI-generated tracks through forensic audio analysis. The detection system identifies structural artifacts specific to Udio's AI generation model, providing reliable identification even after post-processing."
+              "text": "Yes. DetectX detects Udio AI-generated tracks through deep audio analysis. The detection system identifies structural artifacts specific to Udio's AI generation model, providing reliable identification even after post-processing."
             }
           },
           {
@@ -96,7 +99,7 @@ export default function Landing() {
             "name": "Is DetectX free to use?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, DetectX offers a free tier that allows you to verify audio files for AI-generated content. Free users can scan tracks with our full dual-engine analysis. Professional plans are available for batch processing, API access, and higher volume needs."
+              "text": "Yes, DetectX offers a free tier that allows you to verify audio files for AI-generated content. Free users can scan tracks with our full analysis. Professional plans are available for batch processing, API access, and higher volume needs."
             }
           },
           {
@@ -120,7 +123,7 @@ export default function Landing() {
             "name": "Can AI music still be detected after MP3 conversion or pitch shifting?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. DetectX analyzes structural properties that survive post-processing including MP3/AAC codec conversion, pitch shifting, tempo changes, and noise addition. Unlike surface-level detectors, DetectX's forensic approach examines deep signal patterns that persist through any standard audio transformation."
+              "text": "Yes. DetectX analyzes structural properties that survive post-processing including MP3/AAC codec conversion, pitch shifting, tempo changes, and noise addition. Unlike surface-level detectors, DetectX examines deep signal patterns that persist through any standard audio transformation."
             }
           },
           {
@@ -194,8 +197,11 @@ export default function Landing() {
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
 
-            {/* Right side: Theme toggle + Login/User + Verify Audio */}
+            {/* Right side: Language + Theme toggle + Login/User + Verify Audio */}
             <div className="flex items-center gap-2 md:gap-4">
+              {/* Language Selector */}
+              <LanguageSelector />
+
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -320,7 +326,7 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-8">
-                  AI Music Detector — Forensic Analysis for AI-Generated Audio
+                  AI Music Detector — Detect Suno, Udio & AI-Generated Songs
                 </h1>
                 <div className="space-y-3 mb-10">
                   <p className="text-lg text-muted-foreground">
@@ -366,7 +372,7 @@ export default function Landing() {
               <div className="order-first md:order-last">
                 <img
                   src="/images/herosection_new.png"
-                  alt="DetectX AI music detector dashboard — forensic audio analysis detecting AI-generated songs from Suno and Udio"
+                  alt="DetectX AI music detector dashboard — detecting AI-generated songs from Suno and Udio"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
@@ -382,7 +388,7 @@ export default function Landing() {
               <div>
                 <img
                   src="/images/detectx_audio_section.png"
-                  alt="AI music detection engine analyzing audio waveform — detect AI-generated music with dual-engine verification"
+                  alt="AI music detection engine analyzing audio waveform — detect AI-generated music with multi-engine verification"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
@@ -393,7 +399,7 @@ export default function Landing() {
                 </h2>
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    DetectX Audio is a proprietary multi-stage forensic verification system
+                    DetectX Audio is a proprietary multi-stage verification system
                     designed to detect AI-generated music while protecting human artists.
                   </p>
                   <p>
@@ -414,7 +420,7 @@ export default function Landing() {
                     <li>• Proprietary multi-stage verification pipeline</li>
                     <li>• Human-safe by design (98.89% accuracy on human content)</li>
                     <li>• Evasion-resistant structural analysis</li>
-                    <li>• Multiple independent metrics for forensic evidence</li>
+                    <li>• Multiple independent metrics for evidence-grade results</li>
                   </ul>
                 </div>
               </div>
@@ -523,12 +529,12 @@ export default function Landing() {
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Third-party verification with no platform interests.
-                  Neutral forensic analysis for rights management organizations.
+                  Neutral analysis for rights management organizations.
                 </p>
               </div>
               <div className="p-6 bg-muted/30 rounded-lg">
                 <h3 className="text-sm font-medium text-foreground uppercase tracking-wide mb-3">
-                  Forensic-Grade
+                  Evidence-Grade
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Multiple independent metrics provide quantitative evidence
@@ -658,7 +664,7 @@ export default function Landing() {
                 <p className="text-sm text-muted-foreground/70 leading-relaxed mt-4">
                   Additional modalities for text, image, and video content
                   are under development and will launch when they meet our
-                  forensic reliability standards.
+                  reliability standards.
                 </p>
               </div>
               {/* Image - Right */}
@@ -681,7 +687,7 @@ export default function Landing() {
             </h2>
             <p className="text-muted-foreground mb-6">
               Receive updates on verification research,
-              system changes, and forensic design decisions.
+              system changes, and design decisions.
             </p>
             {subscribed ? (
               <p className="text-sm text-forensic-green">

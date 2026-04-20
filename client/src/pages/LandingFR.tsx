@@ -64,7 +64,7 @@ export default function LandingFR() {
             "name": "Quelle est la précision du détecteur de musique IA DetectX ?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX atteint un taux de détection de 96,8% sur la musique générée par Suno v5.5 (testé sur 995 morceaux couvrant 16 genres). Le système est conçu pour minimiser les faux positifs sur la musique créée par des humains, garantissant une fiabilité de niveau professionnel."
+              "text": "DetectX atteint un taux de détection de 96,8% sur la musique générée par Suno v5.5 (validé sur des dizaines de milliers de morceaux couvrant tous les genres). Le système est conçu pour minimiser les faux positifs sur la musique créée par des humains, garantissant une fiabilité de niveau professionnel."
             }
           },
           {
@@ -179,7 +179,7 @@ export default function LandingFR() {
                   Détectez la musique IA de Suno & Udio
                 </h1>
                 <p className="text-lg text-muted-foreground mb-4">
-                  Importez votre fichier audio et obtenez un verdict instantané. 96,8% de précision sur Suno v5.5, validé sur 995 morceaux et 16 genres. Conçu pour les labels, plateformes de streaming et sociétés de droits d'auteur.
+                  Importez votre fichier audio et obtenez un verdict instantané. 96,8% de précision sur Suno v5.5, validé sur des dizaines de milliers de morceaux dans tous les genres. Conçu pour les labels, plateformes de streaming et sociétés de droits d'auteur.
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
                   Gratuit. Compatible WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo.
@@ -279,7 +279,7 @@ export default function LandingFR() {
               Une précision inégalée, par conception
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Architecture Multi-Engine brevetée. Validé sur 995 morceaux Suno v5.5 couvrant 16 genres musicaux.
+              Architecture Multi-Engine brevetée. Validé sur des dizaines de milliers de morceaux IA couvrant tous les genres.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">

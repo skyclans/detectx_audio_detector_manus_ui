@@ -64,7 +64,7 @@ export default function LandingZH() {
             "name": "DetectX AI音乐检测器的准确率是多少？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX对Suno v5.5生成的AI音乐检测率达到96.8%（在16种音乐类型的995首曲目上测试）。Multi-Engine架构将人类音乐的误判降到最低，对人类创作的音乐几乎零误报。这使DetectX成为市场上最准确的AI音乐检测器之一。"
+              "text": "DetectX对Suno v5.5生成的AI音乐检测率达到96.8%（在所有音乐类型、数万首曲目上实战测试）。Multi-Engine架构将人类音乐的误判降到最低，对人类创作的音乐几乎零误报。这使DetectX成为市场上最准确的AI音乐检测器之一。"
             }
           },
           {
@@ -279,7 +279,7 @@ export default function LandingZH() {
               为什么DetectX是最准确的AI音乐检测器
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Multi-Engine Deep Learning 分析，专利技术。经 16 种音乐类型、995 首 Suno v5.5 曲目实测验证。
+              Multi-Engine Deep Learning 分析，专利技术。经数万首 AI 生成曲目、所有音乐类型实战验证。
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">

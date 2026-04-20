@@ -64,7 +64,7 @@ export default function LandingPT() {
             "name": "Qual é a precisão do detector de música IA DetectX?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX alcança 96,8% de detecção em músicas geradas pelo Suno v5.5 (testado em 995 faixas de 16 gêneros diferentes). O sistema foi projetado para minimizar falsos positivos, garantindo que músicas criadas por humanos não sejam marcadas incorretamente."
+              "text": "DetectX alcança 96,8% de detecção em músicas geradas pelo Suno v5.5 (validado em dezenas de milhares de faixas em todos os gêneros). O sistema foi projetado para minimizar falsos positivos, garantindo que músicas criadas por humanos não sejam marcadas incorretamente."
             }
           },
           {
@@ -279,7 +279,7 @@ export default function LandingPT() {
               Por Que o DetectX É o Detector de Música IA Mais Preciso
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Análise multi-motor com tecnologia patenteada de Deep Learning. Validado em 995 faixas do Suno v5.5 em 16 gêneros diferentes.
+              Análise multi-motor com tecnologia patenteada de Deep Learning. Validado em dezenas de milhares de faixas de IA em todos os gêneros.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">

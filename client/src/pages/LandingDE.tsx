@@ -64,7 +64,7 @@ export default function LandingDE() {
             "name": "Wie genau ist der DetectX KI-Musik-Detektor?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX erreicht eine Erkennungsrate von 96,8% bei Suno v5.5 KI-generierter Musik (getestet an 995 Tracks in 16 Genres). Das System minimiert Fehlalarme bei menschlich erstellter Musik durch Multi-Engine-Kreuzvalidierung. Dies macht DetectX zu einem der genauesten KI-Musik-Detektoren auf dem Markt."
+              "text": "DetectX erreicht eine Erkennungsrate von 96,8% bei Suno v5.5 KI-generierter Musik (praxiserprobt an Zehntausenden Tracks aller Genres). Das System minimiert Fehlalarme bei menschlich erstellter Musik durch Multi-Engine-Kreuzvalidierung. Dies macht DetectX zu einem der genauesten KI-Musik-Detektoren auf dem Markt."
             }
           },
           {
@@ -279,7 +279,7 @@ export default function LandingDE() {
               Warum DetectX der genaueste KI-Musik-Detektor ist
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Multi-Engine-Deep-Learning-Analyse mit patentangemeldeter Technologie. Getestet an 995 Suno v5.5 Tracks in 16 Genres.
+              Multi-Engine-Deep-Learning-Analyse mit patentangemeldeter Technologie. Praxiserprobt an Zehntausenden KI-generierten Tracks aller Genres.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">

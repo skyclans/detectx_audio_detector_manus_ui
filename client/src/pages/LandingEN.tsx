@@ -65,7 +65,7 @@ export default function LandingEN() {
             "name": "What is the accuracy of DetectX AI music detector?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX achieves 96.8% detection rate on Suno v5.5 AI-generated music (tested on 995 tracks across all genres). The system is designed to minimize false positives on human-created music. This makes DetectX one of the most accurate AI music detectors available."
+              "text": "DetectX achieves 96.8% detection rate on Suno v5.5 AI-generated music (battle-tested on tens of thousands of tracks across all genres). The system is designed to minimize false positives on human-created music. This makes DetectX one of the most accurate AI music detectors available."
             }
           },
           {
@@ -281,7 +281,7 @@ export default function LandingEN() {
               Why DetectX Is the Most Accurate AI Music Detector
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Patent-pending multi-engine detection technology. Tested on 995 Suno v5.5 tracks across 16 genres.
+              Patent-pending multi-engine detection technology. Battle-tested on tens of thousands of AI-generated tracks across all genres.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">

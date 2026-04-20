@@ -64,7 +64,7 @@ export default function LandingKO() {
             "name": "DetectX의 정확도는 얼마인가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX는 Suno v5.5 AI 생성 음악에 대해 96.8%의 탐지율을 달성합니다(모든 장르, 995곡 테스트). 사람이 만든 음악에 대한 오탐지를 최소화하도록 설계되었습니다. 이는 현존 AI 음악 탐지 도구 중 가장 높은 정확도입니다."
+              "text": "DetectX는 Suno v5.5 AI 생성 음악에 대해 96.8%의 탐지율을 달성합니다(모든 장르, 수만 곡 실전 테스트). 사람이 만든 음악에 대한 오탐지를 최소화하도록 설계되었습니다. 이는 현존 AI 음악 탐지 도구 중 가장 높은 정확도입니다."
             }
           },
           {
@@ -279,7 +279,7 @@ export default function LandingKO() {
               DetectX가 가장 정확한 AI 음악 판별기인 이유
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              독자적 multi-engine 구조로 16개 장르, 995곡의 Suno v5.5 실전 테스트를 통과했습니다.
+              독자적 multi-engine 구조로 모든 장르, 수만 곡의 실전 AI 음악 테스트를 통과했습니다.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">

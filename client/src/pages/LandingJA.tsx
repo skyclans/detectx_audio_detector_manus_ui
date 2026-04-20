@@ -64,7 +64,7 @@ export default function LandingJA() {
             "name": "DetectXの精度はどのくらいですか？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectXはSuno v5.5のAI生成楽曲に対して96.8%の検出率を達成しています（16ジャンル、995曲でテスト済み）。人間が制作した楽曲に対する誤検知を最小限に抑える設計で、フォルスポジティブはほぼゼロです。現存するAI音楽検出ツールの中で最高水準の精度を提供します。"
+              "text": "DetectXはSuno v5.5のAI生成楽曲に対して96.8%の検出率を達成しています（全ジャンル、数万曲で実戦テスト済み）。人間が制作した楽曲に対する誤検知を最小限に抑える設計で、フォルスポジティブはほぼゼロです。現存するAI音楽検出ツールの中で最高水準の精度を提供します。"
             }
           },
           {
@@ -279,7 +279,7 @@ export default function LandingJA() {
               DetectXが選ばれる理由
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              特許出願済みのMulti-Engine Deep Learning分析。Suno v5.5の995曲（16ジャンル）で検証済み。
+              特許出願済みのMulti-Engine Deep Learning分析。全ジャンル、数万曲のAI生成楽曲で実戦検証済み。
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">

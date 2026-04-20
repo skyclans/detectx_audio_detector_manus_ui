@@ -35,12 +35,12 @@ export default function ComingSoon() {
         </h2>
         <p className="text-muted-foreground max-w-md">
           {feature.title} is currently under development. We're working hard to
-          bring you advanced forensic verification capabilities for this content
+          bring you advanced verification capabilities for this content
           type.
         </p>
         <div className="mt-8 p-4 bg-muted/30 rounded-md max-w-md">
           <p className="text-xs text-muted-foreground">
-            DetectX is expanding its forensic analysis capabilities to cover
+            DetectX is expanding its analysis capabilities to cover
             multiple content types. Stay tuned for updates.
           </p>
         </div>

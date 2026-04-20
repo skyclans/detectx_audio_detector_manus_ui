@@ -236,14 +236,14 @@ export default function Updates() {
 
               <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
                 <p className="text-muted-foreground leading-relaxed">
-                  USPTO provisional patent specification completed, covering three core inventions: the multi-stage Audio verification engine (CNN + Reconstruction), the Voice deepfake detection engine (SSL-based), and the Triple Engine architecture that combines both for music containing vocal content.
+                  USPTO provisional patent specification completed, covering three core inventions: the multi-stage Audio verification engine, the Voice deepfake detection engine, and the Triple Engine architecture that combines both for music containing vocal content.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Coverage</h3>
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">Audio Engine:</strong> Multi-stage forensic verification with independent analysis engines and cross-validation consensus</span>
+                    <span><strong className="text-foreground">Audio Engine:</strong> Multi-stage verification with independent analysis engines and cross-validation consensus</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
@@ -276,12 +276,12 @@ export default function Updates() {
 
               <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
                 <p className="text-muted-foreground leading-relaxed">
-                  The Voice deepfake detection engine reached production readiness. Voice SSL v2 uses wav2vec 2.0 large (317M parameters) with partial fine-tuning and weighted layer aggregation, achieving EER 1.0% on the ASVspoof 2019 LA evaluation set.
+                  The Voice deepfake detection engine reached production readiness, achieving EER 1.0% on the ASVspoof 2019 LA evaluation set.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Architecture Decision</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The original voice PoC used mel-spectrogram + ResNet18, which achieved functional but suboptimal results (EER 2–6%). Analysis of published research showed self-supervised learning frontends outperform spectrogram approaches by 10–50x on equal error rate. The architecture was upgraded to SSL (wav2vec 2.0) with an Attention Pooling + MLP backend.
+                  The original voice PoC achieved functional but suboptimal results (EER 2–6%). Analysis of published research informed a major architecture upgrade that improved performance by 10–50x on equal error rate.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Performance</h3>
@@ -290,7 +290,7 @@ export default function Updates() {
                     <thead>
                       <tr className="border-b border-border">
                         <th className="text-left py-2 pr-4 text-foreground font-medium">Metric</th>
-                        <th className="text-left py-2 pr-4 text-foreground font-medium">PoC (mel+ResNet)</th>
+                        <th className="text-left py-2 pr-4 text-foreground font-medium">PoC v1</th>
                         <th className="text-left py-2 pr-4 text-foreground font-medium">SSL PoC</th>
                         <th className="text-left py-2 text-foreground font-medium">SSL v2</th>
                       </tr>
@@ -369,7 +369,7 @@ export default function Updates() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">Reconstruction Engine (Secondary):</strong> Activates when the DetectX Engine score exceeds the threshold. Analyzes stem separation and reconstruction patterns to boost AI detection accuracy.</span>
+                    <span><strong className="text-foreground">Verification Engine (Secondary):</strong> Activates when the DetectX Engine score exceeds the threshold. Performs multi-layer analysis to boost AI detection accuracy.</span>
                   </li>
                 </ul>
 

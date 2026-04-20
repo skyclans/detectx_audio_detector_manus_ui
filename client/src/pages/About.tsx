@@ -18,7 +18,7 @@ export default function About() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="About"
-        description="About DetectX: an independent forensic analysis platform for AI-generated content detection. Evidence-only approach — we report signals, not verdicts."
+        description="About DetectX: an independent AI detection platform for AI-generated content detection. Evidence-only approach — we report signals, not verdicts."
         path="/about"
       />
       {/* Header */}
@@ -86,7 +86,7 @@ export default function About() {
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX is a forensic verification platform that detects AI-generated content across music and voice. The system uses proprietary, patent-pending technology to provide deterministic, reproducible analysis.
+                DetectX is a verification platform that detects AI-generated content across music and voice. The system uses proprietary, patent-pending technology to provide deterministic, reproducible analysis.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 <strong className="text-foreground">DetectX Audio</strong> detects AI-generated music with 98.89% human protection accuracy.{" "}
@@ -108,7 +108,7 @@ export default function About() {
                 As AI-generated content becomes more prevalent, human creators face increasing risk of having their work misidentified or unfairly challenged. Existing detection systems often produce probabilistic outputs that create ambiguity and enable misuse.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                DetectX was created to provide a forensic reference that protects human creators. The system is designed to ensure that human creative work is not unfairly flagged by opaque or unreliable detection methods.
+                DetectX was created to provide a trusted reference that protects human creators. The system is designed to ensure that human creative work is not unfairly flagged by opaque or unreliable detection methods.
               </p>
             </div>
           </section>
@@ -207,7 +207,7 @@ export default function About() {
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX is designed for professional and institutional contexts where forensic verification is required:
+                DetectX is designed for professional and institutional contexts where professional verification is required:
               </p>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">
@@ -256,7 +256,7 @@ export default function About() {
           <section className="mb-16 border-t border-border pt-12">
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed italic">
-                DetectX exists to be trusted, not to impress. The platform is designed to provide a forensic reference that protects human creativity while acknowledging the legitimate presence of AI-generated content in the creative landscape.
+                DetectX exists to be trusted, not to impress. The platform is designed to provide a trusted reference that protects human creativity while acknowledging the legitimate presence of AI-generated content in the creative landscape.
               </p>
             </div>
           </section>

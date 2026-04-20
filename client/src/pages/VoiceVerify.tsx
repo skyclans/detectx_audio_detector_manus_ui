@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { ForensicLayout } from "@/components/ForensicLayout";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { fetchWithAuth } from "@/lib/api";
@@ -160,6 +161,12 @@ export default function VoiceVerify() {
   }, []);
 
   return (
+    <>
+      <SEO
+        title="Voice Deepfake Detector — AI Voice Clone & Fraud Detection"
+        description="Free voice deepfake detector with 97.8% accuracy. Detect AI-generated voices, voice cloning, and deepfake audio. Protect against voice phishing (vishing) and AI voice fraud."
+        path="/verify-voice"
+      />
     <ForensicLayout
       title="Voice Verification"
       subtitle="Deepfake voice detection"
@@ -429,5 +436,6 @@ export default function VoiceVerify() {
         )}
       </div>
     </ForensicLayout>
+    </>
   );
 }

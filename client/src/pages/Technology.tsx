@@ -18,7 +18,7 @@ export default function Technology() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="How AI Music Detection Works — Technology"
-        description="How DetectX AI music detector works: multi-stage forensic verification detects Suno, Udio, and AI-generated songs. Plus voice deepfake detection technology. 98.89% human protection accuracy."
+        description="How DetectX AI music detector works: multi-stage verification detects Suno, Udio, and AI-generated songs. Plus voice deepfake detection technology. 98.89% human protection accuracy."
         path="/technology"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -30,7 +30,7 @@ export default function Technology() {
             "name": "What technology does DetectX use to detect AI-generated music?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX uses a proprietary multi-stage verification architecture with multiple independent analysis engines. The system analyzes structural signal patterns in audio through mel-spectrogram analysis and reconstruction-difference techniques. The patent-pending architecture cross-validates across engines to achieve 98.89% accuracy on human content."
+              "text": "DetectX uses a proprietary multi-stage verification architecture with multiple independent analysis engines. The system analyzes structural signal patterns in audio through deep learning techniques. The patent-pending architecture cross-validates across engines to achieve 98.89% accuracy on human content."
             }
           },
           {
@@ -38,7 +38,7 @@ export default function Technology() {
             "name": "Can AI-generated music from Suno be detected?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. DetectX achieves 83% detection rate on Suno AI-generated music. The system identifies structural artifacts specific to Suno's neural audio generation process, including characteristic patterns in the mel-spectrogram that distinguish AI-generated output from human compositions."
+              "text": "Yes. DetectX achieves 96.8% detection rate on Suno AI-generated music. The system identifies structural artifacts specific to Suno's neural audio generation process that distinguish AI-generated output from human compositions."
             }
           },
           {
@@ -46,7 +46,7 @@ export default function Technology() {
             "name": "How does voice deepfake detection work?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX Voice uses self-supervised learning (SSL) technology based on wav2vec2 to detect AI-generated speech. It achieves 97.8% detection rate across commercial TTS engines including ElevenLabs, Google TTS, and OpenAI. The system is optimized for phone conditions (G.711 codec, 8kHz) and requires only 2 seconds of audio."
+              "text": "DetectX Voice uses proprietary deep learning technology to detect AI-generated speech. It achieves 97.8% detection rate across commercial TTS engines including ElevenLabs, Google TTS, and OpenAI. The system is optimized for phone conditions and requires only 2 seconds of audio."
             }
           },
           {
@@ -62,7 +62,7 @@ export default function Technology() {
             "name": "What makes DetectX different from single-model AI detectors?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Single-model detectors rely on one neural network and output ambiguous confidence percentages. DetectX uses multiple independent engines that cross-validate results, producing binary verdicts (AI signal observed or not observed). This eliminates the gray area of percentage-based systems and provides forensic-grade reliability."
+              "text": "Single-model detectors rely on one neural network and output ambiguous confidence percentages. DetectX uses multiple independent engines that cross-validate results, producing binary verdicts (AI signal observed or not observed). This eliminates the gray area of percentage-based systems and provides evidence-grade reliability."
             }
           }
         ]
@@ -122,7 +122,7 @@ export default function Technology() {
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
               Technical architecture behind DetectX — the AI music detector that identifies
-              AI-generated songs from Suno, Udio, and other AI audio generators with forensic-grade accuracy.
+              AI-generated songs from Suno, Udio, and other AI audio generators with evidence-grade accuracy.
             </p>
           </div>
 
@@ -133,7 +133,7 @@ export default function Technology() {
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX develops proprietary forensic verification systems for detecting AI-generated content across music and voice. Our patent-pending technology provides deterministic, reproducible analysis that can be independently verified.
+                DetectX develops proprietary verification systems for detecting AI-generated content across music and voice. Our patent-pending technology provides deterministic, reproducible analysis that can be independently verified.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 Unlike probabilistic detection systems that output confidence scores, DetectX reports binary structural observations: either AI signal evidence was observed, or it was not. This approach eliminates the ambiguity inherent in percentage-based classifications.
@@ -142,7 +142,7 @@ export default function Technology() {
             <div className="mt-8">
               <img
                 src="/images/01_what_detectx_builds.png"
-                alt="AI music and voice detector system overview — forensic verification for detecting AI-generated songs and deepfake audio"
+                alt="AI music and voice detector system overview — detecting AI-generated songs and deepfake audio"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </div>
@@ -214,7 +214,7 @@ export default function Technology() {
               <div className="border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-lg font-medium text-foreground mb-3">Deterministic Processing</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Every step in the verification pipeline produces identical output for identical input. The same audio file will always produce the same verdict — a requirement for forensic credibility.
+                  Every step in the verification pipeline produces identical output for identical input. The same audio file will always produce the same verdict — a requirement for professional credibility.
                 </p>
               </div>
               <div className="border border-border rounded-lg p-6 bg-card">
@@ -292,7 +292,7 @@ export default function Technology() {
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span>Mix-level audio only (no stem separation or source isolation)</span>
+                  <span>Mix-level audio only (no source isolation required)</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
@@ -321,7 +321,7 @@ export default function Technology() {
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX Audio is designed for integration into professional workflows where forensic verification is required:
+                DetectX Audio is designed for integration into professional workflows where verification is required:
               </p>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex items-start gap-3">

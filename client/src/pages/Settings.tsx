@@ -574,7 +574,7 @@ export default function Settings() {
           <div className="forensic-panel-content">
             <div className="space-y-4">
               <p className="text-sm text-foreground">
-                DetectX is a forensic verification platform that detects
+                DetectX is a verification platform that detects
                 AI-generated music and deepfake voice through proprietary
                 multi-stage structural signal analysis.
               </p>

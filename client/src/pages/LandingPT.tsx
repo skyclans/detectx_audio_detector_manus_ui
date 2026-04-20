@@ -1,0 +1,580 @@
+import { Link } from "wouter";
+import { useState } from "react";
+import SEO from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Sun, Moon, User, LogOut, Menu, X, Upload, Cpu, Shield, Zap, BarChart3, Music, Mic, Building2, CheckCircle2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+export default function LandingPT() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const { user, loading, isAuthenticated, logout } = useAuth();
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <SEO
+        title="Detector de Música IA: Detecte Suno, Udio e Músicas Geradas por IA | DetectX"
+        description="Detector de música IA gratuito com 96,8% de precisão no Suno v5.5. Análise de multi-motor com deep learning para detectar música gerada por inteligência artificial. Projetado para gravadoras, plataformas de streaming e sociedades de direitos autorais."
+        path="/pt/"
+      />
+      {/* SoftwareApplication Schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "DetectX Detector de Música IA",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "url": "https://detectx.app/pt/",
+        "description": "Ferramenta de detecção de música IA que identifica faixas geradas por Suno, Udio e outros geradores com 96,8% de precisão usando análise de multi-motor com deep learning.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "Plano gratuito disponível"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "156"
+        }
+      }) }} />
+      {/* FAQPage Schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Como o DetectX detecta música gerada por IA?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX utiliza análise proprietária de deep learning multicamada. Nossos modelos de IA detectam padrões sutis e artefatos exclusivos do áudio gerado por IA, invisíveis ao ouvido humano. A validação cruzada entre múltiplos motores de análise alcança 96,8% de detecção no Suno v5.5 mantendo 98,89% de proteção para músicas humanas."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Qual é a precisão do detector de música IA DetectX?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX alcança uma taxa de detecção de 96,8% em músicas geradas pelo Suno v5.5 (testado em 995 faixas cobrindo 16 gêneros). A taxa de proteção humana é de 98,89%, significando praticamente zero falsos positivos em músicas criadas por humanos."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "O DetectX pode detectar faixas IA do Suno e Udio?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim. DetectX detecta Suno v5.5 com 96,8% de precisão em todos os gêneros, incluindo pop, jazz, clássico, hip-hop e eletrônico. A taxa de detecção do Udio é de 58%. O sistema identifica artefatos estruturais únicos do processo de síntese de cada gerador de IA."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "O DetectX é gratuito?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim, o DetectX oferece um plano gratuito com análise completa de multi-motor. Faça upload de qualquer arquivo de áudio (WAV, MP3, FLAC, AAC, OGG até 100MB) e obtenha resultados instantâneos de detecção de IA. Planos profissionais estão disponíveis para processamento em massa (até 1M de faixas/semana) e acesso à API."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "O DetectX suporta escaneamento em massa de música IA?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim. DetectX oferece processamento em massa para gravadoras, plataformas de streaming e distribuidoras. Escaneie centenas a milhões de faixas automaticamente. Planos Enterprise suportam até 1 milhão de faixas por semana com processamento prioritário e acesso dedicado à API."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Como o DetectX é diferente de outros detectores de música IA?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DetectX é único em três aspectos: (1) Arquitetura multi-motor para maior precisão que detectores de modelo único, (2) Detecção combinada de música IA E deepfake vocal em uma única plataforma, (3) Processamento em massa de nível empresarial com até 1M de faixas/semana. Tecnologia patenteada com a menor taxa de falsos positivos da indústria."
+            }
+          }
+        ]
+      }) }} />
+
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="mx-auto max-w-6xl px-6 py-4">
+          <nav className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/detectx-logo.png" alt="DetectX" className="w-8 h-8 object-contain" />
+              <span className="text-xl font-semibold tracking-tight text-foreground">DetectX</span>
+            </Link>
+
+            <div className="hidden md:flex items-center gap-8">
+              <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Technology</Link>
+              <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Research</Link>
+              <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
+              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
+              <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+            </div>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+
+            <div className="flex items-center gap-2 md:gap-4">
+              <button onClick={toggleTheme} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" aria-label="Toggle theme">
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+              {!loading && (
+                isAuthenticated && user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4" />
+                        <span className="hidden sm:inline">{user.name || 'Account'}</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem asChild><Link href="/verify-audio" className="cursor-pointer">Dashboard</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/settings" className="cursor-pointer">Settings</Link></DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => logout()} className="text-red-500 cursor-pointer"><LogOut className="h-4 w-4 mr-2" />Logout</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link href="/login"><Button variant="ghost" className="text-sm font-medium">Sign In</Button></Link>
+                )
+              )}
+              <Link href="/verify-audio"><Button className="text-sm font-medium">Escaneie Grátis</Button></Link>
+            </div>
+          </nav>
+
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-border py-4">
+              <div className="flex flex-col gap-4">
+                <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Technology</Link>
+                <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Research</Link>
+                <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+                <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>About</Link>
+                <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section className="py-20 md:py-28 px-6">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-6">
+                  Detecte instantaneamente música gerada por IA do Suno, Udio e mais
+                </h1>
+                <p className="text-lg text-muted-foreground mb-4">
+                  Faça upload de qualquer arquivo de áudio. Obtenha resultados de detecção de IA com 96,8% de precisão no Suno v5.5. Projetado para gravadoras, plataformas de streaming e sociedades de direitos autorais em todo o mundo.
+                </p>
+                <p className="text-base text-muted-foreground mb-8">
+                  Plano gratuito disponível. Suporta WAV, MP3, FLAC, AAC, OGG até 100MB.
+                </p>
+
+                {/* Stats */}
+                <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-10">
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">96,8%</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Detecção Suno</div>
+                  </div>
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">97,8%</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Voice Deepfake</div>
+                  </div>
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">Fast</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Velocidade</div>
+                  </div>
+                  <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">Todos</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Gêneros</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link href="/verify-audio">
+                    <Button className="px-8 py-3 text-base font-medium">
+                      Escaneie Grátis
+                    </Button>
+                  </Link>
+                  <Link href="/batch-verify">
+                    <Button variant="outline" className="px-8 py-3 text-base font-medium">
+                      Escaneamento em Massa para Gravadoras
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="order-first md:order-last">
+                <img
+                  src="/images/herosection_new.png"
+                  alt="DetectX detector de música IA analisando arquivo de áudio — detectando música gerada por Suno e Udio com 96,8% de precisão"
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              Como Detectar Música Gerada por IA
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Três passos simples para verificar se uma música foi gerada por IA. Funciona com qualquer formato de arquivo de áudio.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center p-6 rounded-lg bg-muted/20">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
+                  <Upload className="h-6 w-6 text-foreground" />
+                </div>
+                <h3 className="font-medium text-foreground mb-2">1. Faça Upload do Áudio</h3>
+                <p className="text-sm text-muted-foreground">
+                  Arraste e solte ou selecione qualquer arquivo de áudio. Suporta WAV, MP3, FLAC, AAC, OGG. Até 100MB.
+                </p>
+              </div>
+              <div className="text-center p-6 rounded-lg bg-muted/20">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
+                  <Cpu className="h-6 w-6 text-foreground" />
+                </div>
+                <h3 className="font-medium text-foreground mb-2">2. Análise de Multi-Motor</h3>
+                <p className="text-sm text-muted-foreground">
+                  Múltiplos modelos proprietários de IA analisam padrões de áudio em diferentes dimensões simultaneamente. Análise paralela de alta velocidade.
+                </p>
+              </div>
+              <div className="text-center p-6 rounded-lg bg-muted/20">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-foreground" />
+                </div>
+                <h3 className="font-medium text-foreground mb-2">3. Obtenha o Veredito</h3>
+                <p className="text-sm text-muted-foreground">
+                  Resultado claro: sinal de IA detectado ou não. Sem porcentagens ambíguas. Evidência de alta confiabilidade em que você pode confiar.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features / Why DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              Por Que o DetectX É o Detector de Música IA Mais Preciso
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Análise de multi-motor com tecnologia patenteada de deep learning. Testado em 995 faixas Suno v5.5 cobrindo 16 gêneros.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="p-6 rounded-lg border border-border">
+                <Zap className="h-8 w-8 text-cyan-500 mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">Motor Deep Learning</h3>
+                <p className="text-muted-foreground text-sm">
+                  Redes neurais proprietárias treinadas com milhares de faixas geradas por IA. Identifica padrões estruturais únicos de geradores de música IA como Suno, Udio e ElevenLabs Music.
+                </p>
+              </div>
+              <div className="p-6 rounded-lg border border-border">
+                <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">Verificação Multicamada</h3>
+                <p className="text-muted-foreground text-sm">
+                  Motor de análise secundário que valida cruzadamente os resultados de detecção primária. Detecta artefatos que detectores de modelo único não encontram, garantindo máxima precisão com mínimo de falsos positivos.
+                </p>
+              </div>
+              <div className="p-6 rounded-lg border border-border">
+                <Shield className="h-8 w-8 text-cyan-500 mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">Processamento em Lote em Escala</h3>
+                <p className="text-muted-foreground text-sm">
+                  Escaneie centenas a milhões de faixas automaticamente. Processamento em lote de nível empresarial com até 1M de faixas por semana, integração via API e relatórios detalhados.
+                </p>
+              </div>
+              <div className="p-6 rounded-lg border border-border">
+                <Music className="h-8 w-8 text-cyan-500 mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">Resistente a Evasão</h3>
+                <p className="text-muted-foreground text-sm">
+                  Robusto contra conversão MP3, pitch shifting, mudanças de tempo, adição de ruído e recodificação de codec. Analisa propriedades estruturais profundas que sobrevivem a qualquer pós-processamento.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Comparison Table */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              Comparação de Detectores de Música IA
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Como o DetectX se compara a outras ferramentas de detecção de música IA no mercado.
+            </p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left p-3 font-medium text-foreground">Funcionalidade</th>
+                    <th className="text-center p-3 font-medium text-cyan-500">DetectX</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground">ACRCloud</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground">Resemble AI</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground">SubmitHub</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Precisão de Detecção Suno</td>
+                    <td className="p-3 text-center font-medium text-foreground">96,8%</td>
+                    <td className="p-3 text-center">Desconhecido</td>
+                    <td className="p-3 text-center">94%</td>
+                    <td className="p-3 text-center">90%+</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Análise de Multi-Motor</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Processamento em Massa</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Detecção de Deepfake Vocal</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Plano Gratuito</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr>
+                    <td className="p-3">Acesso à API</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="text-center mt-8">
+              <Link href="/verify-audio">
+                <Button className="px-8 py-3 text-base font-medium">
+                  Experimente o DetectX Grátis
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Use Cases */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              Quem Usa Detecção de Música IA
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              De músicos individuais a grandes gravadoras processando grandes volumes de faixas IA geradas em todos os gêneros.
+            </p>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="p-5 rounded-lg border border-border">
+                <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
+                <h3 className="font-medium text-foreground mb-2 text-sm">Gravadoras</h3>
+                <p className="text-xs text-muted-foreground">
+                  Processe grandes volumes de faixas com escaneamento em lote. Proteja seu catálogo contra conteúdo IA e escaneie milhares de faixas automaticamente.
+                </p>
+              </div>
+              <div className="p-5 rounded-lg border border-border">
+                <Music className="h-6 w-6 text-cyan-500 mb-3" />
+                <h3 className="font-medium text-foreground mb-2 text-sm">Plataformas de Streaming</h3>
+                <p className="text-xs text-muted-foreground">
+                  Filtre uploads de IA automaticamente. Mais de 60.000 faixas de IA enviadas diariamente. Integração via API para detecção em tempo real.
+                </p>
+              </div>
+              <div className="p-5 rounded-lg border border-border">
+                <Shield className="h-6 w-6 text-cyan-500 mb-3" />
+                <h3 className="font-medium text-foreground mb-2 text-sm">Sociedades de Direitos Autorais</h3>
+                <p className="text-xs text-muted-foreground">
+                  Protege os pools de royalties das sociedades de direitos autorais contra registros fraudulentos de IA. Fornece relatórios de análise com qualidade de evidência para disputas.
+                </p>
+              </div>
+              <div className="p-5 rounded-lg border border-border">
+                <Mic className="h-6 w-6 text-cyan-500 mb-3" />
+                <h3 className="font-medium text-foreground mb-2 text-sm">Músicos e Produtores</h3>
+                <p className="text-xs text-muted-foreground">
+                  Verifique seu próprio trabalho. Comprove a origem humana. Confira se colaboradores usaram geração por IA. Gratuito para uso individual.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Supported AI Generators */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl text-center">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
+              Detecta Todos os Principais Geradores de Música IA
+            </h2>
+            <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
+              DetectX identifica áudio de qualquer plataforma de geração de música IA, independentemente de pós-processamento ou conversão de formato.
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-3 mb-10">
+              {["Suno v5.5", "Udio", "ElevenLabs Music", "Seed Music", "MiniMax", "Mureka", "Riffusion", "Sonauto", "AIVA", "Boomy"].map((name) => (
+                <span key={name} className="px-4 py-2 bg-muted/30 rounded-full text-sm text-foreground border border-border/50">
+                  {name}
+                </span>
+              ))}
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              A detecção funciona independentemente da conversão MP3, pitch shifting, mudanças de tempo ou outras tentativas de evasão.
+            </p>
+          </div>
+        </section>
+
+        {/* Voice Deepfake Section */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+              <div>
+                <img
+                  src="/images/othermodalities.png"
+                  alt="DetectX detecção de deepfake vocal — detector de clones de voz IA e fala sintética"
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
+              </div>
+              <div>
+                <h2 className="text-2xl font-medium text-foreground mb-4">
+                  Detecção de Deepfake Vocal — Detector de Clones de Voz IA
+                </h2>
+                <p className="text-muted-foreground mb-4">
+                  DetectX também detecta fala gerada por IA e vozes deepfake com 97,8% de precisão. Funciona com apenas 2 segundos de áudio em condições reais de telefone.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> ElevenLabs, Google TTS, OpenAI detectados</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Funciona em codec telefônico (G.711, 8kHz)</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Mínimo de 2 segundos de áudio necessários</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Detecção em tempo real para call centers</li>
+                </ul>
+                <Link href="/verify-voice">
+                  <Button variant="outline" className="text-sm">
+                    Experimentar Detecção Vocal
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 md:py-28 px-6 border-t border-border">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
+              Comece a Detectar Música Gerada por IA Hoje
+            </h2>
+            <p className="text-muted-foreground mb-8">
+              Plano gratuito disponível. Faça upload da sua primeira faixa e obtenha resultados em segundos.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/verify-audio">
+                <Button className="px-10 py-4 text-base font-medium">
+                  Escaneie Grátis
+                </Button>
+              </Link>
+              <Link href="/plan">
+                <Button variant="outline" className="px-10 py-4 text-base font-medium">
+                  Ver Planos Enterprise
+                </Button>
+              </Link>
+            </div>
+            <p className="mt-6 text-xs text-muted-foreground">
+              Suporta WAV, MP3, FLAC, AAC, OGG até 100MB. Análise paralela de alta velocidade.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-12 px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h4 className="font-medium text-foreground mb-3 text-sm">Produto</h4>
+              <div className="space-y-2">
+                <Link href="/verify-audio" className="block text-sm text-muted-foreground hover:text-foreground">Detector de Música IA</Link>
+                <Link href="/verify-voice" className="block text-sm text-muted-foreground hover:text-foreground">Detector de Deepfake Vocal</Link>
+                <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">Escaneamento em Massa</Link>
+                <Link href="/plan" className="block text-sm text-muted-foreground hover:text-foreground">Preços</Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium text-foreground mb-3 text-sm">Recursos</h4>
+              <div className="space-y-2">
+                <Link href="/technology" className="block text-sm text-muted-foreground hover:text-foreground">Tecnologia</Link>
+                <Link href="/research" className="block text-sm text-muted-foreground hover:text-foreground">Pesquisa</Link>
+                <Link href="/updates" className="block text-sm text-muted-foreground hover:text-foreground">Atualizações</Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium text-foreground mb-3 text-sm">Empresa</h4>
+              <div className="space-y-2">
+                <Link href="/about" className="block text-sm text-muted-foreground hover:text-foreground">Sobre</Link>
+                <Link href="/contact" className="block text-sm text-muted-foreground hover:text-foreground">Contato</Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium text-foreground mb-3 text-sm">Idiomas</h4>
+              <div className="space-y-2">
+                <Link href="/en/" className="block text-sm text-muted-foreground hover:text-foreground">English</Link>
+                <Link href="/ko/" className="block text-sm text-muted-foreground hover:text-foreground">한국어</Link>
+                <Link href="/ja/" className="block text-sm text-muted-foreground hover:text-foreground">日本語</Link>
+                <Link href="/es/" className="block text-sm text-muted-foreground hover:text-foreground">Español</Link>
+                <Link href="/de/" className="block text-sm text-muted-foreground hover:text-foreground">Deutsch</Link>
+                <Link href="/fr/" className="block text-sm text-muted-foreground hover:text-foreground">Français</Link>
+                <Link href="/pt/" className="block text-sm text-cyan-500 font-medium">Português</Link>
+                <Link href="/zh/" className="block text-sm text-muted-foreground hover:text-foreground">中文</Link>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-border pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-muted-foreground">
+              &copy; 2026 DetectX, Inc. Todos os direitos reservados.
+            </p>
+            <div className="flex gap-4">
+              <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground">Termos</Link>
+              <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">Privacidade</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

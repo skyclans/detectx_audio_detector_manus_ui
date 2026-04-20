@@ -18,7 +18,7 @@ export default function Research() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="Research"
-        description="DetectX research: design philosophy, accuracy benchmarks, and technical decisions behind our AI music detection system. Evidence-based forensic analysis approach."
+        description="DetectX research: design philosophy, accuracy benchmarks, and technical decisions behind our AI music detection system. Evidence-based evidence-based analysis approach."
         path="/research"
       />
       {/* Header */}
@@ -86,7 +86,7 @@ export default function Research() {
             </h2>
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                DetectX is built on the principle that forensic verification must be deterministic, explainable, and human-safe. These are not optimization targets—they are hard constraints that shape every design decision.
+                DetectX is built on the principle that evidence-based verification must be deterministic, explainable, and human-safe. These are not optimization targets—they are hard constraints that shape every design decision.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 The research program prioritizes reliability over sensitivity. A system that occasionally misclassifies human work as AI-generated causes more harm than a system that occasionally fails to detect AI content. Human safety is non-negotiable.
@@ -122,7 +122,7 @@ export default function Research() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
-                  <span><strong className="text-foreground">Reproducibility failures:</strong> Many probabilistic systems produce different scores on repeated analysis of the same content, undermining forensic credibility.</span>
+                  <span><strong className="text-foreground">Reproducibility failures:</strong> Many probabilistic systems produce different scores on repeated analysis of the same content, undermining evidence-based credibility.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-foreground mt-1">•</span>
@@ -306,7 +306,7 @@ export default function Research() {
                 </li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-4">
-                New modalities will be introduced only after they meet the same forensic reliability and human-safety standards as DetectX Audio and DetectX Voice.
+                New modalities will be introduced only after they meet the same evidence-based reliability and human-safety standards as DetectX Audio and DetectX Voice.
               </p>
             </div>
           </section>
@@ -315,7 +315,7 @@ export default function Research() {
           <section className="mb-16 border-t border-border pt-12">
             <div className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-muted-foreground leading-relaxed italic">
-                DetectX exists to provide a forensic reference that can be trusted. The research program is guided by a single principle: verification systems must protect human creators, not endanger them.
+                DetectX exists to provide a evidence-based reference that can be trusted. The research program is guided by a single principle: verification systems must protect human creators, not endanger them.
               </p>
             </div>
           </section>

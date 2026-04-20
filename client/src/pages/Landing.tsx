@@ -62,8 +62,8 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="DetectX — Free AI Music Detector | Detect Suno & Udio AI-Generated Songs"
-        description="Free AI music detector with 98.89% accuracy. Detect AI-generated songs from Suno, Udio, and other AI music generators. Patent-pending AI detection technology plus voice deepfake detection."
+        title="DetectX | Free AI Music Detector | Detect Suno & Udio AI-Generated Songs"
+        description="Free AI music detector. Detect AI-generated songs from Suno, Udio, and other AI music generators. Patent-pending multi-engine detection technology plus voice deepfake detection."
         path="/"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -75,7 +75,7 @@ export default function Landing() {
             "name": "How does DetectX detect AI-generated music?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX uses proprietary multi-layer deep learning analysis. Audio is analyzed through multiple independent engines that examine structural signal patterns. The system cross-validates results across engines to achieve 98.89% accuracy on human content while maintaining strong AI detection capability."
+              "text": "DetectX uses proprietary multi-layer deep learning analysis. Audio is analyzed through multiple independent engines that examine structural signal patterns. The system cross-validates results across engines to minimize false positives on human content while maintaining strong AI detection capability."
             }
           },
           {
@@ -107,7 +107,7 @@ export default function Landing() {
             "name": "How accurate is AI music detection?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX achieves 98.89% accuracy protecting human-created music (near-zero false positives). For AI detection, the system achieves 83% on Suno-generated tracks and 58% on Udio tracks. The system prioritizes protecting human artists over maximizing AI detection rate."
+              "text": "DetectX achieves 96.8% detection rate on Suno v5.5 AI-generated tracks and 58% on Udio tracks. The multi-engine system is designed to minimize false positives on human-created music. The system prioritizes protecting human artists over maximizing AI detection rate."
             }
           },
           {
@@ -131,7 +131,7 @@ export default function Landing() {
             "name": "What audio formats does DetectX support?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX supports WAV, MP3, FLAC, AAC, and OGG formats. Maximum file size is 200MB per analysis. The system works with any audio quality from low-bitrate MP3 to lossless studio masters."
+              "text": "DetectX supports WAV, MP3, FLAC, AAC, and OGG formats. Maximum file size is 100MB per analysis. The system works with any audio quality from low-bitrate MP3 to lossless studio masters."
             }
           },
           {
@@ -326,12 +326,12 @@ export default function Landing() {
               {/* Text - Left */}
               <div>
                 <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-8">
-                  AI Music Detector — Detect Suno, Udio & AI-Generated Songs
+                  Instantly Detect AI-Generated Music from Suno, Udio & More
                 </h1>
                 <div className="space-y-3 mb-10">
                   <p className="text-lg text-muted-foreground">
                     DetectX uses proprietary multi-stage verification to detect AI-generated
-                    content while protecting human creators at 98.89% accuracy.
+                    content while protecting human creators.
                   </p>
                   <p className="text-lg text-muted-foreground">
                     Robust against codec conversion, pitch shifting, and other evasion
@@ -341,8 +341,8 @@ export default function Landing() {
                 {/* Performance Stats */}
                 <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-10">
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
-                    <div className="text-lg sm:text-2xl font-bold text-foreground">98.89%</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">Human Protection</div>
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">96.8%</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Suno Detection</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">97.8%</div>
@@ -395,7 +395,7 @@ export default function Landing() {
               {/* Text - Right */}
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-8">
-                  AI Music Detection Engine — Detect Suno, Udio & AI-Generated Songs
+                  Multi-Engine AI Music Detection for Suno, Udio & All Generators
                 </h2>
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
@@ -418,7 +418,7 @@ export default function Landing() {
                   </h3>
                   <ul className="space-y-2 text-muted-foreground">
                     <li>• Proprietary multi-stage verification pipeline</li>
-                    <li>• Human-safe by design (98.89% accuracy on human content)</li>
+                    <li>• Human-safe by design (minimal false positives on human content)</li>
                     <li>• Evasion-resistant structural analysis</li>
                     <li>• Multiple independent metrics for evidence-grade results</li>
                   </ul>
@@ -563,7 +563,7 @@ export default function Landing() {
             <p className="text-muted-foreground mb-8">
               Upload your audio file and get instant AI detection results.
               Our proprietary multi-stage verification ensures strong AI detection
-              while protecting human creators at 98.89% accuracy.
+              while protecting human creators.
             </p>
             <Link href="/verify-audio">
               <Button className="px-8 py-3 text-base font-medium">
@@ -588,9 +588,9 @@ export default function Landing() {
                     from being falsely flagged as AI-generated.
                   </p>
                   <p>
-                    With 98.89% accuracy on human content, our proprietary engine
-                    is trained on millions of verified human samples
-                    to understand the full spectrum of human creative expression.
+                    Our proprietary engine is trained on millions of verified human samples
+                    to understand the full spectrum of human creative expression,
+                    minimizing false positives on human-created music.
                   </p>
                   <p>
                     DetectX does not determine authorship.
@@ -640,7 +640,7 @@ export default function Landing() {
                   <li>• Streaming platforms and distributors</li>
                 </ul>
                 <p className="text-muted-foreground leading-relaxed">
-                  Trusted by professionals who need accurate verification
+                  Designed for professionals who need accurate verification
                   across music and voice content.
                 </p>
               </div>

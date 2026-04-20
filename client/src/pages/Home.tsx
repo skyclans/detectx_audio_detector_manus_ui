@@ -174,20 +174,20 @@ function generateScanLogs(stage: ScanStage): ScanLog {
     // Enhanced Mode Philosophy
     philosophy_1: { message: "DetectX Enhanced Mode: Dual-engine verification active", type: "philosophy" },
     philosophy_2: { message: "DetectX Engine v3 (primary) — trained on millions of verified human samples", type: "philosophy" },
-    philosophy_3: { message: "Reconstruction Engine (secondary) — confirms AI signal via stem separation differential", type: "philosophy" },
+    philosophy_3: { message: "Verification Engine (secondary) — confirms AI signal via multi-layer analysis", type: "philosophy" },
 
     // Scan Process
-    init: { message: "Initializing forensic analysis pipeline", type: "process" },
+    init: { message: "Initializing analysis pipeline", type: "process" },
     upload: { message: "Ingesting audio stream — verifying file integrity", type: "process" },
-    decode: { message: "Extracting mel-spectrogram features (224×224, 44.1kHz)", type: "process" },
+    decode: { message: "Extracting audio features for deep learning analysis", type: "process" },
     classifier: { message: "Running DetectX Engine v3 — segment-level inference", type: "process" },
     classifier_check: { message: "Evaluating detection threshold against baseline", type: "process" },
 
-    // Reconstruction Engine (only runs if primary threshold exceeded)
-    recon_init: { message: "AI signal detected by primary engine — activating Reconstruction Engine for confirmation", type: "process" },
-    recon_stems: { message: "Demucs v4 stem separation: vocals / drums / bass / other", type: "process" },
-    recon_compare: { message: "Computing reconstruction differential — 7-metric evaluation", type: "process" },
-    recon_eval: { message: "Analyzing spectral band differences and phase coherence", type: "process" },
+    // Verification Engine (only runs if primary threshold exceeded)
+    recon_init: { message: "AI signal detected by primary engine — activating Verification Engine for confirmation", type: "process" },
+    recon_stems: { message: "Performing multi-layer audio decomposition analysis", type: "process" },
+    recon_compare: { message: "Computing verification differential — multi-metric evaluation", type: "process" },
+    recon_eval: { message: "Analyzing frequency band differences and signal coherence", type: "process" },
 
     // Constraints
     constraint_1: { message: "No probabilistic inference is performed", type: "constraint" },

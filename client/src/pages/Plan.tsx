@@ -34,6 +34,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ForensicLayout } from "@/components/ForensicLayout";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { fetchWithAuth } from "@/lib/api";
@@ -70,7 +71,7 @@ const plans = [
     price: "$39.99",
     period: "month",
     icon: Zap,
-    positioning: "Full forensic analysis for individual creators.",
+    positioning: "Full analysis for individual creators.",
     perSong: "$0.80 / song",
     features: [
       "50 verifications per month",
@@ -99,7 +100,7 @@ const plans = [
     features: [
       "1,000 verifications per month",
       "Batch processing — scan hundreds of tracks at once",
-      "Full forensic report with dual-engine metrics",
+      "Full analysis report with multi-engine metrics",
       "PDF export & Human Verification Certificate",
       "All export formats (PDF, JSON, CSV, Markdown)",
       "Dedicated priority processing queue",
@@ -241,6 +242,11 @@ export default function Plan() {
   // Plan page is accessible to all users (logged-in and non-logged-in)
   return (
     <ForensicLayout title="Pricing" subtitle="Choose the plan that fits your workflow">
+      <SEO
+        title="Pricing — AI Music Detection Plans | Free, Pro, Studio, Enterprise"
+        description="DetectX pricing: Free AI music detection (5 scans/day), Pro ($39.99/mo, 100 scans), Studio ($399/mo, batch processing), Enterprise (unlimited, API access). Detect Suno, Udio AI-generated music."
+        path="/plan"
+      />
       <div className="max-w-6xl">
         {/* Plan Cards - All badges aligned at same vertical position */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

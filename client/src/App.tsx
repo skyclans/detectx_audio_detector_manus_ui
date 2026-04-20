@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -5,36 +6,56 @@ import { Route, Switch } from "wouter";
 import { HelmetProvider } from "react-helmet-async";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { CookieConsent } from "./components/CookieConsent";
+
+// Core pages (eagerly loaded)
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
-import History from "./pages/History";
-import Settings from "./pages/Settings";
-import Plan from "./pages/Plan";
-import BatchVerify from "./pages/BatchVerify";
-import VoiceVerify from "./pages/VoiceVerify";
-import ComingSoon from "./pages/ComingSoon";
-import Technology from "./pages/Technology";
-import Research from "./pages/Research";
-import Updates from "./pages/Updates";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Login from "./pages/Login";
-import AuthCallback from "./pages/AuthCallback";
-import ModeSelection from "./pages/ModeSelection";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import InviteAccept from "./pages/InviteAccept";
-import HomeTest from "./pages/HomeTest";
-import HistoryTest from "./pages/HistoryTest";
-import { CookieConsent } from "./components/CookieConsent";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminUsers from "./pages/admin/Users";
-import AdminUserDetail from "./pages/admin/UserDetail";
-import AdminVerifications from "./pages/admin/Verifications";
-import AdminLogs from "./pages/admin/Logs";
+
+// Lazy-loaded pages
+const History = lazy(() => import("./pages/History"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Plan = lazy(() => import("./pages/Plan"));
+const BatchVerify = lazy(() => import("./pages/BatchVerify"));
+const VoiceVerify = lazy(() => import("./pages/VoiceVerify"));
+const ComingSoon = lazy(() => import("./pages/ComingSoon"));
+const Technology = lazy(() => import("./pages/Technology"));
+const Research = lazy(() => import("./pages/Research"));
+const Updates = lazy(() => import("./pages/Updates"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Login = lazy(() => import("./pages/Login"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const ModeSelection = lazy(() => import("./pages/ModeSelection"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const InviteAccept = lazy(() => import("./pages/InviteAccept"));
+const HomeTest = lazy(() => import("./pages/HomeTest"));
+const HistoryTest = lazy(() => import("./pages/HistoryTest"));
+
+// SEO landing pages (lazy)
+const LandingEN = lazy(() => import("./pages/LandingEN"));
+const LandingKO = lazy(() => import("./pages/LandingKO"));
+const LandingJA = lazy(() => import("./pages/LandingJA"));
+const LandingES = lazy(() => import("./pages/LandingES"));
+const LandingDE = lazy(() => import("./pages/LandingDE"));
+const LandingFR = lazy(() => import("./pages/LandingFR"));
+const LandingPT = lazy(() => import("./pages/LandingPT"));
+const LandingZH = lazy(() => import("./pages/LandingZH"));
+const VsACRCloud = lazy(() => import("./pages/VsACRCloud"));
+const VsResemble = lazy(() => import("./pages/VsResemble"));
+const BlogHowToDetect = lazy(() => import("./pages/BlogHowToDetect"));
+
+// Admin pages (lazy)
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminUsers = lazy(() => import("./pages/admin/Users"));
+const AdminUserDetail = lazy(() => import("./pages/admin/UserDetail"));
+const AdminVerifications = lazy(() => import("./pages/admin/Verifications"));
+const AdminLogs = lazy(() => import("./pages/admin/Logs"));
 
 function Router() {
   return (
+    <Suspense fallback={<div className="min-h-screen" />}>
     <Switch>
       {/* Landing page (HOME) - main entry point */}
       <Route path="/" component={Landing} />
@@ -69,6 +90,31 @@ function Router() {
       {/* Team invite */}
       <Route path="/invite/:token" component={InviteAccept} />
 
+      {/* Multilingual SEO landing pages */}
+      <Route path="/en" component={LandingEN} />
+      <Route path="/en/" component={LandingEN} />
+      <Route path="/ko" component={LandingKO} />
+      <Route path="/ko/" component={LandingKO} />
+      <Route path="/ja" component={LandingJA} />
+      <Route path="/ja/" component={LandingJA} />
+      <Route path="/es" component={LandingES} />
+      <Route path="/es/" component={LandingES} />
+      <Route path="/de" component={LandingDE} />
+      <Route path="/de/" component={LandingDE} />
+      <Route path="/fr" component={LandingFR} />
+      <Route path="/fr/" component={LandingFR} />
+      <Route path="/pt" component={LandingPT} />
+      <Route path="/pt/" component={LandingPT} />
+      <Route path="/zh" component={LandingZH} />
+      <Route path="/zh/" component={LandingZH} />
+
+      {/* Comparison pages */}
+      <Route path="/vs/acrcloud" component={VsACRCloud} />
+      <Route path="/vs/resemble-ai" component={VsResemble} />
+
+      {/* Blog pages */}
+      <Route path="/blog/how-to-detect-ai-generated-music" component={BlogHowToDetect} />
+
       {/* Legal pages */}
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
@@ -89,6 +135,7 @@ function Router() {
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 

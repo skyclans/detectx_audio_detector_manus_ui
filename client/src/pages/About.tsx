@@ -261,6 +261,25 @@ export default function About() {
             </div>
           </section>
 
+          {/* Trademark Attribution */}
+          <section className="border-t border-border pt-12">
+            <h3 className="text-lg font-medium text-foreground mb-4">Trademark Attribution</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              The following names are trademarks or registered trademarks of their respective owners and are referenced on this site for identification purposes only:
+            </p>
+            <ul className="mt-3 text-sm text-muted-foreground space-y-1 ml-4 list-disc list-inside">
+              <li><strong>Suno</strong> — Suno, Inc.</li>
+              <li><strong>Udio</strong> — Uncharted Labs, Inc.</li>
+              <li><strong>ElevenLabs</strong> — ElevenLabs, Inc.</li>
+              <li><strong>OpenAI</strong> — OpenAI, Inc.</li>
+              <li><strong>ACRCloud</strong> — ACRCloud Tech Co., Ltd.</li>
+              <li><strong>Resemble AI</strong> — Resemble AI, Inc.</li>
+            </ul>
+            <p className="text-sm text-muted-foreground leading-relaxed mt-3">
+              DetectX is not affiliated with, endorsed by, or sponsored by any of the above entities. All references are made under nominative fair use to describe the detection capabilities of our platform.
+            </p>
+          </section>
+
           {/* CTA */}
           <section className="border-t border-border pt-12">
             <div className="text-center">

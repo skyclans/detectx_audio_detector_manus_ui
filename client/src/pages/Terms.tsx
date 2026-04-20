@@ -180,7 +180,20 @@ export default function Terms() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">13. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">13. Third-Party References & Trademarks</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              DetectX is an independent analysis tool. Any mention of third-party services, platforms, or products — including but not limited to Suno, Udio, ElevenLabs, OpenAI, ACRCloud, and Resemble AI — is for identification and interoperability purposes only and does not imply any affiliation, endorsement, or sponsorship by those parties.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              All third-party trademarks, service marks, trade names, and logos are the property of their respective owners. DetectX uses these names solely to describe the compatibility and detection capabilities of the Service in a factual, non-disparaging manner consistent with nominative fair use principles.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              By using the Service, you acknowledge and agree to this interpretation of third-party references throughout the DetectX platform, documentation, and marketing materials.
+            </p>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">14. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
               DetectX, Inc.<br />
               Email: <a href="mailto:support@detectx.app" className="text-primary hover:underline">support@detectx.app</a>

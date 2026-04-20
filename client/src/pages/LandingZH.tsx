@@ -21,7 +21,7 @@ export default function LandingZH() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="即刻检测Suno、Udio等AI生成音乐 | DetectX"
+        title="即刻检测 Suno·Udio AI 生成音乐 | DetectX"
         description="免费AI音乐检测工具，Suno v5.5检测准确率96.8%。多引擎深度学习分析检测AI生成音乐。面向唱片公司、流媒体平台和版权组织设计的AI音乐检测工具。"
         path="/zh/"
       />
@@ -56,7 +56,7 @@ export default function LandingZH() {
             "name": "DetectX如何检测AI生成的音乐？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX使用专有的多层深度学习分析技术。多个AI模型检测人耳无法感知的AI生成音频特有的微妙模式和伪影。多个分析引擎之间的交叉验证在Suno v5.5上达到96.8%的检测率，同时保持98.89%的人类音乐保护率。"
+              "text": "DetectX使用专有的多层Deep Learning分析技术。多个AI模型检测人耳无法感知的AI生成音频特有的微妙模式和伪影。Multi-Engine交叉验证在Suno v5.5上达到96.8%的检测率，同时将人类音乐的误判降到最低。"
             }
           },
           {
@@ -64,7 +64,7 @@ export default function LandingZH() {
             "name": "DetectX AI音乐检测器的准确率是多少？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX对Suno v5.5生成的AI音乐检测率达到96.8%（在16种音乐类型的995首曲目上测试）。人类保护率为98.89%，意味着对人类创作的音乐几乎零误报。这使DetectX成为市场上最准确的AI音乐检测器之一。"
+              "text": "DetectX对Suno v5.5生成的AI音乐检测率达到96.8%（在16种音乐类型的995首曲目上测试）。Multi-Engine架构将人类音乐的误判降到最低，对人类创作的音乐几乎零误报。这使DetectX成为市场上最准确的AI音乐检测器之一。"
             }
           },
           {
@@ -175,21 +175,21 @@ export default function LandingZH() {
           <div className="mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-6">
-                  即刻检测Suno、Udio等AI生成音乐
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-6">
+                  即刻检测 Suno·Udio AI 生成音乐
                 </h1>
                 <p className="text-lg text-muted-foreground mb-4">
-                  上传任意音频文件，即时获取AI检测结果，Suno v5.5准确率高达96.8%。面向唱片公司、流媒体平台和版权组织设计的检测工具。
+                  上传您的音频文件，即时获取AI检测结果。Suno v5.5 检测率 96.8%。专为唱片公司、流媒体平台和版权组织打造。
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
-                  提供免费计划。支持WAV、MP3、FLAC、AAC、OGG，最大100MB。
+                  免费使用。支持 WAV、MP3、FLAC、AAC、OGG，最大 100MB。
                 </p>
 
                 {/* Stats */}
                 <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-10">
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">96.8%</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">Suno检测率</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Suno 检测</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">97.8%</div>
@@ -197,11 +197,11 @@ export default function LandingZH() {
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">Fast</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">分析速度</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">极速分析</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
                     <div className="text-lg sm:text-2xl font-bold text-foreground">全部</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">音乐类型</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">全类型</div>
                   </div>
                 </div>
 
@@ -237,7 +237,7 @@ export default function LandingZH() {
               如何检测AI生成音乐
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              三个简单步骤检查一首歌是否由AI生成。支持所有音频文件格式。
+              三步完成检测，支持所有主流音频格式。
             </p>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -247,16 +247,16 @@ export default function LandingZH() {
                 </div>
                 <h3 className="font-medium text-foreground mb-2">1. 上传音频</h3>
                 <p className="text-sm text-muted-foreground">
-                  拖放或选择任何音频文件。支持WAV、MP3、FLAC、AAC、OGG。最大100MB。
+                  拖放或选择您的音频文件。支持 WAV、MP3、FLAC、AAC、OGG，最大 100MB。
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Cpu className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">2. 多引擎分析</h3>
+                <h3 className="font-medium text-foreground mb-2">2. Multi-Engine 分析</h3>
                 <p className="text-sm text-muted-foreground">
-                  多个专有AI模型同时从不同维度分析音频模式。高速并行分析，快速返回结果。
+                  多个专有 AI 模型同时从不同维度分析音频特征。高速并行处理，快速出结果。
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
@@ -265,7 +265,7 @@ export default function LandingZH() {
                 </div>
                 <h3 className="font-medium text-foreground mb-2">3. 获取结果</h3>
                 <p className="text-sm text-muted-foreground">
-                  清晰结论：是否检测到AI信号。没有模糊的百分比。可信赖的专业级分析证据。
+                  清晰结论：是否存在 AI 生成信号。专业级分析报告，可作为证据留存。
                 </p>
               </div>
             </div>
@@ -279,36 +279,36 @@ export default function LandingZH() {
               为什么DetectX是最准确的AI音乐检测器
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              多引擎深度学习分析，专利技术。在16种音乐类型的995首Suno v5.5曲目上测试验证。
+              Multi-Engine Deep Learning 分析，专利技术。经 16 种音乐类型、995 首 Suno v5.5 曲目实测验证。
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="p-6 rounded-lg border border-border">
                 <Zap className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">深度学习引擎</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Deep Learning 引擎</h3>
                 <p className="text-muted-foreground text-sm">
-                  基于全类型大量AI生成曲目训练的专有神经网络。识别Suno、Udio和ElevenLabs Music等AI音乐生成器独有的结构模式。
+                  基于全类型大量 AI 生成曲目训练的专有神经网络。精准识别 Suno、Udio、ElevenLabs Music 等生成器独有的结构模式。
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">多层验证</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">多层交叉验证</h3>
                 <p className="text-muted-foreground text-sm">
-                  交叉验证一次检测结果的二次分析引擎。检测单模型检测器无法发现的伪影，以最低误报率确保最高准确率。
+                  二次分析引擎交叉验证首次检测结果。发现单模型检测器遗漏的伪影，将人类音乐的误判降到最低。
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Shield className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">大规模批量处理</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">企业级批量处理</h3>
                 <p className="text-muted-foreground text-sm">
-                  为唱片公司和平台打造的企业级批量扫描能力。每周可处理多达100万首曲目，高效保护曲库完整性。
+                  处理大量曲目，保护您的音乐目录免受 AI 内容侵入。支持数千首批量扫描，企业版每周可达 100 万首。
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Music className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">抗规避</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">抗规避能力</h3>
                 <p className="text-muted-foreground text-sm">
-                  对MP3转换、变调、变速、添加噪声和编解码器重编码等操作具有强健性。分析深层结构属性，任何后处理都无法消除。
+                  对 MP3 转码、变调、变速、加噪声等操作均保持稳定检测。分析深层结构特征，后处理无法抹除。
                 </p>
               </div>
             </div>
@@ -322,7 +322,7 @@ export default function LandingZH() {
               AI音乐检测器对比
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              DetectX与市场上其他AI音乐检测工具的对比。
+              DetectX 与市场主流 AI 音乐检测工具的对比。
             </p>
 
             <div className="overflow-x-auto">

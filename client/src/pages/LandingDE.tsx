@@ -56,7 +56,7 @@ export default function LandingDE() {
             "name": "Wie erkennt DetectX KI-generierte Musik?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX verwendet proprietäre Multi-Layer-Deep-Learning-Analyse. Unsere KI-Modelle erkennen subtile Muster und Artefakte, die einzigartig für KI-generiertes Audio sind und für das menschliche Ohr unsichtbar bleiben. Die Kreuzvalidierung zwischen mehreren Analyse-Engines erreicht 96,8% Erkennung bei Suno v5.5 bei gleichzeitigem 98,89% Schutz menschlicher Musik."
+              "text": "DetectX verwendet proprietäre Multi-Layer-Deep-Learning-Analyse. Unsere KI-Modelle erkennen subtile Muster und Artefakte, die einzigartig für KI-generiertes Audio sind und für das menschliche Ohr nicht wahrnehmbar bleiben. Die Kreuzvalidierung zwischen mehreren Analyse-Engines erreicht 96,8% Erkennung bei Suno v5.5 und minimiert Fehlalarme bei menschlich erstellter Musik."
             }
           },
           {
@@ -64,7 +64,7 @@ export default function LandingDE() {
             "name": "Wie genau ist der DetectX KI-Musik-Detektor?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX erreicht eine Erkennungsrate von 96,8% bei Suno v5.5 KI-generierter Musik (getestet an 995 Tracks in 16 Genres). Die Menschenschutzrate beträgt 98,89%, was nahezu null Fehlalarme bei menschlich erstellter Musik bedeutet. Dies macht DetectX zu einem der genauesten KI-Musik-Detektoren auf dem Markt."
+              "text": "DetectX erreicht eine Erkennungsrate von 96,8% bei Suno v5.5 KI-generierter Musik (getestet an 995 Tracks in 16 Genres). Das System minimiert Fehlalarme bei menschlich erstellter Musik durch Multi-Engine-Kreuzvalidierung. Dies macht DetectX zu einem der genauesten KI-Musik-Detektoren auf dem Markt."
             }
           },
           {
@@ -80,7 +80,7 @@ export default function LandingDE() {
             "name": "Ist DetectX kostenlos nutzbar?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Ja, DetectX bietet eine kostenlose Stufe mit vollständiger Multi-Engine-Analyse. Laden Sie eine beliebige Audiodatei hoch (WAV, MP3, FLAC, AAC, OGG bis 100MB) und erhalten Sie sofortige KI-Erkennungsergebnisse. Professionelle Pläne sind für Massenverarbeitung (bis zu 1M Tracks/Woche) und API-Zugang verfügbar."
+              "text": "Ja, DetectX bietet eine kostenlose Stufe mit vollständiger Multi-Engine-Analyse. Laden Sie Ihre Audiodatei hoch (WAV, MP3, FLAC, AAC, OGG bis 100MB) und erhalten Sie sofortige KI-Erkennungsergebnisse. Professionelle Pläne sind für Massenanalyse (bis zu 1M Tracks/Woche) und API-Zugang verfügbar."
             }
           },
           {
@@ -88,7 +88,7 @@ export default function LandingDE() {
             "name": "Unterstützt DetectX Massen-Scanning von KI-Musik?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Ja. DetectX bietet Massenverarbeitung für Plattenfirmen, Streaming-Plattformen und Vertriebe. Scannen Sie automatisch Hunderte bis Millionen von Tracks. Enterprise-Pläne unterstützen bis zu 1 Million Tracks pro Woche mit Prioritätsverarbeitung und dediziertem API-Zugang."
+              "text": "Ja. DetectX bietet Massenanalyse für Plattenfirmen, Streaming-Plattformen und Vertriebe. Analysieren Sie automatisch Hunderte bis Millionen von Tracks. Enterprise-Pläne unterstützen bis zu 1 Million Tracks pro Woche mit Prioritätsverarbeitung und dediziertem API-Zugang."
             }
           },
           {
@@ -96,7 +96,7 @@ export default function LandingDE() {
             "name": "Was unterscheidet DetectX von anderen KI-Musik-Detektoren?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX ist in drei Punkten einzigartig: (1) Multi-Engine-Architektur für höhere Genauigkeit als Einzelmodell-Detektoren, (2) Kombinierte Musik- UND Sprach-Deepfake-Erkennung in einer Plattform, (3) Enterprise-Massenverarbeitung von bis zu 1M Tracks/Woche. Patentangemeldete Technologie mit der niedrigsten Fehlalarmrate der Branche."
+              "text": "DetectX ist in drei Punkten einzigartig: (1) Multi-Engine-Architektur für höhere Genauigkeit als Einzelmodell-Detektoren, (2) Kombinierte Musik- UND Sprach-Deepfake-Erkennung in einer Plattform, (3) Enterprise-Massenanalyse von bis zu 1M Tracks/Woche. Patentangemeldete Technologie, die Fehlalarme bei menschlich erstellter Musik minimiert."
             }
           }
         ]
@@ -151,7 +151,7 @@ export default function LandingDE() {
                   <Link href="/login"><Button variant="ghost" className="text-sm font-medium">Sign In</Button></Link>
                 )
               )}
-              <Link href="/verify-audio"><Button className="text-sm font-medium">Kostenlos Scannen</Button></Link>
+              <Link href="/verify-audio"><Button className="text-sm font-medium">Kostenlos analysieren</Button></Link>
             </div>
           </nav>
 
@@ -175,11 +175,11 @@ export default function LandingDE() {
           <div className="mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-6">
-                  KI-generierte Musik von Suno, Udio & Co. sofort erkennen
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-6">
+                  KI-Musik von Suno & Udio sofort erkennen
                 </h1>
                 <p className="text-lg text-muted-foreground mb-4">
-                  Laden Sie eine beliebige Audiodatei hoch. Erhalten Sie sofortige KI-Erkennungsergebnisse mit 96,8% Genauigkeit bei Suno v5.5. Entwickelt für Plattenfirmen, Streaming-Plattformen und Verwertungsgesellschaften weltweit.
+                  Laden Sie Ihre Audiodatei hoch und erhalten Sie in Sekunden ein klares Ergebnis. 96,8% Erkennungsrate bei Suno v5.5 — entwickelt für Plattenfirmen, Streaming-Plattformen und Verwertungsgesellschaften.
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
                   Kostenloser Plan verfügbar. Unterstützt WAV, MP3, FLAC, AAC, OGG bis 100MB.
@@ -208,12 +208,12 @@ export default function LandingDE() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/verify-audio">
                     <Button className="px-8 py-3 text-base font-medium">
-                      Kostenlos Scannen
+                      Kostenlos analysieren
                     </Button>
                   </Link>
                   <Link href="/batch-verify">
                     <Button variant="outline" className="px-8 py-3 text-base font-medium">
-                      Massen-Scan für Labels
+                      Massenanalyse für Labels
                     </Button>
                   </Link>
                 </div>
@@ -245,27 +245,27 @@ export default function LandingDE() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Upload className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">1. Audio Hochladen</h3>
+                <h3 className="font-medium text-foreground mb-2">1. Audio hochladen</h3>
                 <p className="text-sm text-muted-foreground">
-                  Drag & Drop oder wählen Sie eine beliebige Audiodatei. Unterstützt WAV, MP3, FLAC, AAC, OGG. Bis zu 100MB.
+                  Per Drag & Drop oder Dateiauswahl. Unterstützt WAV, MP3, FLAC, AAC, OGG bis 100 MB.
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Cpu className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">2. Multi-Engine Analyse</h3>
+                <h3 className="font-medium text-foreground mb-2">2. Multi-Engine-Analyse</h3>
                 <p className="text-sm text-muted-foreground">
-                  Mehrere proprietäre KI-Modelle analysieren Audio-Muster gleichzeitig in verschiedenen Dimensionen. Hochgeschwindigkeits-Parallelanalyse.
+                  Mehrere proprietäre KI-Modelle analysieren das Audio parallel auf verschiedenen Ebenen — schnell und zuverlässig.
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Shield className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">3. Ergebnis Erhalten</h3>
+                <h3 className="font-medium text-foreground mb-2">3. Ergebnis erhalten</h3>
                 <p className="text-sm text-muted-foreground">
-                  Klares Ergebnis: KI-Signal erkannt oder nicht. Keine mehrdeutigen Prozentsätze. Professionelle Beweiskraft, der Sie vertrauen können.
+                  Eindeutiges Ergebnis: KI-Signal erkannt oder nicht. Keine mehrdeutigen Prozentsätze — professionelle Beweiskraft, auf die Sie sich verlassen können.
                 </p>
               </div>
             </div>
@@ -287,28 +287,28 @@ export default function LandingDE() {
                 <Zap className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Deep Learning Engine</h3>
                 <p className="text-muted-foreground text-sm">
-                  Proprietäre neuronale Netzwerke, trainiert auf umfangreichen KI-generierten Tracks aller Genres. Identifiziert strukturelle Muster, die einzigartig für KI-Musikgeneratoren wie Suno, Udio und ElevenLabs Music sind.
+                  Proprietäre neuronale Netzwerke, trainiert auf umfangreichen KI-generierten Tracks aller Genres. Erkennt strukturelle Muster, die für KI-Generatoren wie Suno, Udio und ElevenLabs Music charakteristisch sind.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Multi-Layer-Verifizierung</h3>
                 <p className="text-muted-foreground text-sm">
-                  Sekundäre Analyse-Engine, die primäre Erkennungsergebnisse kreuzvalidiert. Erkennt Artefakte, die Einzelmodell-Detektoren nicht finden können — maximale Genauigkeit bei minimaler Fehlalarmrate.
+                  Eine sekundäre Analyse-Engine validiert die Primärergebnisse. Erkennt Artefakte, die Einzelmodell-Detektoren entgehen — maximale Genauigkeit bei minimalen Fehlalarmen.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Shield className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">Batch-Verarbeitung im großen Maßstab</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Massenanalyse im Enterprise-Maßstab</h3>
                 <p className="text-muted-foreground text-sm">
-                  Verarbeiten Sie bis zu 1 Million Tracks pro Woche. Automatisierte Massen-Scans für Labels, Vertriebe und Streaming-Plattformen mit Prioritäts-Warteschlange und API-Zugang.
+                  Bis zu 1 Million Tracks pro Woche. Automatisierte Batch-Scans für Labels, Vertriebe und Streaming-Plattformen mit Prioritäts-Warteschlange und API-Zugang.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Music className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Manipulationsresistent</h3>
                 <p className="text-muted-foreground text-sm">
-                  Robust gegen MP3-Konvertierung, Tonhöhenänderung, Tempoänderungen, Rauschzugabe und Codec-Neukodierung. Analysiert tiefe strukturelle Eigenschaften, die jede Nachbearbeitung überstehen.
+                  Robust gegen MP3-Konvertierung, Pitch-Shifting, Tempoänderungen, Rauschzugabe und Re-Encoding. Die Analyse erfasst tiefe strukturelle Merkmale, die jede Nachbearbeitung überdauern.
                 </p>
               </div>
             </div>
@@ -408,28 +408,28 @@ export default function LandingDE() {
                 <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Plattenfirmen</h3>
                 <p className="text-xs text-muted-foreground">
-                  Große Volumina effizient verarbeiten. Kataloge vor unerkannten KI-Inhalten schützen. Tausende Tracks per Batch-Scan analysieren.
+                  Kataloge per Batch-Scan schützen. Tausende Tracks automatisiert analysieren und KI-Inhalte zuverlässig identifizieren.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Music className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Streaming-Plattformen</h3>
                 <p className="text-xs text-muted-foreground">
-                  KI-Uploads automatisch filtern. Über 60.000 KI-Tracks werden täglich hochgeladen. API-Integration für Echtzeit-Erkennung.
+                  KI-Uploads automatisch filtern — täglich werden über 60.000 KI-Tracks hochgeladen. API-Integration für Echtzeit-Erkennung.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Shield className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Verwertungsgesellschaften</h3>
                 <p className="text-xs text-muted-foreground">
-                  Schützt Tantiemen-Pools von Verwertungsgesellschaften vor betrügerischen KI-Registrierungen. Liefert beweistaugliche Analyseberichte bei Streitfällen.
+                  Tantiemen-Pools vor betrügerischen KI-Registrierungen schützen. Beweistaugliche Analyseberichte für Streitfälle erstellen.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Mic className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Musiker & Produzenten</h3>
                 <p className="text-xs text-muted-foreground">
-                  Eigene Arbeit verifizieren. Menschlichen Ursprung nachweisen. Prüfen, ob Mitarbeiter KI-Generierung verwendet haben. Kostenlos für Einzelnutzung.
+                  Eigene Arbeit verifizieren und menschlichen Ursprung nachweisen. Prüfen, ob Kollaborationspartner KI eingesetzt haben. Kostenlos nutzbar.
                 </p>
               </div>
             </div>
@@ -506,7 +506,7 @@ export default function LandingDE() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">
                 <Button className="px-10 py-4 text-base font-medium">
-                  Kostenlos Scannen
+                  Kostenlos analysieren
                 </Button>
               </Link>
               <Link href="/plan">

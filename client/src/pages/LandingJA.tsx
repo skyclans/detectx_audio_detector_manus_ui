@@ -56,7 +56,7 @@ export default function LandingJA() {
             "name": "DetectXはどのようにAI生成音楽を検出しますか？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectXは独自のマルチレイヤーディープラーニング分析を使用します。複数のAIモデルが、人間の耳では検知できないAI生成オーディオ固有の微細パターンとアーティファクトを検出します。複数の分析エンジン間のクロスバリデーションにより、Suno v5.5で96.8%の検出率と98.89%のヒューマンプロテクション率を実現しています。"
+              "text": "DetectXは独自のMulti-Engine Deep Learning分析を採用しています。複数のAIモデルが、人間の耳では検知できないAI生成オーディオ固有の微細パターンを検出します。エンジン間のクロスバリデーションにより、Suno v5.5で96.8%の検出率を達成。人間が制作した楽曲に対する誤検知を最小限に抑える設計です。"
             }
           },
           {
@@ -64,7 +64,7 @@ export default function LandingJA() {
             "name": "DetectXの精度はどのくらいですか？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectXはSuno v5.5のAI生成楽曲に対して96.8%の検出率を達成しています（16ジャンル、995曲でテスト済み）。ヒューマンプロテクション率は98.89%で、人間が制作した楽曲をAIと誤判定するフォルスポジティブはほぼゼロです。これは現存するAI音楽検出ツールの中で最高精度です。"
+              "text": "DetectXはSuno v5.5のAI生成楽曲に対して96.8%の検出率を達成しています（16ジャンル、995曲でテスト済み）。人間が制作した楽曲に対する誤検知を最小限に抑える設計で、フォルスポジティブはほぼゼロです。現存するAI音楽検出ツールの中で最高水準の精度を提供します。"
             }
           },
           {
@@ -72,7 +72,7 @@ export default function LandingJA() {
             "name": "SunoやUdioの楽曲を検出できますか？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "はい、可能です。DetectXはSuno v5.5をポップ、ジャズ、クラシック、ヒップホップ、エレクトロニックなど全ジャンルで96.8%の精度で検出します。Udoの検出率は58%です。各AI生成ツール固有の合成構造アーティファクトを特定します。"
+              "text": "はい、検出可能です。Suno v5.5はポップ、ジャズ、クラシック、ヒップホップ、エレクトロニックなど全ジャンルで96.8%の精度で検出します。Udoの検出率は58%です。各AI音楽生成ツール固有の合成パターンを識別する仕組みです。"
             }
           },
           {
@@ -80,7 +80,7 @@ export default function LandingJA() {
             "name": "DetectXは無料ですか？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "はい、DetectXはマルチエンジン分析を含む無料プランを提供しています。どのオーディオファイル（WAV、MP3、FLAC、AAC、OGG、最大100MB）でもアップロードすれば、即座にAI検出結果を取得できます。バッチ処理（週最大100万曲）とAPIアクセスが可能なプロフェッショナルプランもご用意しています。"
+              "text": "はい、無料プランをご用意しています。WAV、MP3、FLAC、AAC、OGG（最大100MB）のオーディオファイルをアップロードするだけで、Multi-Engine分析による検出結果を即座に取得できます。大量処理（週最大100万曲）やAPI連携が可能な有料プランもございます。"
             }
           },
           {
@@ -88,7 +88,7 @@ export default function LandingJA() {
             "name": "大量スキャンに対応していますか？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "はい、DetectXはレコード会社、ストリーミングプラットフォーム、ディストリビューター向けのバッチ処理機能を提供しています。数百曲から数百万曲まで自動スキャンが可能です。エンタープライズプランでは週最大100万曲の優先処理と専用APIアクセスを提供します。"
+              "text": "はい、レコード会社・配信プラットフォーム・ディストリビューター向けのバッチ処理機能を提供しています。数百曲から数百万曲まで自動スキャンが可能です。エンタープライズプランでは週最大100万曲の優先処理と専用API連携をご利用いただけます。"
             }
           },
           {
@@ -96,7 +96,7 @@ export default function LandingJA() {
             "name": "他のAI音楽検出ツールとの違いは？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectXには3つの主要な差別化ポイントがあります。(1) 単一モデル検出器より高い精度を実現するマルチエンジン構造、(2) 音楽とボイスディープフェイク検出を一つのプラットフォームで提供、(3) 週最大100万曲処理可能なエンタープライズグレードのバッチ処理。業界最低のフォルスポジティブ率を誇る特許出願済み技術です。"
+              "text": "DetectXの差別化ポイントは3つあります。(1) 複数エンジンによるクロスバリデーションで単一モデルを超える精度を実現、(2) 音楽検出とボイスディープフェイク検出を一つのプラットフォームで提供、(3) 週最大100万曲処理可能なエンタープライズ対応のバッチ処理。人間が制作した楽曲に対する誤検知を最小限に抑える設計の特許出願済み技術です。"
             }
           }
         ]
@@ -175,14 +175,14 @@ export default function LandingJA() {
           <div className="mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-6">
-                  Suno・Udio AI生成楽曲を即座に検出
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-6">
+                  Suno・Udio AI楽曲を瞬時に検出
                 </h1>
                 <p className="text-lg text-muted-foreground mb-4">
-                  オーディオファイルをアップロードするだけで、即座にAI生成かどうかを判定します。Suno v5.5で96.8%の精度。世界中のレコード会社、ストリーミングプラットフォーム、著作権団体向けのAI音楽検出ツール。
+                  オーディオファイルをアップロードするだけで、AI生成楽曲かどうかを瞬時に判定。Suno v5.5検出率96.8%。レコード会社・配信プラットフォーム・著作権管理団体に対応したAI音楽検出ツールです。
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
-                  無料プラン提供中。WAV、MP3、FLAC、AAC、OGG 最大100MBに対応。
+                  無料プランあり。WAV / MP3 / FLAC / AAC / OGG（最大100MB）対応。
                 </p>
 
                 {/* Stats */}
@@ -234,10 +234,10 @@ export default function LandingJA() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
-              AI生成楽曲の検出方法
+              検出の仕組み
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              3つの簡単なステップで楽曲がAI生成かどうかを確認できます。あらゆるオーディオファイル形式に対応。
+              3ステップでAI生成楽曲かどうかを判定します。主要オーディオ形式すべてに対応。
             </p>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -254,18 +254,18 @@ export default function LandingJA() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Cpu className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">2. マルチエンジン分析</h3>
+                <h3 className="font-medium text-foreground mb-2">2. Multi-Engine分析</h3>
                 <p className="text-sm text-muted-foreground">
-                  複数の独自AIモデルがオーディオパターンを多次元で同時分析します。高速並列分析で結果を出力。
+                  複数の独自AIモデルがオーディオの構造パターンを多角的に分析。高速並列処理で結果を出力します。
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Shield className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">3. 判定結果を取得</h3>
+                <h3 className="font-medium text-foreground mb-2">3. 結果を確認</h3>
                 <p className="text-sm text-muted-foreground">
-                  明確な結果：AI信号の検出または非検出。曖昧なパーセンテージではなく、信頼できるエビデンスを提供します。
+                  AI信号の有無を明確に判定。曖昧なスコアではなく、根拠のある分析レポートを提供します。
                 </p>
               </div>
             </div>
@@ -276,39 +276,39 @@ export default function LandingJA() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
-              DetectXが最も精度の高いAI音楽検出ツールである理由
+              DetectXが選ばれる理由
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              特許出願済み技術によるマルチレイヤーDeep Learning分析。16ジャンル995曲のSuno v5.5トラックで検証済み。
+              特許出願済みのMulti-Engine Deep Learning分析。Suno v5.5の995曲（16ジャンル）で検証済み。
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="p-6 rounded-lg border border-border">
                 <Zap className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">ディープラーニングエンジン</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Deep Learningエンジン</h3>
                 <p className="text-muted-foreground text-sm">
-                  全ジャンル・大量のAI生成トラックで学習した独自ニューラルネットワーク。Suno、Udio、ElevenLabs MusicなどのAI音楽生成ツール固有の構造パターンを特定します。
+                  全ジャンルの大量AI生成トラックで学習した独自ニューラルネットワークが、Suno・Udio・ElevenLabs Music固有の構造パターンを特定します。
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">マルチレイヤー検証</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Multi-Engine検証</h3>
                 <p className="text-muted-foreground text-sm">
-                  一次検出結果をクロスバリデーションする二次分析エンジン。単一モデル検出器では発見できないアーティファクトを検出し、最小の誤検出率で最大精度を実現します。
+                  一次検出結果を二次エンジンでクロスバリデーション。単一モデルでは検出困難なアーティファクトも捕捉し、誤検知を最小限に抑えます。
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Shield className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">大規模バッチ処理</h3>
                 <p className="text-muted-foreground text-sm">
-                  数千曲を一度にスキャン可能。レコード会社やプラットフォーム向けに設計されたバッチ処理で、カタログ全体のAIコンテンツを効率的に検出します。
+                  数千曲を一括スキャン可能。レコード会社やプラットフォーム向けに設計されたバッチ処理で、カタログ全体を効率的に検査します。
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Music className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">回避耐性</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">回避操作にも対応</h3>
                 <p className="text-muted-foreground text-sm">
-                  MP3変換、ピッチシフト、テンポ変更、ノイズ追加、コーデック再エンコードに対して堅牢。あらゆるポストプロセスに耐える深層構造特性を分析します。
+                  MP3変換、ピッチシフト、テンポ変更、ノイズ追加、再エンコードに対しても検出可能。ポストプロセスで消えない深層構造を分析します。
                 </p>
               </div>
             </div>
@@ -319,10 +319,10 @@ export default function LandingJA() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
-              AI音楽検出ツール比較
+              他ツールとの比較
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              DetectXと市場にある他のAI音楽検出ツールとの比較です。
+              主要なAI音楽検出ツールとDetectXの機能比較です。
             </p>
 
             <div className="overflow-x-auto">
@@ -440,10 +440,10 @@ export default function LandingJA() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              すべての主要AI音楽生成ツールを検出
+              主要AI音楽生成ツールに対応
             </h2>
             <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-              DetectXは、ポストプロセスやフォーマット変換に関係なく、あらゆるAI音楽生成プラットフォームのオーディオを識別します。
+              フォーマット変換やポストプロセスの有無にかかわらず、主要AI音楽生成プラットフォームの出力を識別します。
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -455,7 +455,7 @@ export default function LandingJA() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              MP3変換、ピッチシフト、テンポ変更などの回避操作に関係なく検出が機能します。
+              MP3変換・ピッチシフト・テンポ変更などの回避操作にも対応。
             </p>
           </div>
         </section>
@@ -473,16 +473,16 @@ export default function LandingJA() {
               </div>
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-4">
-                  ボイスディープフェイク検出 — AI音声クローン検出ツール
+                  ボイスディープフェイク検出
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  DetectXは97.8%の精度でAI生成音声とディープフェイクボイスを検出します。実際の電話環境でわずか2秒のオーディオで動作します。
+                  AI生成音声・ディープフェイクボイスを97.8%の精度で検出。実際の電話環境で、わずか2秒の音声から判定可能です。
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> ElevenLabs、Google TTS、OpenAIを検出</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 電話コーデック（G.711、8kHz）で動作</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 最小2秒のオーディオが必要</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> コールセンター向けリアルタイム検出</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> ElevenLabs / Google TTS / OpenAI対応</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 電話コーデック（G.711 / 8kHz）対応</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 最短2秒の音声で判定可能</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> コールセンター向けリアルタイム対応</li>
                 </ul>
                 <Link href="/verify-voice">
                   <Button variant="outline" className="text-sm">

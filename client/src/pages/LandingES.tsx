@@ -56,7 +56,7 @@ export default function LandingES() {
             "name": "¿Cómo detecta DetectX la música generada por IA?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX utiliza análisis propietario de deep learning multicapa. Nuestros modelos de IA detectan patrones sutiles y artefactos exclusivos del audio generado por IA, invisibles al oído humano. La validación cruzada entre múltiples motores de análisis alcanza un 96.8% de detección en Suno v5.5 manteniendo un 98.89% de protección para música humana."
+              "text": "DetectX utiliza análisis propietario de deep learning multicapa. Nuestros modelos de IA detectan patrones sutiles y artefactos exclusivos del audio generado por IA, invisibles al oído humano. La validación cruzada entre múltiples motores de análisis alcanza un 96.8% de detección en Suno v5.5, minimizando falsos positivos en música creada por humanos."
             }
           },
           {
@@ -64,7 +64,7 @@ export default function LandingES() {
             "name": "¿Cuál es la precisión del detector de música IA DetectX?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX logra un 96.8% de tasa de detección en música generada por Suno v5.5 (probado en 995 pistas de 16 géneros). La tasa de protección humana es del 98.89%, lo que significa prácticamente cero falsos positivos en música creada por humanos. Esto convierte a DetectX en uno de los detectores de música IA más precisos disponibles."
+              "text": "DetectX logra un 96.8% de tasa de detección en música generada por Suno v5.5 (probado en 995 pistas de 16 géneros), minimizando falsos positivos en música creada por humanos. Su arquitectura multi-motor garantiza resultados fiables, convirtiéndolo en uno de los detectores de música IA más precisos disponibles."
             }
           },
           {
@@ -80,7 +80,7 @@ export default function LandingES() {
             "name": "¿Es gratuito usar DetectX?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Sí, DetectX ofrece un plan gratuito con análisis completo multi-motor. Sube cualquier archivo de audio (WAV, MP3, FLAC, AAC, OGG hasta 100MB) y obtén resultados instantáneos de detección de IA. Los planes profesionales están disponibles para procesamiento masivo (hasta 1M de pistas/semana) y acceso API."
+              "text": "Sí, DetectX ofrece un plan gratuito con análisis completo multi-motor. Sube cualquier archivo de audio (WAV, MP3, FLAC, AAC, OGG hasta 100MB) y obtén resultados de detección al instante. Los planes profesionales incluyen procesamiento masivo (hasta 1M de pistas/semana) y acceso API."
             }
           },
           {
@@ -175,11 +175,11 @@ export default function LandingES() {
           <div className="mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-6">
-                  Detecta al instante música generada por IA de Suno, Udio y más
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-6">
+                  Detecta música IA de Suno, Udio y más
                 </h1>
                 <p className="text-lg text-muted-foreground mb-4">
-                  Sube cualquier archivo de audio. Obtén resultados instantáneos de detección de IA con 96.8% de precisión en Suno v5.5. Diseñado para sellos discográficos, plataformas de streaming y sociedades de derechos de autor en todo el mundo.
+                  Sube cualquier archivo de audio y obtén resultados de detección al instante. 96.8% de precisión en Suno v5.5. Diseñado para sellos, plataformas de streaming y entidades de gestión de derechos.
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
                   Plan gratuito disponible. Soporta WAV, MP3, FLAC, AAC, OGG hasta 100MB.
@@ -208,12 +208,12 @@ export default function LandingES() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/verify-audio">
                     <Button className="px-8 py-3 text-base font-medium">
-                      Escanear Tu Pista Gratis
+                      Analizar gratis
                     </Button>
                   </Link>
                   <Link href="/batch-verify">
                     <Button variant="outline" className="px-8 py-3 text-base font-medium">
-                      Escaneo Masivo para Sellos
+                      Análisis masivo para sellos
                     </Button>
                   </Link>
                 </div>
@@ -256,7 +256,7 @@ export default function LandingES() {
                 </div>
                 <h3 className="font-medium text-foreground mb-2">2. Análisis Multi-Motor</h3>
                 <p className="text-sm text-muted-foreground">
-                  Múltiples modelos propietarios de IA analizan patrones de audio en diferentes dimensiones simultáneamente. Análisis paralelo de alta velocidad.
+                  Múltiples modelos propietarios analizan patrones de audio en diferentes dimensiones de forma simultánea. Análisis paralelo de alta velocidad.
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
@@ -265,7 +265,7 @@ export default function LandingES() {
                 </div>
                 <h3 className="font-medium text-foreground mb-2">3. Obtén el Veredicto</h3>
                 <p className="text-sm text-muted-foreground">
-                  Resultado claro: señal de IA detectada o no. Sin porcentajes ambiguos. Evidencia de nivel profesional en la que puedes confiar.
+                  Resultado claro: señal de IA detectada o no. Sin porcentajes ambiguos. Evidencia profesional en la que puedes confiar.
                 </p>
               </div>
             </div>
@@ -287,28 +287,28 @@ export default function LandingES() {
                 <Zap className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Motor Deep Learning</h3>
                 <p className="text-muted-foreground text-sm">
-                  Redes neuronales propietarias entrenadas con gran volumen de pistas generadas por IA en todos los géneros. Identifica patrones estructurales únicos de generadores de música IA como Suno, Udio y ElevenLabs Music.
+                  Redes neuronales propietarias entrenadas con miles de pistas generadas por IA en todos los géneros. Identifica patrones estructurales exclusivos de generadores como Suno, Udio y ElevenLabs Music.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Verificación Multicapa</h3>
                 <p className="text-muted-foreground text-sm">
-                  Motor de análisis secundario que valida cruzadamente los resultados de detección primaria. Detecta artefactos que los detectores de un solo modelo no pueden encontrar, asegurando máxima precisión con mínimos falsos positivos.
+                  Un segundo motor valida los resultados de la detección primaria. Detecta artefactos invisibles para detectores de modelo único, asegurando máxima precisión con mínimos falsos positivos.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Procesamiento por Lotes a Escala</h3>
                 <p className="text-muted-foreground text-sm">
-                  Escanea desde cientos hasta millones de pistas automáticamente. Procesamiento paralelo de alto rendimiento para sellos, distribuidores y plataformas que necesitan verificar catálogos completos.
+                  Escanea desde cientos hasta millones de pistas de forma automática. Procesamiento paralelo de alto rendimiento para sellos, distribuidores y plataformas que necesitan verificar catálogos completos.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Music className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Resistente a Evasión</h3>
                 <p className="text-muted-foreground text-sm">
-                  Robusto contra conversión MP3, cambio de tono, cambios de tempo, adición de ruido y recodificación de códec. Analiza propiedades estructurales profundas que sobreviven a cualquier postprocesamiento.
+                  Robusto ante conversión MP3, cambio de tono, tempo, ruido y recodificación de códec. Analiza propiedades estructurales profundas que sobreviven a cualquier postprocesamiento.
                 </p>
               </div>
             </div>
@@ -408,21 +408,21 @@ export default function LandingES() {
                 <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Sellos Discográficos</h3>
                 <p className="text-xs text-muted-foreground">
-                  Procesa grandes volúmenes de envíos de forma eficiente. Protege tu catálogo del contenido generado por IA. Escaneo masivo de miles de pistas.
+                  Procesa grandes volúmenes de forma eficiente. Protege tu catálogo del contenido IA. Análisis masivo de miles de pistas.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Music className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Plataformas de Streaming</h3>
                 <p className="text-xs text-muted-foreground">
-                  Filtra subidas de IA automáticamente. Más de 60,000 pistas de IA subidas diariamente. Integración API para detección en tiempo real.
+                  Filtra subidas de IA de forma automática. Más de 60,000 pistas IA subidas a diario. Integración API para detección en tiempo real.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Shield className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Sociedades de Derechos de Autor</h3>
                 <p className="text-xs text-muted-foreground">
-                  Protege los fondos de regalías de las sociedades de derechos de autor contra registros fraudulentos de IA. Informes de análisis con calidad de evidencia para disputas.
+                  Protege los fondos de regalías contra registros fraudulentos de IA. Informes de análisis con calidad de evidencia para disputas.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
@@ -443,7 +443,7 @@ export default function LandingES() {
               Detecta Todos los Principales Generadores de Música IA
             </h2>
             <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-              DetectX identifica audio de cualquier plataforma de generación de música IA, independientemente del postprocesamiento o conversión de formato.
+              DetectX identifica audio de cualquier generador de música IA, sin importar el postprocesamiento o la conversión de formato.
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -476,7 +476,7 @@ export default function LandingES() {
                   Detección de Deepfake de Voz — Detector de Clones de Voz IA
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  DetectX también detecta habla generada por IA y voces deepfake con 97.8% de precisión. Funciona con solo 2 segundos de audio en condiciones telefónicas reales.
+                  DetectX también detecta voces sintéticas y deepfakes de voz con 97.8% de precisión. Funciona con solo 2 segundos de audio en condiciones telefónicas reales.
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> ElevenLabs, Google TTS, OpenAI detectados</li>
@@ -498,7 +498,7 @@ export default function LandingES() {
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              Comienza a Detectar Música Generada por IA Hoy
+              Detecta música IA hoy mismo
             </h2>
             <p className="text-muted-foreground mb-8">
               Plan gratuito disponible. Sube tu primera pista y obtén resultados en segundos.
@@ -506,12 +506,12 @@ export default function LandingES() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">
                 <Button className="px-10 py-4 text-base font-medium">
-                  Escanear Tu Pista Gratis
+                  Analizar gratis
                 </Button>
               </Link>
               <Link href="/plan">
                 <Button variant="outline" className="px-10 py-4 text-base font-medium">
-                  Ver Planes Enterprise
+                  Planes Enterprise
                 </Button>
               </Link>
             </div>

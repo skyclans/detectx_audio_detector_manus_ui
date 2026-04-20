@@ -72,7 +72,7 @@ export default function LandingKO() {
             "name": "Suno와 Udio 곡을 탐지할 수 있나요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "네, 가능합니다. DetectX는 Suno v5.5를 팝, 재즈, 클래식, 힙합, 일렉트로닉 등 모든 장르에서 96.8% 정확도로 탐지합니다. Udio 탐지율은 58%입니다. 각 AI 생성기의 고유한 합성 구조적 아티팩트를 식별합니다."
+              "text": "네, DetectX는 Suno v5.5를 팝, 재즈, 클래식, 힙합, 일렉트로닉 등 모든 장르에서 96.8% 정확도로 탐지합니다. Udio 탐지율은 58%입니다. 각 AI 생성기의 고유한 합성 구조적 아티팩트를 식별합니다."
             }
           },
           {
@@ -80,7 +80,7 @@ export default function LandingKO() {
             "name": "DetectX는 무료인가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "네, DetectX는 multi-engine 분석이 포함된 무료 플랜을 제공합니다. 어떤 오디오 파일(WAV, MP3, FLAC, AAC, OGG, 최대 100MB)이든 업로드하면 즉시 AI 탐지 결과를 받을 수 있습니다. 대량 처리(주당 최대 100만 곡)와 API 접근이 가능한 프로페셔널 플랜도 제공됩니다."
+              "text": "네, multi-engine 분석이 포함된 무료 플랜을 제공합니다. WAV, MP3, FLAC, AAC, OGG(최대 100MB) 파일을 업로드하면 즉시 AI 탐지 결과를 확인할 수 있습니다. 대량 처리(주당 최대 100만 곡)와 API 접근이 포함된 프로페셔널 플랜도 있습니다."
             }
           },
           {
@@ -88,7 +88,7 @@ export default function LandingKO() {
             "name": "대량 스캔이 가능한가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "네, DetectX는 음반사, 스트리밍 플랫폼, 유통사를 위한 대량 처리 기능을 제공합니다. 수백에서 수백만 곡까지 자동으로 스캔할 수 있습니다. 엔터프라이즈 플랜은 주당 최대 100만 곡을 우선 처리하며 전용 API를 제공합니다."
+              "text": "네, 음반사, 스트리밍 플랫폼, 유통사를 위한 대량 처리 기능을 제공합니다. 수백 곡에서 수백만 곡까지 자동 스캔이 가능하며, 엔터프라이즈 플랜은 주당 최대 100만 곡을 우선 처리하고 전용 API를 제공합니다."
             }
           },
           {
@@ -96,7 +96,7 @@ export default function LandingKO() {
             "name": "다른 AI 음악 탐지 도구와 어떻게 다른가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX는 세 가지 핵심 차별점이 있습니다. (1) 단일 모델 탐지기보다 높은 정확도를 제공하는 multi-engine 구조, (2) 음악과 음성 딥페이크 탐지를 하나의 플랫폼에서 제공, (3) 주당 100만 곡 처리가 가능한 엔터프라이즈급 대량 처리. 업계 최저 오탐지율의 특허 출원 기술입니다."
+              "text": "DetectX는 세 가지 핵심 차별점이 있습니다. (1) 단일 모델보다 높은 정확도를 제공하는 multi-engine 구조, (2) 음악과 음성 딥페이크 탐지를 하나의 플랫폼에서 제공, (3) 주당 100만 곡까지 처리하는 엔터프라이즈급 대량 스캔. 오탐지를 최소화하도록 설계되었습니다."
             }
           }
         ]
@@ -175,11 +175,11 @@ export default function LandingKO() {
           <div className="mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-6">
-                  Suno, Udio AI 생성곡을 즉시 탐지하세요
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-6">
+                  AI 음악 탐지 | Suno·Udio 즉시 판별
                 </h1>
                 <p className="text-lg text-muted-foreground mb-4">
-                  오디오 파일을 업로드하면 즉시 AI 생성 여부를 판별합니다. Suno v5.5 기준 96.8% 정확도. 전 세계 음반사, 스트리밍 플랫폼, 저작권 단체를 위한 AI 음악 판별기.
+                  오디오 파일을 업로드하면 즉시 AI 생성 여부를 판별합니다. Suno v5.5 기준 96.8% 정확도. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계된 AI 음악 탐지 도구입니다.
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
                   무료 플랜 제공. WAV, MP3, FLAC, AAC, OGG 최대 100MB 지원.
@@ -237,7 +237,7 @@ export default function LandingKO() {
               AI 생성 음악 탐지 방법
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              간단한 3단계로 음원의 AI 생성 여부를 확인하세요. 모든 오디오 파일 형식을 지원합니다.
+              간단한 3단계로 음원의 AI 생성 여부를 확인할 수 있습니다. 모든 오디오 파일 형식을 지원합니다.
             </p>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -256,7 +256,7 @@ export default function LandingKO() {
                 </div>
                 <h3 className="font-medium text-foreground mb-2">2. Multi-Engine 분석</h3>
                 <p className="text-sm text-muted-foreground">
-                  여러 독자적 AI 모델이 오디오 패턴을 다차원으로 동시 분석합니다. 고속 병렬 분석.
+                  여러 독자적 AI 모델이 오디오 패턴을 다차원으로 동시 분석합니다. 고속 병렬 처리로 빠르게 결과를 도출합니다.
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
@@ -265,7 +265,7 @@ export default function LandingKO() {
                 </div>
                 <h3 className="font-medium text-foreground mb-2">3. 판정 결과 확인</h3>
                 <p className="text-sm text-muted-foreground">
-                  명확한 결과: AI 신호 감지 또는 미감지. 모호한 퍼센트 없이 신뢰할 수 있는 분석 결과를 제공합니다.
+                  AI 신호 감지 또는 미감지, 명확한 결과를 제공합니다. 모호한 퍼센트 없이 신뢰할 수 있는 판정입니다.
                 </p>
               </div>
             </div>
@@ -279,7 +279,7 @@ export default function LandingKO() {
               DetectX가 가장 정확한 AI 음악 판별기인 이유
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              특허 출원 multi-engine 탐지 기술. 16개 장르 995곡 Suno v5.5 트랙으로 검증.
+              독자적 multi-engine 구조로 16개 장르, 995곡의 Suno v5.5 실전 테스트를 통과했습니다.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -287,14 +287,14 @@ export default function LandingKO() {
                 <Zap className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Deep Learning 엔진</h3>
                 <p className="text-muted-foreground text-sm">
-                  모든 장르 및 대량 AI 생성 트랙으로 학습된 독자적 신경망. Suno, Udio, ElevenLabs Music 등 AI 음악 생성기 고유의 구조적 패턴을 식별합니다.
+                  모든 장르의 AI 생성 음악으로 학습한 독자 신경망입니다. Suno, Udio, ElevenLabs Music 등 AI 음악 생성기 고유의 구조적 패턴을 식별합니다.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Multi-Layer 검증</h3>
                 <p className="text-muted-foreground text-sm">
-                  1차 탐지 결과를 교차 검증하는 2차 분석 엔진. 단일 모델 탐지기로는 발견할 수 없는 아티팩트를 감지하여, 최소 오탐지율로 최대 정확도를 달성합니다.
+                  1차 분석 결과를 2차 엔진이 교차 검증합니다. 단일 모델로는 발견할 수 없는 아티팩트까지 감지하여 오탐지를 최소화합니다.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
@@ -306,9 +306,9 @@ export default function LandingKO() {
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Music className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">우회 방지 기술</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">우회 시도에도 탐지 유지</h3>
                 <p className="text-muted-foreground text-sm">
-                  MP3 변환, 피치 변경, 템포 조절, 노이즈 추가, 코덱 재인코딩에 대한 강건성. 어떤 후처리에도 생존하는 심층 구조적 특성을 분석합니다.
+                  MP3 변환, 피치 변경, 템포 조절, 노이즈 추가, 코덱 재인코딩 등 어떤 후처리를 거쳐도 탐지가 유지됩니다. 표면이 아닌 심층 구조를 분석합니다.
                 </p>
               </div>
             </div>
@@ -400,7 +400,7 @@ export default function LandingKO() {
               AI 음악 탐지 활용 분야
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              개인 뮤지션부터 수백만 곡을 처리하는 대형 음반사까지.
+              개인 뮤지션부터 수백만 곡을 처리하는 대형 음반사까지, 다양한 고객이 활용합니다.
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -408,28 +408,28 @@ export default function LandingKO() {
                 <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">음반사</h3>
                 <p className="text-xs text-muted-foreground">
-                  대규��� 곡 처리 가능. AI 생성 콘텐츠 유입으로부터 카탈로그를 보호합니다. 수천 곡 일괄 스캔 가능.
+                  AI 생성 콘텐츠 유입으로부터 카탈로그를 보호합니다. 수천 곡을 한 번에 일괄 스캔할 수 있습니다.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Music className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">스트리밍 플랫폼</h3>
                 <p className="text-xs text-muted-foreground">
-                  AI 업로드 자동 필터링. 매일 60,000곡 이상의 AI 트랙이 업로드됩니다. 실시간 탐지를 위한 API 연동.
+                  매일 60,000곡 이상 업로드되는 AI 트랙을 자동으로 필터링합니다. 실시간 탐지를 위한 API 연동을 지원합니다.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Shield className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">저작권 단체</h3>
                 <p className="text-xs text-muted-foreground">
-                  전 세계 저작권 단체의 로열티 풀을 사기성 AI 등록으로부터 보호합니다. 분쟁 시 증거 수준의 분석 보고서를 제공합니다.
+                  사기성 AI 등록으로부터 로열티 풀을 보호합니다. 분쟁 시 증거로 활용할 수 있는 분석 보고서를 제공합니다.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Mic className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">뮤지션 & 프로듀서</h3>
                 <p className="text-xs text-muted-foreground">
-                  자신의 작품을 검증하세요. 인간 창작물임을 증명하세요. 협업자가 AI를 사용했는지 확인 가능. 개인 사용 무료.
+                  자신의 작품이 인간 창작물임을 증명할 수 있습니다. 협업자의 AI 사용 여부도 확인할 수 있습니다. 개인 사용 무료.
                 </p>
               </div>
             </div>
@@ -443,7 +443,7 @@ export default function LandingKO() {
               모든 주요 AI 음악 생성기 탐지
             </h2>
             <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-              DetectX는 후처리나 포맷 변환에 관계없이 모든 AI 음악 생성 플랫폼의 오디오를 식별합니다.
+              후처리나 포맷 변환에 관계없이 모든 AI 음악 생성 플랫폼의 출력물을 식별합니다.
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -455,7 +455,7 @@ export default function LandingKO() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              MP3 변환, 피치 변경, 템포 조절 등 우회 시도에 관계없이 탐지가 작동합니다.
+              MP3 변환, 피치 변경, 템포 조절 등 우회 시도에도 탐지가 유지됩니다.
             </p>
           </div>
         </section>
@@ -498,10 +498,10 @@ export default function LandingKO() {
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              지금 바로 AI 생성 음악 탐지를 시작하세요
+              AI 음악 탐지, 지금 시작하세요
             </h2>
             <p className="text-muted-foreground mb-8">
-              첫 음원을 업로드하면 수 초 내에 AI 탐지 결과를 받을 수 있습니다. 무료 플랜 제공.
+              첫 음원을 업로드하면 바로 결과를 확인할 수 있습니다. 무료 플랜 제공.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">

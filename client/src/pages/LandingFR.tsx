@@ -56,7 +56,7 @@ export default function LandingFR() {
             "name": "Comment DetectX détecte-t-il la musique générée par IA ?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX utilise une analyse propriétaire de deep learning multicouche. Nos modèles d'IA détectent des patterns subtils et artefacts propres à l'audio généré par IA, invisibles à l'oreille humaine. La validation croisée entre plusieurs moteurs d'analyse atteint 96,8% de détection sur Suno v5.5 tout en maintenant 98,89% de protection des morceaux humains."
+              "text": "DetectX utilise une analyse propriétaire de deep learning multicouche. Nos modèles d'IA détectent des patterns subtils et artefacts propres à l'audio généré par IA, invisibles à l'oreille humaine. La validation croisée entre plusieurs moteurs d'analyse atteint 96,8% de détection sur Suno v5.5 tout en minimisant les faux positifs sur la musique créée par des humains."
             }
           },
           {
@@ -64,7 +64,7 @@ export default function LandingFR() {
             "name": "Quelle est la précision du détecteur de musique IA DetectX ?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX atteint un taux de détection de 96,8% sur la musique générée par Suno v5.5 (testé sur 995 morceaux couvrant 16 genres). Le taux de protection humaine est de 98,89%, ce qui signifie quasiment zéro faux positifs sur la musique créée par des humains."
+              "text": "DetectX atteint un taux de détection de 96,8% sur la musique générée par Suno v5.5 (testé sur 995 morceaux couvrant 16 genres). Le système est conçu pour minimiser les faux positifs sur la musique créée par des humains, garantissant une fiabilité de niveau professionnel."
             }
           },
           {
@@ -80,7 +80,7 @@ export default function LandingFR() {
             "name": "DetectX est-il gratuit ?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Oui, DetectX propose un niveau gratuit avec l'analyse complète multi-moteur. Téléchargez n'importe quel fichier audio (WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo) et obtenez des résultats instantanés. Des plans professionnels sont disponibles pour le traitement en masse (jusqu'à 1M de morceaux/semaine) et l'accès API."
+              "text": "Oui, DetectX propose un niveau gratuit avec l'analyse complète multi-moteur. Importez votre fichier audio (WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo) et obtenez des résultats instantanés. Des plans professionnels sont disponibles pour le traitement en lot (jusqu'à 1M de morceaux/semaine) et l'accès API."
             }
           },
           {
@@ -88,7 +88,7 @@ export default function LandingFR() {
             "name": "DetectX prend-il en charge le scan en masse de musique IA ?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Oui. DetectX propose le traitement en masse pour les labels, plateformes de streaming et distributeurs. Scannez des centaines à des millions de morceaux automatiquement. Les plans Enterprise supportent jusqu'à 1 million de morceaux par semaine avec traitement prioritaire et accès API dédié."
+              "text": "Oui. DetectX propose le traitement en lot pour les labels, plateformes de streaming et distributeurs. Analysez de quelques centaines à plusieurs millions de morceaux automatiquement. Les plans Enterprise supportent jusqu'à 1 million de morceaux par semaine avec traitement prioritaire et accès API dédié."
             }
           },
           {
@@ -96,7 +96,7 @@ export default function LandingFR() {
             "name": "En quoi DetectX est-il différent des autres détecteurs de musique IA ?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX est unique par trois aspects : (1) Architecture multi-moteur pour une précision supérieure aux détecteurs à modèle unique, (2) Détection combinée de musique IA ET de deepfake vocal sur une seule plateforme, (3) Traitement en masse de niveau entreprise jusqu'à 1M de morceaux/semaine. Technologie brevetée avec le taux de faux positifs le plus bas de l'industrie."
+              "text": "DetectX se distingue sur trois axes : (1) Architecture Multi-Engine pour une précision supérieure aux détecteurs mono-modèle, (2) Détection combinée de musique IA et de deepfake vocal sur une seule plateforme, (3) Traitement en lot de niveau Enterprise jusqu'à 1M de morceaux/semaine. Technologie brevetée minimisant les faux positifs sur la musique créée par des humains."
             }
           }
         ]
@@ -151,7 +151,7 @@ export default function LandingFR() {
                   <Link href="/login"><Button variant="ghost" className="text-sm font-medium">Sign In</Button></Link>
                 )
               )}
-              <Link href="/verify-audio"><Button className="text-sm font-medium">Scanner Gratuitement</Button></Link>
+              <Link href="/verify-audio"><Button className="text-sm font-medium">Analyser gratuitement</Button></Link>
             </div>
           </nav>
 
@@ -175,14 +175,14 @@ export default function LandingFR() {
           <div className="mx-auto max-w-6xl">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl font-medium leading-tight text-foreground mb-6">
-                  Détectez instantanément la musique IA de Suno, Udio et plus
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-6">
+                  Détectez la musique IA de Suno & Udio
                 </h1>
                 <p className="text-lg text-muted-foreground mb-4">
-                  Téléchargez n'importe quel fichier audio. Obtenez des résultats de détection IA instantanés avec 96,8% de précision sur Suno v5.5. Conçu pour les labels, plateformes de streaming et sociétés de droits d'auteur dans le monde entier.
+                  Importez votre fichier audio et obtenez un verdict instantané. 96,8% de précision sur Suno v5.5, validé sur 995 morceaux et 16 genres. Conçu pour les labels, plateformes de streaming et sociétés de droits d'auteur.
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
-                  Plan gratuit disponible. Supporte WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo.
+                  Gratuit. Compatible WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo.
                 </p>
 
                 {/* Stats */}
@@ -208,12 +208,12 @@ export default function LandingFR() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/verify-audio">
                     <Button className="px-8 py-3 text-base font-medium">
-                      Scanner Gratuitement
+                      Analyser gratuitement
                     </Button>
                   </Link>
                   <Link href="/batch-verify">
                     <Button variant="outline" className="px-8 py-3 text-base font-medium">
-                      Scan en Masse pour Labels
+                      Analyse en lot pour labels
                     </Button>
                   </Link>
                 </div>
@@ -245,27 +245,27 @@ export default function LandingFR() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Upload className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">1. Téléchargez l'Audio</h3>
+                <h3 className="font-medium text-foreground mb-2">1. Importez votre fichier</h3>
                 <p className="text-sm text-muted-foreground">
-                  Glissez-déposez ou sélectionnez n'importe quel fichier audio. Supporte WAV, MP3, FLAC, AAC, OGG. Jusqu'à 100 Mo.
+                  Glissez-déposez ou sélectionnez votre fichier audio. Compatible WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo.
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Cpu className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">2. Analyse Multi-Moteur</h3>
+                <h3 className="font-medium text-foreground mb-2">2. Analyse Multi-Engine</h3>
                 <p className="text-sm text-muted-foreground">
-                  Plusieurs modèles d'IA propriétaires analysent les patterns audio dans différentes dimensions simultanément. Analyse parallèle à haute vitesse.
+                  Nos modèles Deep Learning propriétaires analysent les patterns audio sur plusieurs dimensions en parallèle. Résultats en quelques secondes.
                 </p>
               </div>
               <div className="text-center p-6 rounded-lg bg-muted/20">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Shield className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">3. Obtenez le Verdict</h3>
+                <h3 className="font-medium text-foreground mb-2">3. Recevez le verdict</h3>
                 <p className="text-sm text-muted-foreground">
-                  Résultat clair : signal IA détecté ou non. Pas de pourcentages ambigus. Preuve de qualité professionnelle fiable.
+                  Résultat clair : signal IA détecté ou non. Pas de pourcentages ambigus. Rapport d'analyse de qualité professionnelle.
                 </p>
               </div>
             </div>
@@ -276,10 +276,10 @@ export default function LandingFR() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
-              Pourquoi DetectX Est le Détecteur de Musique IA le Plus Précis
+              Une précision inégalée, par conception
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Analyse multi-moteur avec technologie brevetée. Testé sur 995 morceaux Suno v5.5 couvrant 16 genres.
+              Architecture Multi-Engine brevetée. Validé sur 995 morceaux Suno v5.5 couvrant 16 genres musicaux.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -287,28 +287,28 @@ export default function LandingFR() {
                 <Zap className="h-8 w-8 text-cyan-500 mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">Moteur Deep Learning</h3>
                 <p className="text-muted-foreground text-sm">
-                  Réseaux neuronaux propriétaires entraînés sur des volumes massifs de pistes IA générées dans tous les genres. Identifie les schémas structurels propres aux générateurs de musique IA comme Suno, Udio et ElevenLabs Music.
+                  Réseaux neuronaux propriétaires entraînés sur un large corpus de musique IA couvrant tous les genres. Identifie les signatures structurelles propres aux générateurs comme Suno, Udio et ElevenLabs Music.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">Vérification Multicouche</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Validation croisée</h3>
                 <p className="text-muted-foreground text-sm">
-                  Moteur d'analyse secondaire qui valide les résultats de détection primaire. Détecte les artefacts invisibles aux détecteurs à modèle unique, assurant une précision maximale avec un minimum de faux positifs.
+                  Un second moteur d'analyse valide chaque résultat. Détecte les artefacts invisibles aux détecteurs mono-modèle, minimisant les faux positifs sur la musique créée par des humains.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Shield className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">Traitement par Lots à Grande Échelle</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Analyse en lot à grande échelle</h3>
                 <p className="text-muted-foreground text-sm">
-                  Scannez des milliers de morceaux en une seule opération. Conçu pour les labels et plateformes traitant des volumes massifs de contenu. Jusqu'à 1 million de pistes par semaine en plan Enterprise.
+                  Analysez des milliers de morceaux en une seule opération. Conçu pour les labels et plateformes traitant de grands volumes. Jusqu'à 1 million de titres par semaine en plan Enterprise.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <Music className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">Résistant à l'Évasion</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">Robuste face aux tentatives de contournement</h3>
                 <p className="text-muted-foreground text-sm">
-                  Robuste contre la conversion MP3, le pitch shifting, les changements de tempo, l'ajout de bruit et le réencodage codec. Analyse les propriétés structurelles profondes qui survivent à tout post-traitement.
+                  Résiste à la conversion MP3, au pitch shifting, aux changements de tempo et au réencodage. L'analyse porte sur des propriétés structurelles profondes qui persistent après tout post-traitement.
                 </p>
               </div>
             </div>
@@ -319,10 +319,10 @@ export default function LandingFR() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
-              Comparaison des Détecteurs de Musique IA
+              DetectX face à la concurrence
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Comment DetectX se compare aux autres outils de détection de musique IA sur le marché.
+              Comparaison avec les autres outils de détection de musique IA disponibles sur le marché.
             </p>
 
             <div className="overflow-x-auto">
@@ -397,10 +397,10 @@ export default function LandingFR() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
-              Qui Utilise la Détection de Musique IA
+              Pour qui ?
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Des musiciens individuels aux grands labels traitant des millions de morceaux.
+              Du musicien indépendant aux majors traitant des millions de titres.
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -408,28 +408,28 @@ export default function LandingFR() {
                 <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Labels</h3>
                 <p className="text-xs text-muted-foreground">
-                  Traitez des volumes massifs de pistes IA générées dans tous les genres. Protégez votre catalogue contre le contenu IA. Scan par lots de milliers de morceaux en une seule opération.
+                  Traitez de grands volumes de titres. Protégez votre catalogue contre les contenus IA. Analyse par lots de milliers de morceaux.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Music className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Plateformes de Streaming</h3>
                 <p className="text-xs text-muted-foreground">
-                  Filtrez automatiquement les uploads IA. Plus de 60 000 morceaux IA téléchargés quotidiennement. Intégration API pour la détection en temps réel.
+                  Filtrez automatiquement les contenus IA parmi les uploads. Plus de 60 000 morceaux IA soumis chaque jour. Intégration API pour une détection en temps réel.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Shield className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Sociétés de Droits d'Auteur</h3>
                 <p className="text-xs text-muted-foreground">
-                  Protège les fonds de redevances des sociétés de droits d'auteur contre les enregistrements IA frauduleux. Fournit des rapports d'analyse de qualité probante pour les litiges.
+                  Protégez vos fonds de redevances contre les enregistrements IA frauduleux. Rapports d'analyse de qualité professionnelle, exploitables en cas de litige.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Mic className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Musiciens et Producteurs</h3>
                 <p className="text-xs text-muted-foreground">
-                  Vérifiez votre propre travail. Prouvez l'origine humaine. Vérifiez si vos collaborateurs ont utilisé la génération IA. Gratuit pour un usage individuel.
+                  Vérifiez vos propres productions. Prouvez l'origine humaine de vos morceaux. Détectez l'usage d'IA chez vos collaborateurs. Gratuit pour un usage individuel.
                 </p>
               </div>
             </div>
@@ -440,10 +440,10 @@ export default function LandingFR() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              Détecte Tous les Principaux Générateurs de Musique IA
+              Compatible avec tous les générateurs de musique IA
             </h2>
             <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-              DetectX identifie l'audio provenant de toute plateforme de génération de musique IA, quel que soit le post-traitement ou la conversion de format.
+              DetectX identifie l'audio issu de toute plateforme de génération IA, indépendamment du post-traitement ou de la conversion de format.
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -455,7 +455,7 @@ export default function LandingFR() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              La détection fonctionne indépendamment de la conversion MP3, du pitch shifting, des changements de tempo ou de toute autre tentative d'évasion.
+              La détection reste fiable après conversion MP3, pitch shifting, changement de tempo ou toute autre tentative de contournement.
             </p>
           </div>
         </section>
@@ -473,10 +473,10 @@ export default function LandingFR() {
               </div>
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-4">
-                  Détection de Deepfake Vocal et Clones Vocaux IA
+                  Détection de deepfakes vocaux et clones IA
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  DetectX détecte également la parole générée par IA et les voix deepfake avec 97,8% de précision. Fonctionne avec seulement 2 secondes d'audio dans les conditions téléphoniques réelles.
+                  DetectX détecte aussi les voix synthétiques et deepfakes vocaux avec 97,8% de précision. Fonctionne avec seulement 2 secondes d'audio dans les conditions téléphoniques réelles.
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> ElevenLabs, Google TTS, OpenAI détectés</li>
@@ -498,15 +498,15 @@ export default function LandingFR() {
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              Commencez à Détecter la Musique Générée par IA Aujourd'hui
+              Prêt à détecter la musique IA ?
             </h2>
             <p className="text-muted-foreground mb-8">
-              Plan gratuit disponible. Téléchargez votre premier morceau et obtenez des résultats en quelques secondes.
+              Gratuit et sans engagement. Importez votre premier morceau et obtenez un verdict en quelques secondes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">
                 <Button className="px-10 py-4 text-base font-medium">
-                  Scanner Gratuitement
+                  Analyser gratuitement
                 </Button>
               </Link>
               <Link href="/plan">
@@ -516,7 +516,7 @@ export default function LandingFR() {
               </Link>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
-              Supporte WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo. Analyse parallèle à haute vitesse.
+              Compatible WAV, MP3, FLAC, AAC, OGG jusqu'à 100 Mo. Analyse rapide en parallèle.
             </p>
           </div>
         </section>
@@ -531,7 +531,7 @@ export default function LandingFR() {
               <div className="space-y-2">
                 <Link href="/verify-audio" className="block text-sm text-muted-foreground hover:text-foreground">Détecteur de Musique IA</Link>
                 <Link href="/verify-voice" className="block text-sm text-muted-foreground hover:text-foreground">Détecteur de Deepfake Vocal</Link>
-                <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">Scan en Masse</Link>
+                <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">Analyse en lot</Link>
                 <Link href="/plan" className="block text-sm text-muted-foreground hover:text-foreground">Tarifs</Link>
               </div>
             </div>

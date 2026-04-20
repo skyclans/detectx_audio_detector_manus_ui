@@ -21,8 +21,8 @@ export default function LandingJA() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="Suno・Udio AI生成楽曲を即座に検出 | DetectX"
-        description="Suno v5.5で96.8%の精度を誇る無料AI音楽検出ツール。マルチレイヤーDeep Learning分析でAI生成楽曲を判定。レコード会社、ストリーミングプラットフォーム、著作権団体向けのAI音楽判定ツール。"
+        title="Suno・Udio AI楽曲を瞬時に検出 | DetectX"
+        description="Suno v5.5検出率96.8%の無料AI音楽検出ツール。Multi-Engine Deep Learning分析でAI生成楽曲を判定。レコード会社・配信プラットフォーム・著作権管理団体向け。"
         path="/ja/"
       />
       {/* SoftwareApplication Schema */}
@@ -33,7 +33,7 @@ export default function LandingJA() {
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web",
         "url": "https://detectx.app/ja/",
-        "description": "Suno、Udio等のAI生成楽曲を96.8%の精度で検出するマルチレイヤーDeep Learning分析ツール。レコード会社、ストリーミングプラットフォーム、著作権団体向けのAI音楽判定ツールです。",
+        "description": "Suno、Udio等のAI生成楽曲を96.8%の精度で検出するMulti-Engine Deep Learning分析ツール。レコード会社・配信プラットフォーム・著作権管理団体向けのAI音楽検出ツールです。",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -213,7 +213,7 @@ export default function LandingJA() {
                   </Link>
                   <Link href="/batch-verify">
                     <Button variant="outline" className="px-8 py-3 text-base font-medium">
-                      レーベル向け大量スキャン
+                      バッチスキャン
                     </Button>
                   </Link>
                 </div>
@@ -397,10 +397,10 @@ export default function LandingJA() {
         <section className="py-16 md:py-20 px-6 border-t border-border">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
-              AI音楽検出の活用分野
+              活用シーン
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              個人ミュージシャンから数百万曲を処理する大手レコード会社まで。
+              個人ミュージシャンから大手レコード会社まで、幅広い用途に対応します。
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -408,28 +408,28 @@ export default function LandingJA() {
                 <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">レコード会社</h3>
                 <p className="text-xs text-muted-foreground">
-                  大量の楽曲処理が可能。AIコンテンツからカタログを保護。数千曲の一括スキャン対応。
+                  カタログ全体をAIコンテンツから保護。数千曲の一括スキャンに対応します。
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Music className="h-6 w-6 text-cyan-500 mb-3" />
-                <h3 className="font-medium text-foreground mb-2 text-sm">ストリーミングプラットフォーム</h3>
+                <h3 className="font-medium text-foreground mb-2 text-sm">配信プラットフォーム</h3>
                 <p className="text-xs text-muted-foreground">
-                  AIアップロードを自動フィルタリング。毎日60,000曲以上のAIトラックがアップロードされています。リアルタイム検出のためのAPI連携。
+                  日々60,000曲以上アップロードされるAIトラックを自動フィルタリング。API連携でリアルタイム検出が可能です。
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Shield className="h-6 w-6 text-cyan-500 mb-3" />
-                <h3 className="font-medium text-foreground mb-2 text-sm">著作権団体</h3>
+                <h3 className="font-medium text-foreground mb-2 text-sm">著作権管理団体</h3>
                 <p className="text-xs text-muted-foreground">
-                  世界中の著作権管理団体のロイヤリティプールを不正AI登録から保護します。紛争時に証拠レベルの分析レポートを提供します。
+                  ロイヤリティプールを不正AI登録から保護。紛争時には専門家レベルの分析レポートを提供します。
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Mic className="h-6 w-6 text-cyan-500 mb-3" />
-                <h3 className="font-medium text-foreground mb-2 text-sm">ミュージシャン＆プロデューサー</h3>
+                <h3 className="font-medium text-foreground mb-2 text-sm">ミュージシャン・プロデューサー</h3>
                 <p className="text-xs text-muted-foreground">
-                  自身の作品を検証。人間による制作であることを証明。コラボレーターがAIを使用したか確認可能。個人利用は無料。
+                  自身の作品がAI判定されないことを確認。コラボ相手のAI使用有無も検証可能。個人利用は無料です。
                 </p>
               </div>
             </div>
@@ -498,10 +498,10 @@ export default function LandingJA() {
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              今すぐAI生成楽曲の検出を始めましょう
+              今すぐ検出を始める
             </h2>
             <p className="text-muted-foreground mb-8">
-              無料プラン提供中。最初のトラックをアップロードすれば、数秒で結果が得られます。
+              無料で利用可能。ファイルをアップロードすれば、数秒で結果が得られます。
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">
@@ -511,12 +511,12 @@ export default function LandingJA() {
               </Link>
               <Link href="/plan">
                 <Button variant="outline" className="px-10 py-4 text-base font-medium">
-                  エンタープライズプランを見る
+                  料金プランを見る
                 </Button>
               </Link>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
-              WAV、MP3、FLAC、AAC、OGG 最大100MBに対応。高速並列分析。
+              WAV / MP3 / FLAC / AAC / OGG（最大100MB）対応。高速並列分析。
             </p>
           </div>
         </section>

@@ -85,7 +85,7 @@ export default function LandingPT() {
           },
           {
             "@type": "Question",
-            "name": "O DetectX suporta escaneamento em massa de música IA?",
+            "name": "O DetectX suporta análise em lote de música IA?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Sim. DetectX oferece análise em lote para gravadoras, plataformas de streaming e distribuidoras. Analise de centenas a milhões de faixas de forma automatizada. Planos Enterprise processam até 1 milhão de faixas por semana com prioridade e acesso dedicado à API."
@@ -196,7 +196,7 @@ export default function LandingPT() {
                     <div className="text-[10px] sm:text-xs text-muted-foreground">Voice Deepfake</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
-                    <div className="text-lg sm:text-2xl font-bold text-foreground">Fast</div>
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">Rápido</div>
                     <div className="text-[10px] sm:text-xs text-muted-foreground">Velocidade</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
@@ -338,21 +338,21 @@ export default function LandingPT() {
                 </thead>
                 <tbody className="text-muted-foreground">
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Precisão de Detecção Suno</td>
+                    <td className="p-3">Detecção Suno</td>
                     <td className="p-3 text-center font-medium text-foreground">96,8%</td>
                     <td className="p-3 text-center">Desconhecido</td>
                     <td className="p-3 text-center">94%</td>
                     <td className="p-3 text-center">90%+</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Análise de Multi-Motor</td>
+                    <td className="p-3">Análise Multi-Motor</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Processamento em Massa</td>
+                    <td className="p-3">Análise em Lote</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
@@ -386,7 +386,7 @@ export default function LandingPT() {
             <div className="text-center mt-8">
               <Link href="/verify-audio">
                 <Button className="px-8 py-3 text-base font-medium">
-                  Experimente o DetectX Grátis
+                  Testar DetectX grátis
                 </Button>
               </Link>
             </div>
@@ -400,7 +400,7 @@ export default function LandingPT() {
               Quem Usa Detecção de Música IA
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              De músicos individuais a grandes gravadoras processando grandes volumes de faixas IA geradas em todos os gêneros.
+              De músicos independentes a grandes gravadoras que processam milhares de faixas em todos os gêneros.
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -408,28 +408,28 @@ export default function LandingPT() {
                 <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Gravadoras</h3>
                 <p className="text-xs text-muted-foreground">
-                  Processe grandes volumes de faixas com escaneamento em lote. Proteja seu catálogo contra conteúdo IA e escaneie milhares de faixas automaticamente.
+                  Processe grandes volumes de faixas. Proteja seu catálogo contra conteúdo IA. Análise em lote de milhares de faixas.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Music className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Plataformas de Streaming</h3>
                 <p className="text-xs text-muted-foreground">
-                  Filtre uploads de IA automaticamente. Mais de 60.000 faixas de IA enviadas diariamente. Integração via API para detecção em tempo real.
+                  Filtre uploads de IA automaticamente. Mais de 60 mil faixas IA são enviadas por dia. Integração via API para detecção em tempo real.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Shield className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Sociedades de Direitos Autorais</h3>
                 <p className="text-xs text-muted-foreground">
-                  Protege os pools de royalties das sociedades de direitos autorais contra registros fraudulentos de IA. Fornece relatórios de análise com qualidade de evidência para disputas.
+                  Proteja os royalties contra registros fraudulentos de IA. Laudos com qualidade de evidência para disputas e processos.
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Mic className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">Músicos e Produtores</h3>
                 <p className="text-xs text-muted-foreground">
-                  Verifique seu próprio trabalho. Comprove a origem humana. Confira se colaboradores usaram geração por IA. Gratuito para uso individual.
+                  Verifique suas faixas. Comprove a autoria humana. Confira se colaboradores usaram geração por IA. Gratuito para uso individual.
                 </p>
               </div>
             </div>
@@ -443,7 +443,7 @@ export default function LandingPT() {
               Detecta Todos os Principais Geradores de Música IA
             </h2>
             <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-              DetectX identifica áudio de qualquer plataforma de geração de música IA, independentemente de pós-processamento ou conversão de formato.
+              DetectX identifica áudio de qualquer plataforma de geração de música IA, independente de pós-processamento ou conversão de formato.
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -455,7 +455,7 @@ export default function LandingPT() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              A detecção funciona independentemente da conversão MP3, pitch shifting, mudanças de tempo ou outras tentativas de evasão.
+              A detecção funciona mesmo com conversão MP3, pitch shifting, alterações de tempo ou outras tentativas de mascaramento.
             </p>
           </div>
         </section>
@@ -473,20 +473,20 @@ export default function LandingPT() {
               </div>
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-4">
-                  Detecção de Deepfake Vocal — Detector de Clones de Voz IA
+                  Detecção de Deepfake Vocal — Identifique Clones de Voz IA
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  DetectX também detecta fala gerada por IA e vozes deepfake com 97,8% de precisão. Funciona com apenas 2 segundos de áudio em condições reais de telefone.
+                  DetectX também identifica fala sintética e vozes deepfake com 97,8% de precisão. Basta 2 segundos de áudio, mesmo em ligações telefônicas reais.
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> ElevenLabs, Google TTS, OpenAI detectados</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Funciona em codec telefônico (G.711, 8kHz)</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Mínimo de 2 segundos de áudio necessários</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Detecta ElevenLabs, Google TTS e OpenAI</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Compatível com codec telefônico (G.711, 8kHz)</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Apenas 2 segundos de áudio necessários</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Detecção em tempo real para call centers</li>
                 </ul>
                 <Link href="/verify-voice">
                   <Button variant="outline" className="text-sm">
-                    Experimentar Detecção Vocal
+                    Testar detecção vocal
                   </Button>
                 </Link>
               </div>
@@ -498,10 +498,10 @@ export default function LandingPT() {
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              Comece a Detectar Música Gerada por IA Hoje
+              Comece a detectar música IA agora
             </h2>
             <p className="text-muted-foreground mb-8">
-              Plano gratuito disponível. Faça upload da sua primeira faixa e obtenha resultados em segundos.
+              Plano gratuito disponível. Envie sua primeira faixa e receba o resultado em segundos.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">
@@ -516,7 +516,7 @@ export default function LandingPT() {
               </Link>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
-              Suporta WAV, MP3, FLAC, AAC, OGG até 100MB. Análise paralela de alta velocidade.
+              Aceita WAV, MP3, FLAC, AAC, OGG (até 100MB). Análise rápida em paralelo.
             </p>
           </div>
         </section>
@@ -531,7 +531,7 @@ export default function LandingPT() {
               <div className="space-y-2">
                 <Link href="/verify-audio" className="block text-sm text-muted-foreground hover:text-foreground">Detector de Música IA</Link>
                 <Link href="/verify-voice" className="block text-sm text-muted-foreground hover:text-foreground">Detector de Deepfake Vocal</Link>
-                <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">Escaneamento em Massa</Link>
+                <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">Análise em Lote</Link>
                 <Link href="/plan" className="block text-sm text-muted-foreground hover:text-foreground">Preços</Link>
               </div>
             </div>

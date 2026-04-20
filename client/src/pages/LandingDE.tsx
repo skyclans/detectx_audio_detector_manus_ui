@@ -182,7 +182,7 @@ export default function LandingDE() {
                   Laden Sie Ihre Audiodatei hoch und erhalten Sie in Sekunden ein klares Ergebnis. 96,8% Erkennungsrate bei Suno v5.5 — entwickelt für Plattenfirmen, Streaming-Plattformen und Verwertungsgesellschaften.
                 </p>
                 <p className="text-base text-muted-foreground mb-8">
-                  Kostenloser Plan verfügbar. Unterstützt WAV, MP3, FLAC, AAC, OGG bis 100MB.
+                  Kostenlos nutzbar. Unterstützt WAV, MP3, FLAC, AAC, OGG bis 100 MB.
                 </p>
 
                 {/* Stats */}
@@ -322,7 +322,7 @@ export default function LandingDE() {
               KI-Musik-Detektor Vergleich
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Wie DetectX im Vergleich zu anderen KI-Musik-Erkennungstools auf dem Markt abschneidet.
+              So schneidet DetectX im Vergleich zu anderen KI-Musik-Erkennungstools ab.
             </p>
 
             <div className="overflow-x-auto">
@@ -338,7 +338,7 @@ export default function LandingDE() {
                 </thead>
                 <tbody className="text-muted-foreground">
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Suno-Erkennungsgenauigkeit</td>
+                    <td className="p-3">Suno-Erkennung</td>
                     <td className="p-3 text-center font-medium text-foreground">96,8%</td>
                     <td className="p-3 text-center">Unbekannt</td>
                     <td className="p-3 text-center">94%</td>
@@ -352,7 +352,7 @@ export default function LandingDE() {
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Massenverarbeitung</td>
+                    <td className="p-3">Massenanalyse</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
@@ -366,7 +366,7 @@ export default function LandingDE() {
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Kostenlose Stufe</td>
+                    <td className="p-3">Kostenloser Plan</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
@@ -443,7 +443,7 @@ export default function LandingDE() {
               Erkennt alle großen KI-Musikgeneratoren
             </h2>
             <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-              DetectX identifiziert Audio von jeder KI-Musik-Generierungsplattform, unabhängig von Nachbearbeitung oder Formatkonvertierung.
+              DetectX identifiziert Audio aller gängigen KI-Musikplattformen — unabhängig von Nachbearbeitung oder Formatkonvertierung.
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -455,7 +455,7 @@ export default function LandingDE() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Die Erkennung funktioniert unabhängig von MP3-Konvertierung, Tonhöhenänderung, Tempoänderungen oder anderen Umgehungsversuchen.
+              Zuverlässige Erkennung auch nach MP3-Konvertierung, Pitch-Shifting, Tempoänderungen oder anderen Manipulationsversuchen.
             </p>
           </div>
         </section>
@@ -476,17 +476,17 @@ export default function LandingDE() {
                   Sprach-Deepfake-Erkennung — KI-Stimmklon-Detektor
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  DetectX erkennt auch KI-generierte Sprache und Deepfake-Stimmen mit 97,8% Genauigkeit. Funktioniert mit nur 2 Sekunden Audio unter realen Telefonbedingungen.
+                  Neben Musik erkennt DetectX auch KI-generierte Sprache und Deepfake-Stimmen — mit 97,8% Genauigkeit, ab nur 2 Sekunden Audio, auch unter realen Telefonbedingungen.
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> ElevenLabs, Google TTS, OpenAI erkannt</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Funktioniert mit Telefon-Codec (G.711, 8kHz)</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Mindestens 2 Sekunden Audio erforderlich</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Echtzeit-Erkennung für Callcenter</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Erkennt ElevenLabs, Google TTS, OpenAI u. a.</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Kompatibel mit Telefon-Codecs (G.711, 8 kHz)</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Ab 2 Sekunden Audio analysierbar</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> Echtzeit-Erkennung für Callcenter und Banken</li>
                 </ul>
                 <Link href="/verify-voice">
                   <Button variant="outline" className="text-sm">
-                    Spracherkennung testen
+                    Stimmerkennung testen
                   </Button>
                 </Link>
               </div>
@@ -498,15 +498,15 @@ export default function LandingDE() {
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
-              Beginnen Sie heute mit der Erkennung von KI-Musik
+              Jetzt KI-Musik erkennen
             </h2>
             <p className="text-muted-foreground mb-8">
-              Kostenloser Plan verfügbar. Laden Sie Ihren ersten Track hoch und erhalten Sie Ergebnisse in Sekunden.
+              Kostenlos starten. Laden Sie Ihren ersten Track hoch und erhalten Sie das Ergebnis in Sekunden.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">
                 <Button className="px-10 py-4 text-base font-medium">
-                  Kostenlos analysieren
+                  Jetzt kostenlos testen
                 </Button>
               </Link>
               <Link href="/plan">
@@ -516,7 +516,7 @@ export default function LandingDE() {
               </Link>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
-              Unterstützt WAV, MP3, FLAC, AAC, OGG bis 100MB. Hochgeschwindigkeits-Parallelanalyse.
+              Unterstützt WAV, MP3, FLAC, AAC, OGG bis 100 MB. Schnelle parallele Analyse.
             </p>
           </div>
         </section>
@@ -531,7 +531,7 @@ export default function LandingDE() {
               <div className="space-y-2">
                 <Link href="/verify-audio" className="block text-sm text-muted-foreground hover:text-foreground">KI-Musik-Detektor</Link>
                 <Link href="/verify-voice" className="block text-sm text-muted-foreground hover:text-foreground">Sprach-Deepfake-Detektor</Link>
-                <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">Massen-Scanning</Link>
+                <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">Massenanalyse</Link>
                 <Link href="/plan" className="block text-sm text-muted-foreground hover:text-foreground">Preise</Link>
               </div>
             </div>

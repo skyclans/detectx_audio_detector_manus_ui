@@ -22,7 +22,7 @@ export default function LandingKO() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="AI 음악 감지기 | Suno, Udio AI 생성곡 무료 탐지 | DetectX"
-        description="96.8% 정확도의 무료 AI 음악 감지 도구. Suno, Udio 등 AI 생성 음악을 특허 출원 AI 탐지 기술로 탐지합니다. 음반사, 스트리밍 플랫폼, 저작권 단체를 위한 AI 음악 판별기."
+        description="96.8% 정확도의 무료 AI 음악 탐지 도구. Suno, Udio 등 AI 생성 음악을 multi-engine Deep Learning 기술로 판별합니다. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계되었습니다."
         path="/ko/"
       />
       {/* SoftwareApplication Schema */}
@@ -33,7 +33,7 @@ export default function LandingKO() {
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web",
         "url": "https://detectx.app/ko/",
-        "description": "Suno, Udio 등 AI 생성 음악을 96.8% 정확도로 탐지하는 특허 출원 AI 탐지 기술 도구. 음반사, 스트리밍 플랫폼, 저작권 단체를 위한 AI 음악 판별기입니다.",
+        "description": "Suno, Udio 등 AI 생성 음악을 96.8% 정확도로 탐지하는 multi-engine Deep Learning 도구. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계되었습니다.",
         "offers": {
           "@type": "Offer",
           "price": "0",

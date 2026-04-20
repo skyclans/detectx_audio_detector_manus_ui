@@ -22,7 +22,7 @@ export default function LandingZH() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="即刻检测 Suno·Udio AI 生成音乐 | DetectX"
-        description="免费AI音乐检测工具，Suno v5.5检测准确率96.8%。多引擎深度学习分析检测AI生成音乐。面向唱片公司、流媒体平台和版权组织设计的AI音乐检测工具。"
+        description="免费 AI 音乐检测工具，Suno v5.5 检测率 96.8%。Multi-Engine Deep Learning 分析，精准检测 AI 生成音乐。专为唱片公司、流媒体平台和版权组织打造。"
         path="/zh/"
       />
       {/* SoftwareApplication Schema */}
@@ -33,7 +33,7 @@ export default function LandingZH() {
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web",
         "url": "https://detectx.app/zh/",
-        "description": "AI音乐检测工具，通过多引擎深度学习分析以96.8%的准确率识别Suno、Udio等生成器生成的AI音乐。",
+        "description": "AI 音乐检测工具，通过 Multi-Engine Deep Learning 分析以 96.8% 的准确率识别 Suno、Udio 等生成器生成的 AI 音乐。",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -72,7 +72,7 @@ export default function LandingZH() {
             "name": "DetectX能检测Suno和Udio的AI曲目吗？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "可以。DetectX以96.8%的准确率检测Suno v5.5，涵盖所有音乐类型，包括流行、爵士、古典、嘻哈和电子音乐。Udio检测率为58%。系统能识别每个AI生成器合成过程中独有的结构性伪影。"
+              "text": "可以。DetectX 以 96.8% 的准确率检测 Suno v5.5，涵盖流行、爵士、古典、嘻哈和电子等所有类型。Udio 检测率为 58%。系统能识别每个 AI 生成器合成过程中独有的结构性伪影。"
             }
           },
           {
@@ -80,7 +80,7 @@ export default function LandingZH() {
             "name": "DetectX是免费的吗？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "是的，DetectX提供免费版本，包含完整的多引擎分析。上传任何音频文件（WAV、MP3、FLAC、AAC、OGG，最大100MB）即可获得即时AI检测结果。专业版可用于批量处理（每周最多100万首）和API访问。"
+              "text": "是的，DetectX 提供免费版本，包含完整的 Multi-Engine 分析。上传您的音频文件（WAV、MP3、FLAC、AAC、OGG，最大 100MB）即可获得即时检测结果。Pro 版支持批量处理（每周最多 100 万首）和 API 接入。"
             }
           },
           {
@@ -88,7 +88,7 @@ export default function LandingZH() {
             "name": "DetectX支持批量AI音乐扫描吗？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "支持。DetectX为唱片公司、流媒体平台和发行商提供批量处理。自动扫描数百到数百万首曲目。企业版每周支持处理多达100万首曲目，提供优先处理和专属API访问。"
+              "text": "支持。DetectX 为唱片公司、流媒体平台和发行商提供批量处理，可自动扫描数百到数百万首曲目。企业版每周最多处理 100 万首，享受优先处理和专属 API 接入。"
             }
           },
           {
@@ -96,7 +96,7 @@ export default function LandingZH() {
             "name": "DetectX与其他AI音乐检测器有何不同？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX在三个方面独树一帜：（1）多引擎架构，比单模型检测器准确率更高，（2）在同一平台上同时检测AI音乐和语音深伪，（3）企业级批量处理，每周最多100万首。专利技术，业内最低误报率。"
+              "text": "DetectX 在三方面领先：(1) Multi-Engine 架构，准确率优于单模型检测器；(2) 同一平台同时检测 AI 音乐和 Voice Deepfake；(3) 企业级批量处理，每周最多 100 万首。专利技术，将人类音乐的误判降到最低。"
             }
           }
         ]
@@ -200,8 +200,8 @@ export default function LandingZH() {
                     <div className="text-[10px] sm:text-xs text-muted-foreground">极速分析</div>
                   </div>
                   <div className="text-center p-2 sm:p-4 bg-muted/30 rounded-lg">
-                    <div className="text-lg sm:text-2xl font-bold text-foreground">全部</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">全类型</div>
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">16+</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">音乐类型</div>
                   </div>
                 </div>
 
@@ -222,7 +222,7 @@ export default function LandingZH() {
               <div className="order-first md:order-last">
                 <img
                   src="/images/herosection_new.png"
-                  alt="DetectX AI音乐检测器分析音频文件 — 以96.8%准确率检测Suno和Udio生成的AI音乐"
+                  alt="DetectX AI 音乐检测器分析音频文件 — 以 96.8% 准确率检测 Suno 和 Udio 生成的 AI 音乐"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
@@ -338,14 +338,14 @@ export default function LandingZH() {
                 </thead>
                 <tbody className="text-muted-foreground">
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Suno检测准确率</td>
+                    <td className="p-3">Suno 检测率</td>
                     <td className="p-3 text-center font-medium text-foreground">96.8%</td>
                     <td className="p-3 text-center">未知</td>
                     <td className="p-3 text-center">94%</td>
                     <td className="p-3 text-center">90%+</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">多引擎分析</td>
+                    <td className="p-3">Multi-Engine 分析</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
@@ -359,7 +359,7 @@ export default function LandingZH() {
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">语音深伪检测</td>
+                    <td className="p-3">Voice Deepfake 检测</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
@@ -373,7 +373,7 @@ export default function LandingZH() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr>
-                    <td className="p-3">API访问</td>
+                    <td className="p-3">API 接入</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
@@ -400,7 +400,7 @@ export default function LandingZH() {
               面向各类音乐行业用户设计
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              从个人音乐人到处理数百万首曲目的大型唱片公司。
+              从独立音乐人到管理百万曲库的大型唱片公司，都能适用。
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -408,28 +408,28 @@ export default function LandingZH() {
                 <Building2 className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">唱片公司</h3>
                 <p className="text-xs text-muted-foreground">
-                  大规模曲目处理，保护曲库免受AI内容侵害。数千首歌曲批量扫描，高效筛选投稿。
+                  处理大量曲目，保护您的音乐目录免受 AI 内容侵入。支持数千首批量扫描，高效筛选投稿。
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Music className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">流媒体平台</h3>
                 <p className="text-xs text-muted-foreground">
-                  自动过滤AI上传内容。每天超过60,000首AI曲目被上传。API集成实现实时检测。
+                  自动过滤 AI 上传内容。每天超过 60,000 首 AI 曲目涌入平台。通过 API 集成实现实时拦截。
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Shield className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">版权管理组织</h3>
                 <p className="text-xs text-muted-foreground">
-                  保护全球版权管理组织的版税池免受欺诈性AI注册侵害。为争议提供证据级分析报告。
+                  保护版税池免受欺诈性 AI 注册侵害。为版权争议提供证据级分析报告。
                 </p>
               </div>
               <div className="p-5 rounded-lg border border-border">
                 <Mic className="h-6 w-6 text-cyan-500 mb-3" />
                 <h3 className="font-medium text-foreground mb-2 text-sm">音乐人与制作人</h3>
                 <p className="text-xs text-muted-foreground">
-                  验证您自己的作品。证明人类创作来源。检查合作者是否使用了AI生成。个人使用免费。
+                  验证自己的作品，证明人类创作来源。检查合作者是否使用了 AI 生成内容。个人免费。
                 </p>
               </div>
             </div>
@@ -443,7 +443,7 @@ export default function LandingZH() {
               检测所有主流AI音乐生成器
             </h2>
             <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-              DetectX识别来自任何AI音乐生成平台的音频，无论后处理或格式转换如何。
+              无论后处理还是格式转换，DetectX 均可识别来自各大 AI 音乐生成平台的音频。
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -455,7 +455,7 @@ export default function LandingZH() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              无论MP3转换、变调、变速还是其他规避尝试，检测均有效。
+              MP3 转码、变调、变速等规避手段均无法逃脱检测。
             </p>
           </div>
         </section>
@@ -467,26 +467,26 @@ export default function LandingZH() {
               <div>
                 <img
                   src="/images/othermodalities.png"
-                  alt="DetectX语音深伪检测 — AI语音克隆和合成语音检测器"
+                  alt="DetectX Voice Deepfake 检测 — AI 语音克隆和合成语音检测器"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
               <div>
                 <h2 className="text-2xl font-medium text-foreground mb-4">
-                  语音深伪检测：AI语音克隆检测器
+                  Voice Deepfake 检测：AI 语音克隆识别
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  DetectX还能以97.8%的准确率检测AI生成的语音和深伪声音。在真实电话条件下仅需2秒音频即可工作。
+                  DetectX 同时支持 AI 生成语音和 Deepfake 声音检测，准确率 97.8%。真实电话环境下仅需 2 秒音频即可判定。
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 检测ElevenLabs、Google TTS、OpenAI</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 支持电话编解码器（G.711，8kHz）</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 最少仅需2秒音频</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 呼叫中心实时检测</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 检测 ElevenLabs、Google TTS、OpenAI 等</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 支持电话编解码器 (G.711, 8kHz)</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 最短 2 秒音频即可判定</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" /> 适用于呼叫中心实时检测</li>
                 </ul>
                 <Link href="/verify-voice">
                   <Button variant="outline" className="text-sm">
-                    试用语音检测
+                    体验语音检测
                   </Button>
                 </Link>
               </div>
@@ -501,7 +501,7 @@ export default function LandingZH() {
               立即开始检测AI生成音乐
             </h2>
             <p className="text-muted-foreground mb-8">
-              提供免费计划。上传您的第一首曲目，快速获取结果。
+              免费使用，上传您的第一首曲目，即刻获取检测结果。
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/verify-audio">
@@ -516,7 +516,7 @@ export default function LandingZH() {
               </Link>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
-              支持WAV、MP3、FLAC、AAC、OGG，最大100MB。高速并行分析。
+              支持 WAV、MP3、FLAC、AAC、OGG，最大 100MB。高速并行分析。
             </p>
           </div>
         </section>
@@ -529,8 +529,8 @@ export default function LandingZH() {
             <div>
               <h4 className="font-medium text-foreground mb-3 text-sm">产品</h4>
               <div className="space-y-2">
-                <Link href="/verify-audio" className="block text-sm text-muted-foreground hover:text-foreground">AI音乐检测器</Link>
-                <Link href="/verify-voice" className="block text-sm text-muted-foreground hover:text-foreground">语音深伪检测器</Link>
+                <Link href="/verify-audio" className="block text-sm text-muted-foreground hover:text-foreground">AI 音乐检测</Link>
+                <Link href="/verify-voice" className="block text-sm text-muted-foreground hover:text-foreground">Voice Deepfake 检测</Link>
                 <Link href="/batch-verify" className="block text-sm text-muted-foreground hover:text-foreground">批量扫描</Link>
                 <Link href="/plan" className="block text-sm text-muted-foreground hover:text-foreground">价格</Link>
               </div>

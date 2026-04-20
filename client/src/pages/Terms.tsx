@@ -201,6 +201,10 @@ export default function Terms() {
               Contact
             </Link>
           </div>
+          <p className="text-xs text-muted-foreground/50 mt-6">
+            Suno, Udio, and other product names mentioned on this site are trademarks of their respective owners.
+            DetectX is not affiliated with or endorsed by Suno or Udio.
+          </p>
         </div>
       </main>
     </div>

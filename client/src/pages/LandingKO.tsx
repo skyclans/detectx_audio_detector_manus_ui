@@ -571,6 +571,9 @@ export default function LandingKO() {
               <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">개인정보처리방침</Link>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground/50 mt-4 text-center">
+            Suno, Udio 및 기타 제품명은 각 소유자의 상표입니다. DetectX는 Suno 또는 Udio와 제휴하거나 보증받지 않습니다.
+          </p>
         </div>
       </footer>
     </div>

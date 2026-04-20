@@ -573,6 +573,9 @@ export default function LandingEN() {
               <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">Privacy</Link>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground/50 mt-4 text-center">
+            Suno, Udio, and other product names are trademarks of their respective owners. DetectX is not affiliated with or endorsed by Suno or Udio.
+          </p>
         </div>
       </footer>
     </div>

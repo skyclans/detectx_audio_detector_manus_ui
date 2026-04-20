@@ -291,6 +291,9 @@ export default function About() {
               <p className="text-xs text-muted-foreground/50 mt-2">
                 © {new Date().getFullYear()} DetectX Inc. All rights reserved. Patent pending.
               </p>
+              <p className="text-xs text-muted-foreground/30 mt-2">
+                Suno, Udio, and other product names are trademarks of their respective owners. DetectX is not affiliated with or endorsed by Suno or Udio.
+              </p>
             </div>
             <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
               <Link href="/technology" className="hover:text-foreground transition-colors">Technology</Link>

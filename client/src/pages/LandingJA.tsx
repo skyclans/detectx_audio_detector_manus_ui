@@ -571,6 +571,9 @@ export default function LandingJA() {
               <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">プライバシーポリシー</Link>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground/50 mt-4 text-center">
+            Suno、Udio およびその他の製品名は各所有者の商標です。DetectX は Suno または Udio と提携・推奨関係にありません。
+          </p>
         </div>
       </footer>
     </div>

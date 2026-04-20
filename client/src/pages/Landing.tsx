@@ -756,6 +756,10 @@ export default function Landing() {
           <p className="text-center text-xs text-muted-foreground/40 mt-8">
             © {new Date().getFullYear()} DetectX. All rights reserved.
           </p>
+          <p className="text-center text-xs text-muted-foreground/30 mt-4">
+            Suno, Udio, and other product names are trademarks of their respective owners.
+            DetectX is not affiliated with or endorsed by Suno or Udio.
+          </p>
         </div>
       </footer>
     </div>

@@ -145,22 +145,23 @@ export function StemWaveformPlayer({
     setLoadError(null);
 
     try {
-      // Create audio context if needed
-      if (!audioContextRef.current) {
-        audioContextRef.current = new AudioContext();
-        gainRef.current = audioContextRef.current.createGain();
-        gainRef.current.connect(audioContextRef.current.destination);
-        gainRef.current.gain.value = volume;
-      }
-
-      // Fetch audio file
       const response = await fetch(downloadUrl);
       if (!response.ok) {
         throw new Error(`Failed to load audio: ${response.status}`);
       }
 
       const arrayBuffer = await response.arrayBuffer();
-      const buffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+
+      // WHY: decode in OfflineAudioContext so we don't create a playback
+      // AudioContext outside a user gesture. Android Chrome / iOS Safari
+      // lock AudioContext created before first user interaction into a
+      // suspended state that resume() cannot fully recover from.
+      const Ctor =
+        window.OfflineAudioContext ||
+        (window as unknown as { webkitOfflineAudioContext: typeof OfflineAudioContext })
+          .webkitOfflineAudioContext;
+      const offline = new Ctor(1, 1, 44100);
+      const buffer = await offline.decodeAudioData(arrayBuffer);
 
       setAudioBuffer(buffer);
       setLoadError(null);
@@ -170,7 +171,7 @@ export function StemWaveformPlayer({
     } finally {
       setIsLoading(false);
     }
-  }, [downloadUrl, available, volume]);
+  }, [downloadUrl, available]);
 
   // Memoized waveform data extraction
   const waveformData = useMemo(() => {
@@ -355,12 +356,29 @@ export function StemWaveformPlayer({
   }, []);
 
   // Play audio from current offset
-  const playAudio = useCallback(() => {
-    if (!audioBuffer || !audioContextRef.current || !gainRef.current) return;
+  const playAudio = useCallback(async () => {
+    if (!audioBuffer) return;
 
-    // Resume context if suspended
+    // WHY: lazy-init AudioContext inside the user gesture (play click).
+    // Android Chrome and iOS Safari refuse to fully unlock an AudioContext
+    // that was constructed before the first user interaction.
+    if (!audioContextRef.current) {
+      const Ctor =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      audioContextRef.current = new Ctor();
+      gainRef.current = audioContextRef.current.createGain();
+      gainRef.current.connect(audioContextRef.current.destination);
+      gainRef.current.gain.value = volume;
+    }
+    if (!gainRef.current) return;
+
+    // Await resume so state is 'running' before source.start() on mobile.
     if (audioContextRef.current.state === 'suspended') {
-      audioContextRef.current.resume();
+      try {
+        await audioContextRef.current.resume();
+      } catch {}
     }
 
     // Stop existing source - clear ref first to prevent onended issues
@@ -399,7 +417,7 @@ export function StemWaveformPlayer({
         setCurrentTime(0);
       }
     };
-  }, [audioBuffer, updatePlayhead, stopPlayback]);
+  }, [audioBuffer, volume, updatePlayhead, stopPlayback]);
 
   // Pause playback
   const pausePlayback = useCallback(() => {

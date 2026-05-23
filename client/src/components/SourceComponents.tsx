@@ -49,7 +49,7 @@ export function SourceComponents({
   stemVolumes = {},
   onVolumeChange,
   onDownload,
-  apiBaseUrl = "https://emjvw2an6oynf9-8000.proxy.runpod.net",
+  apiBaseUrl = import.meta.env.VITE_DETECTX_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net",
 }: SourceComponentsProps) {
   // Always show waveform view (no compact mode)
   // During Verification state

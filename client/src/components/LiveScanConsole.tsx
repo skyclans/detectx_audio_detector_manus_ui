@@ -175,7 +175,7 @@ export function generateScanLogs(stage: string): ScanLogEntry {
     spectral: { message: "Observing residual structure", type: "process" },
     temporal: { message: "Monitoring residual persistence", type: "process" },
     geometry: { message: "Evaluating cross-stem geometry", type: "process" },
-    crg: { message: "Comparing against human geometry envelope", type: "process" },
+    forensic: { message: "Comparing against baseline", type: "process" },
     
     // Constraints & Ethics (Non-Negotiable)
     constraint_prob: { message: "No probabilistic inference is performed", type: "constraint" },
@@ -202,7 +202,7 @@ export function getFullScanSequence(): string[] {
   return [
     "init", "engine", "baseline", "deterministic",
     "pipeline", "lock", "upload", "decode",
-    "spectral", "temporal", "geometry", "crg",
+    "spectral", "temporal", "geometry", "forensic",
     "constraint_prob", "constraint_author",
     "finalize", "complete",
   ];

@@ -17,7 +17,7 @@ import { FileText, AlertCircle, CheckCircle } from "lucide-react";
 
 interface VerdictResult {
   verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
-  authority: "DetectX";
+  authority: "DetectX Forensic";
   exceeded_axes: string[];
 }
 

@@ -21,8 +21,8 @@ export type DetectXVerdictText =
 export interface DetectXVerificationResult {
   /** Fully resolved final verdict text - render verbatim */
   verdict: DetectXVerdictText;
-  /** Authority source - locked to CR-G */
-  authority: "CR-G";
+  /** Authority source - DetectX Forensic */
+  authority: "DetectX Forensic";
   /** Informational only - must not affect behavior */
   exceeded_axes: string[];
 }

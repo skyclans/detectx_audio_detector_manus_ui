@@ -27,10 +27,27 @@ interface DetailedAnalysisProps {
   isProcessing?: boolean;
 }
 
+// Display labels for axis IDs - DISPLAY ONLY, internal IDs unchanged
+const AXIS_DISPLAY_LABELS: Record<string, string> = {
+  "G1-A": "Temporal Pattern Analysis",
+  "G1-B": "Signal Persistence Analysis",
+  "G2-A": "Inter-track Correlation",
+  "G2-B": "Spectral Balance Analysis",
+  "G3-A": "Band Distribution Analysis",
+  "G3-B": "Cross-track Spectral Pattern",
+  "G3_A_BAND_GEOMETRY": "Band Distribution Analysis",
+  "G3_B_CROSS_STEM_BAND_GEOMETRY": "Cross-track Spectral Pattern",
+  "G1_B_RPL": "Signal Persistence Analysis",
+};
+
+function getAxisDisplayLabel(axisId: string): string {
+  return AXIS_DISPLAY_LABELS[axisId] || axisId;
+}
+
 // Dynamic axis card that displays any axis from server
 function AxisCard({ axis }: { axis: AxisData }) {
   const isExceeded = axis.status === "exceeded";
-  const displayName = axis.name || axis.id; // Use name if provided, otherwise use id
+  const displayName = axis.name || getAxisDisplayLabel(axis.id); // Use server-provided name if any, else generalized display label
   
   return (
     <div className={cn(
@@ -67,7 +84,7 @@ function AxisCard({ axis }: { axis: AxisData }) {
             "text-xs font-bold uppercase",
             isExceeded ? "text-red-400" : "text-emerald-400"
           )}>
-            {axis.id}
+            {getAxisDisplayLabel(axis.id)}
           </span>
         </div>
         <span className={cn(

@@ -34,17 +34,30 @@ type DetectXVerdictText =
 
 interface DetectXVerificationResult {
   verdict: DetectXVerdictText;
-  authority: "DetectX";
+  authority: "DetectX Forensic";
   exceeded_axes: string[];
 }
 
 interface VerdictPanelProps {
   /** DetectX verification result - render verbatim */
   verdict: DetectXVerificationResult | null;
+  /** CNN confidence score (0.0-1.0) - optional display layer override */
+  cnnScore?: number | null;
   /** Whether verification is in progress */
   isProcessing?: boolean;
   /** Scan progress 0-100 */
   progress?: number;
+}
+
+/**
+ * Derive display label from CNN score.
+ * DISPLAY-ONLY override - backend verdict text is preserved internally.
+ */
+function getDisplayLabel(cnnScore: number | null | undefined, fallback: string): string {
+  if (cnnScore == null) return fallback;
+  if (cnnScore < 0.5) return "AI signal evidence was not observed";
+  if (cnnScore < 0.8) return "Mixed AI signal evidence detected";
+  return "AI signal evidence was observed";
 }
 
 /**
@@ -55,6 +68,7 @@ interface VerdictPanelProps {
  */
 export function VerdictPanel({
   verdict,
+  cnnScore = null,
   isProcessing = false,
   progress = 0,
 }: VerdictPanelProps) {
@@ -109,27 +123,58 @@ export function VerdictPanel({
   // Display style based on verdict text (visual only, does not affect behavior)
   const isObserved = verdict.verdict === "AI signal evidence was observed.";
 
+  // DISPLAY layer: derive label from CNN score if available, else fall back
+  // to verdict text. Backend verdict text remains the authoritative result.
+  const displayLabel = getDisplayLabel(cnnScore, verdict.verdict);
+
+  // Tri-state color theming driven by CNN score (with verdict fallback)
+  const hasCnnScore = cnnScore != null;
+  const isMixed = hasCnnScore && cnnScore! >= 0.5 && cnnScore! < 0.8;
+  const isAiObserved = hasCnnScore ? cnnScore! >= 0.8 : isObserved;
+  const isHuman = hasCnnScore ? cnnScore! < 0.5 : !isObserved;
+
+  const verdictBoxClass = isMixed
+    ? "bg-amber-500/10 border-amber-500"
+    : isAiObserved
+      ? "bg-forensic-amber/10 border-forensic-amber"
+      : "bg-forensic-green/10 border-forensic-green";
+
+  const verdictTextClass = isMixed
+    ? "text-amber-400"
+    : isAiObserved
+      ? "text-forensic-amber"
+      : "text-forensic-green";
+
   return (
     <div className="forensic-panel">
       <div className="forensic-panel-header">Verification Result</div>
       <div className="forensic-panel-content space-y-6">
-        {/* Main verdict - rendered verbatim from DetectX */}
-        <div
-          className={cn(
-            "p-4 rounded-md border-l-4",
-            isObserved
-              ? "bg-forensic-amber/10 border-forensic-amber"
-              : "bg-forensic-green/10 border-forensic-green"
-          )}
-        >
-          <p
-            className={cn(
-              "text-lg font-medium",
-              isObserved ? "text-forensic-amber" : "text-forensic-green"
-            )}
-          >
-            {verdict.verdict}
+        {/* Main verdict - DISPLAY label driven by CNN score (backend text preserved) */}
+        <div className={cn("p-4 rounded-md border-l-4", verdictBoxClass)}>
+          <p className={cn("text-lg font-medium", verdictTextClass)}>
+            {displayLabel}
           </p>
+
+          {/* AI Signal / Human percentages (only when CNN score is available) */}
+          {hasCnnScore && (
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+              <span className="text-foreground/80">
+                AI Signal:{" "}
+                <span className="font-mono">{(cnnScore! * 100).toFixed(1)}%</span>
+              </span>
+              <span className="text-foreground/80">
+                Human:{" "}
+                <span className="font-mono">{((1 - cnnScore!) * 100).toFixed(1)}%</span>
+              </span>
+            </div>
+          )}
+
+          {/* Mixed-range expert review note */}
+          {isMixed && (
+            <p className="mt-2 text-xs text-amber-400/90">
+              Expert review recommended
+            </p>
+          )}
         </div>
 
         {/* Engine - displayed verbatim */}
@@ -161,11 +206,16 @@ export function VerdictPanel({
           This result reports structural signal evidence only. The system does not
           estimate probability, attribute authorship, or reference any specific AI
           model names.
-          {isObserved && (
+          {isAiObserved && !isMixed && (
             <span className="block mt-2 text-forensic-amber/80">
               Note: Human false positive rate is less than 1%. Some heavily processed or synthesized audio may exhibit AI-like signal patterns.
             </span>
           )}
+        </p>
+
+        {/* Measurement disclaimer */}
+        <p className="text-xs text-muted-foreground/80 leading-relaxed">
+          ※ DetectX 측정값. 최종 결과는 소속 기관 정책에 따라 적용하십시오.
         </p>
       </div>
     </div>

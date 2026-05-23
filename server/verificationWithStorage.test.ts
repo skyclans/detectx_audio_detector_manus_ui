@@ -31,7 +31,7 @@ describe("Verification With Storage", () => {
       fileUrl: "",
       fileKey: "",
       verdict: "observed" as const,
-      crgStatus: "CR-G_exceeded",
+      crgStatus: "baseline_exceeded",
       status: "completed" as const,
     };
 
@@ -79,7 +79,7 @@ describe("Verification Storage Data Structure", () => {
       codec: "MPEG_LAYER_III",
       fileHash: "abc123def456",
       verdict: "observed" as const,
-      crgStatus: "CR-G_exceeded",
+      crgStatus: "baseline_exceeded",
       primaryExceededAxis: "G1-B",
       timelineMarkers: [],
       analysisData: null,

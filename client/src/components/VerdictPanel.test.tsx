@@ -14,13 +14,13 @@ import { VerdictPanel } from "./VerdictPanel";
 // Sample data for execution testing (DO NOT MODIFY)
 const SAMPLE_OBSERVED = {
   verdict: "AI signal evidence was observed." as const,
-  authority: "DetectX" as const,
-  exceeded_axes: ["G3_A_BAND_GEOMETRY"],
+  authority: "DetectX Forensic" as const,
+  exceeded_axes: ["band_distribution"],
 };
 
 const SAMPLE_NOT_OBSERVED = {
   verdict: "AI signal evidence was not observed." as const,
-  authority: "DetectX" as const,
+  authority: "DetectX Forensic" as const,
   exceeded_axes: [],
 };
 
@@ -59,12 +59,12 @@ describe("VerdictPanel - DetectX Contract Compliance", () => {
 
   it("displays authority verbatim", () => {
     render(<VerdictPanel verdict={SAMPLE_OBSERVED} />);
-    expect(screen.getByText("DetectX")).toBeTruthy();
+    expect(screen.getByText("DetectX Forensic")).toBeTruthy();
   });
 
   it("displays exceeded_axes as contextual information only", () => {
     render(<VerdictPanel verdict={SAMPLE_OBSERVED} />);
-    expect(screen.getByText("G3_A_BAND_GEOMETRY")).toBeTruthy();
+    expect(screen.getByText("band_distribution")).toBeTruthy();
   });
 
   it("does not display exceeded_axes section when empty", () => {

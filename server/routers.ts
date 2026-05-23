@@ -219,7 +219,7 @@ export const appRouter = router({
           return {
             success: true,
             verdict: isAI ? "observed" as const : "not_observed" as const,
-            crgStatus: isAI ? "CR-G_exceeded" : "CR-G_within_HDB-G",
+            crgStatus: isAI ? "baseline_exceeded" : "within_baseline",
             primaryExceededAxis: detectxResult.exceeded_axes[0] || null,
             exceededAxes: detectxResult.exceeded_axes,
             timelineMarkers: [] as { timestamp: number; type: string }[],
@@ -358,7 +358,7 @@ export const appRouter = router({
 
           const isAI = detectxResult.verdict === "AI signal evidence was observed.";
           const verdict = isAI ? "observed" as const : "not_observed" as const;
-          const crgStatus = isAI ? "CR-G_exceeded" : "CR-G_within_HDB-G";
+          const crgStatus = isAI ? "baseline_exceeded" : "within_baseline";
 
           // Save to database
           try {
@@ -511,7 +511,7 @@ function simulateForensicAnalysis(verification: {
   const hasAISignal = seed > threshold;
 
   const verdict: "observed" | "not_observed" = hasAISignal ? "observed" : "not_observed";
-  const crgStatus = hasAISignal ? "CR-G_exceeded" : "CR-G_within_HDB-G";
+  const crgStatus = hasAISignal ? "baseline_exceeded" : "within_baseline";
   const primaryExceededAxis = hasAISignal ? "spectral_coherence" : null;
 
   // Generate timeline markers (evidence-only, no severity scores)

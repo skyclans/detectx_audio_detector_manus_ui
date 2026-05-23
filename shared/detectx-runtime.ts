@@ -36,17 +36,17 @@ export interface FileMetadata {
 }
 
 /**
- * Verdict result from CR-G analysis
- * 
+ * Verdict result from DetectX Forensic analysis
+ *
  * ONLY TWO ALLOWED VERDICT TEXTS:
  * - "AI signal evidence was observed."
  * - "AI signal evidence was not observed."
- * 
+ *
  * No probability, confidence, severity, or AI model attribution.
  */
 export interface VerdictResult {
   verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
-  authority: "CR-G";
+  authority: "DetectX Forensic";
   exceeded_axes: string[];
 }
 
@@ -81,7 +81,7 @@ export interface DetectXAudioState {
   /** Scan logs for Live Scan Console */
   scanLogs: ScanLogEntry[];
   
-  /** Verdict result from CR-G analysis */
+  /** Verdict result from DetectX Forensic analysis */
   verdict: VerdictResult | null;
 }
 

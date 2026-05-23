@@ -15,6 +15,7 @@ import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { SourceComponents } from "@/components/SourceComponents";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ReconV3Display } from "@/components/ReconV3Display";
+import { AdvancedSignalAnalysis, getMockForensicData } from "@/components/AdvancedSignalAnalysis";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
@@ -122,6 +123,7 @@ interface VerdictResult {
   timelineMarkers: { timestamp: number; type: string }[];
   detailedAnalysis?: DetailedAnalysisData | null;
   reconMetrics?: ReconMetrics | null;  // V3 RECON metrics
+  cnnScore?: number | null;  // CNN confidence score (0.0-1.0) for display
 }
 
 // Helper function to convert snake_case server response to camelCase for UI
@@ -836,7 +838,7 @@ export default function Home() {
       setVerificationResult({
         verdict: verdictText ? {
           verdict: verdictText,
-          authority: "DetectX",
+          authority: "DetectX Forensic",
           exceeded_axes: result.exceeded_axes || (result.primaryExceededAxis ? [result.primaryExceededAxis] : []),
         } : null,
         crgStatus: result.crgStatus || result.crg_status,
@@ -844,6 +846,7 @@ export default function Home() {
         timelineMarkers: result.timelineMarkers || result.timeline_markers || [],
         detailedAnalysis: convertDetailedAnalysis(result.detailedAnalysis || result.detailed_analysis),
         reconMetrics: result.recon_metrics || result.reconMetrics || null,  // V3 RECON metrics
+        cnnScore: result.cnn_score ?? result.cnnScore ?? null,  // CNN confidence (0.0-1.0)
       });
       
       setScanComplete(true);
@@ -944,15 +947,22 @@ export default function Home() {
           {/* Verification Result - now above Live Console */}
           <VerdictPanel
             verdict={verificationResult?.verdict ?? null}
+            cnnScore={verificationResult?.cnnScore ?? null}
             isProcessing={isVerifying}
             progress={Math.round((scanLogs.length / 17) * 100)}
           />
-          
+
           {/* Live Console with height limit - now below Verification Result */}
           <LiveScanConsole
             logs={scanLogs}
             isVerifying={isVerifying}
             isComplete={scanComplete}
+          />
+
+          {/* Tier 4: Advanced Signal Analysis (corroborative forensic display) */}
+          <AdvancedSignalAnalysis
+            data={getMockForensicData()}
+            isProcessing={isVerifying}
           />
 
           {/* Error Message Display */}

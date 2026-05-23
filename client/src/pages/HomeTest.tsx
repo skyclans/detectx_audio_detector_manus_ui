@@ -15,6 +15,7 @@ import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { SourceComponents } from "@/components/SourceComponents";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ReconV3Display } from "@/components/ReconV3Display";
+import { AdvancedSignalAnalysis, getMockForensicData } from "@/components/AdvancedSignalAnalysis";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
@@ -116,6 +117,7 @@ interface VerdictResult {
   timelineMarkers: { timestamp: number; type: string }[];
   detailedAnalysis?: DetailedAnalysisData | null;
   reconMetrics?: ReconMetrics | null;  // V3 RECON metrics
+  cnnScore?: number | null;  // CNN confidence score (0.0-1.0) for display
 }
 
 // Scan sequence stages for Enhanced Mode (DetectX Engine v3 + Reconstruction Engine)
@@ -700,7 +702,7 @@ export default function HomeTest() {
       setVerificationResult({
         verdict: verdictText ? {
           verdict: verdictText,
-          authority: "DetectX",
+          authority: "DetectX Forensic",
           exceeded_axes: result.exceeded_axes || (result.primaryExceededAxis ? [result.primaryExceededAxis] : []),
         } : null,
         crgStatus: result.crgStatus || result.crg_status,
@@ -708,6 +710,7 @@ export default function HomeTest() {
         timelineMarkers: result.timelineMarkers || result.timeline_markers || [],
         detailedAnalysis: result.detailedAnalysis || result.detailed_analysis || null,
         reconMetrics: result.recon_metrics || result.reconMetrics || null,  // V3 RECON metrics
+        cnnScore: result.cnn_score ?? result.cnnScore ?? null,  // CNN confidence (0.0-1.0)
       });
       
       setScanComplete(true);
@@ -805,6 +808,7 @@ export default function HomeTest() {
           {/* Verification Result - now above Live Console */}
           <VerdictPanel
             verdict={verificationResult?.verdict ?? null}
+            cnnScore={verificationResult?.cnnScore ?? null}
             isProcessing={isVerifying}
             progress={Math.round((scanLogs.length / 17) * 100)}
           />
@@ -915,6 +919,14 @@ export default function HomeTest() {
             onDownload={(stemId) => console.log(`Download: ${stemId}`)}
           />
         </div>
+      </div>
+
+      {/* Tier 4: Advanced Signal Analysis (corroborative forensic display) */}
+      <div className="gap-4 lg:gap-6 mt-4 lg:mt-6">
+        <AdvancedSignalAnalysis
+          data={getMockForensicData()}
+          isProcessing={isVerifying}
+        />
       </div>
 
       {/* Geometry Scan Trace */}

@@ -32,6 +32,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const InviteAccept = lazy(() => import("./pages/InviteAccept"));
 const HomeTest = lazy(() => import("./pages/HomeTest"));
 const HistoryTest = lazy(() => import("./pages/HistoryTest"));
+const PreviewTier4 = lazy(() => import("./pages/PreviewTier4"));
 
 // SEO landing pages (lazy)
 const LandingEN = lazy(() => import("./pages/LandingEN"));
@@ -123,6 +124,9 @@ function Router() {
       <Route path="/test" component={HomeTest} />
       <Route path="/test/verify-audio" component={HomeTest} />
       <Route path="/test/history" component={HistoryTest} />
+
+      {/* UI preview (no auth, mock data) */}
+      <Route path="/preview" component={PreviewTier4} />
       
       {/* Admin pages (restricted access) */}
       <Route path="/admin" component={AdminDashboard} />

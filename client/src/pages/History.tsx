@@ -810,7 +810,7 @@ export default function History() {
             <Button size="lg" onClick={() => {
               // Set returnUrl cookie so OAuth callback knows where to redirect
               document.cookie = "returnUrl=/history; path=/; max-age=300";
-              window.location.href = "/api/auth/google";
+              window.location.href = `${API_BASE.replace(/\/api$/, '')}/auth/google`;
             }}>
               Sign in with Google
             </Button>

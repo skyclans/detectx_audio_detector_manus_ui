@@ -144,9 +144,9 @@ export default function Login() {
 
   const canLogin = termsAgreed && privacyAgreed;
 
-  // RunPod API URL for OAuth
-  const RUNPOD_API_URL = import.meta.env.VITE_DETECTX_API_URL
-    || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+  // OAuth direct to RunPod backend (hardcoded — env-based caused detectx.app
+  // routing through nginx reverse-proxying to Google, breaking the form)
+  const RUNPOD_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
 
   // Direct OAuth login handlers
   const handleGoogleLogin = () => {

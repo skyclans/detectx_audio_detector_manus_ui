@@ -810,7 +810,10 @@ export default function History() {
             <Button size="lg" onClick={() => {
               // Set returnUrl cookie so OAuth callback knows where to redirect
               document.cookie = "returnUrl=/history; path=/; max-age=300";
-              window.location.href = `${API_BASE.replace(/\/api$/, '')}/auth/google`;
+              // Use RunPod direct URL (matches Login/Home/HomeTest pattern)
+              const RUNPOD_API_URL = import.meta.env.VITE_DETECTX_API_URL
+                || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+              window.location.href = `${RUNPOD_API_URL}/auth/google`;
             }}>
               Sign in with Google
             </Button>

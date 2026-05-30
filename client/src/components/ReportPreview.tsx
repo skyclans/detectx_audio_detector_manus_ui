@@ -1,24 +1,37 @@
 /**
- * Report Preview Section (MANDATORY)
- * 
+ * Report Preview Section
+ *
+ * Forensic evidence preview (2026-05-31 — 4-tier display + RECON summary).
+ *
  * REQUIREMENTS:
- * - Display current verdict text (if available)
- * - Show DetectX status and structural findings summary
- * - Clearly labeled as preview
- * - NO probabilities, confidence scores, or AI attribution
- * 
+ *  - Display 4-tier verdict label (CNN x Backend verdict combination)
+ *  - Show DetectX engine status and structural findings summary
+ *  - Show CNN confidence + RECON AI signal count summary (if available)
+ *  - Clearly labeled as preview
+ *
  * This component remains IDLE until backend data is received.
  * NO mock data, NO simulated results, NO placeholder judgments.
  */
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { FileText, AlertCircle, CheckCircle } from "lucide-react";
+import { FileText, AlertCircle, CheckCircle, Search } from "lucide-react";
 
 interface VerdictResult {
   verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
   authority: "DetectX Forensic";
   exceeded_axes: string[];
+}
+
+interface ReconMetricsSummary {
+  ai_signals?: number | null;
+  band_bass_diff?: number | null;
+  band_low_mid_diff?: number | null;
+  l1_diff?: number | null;
+  snr?: number | null;
+  energy_ratio?: number | null;
+  phase_coherence?: number | null;
+  band_high_ratio?: number | null;
 }
 
 interface ReportPreviewProps {
@@ -29,14 +42,38 @@ interface ReportPreviewProps {
   fileHash: string | null;
   isProcessing?: boolean;
   onExport?: () => void;
+  /** CNN confidence score (0.0-1.0) for 4-tier label derivation */
+  cnnScore?: number | null;
+  /** RECON 7-metric summary */
+  reconMetrics?: ReconMetricsSummary | null;
 }
 
-/**
- * Get verdict text - displayed verbatim from props
- * DetectX is the SOLE verdict authority
- */
-function getVerdictText(verdict: VerdictResult | null): string {
-  return verdict?.verdict || "";
+// -----------------------------------------------------------------------
+// Tier derivation (mirrors VerdictPanel.tsx semantics)
+// -----------------------------------------------------------------------
+
+type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
+
+function deriveTier(cnnScore: number | null | undefined, backendVerdict: string | null): VerdictTier {
+  if (backendVerdict == null) return "unknown";
+  if (cnnScore == null) {
+    return backendVerdict === "AI signal evidence was observed." ? "ai" : "human";
+  }
+  if (cnnScore < 0.5) return "human";
+  if (cnnScore < 0.8) {
+    return backendVerdict === "AI signal evidence was observed." ? "mixed-ai" : "mixed-human";
+  }
+  return "ai";
+}
+
+function deriveTierLabel(tier: VerdictTier): string {
+  switch (tier) {
+    case "human":       return "AI Signal Not Observed";
+    case "mixed-human": return "AI Signal Not Observed — Recovered by Deep Scan";
+    case "mixed-ai":    return "AI Signal Observed — Confirmed by Deep Scan";
+    case "ai":          return "AI Signal Observed";
+    case "unknown":     return "Pending";
+  }
 }
 
 export function ReportPreview({
@@ -47,6 +84,8 @@ export function ReportPreview({
   fileHash,
   isProcessing = false,
   onExport,
+  cnnScore = null,
+  reconMetrics = null,
 }: ReportPreviewProps) {
   const { isAuthenticated } = useAuth();
 
@@ -67,7 +106,6 @@ export function ReportPreview({
     );
   }
 
-  // IDLE state - waiting for backend data
   if (!verdict) {
     return (
       <div className="forensic-panel">
@@ -84,8 +122,32 @@ export function ReportPreview({
     );
   }
 
-  const verdictText = getVerdictText(verdict);
-  const isAIDetected = verdict?.verdict === "AI signal evidence was observed.";
+  const tier = deriveTier(cnnScore, verdict.verdict);
+  const tierLabel = deriveTierLabel(tier);
+  const isAiTier = tier === "ai";
+  const isMixedAi = tier === "mixed-ai";
+  const isMixedHuman = tier === "mixed-human";
+  const isMixed = isMixedAi || isMixedHuman;
+
+  const verdictBoxClass =
+    tier === "human" || isMixedHuman
+      ? "bg-forensic-green/10 border-forensic-green"
+      : isMixedAi
+        ? "bg-amber-500/10 border-amber-500"
+        : isAiTier
+          ? "bg-forensic-amber/10 border-forensic-amber"
+          : "bg-muted/10 border-muted";
+
+  const VerdictIcon = isAiTier || isMixedAi ? AlertCircle : isMixed ? Search : CheckCircle;
+  const verdictIconClass =
+    tier === "human" || isMixedHuman
+      ? "text-forensic-green"
+      : isMixedAi
+        ? "text-amber-400"
+        : "text-forensic-amber";
+
+  const aiSignals = reconMetrics?.ai_signals;
+  const showReconSummary = aiSignals != null;
 
   return (
     <div className="forensic-panel">
@@ -107,22 +169,20 @@ export function ReportPreview({
         )}
       </div>
       <div className="forensic-panel-content space-y-4">
-        {/* Verdict Summary */}
-        <div className={`p-3 rounded border-l-2 ${
-          isAIDetected 
-            ? "bg-forensic-amber/10 border-forensic-amber" 
-            : "bg-forensic-green/10 border-forensic-green"
-        }`}>
+        {/* 4-tier Verdict Summary */}
+        <div className={`p-3 rounded border-l-2 ${verdictBoxClass}`}>
           <div className="flex items-start gap-2">
-            {isAIDetected ? (
-              <AlertCircle className="w-4 h-4 text-forensic-amber flex-shrink-0 mt-0.5" />
-            ) : (
-              <CheckCircle className="w-4 h-4 text-forensic-green flex-shrink-0 mt-0.5" />
-            )}
+            <VerdictIcon className={`w-4 h-4 ${verdictIconClass} flex-shrink-0 mt-0.5`} />
             <p className="text-xs text-foreground leading-relaxed font-medium">
-              {verdictText}
+              {tierLabel}
             </p>
           </div>
+          {cnnScore != null && (
+            <div className="mt-2 ml-6 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+              <span>AI: <span className="font-mono text-foreground/80">{(cnnScore * 100).toFixed(1)}%</span></span>
+              <span>Human: <span className="font-mono text-foreground/80">{((1 - cnnScore) * 100).toFixed(1)}%</span></span>
+            </div>
+          )}
         </div>
 
         {/* Engine Status */}
@@ -136,6 +196,24 @@ export function ReportPreview({
             </span>
           </div>
         </div>
+
+        {/* RECON 7-metric summary (when intermediate range or AI tier) */}
+        {showReconSummary && (
+          <div className="space-y-2">
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              Reconstruction Engine Summary
+            </div>
+            <div className="py-2 px-3 bg-muted/20 rounded space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">AI Signal Count</span>
+                <span className="font-mono text-foreground">{aiSignals} / 7</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
+                Full 7-metric measurement values and thresholds are available in the exported report.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Structural Findings Summary */}
         <div className="space-y-2">
@@ -185,7 +263,7 @@ export function ReportPreview({
         {/* Auth notice */}
         {!isAuthenticated && (
           <p className="text-[10px] text-muted-foreground text-center">
-            Sign in to export full report
+            Sign in to export full forensic report
           </p>
         )}
       </div>

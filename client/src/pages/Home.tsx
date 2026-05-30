@@ -1110,7 +1110,7 @@ export default function Home() {
 
       {/* Export section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <ExportPanel 
+        <ExportPanel
           data={{
             fileName: metadata?.fileName || "",
             fileSize: metadata?.fileSize || 0,
@@ -1125,17 +1125,21 @@ export default function Home() {
             album: metadata?.album || null,
             isrc: metadata?.isrc || null,
             verdict: verificationResult?.verdict ?? null,
+            cnnScore: verificationResult?.cnnScore ?? null,
+            reconMetrics: verificationResult?.reconMetrics ?? null,
             timelineMarkers: verificationResult?.timelineMarkers || [],
             analysisTimestamp: toLocalTimestamp(),
           }}
         />
-        <ReportPreview 
+        <ReportPreview
           verdict={verificationResult?.verdict ?? null}
           crgStatus={verificationResult?.crgStatus || null}
           primaryExceededAxis={verificationResult?.primaryExceededAxis || null}
           fileName={metadata?.fileName || null}
           fileHash={metadata?.fileHash || null}
           isProcessing={isVerifying}
+          cnnScore={verificationResult?.cnnScore ?? null}
+          reconMetrics={verificationResult?.reconMetrics ?? null}
         />
       </div>
     </ForensicLayout>

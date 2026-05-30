@@ -50,14 +50,56 @@ interface VerdictPanelProps {
 }
 
 /**
- * Derive display label from CNN score.
- * DISPLAY-ONLY override - backend verdict text is preserved internally.
+ * Derive 4-tier display label from CNN score + Backend verdict.
+ *
+ * 4-tier semantics (CNN score + Backend binary verdict):
+ *   < 50%                              → "AI Signal Not Observed"
+ *   50-80% + verdict "not observed"    → "AI Signal Not Observed — Recovered by Deep Scan Analysis"
+ *   50-80% + verdict "observed"        → "AI Signal Observed — Confirmed by Deep Scan Analysis"
+ *   >= 80%                             → "AI Signal Observed"
+ *
+ * Backend verdict text remains binary and authoritative; the 4-tier label
+ * is a DISPLAY-ONLY enrichment that surfaces Deep Scan recovery / confirmation.
  */
-function getDisplayLabel(cnnScore: number | null | undefined, fallback: string): string {
-  if (cnnScore == null) return fallback;
-  if (cnnScore < 0.5) return "AI signal evidence was not observed";
-  if (cnnScore < 0.8) return "Mixed AI signal evidence detected";
-  return "AI signal evidence was observed";
+function getDisplayLabel(
+  cnnScore: number | null | undefined,
+  backendVerdict: string,
+): string {
+  if (cnnScore == null) return backendVerdict;
+  if (cnnScore < 0.5) return "AI Signal Not Observed";
+  if (cnnScore < 0.8) {
+    const isObserved = backendVerdict === "AI signal evidence was observed.";
+    return isObserved
+      ? "AI Signal Observed — Confirmed by Deep Scan Analysis"
+      : "AI Signal Not Observed — Recovered by Deep Scan Analysis";
+  }
+  return "AI Signal Observed";
+}
+
+/**
+ * Derive tier bucket for visual styling.
+ *   "human"          — CNN <50%
+ *   "mixed-human"    — CNN 50-80% + backend "not observed" (RECON recovered)
+ *   "mixed-ai"       — CNN 50-80% + backend "observed"     (RECON confirmed)
+ *   "ai"             — CNN >=80%
+ *   "unknown"        — CNN score missing
+ */
+type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
+
+function getVerdictTier(
+  cnnScore: number | null | undefined,
+  backendVerdict: string,
+): VerdictTier {
+  if (cnnScore == null) {
+    return backendVerdict === "AI signal evidence was observed." ? "ai" : "human";
+  }
+  if (cnnScore < 0.5) return "human";
+  if (cnnScore < 0.8) {
+    return backendVerdict === "AI signal evidence was observed."
+      ? "mixed-ai"
+      : "mixed-human";
+  }
+  return "ai";
 }
 
 /**
@@ -120,30 +162,35 @@ export function VerdictPanel({
     );
   }
 
-  // Display style based on verdict text (visual only, does not affect behavior)
-  const isObserved = verdict.verdict === "AI signal evidence was observed.";
-
-  // DISPLAY layer: derive label from CNN score if available, else fall back
-  // to verdict text. Backend verdict text remains the authoritative result.
+  // DISPLAY layer: 4-tier label combining CNN score + Backend verdict.
+  // Backend verdict text remains binary and authoritative; the 4-tier label
+  // is a display-only enrichment that surfaces Deep Scan recovery / confirmation.
   const displayLabel = getDisplayLabel(cnnScore, verdict.verdict);
+  const tier = getVerdictTier(cnnScore, verdict.verdict);
 
-  // Tri-state color theming driven by CNN score (with verdict fallback)
   const hasCnnScore = cnnScore != null;
-  const isMixed = hasCnnScore && cnnScore! >= 0.5 && cnnScore! < 0.8;
-  const isAiObserved = hasCnnScore ? cnnScore! >= 0.8 : isObserved;
-  const isHuman = hasCnnScore ? cnnScore! < 0.5 : !isObserved;
+  const isMixedHuman = tier === "mixed-human";
+  const isMixedAi = tier === "mixed-ai";
+  const isAiObserved = tier === "ai";
 
-  const verdictBoxClass = isMixed
-    ? "bg-amber-500/10 border-amber-500"
-    : isAiObserved
-      ? "bg-forensic-amber/10 border-forensic-amber"
-      : "bg-forensic-green/10 border-forensic-green";
+  // Tier color mapping
+  //   human         → green   (AI signal not observed)
+  //   mixed-human   → green-amber (recovered by deep scan — still Human)
+  //   mixed-ai      → amber   (confirmed by deep scan)
+  //   ai            → amber   (AI signal observed)
+  const verdictBoxClass =
+    tier === "human" ? "bg-forensic-green/10 border-forensic-green" :
+    tier === "mixed-human" ? "bg-emerald-500/10 border-emerald-500" :
+    tier === "mixed-ai" ? "bg-amber-500/10 border-amber-500" :
+    tier === "ai" ? "bg-forensic-amber/10 border-forensic-amber" :
+    "bg-forensic-green/10 border-forensic-green";
 
-  const verdictTextClass = isMixed
-    ? "text-amber-400"
-    : isAiObserved
-      ? "text-forensic-amber"
-      : "text-forensic-green";
+  const verdictTextClass =
+    tier === "human" ? "text-forensic-green" :
+    tier === "mixed-human" ? "text-emerald-400" :
+    tier === "mixed-ai" ? "text-amber-400" :
+    tier === "ai" ? "text-forensic-amber" :
+    "text-forensic-green";
 
   return (
     <div className="forensic-panel">
@@ -169,10 +216,19 @@ export function VerdictPanel({
             </div>
           )}
 
-          {/* Mixed-range expert review note */}
-          {isMixed && (
+          {/* Deep Scan recovery / confirmation note (50-80% range) */}
+          {isMixedHuman && (
+            <p className="mt-2 text-xs text-emerald-400/90">
+              Primary engine flagged at {(cnnScore! * 100).toFixed(1)}%.
+              Secondary reconstruction analysis recovered the result as Human signal.
+              Expert review recommended.
+            </p>
+          )}
+          {isMixedAi && (
             <p className="mt-2 text-xs text-amber-400/90">
-              Expert review recommended
+              Primary engine flagged at {(cnnScore! * 100).toFixed(1)}%.
+              Secondary reconstruction analysis confirmed AI signal.
+              Expert review recommended.
             </p>
           )}
         </div>
@@ -201,21 +257,26 @@ export function VerdictPanel({
           )}
         </div>
 
-        {/* Forensic disclaimer */}
+        {/* Forensic disclaimer (legal evidence tone) */}
         <p className="text-[10px] text-muted-foreground leading-relaxed">
-          This result reports structural signal evidence only. The system does not
-          estimate probability, attribute authorship, or reference any specific AI
-          model names.
-          {isAiObserved && !isMixed && (
+          This result reports structural signal evidence only.
+          DetectX does not determine authorship, intent, or ownership.
+          Detection is based on signal-level structural analysis of the
+          submitted audio. Audio with extensive post-processing, synthesis,
+          or heavy digital manipulation may exhibit signal characteristics
+          similar to AI-generated music.
+          {isAiObserved && (
             <span className="block mt-2 text-forensic-amber/80">
-              Note: Human false positive rate is less than 1%. Some heavily processed or synthesized audio may exhibit AI-like signal patterns.
+              Verification engine recorded measurements exceeding the
+              defined structural thresholds.
             </span>
           )}
         </p>
 
-        {/* Measurement disclaimer */}
+        {/* Measurement disclaimer (legal evidence tone) */}
         <p className="text-xs text-muted-foreground/80 leading-relaxed">
-          ※ DetectX 측정값. 최종 결과는 소속 기관 정책에 따라 적용하십시오.
+          ※ DetectX 측정 결과는 구조적 신호 분석에 한정된 forensic 자료입니다.
+          최종 판단 및 적용은 소속 기관·법원·관계 당국의 정책에 따릅니다.
         </p>
       </div>
     </div>

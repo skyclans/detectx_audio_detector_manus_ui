@@ -945,6 +945,11 @@ export default function HomeTest() {
             })),
           } : null}
           isProcessing={isVerifying}
+          cnnScore={verificationResult?.cnnScore ?? null}
+          finalScore={verificationResult?.finalScore ?? null}
+          finalScoreSource={verificationResult?.finalScoreSource ?? null}
+          backendVerdict={verificationResult?.verdict?.verdict ?? null}
+          reconMetrics={verificationResult?.reconMetrics ?? null}
         />
       </div>
 

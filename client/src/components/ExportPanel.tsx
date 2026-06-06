@@ -650,7 +650,6 @@ function generateCSV(data: ExportData): string {
     });
   }
 
-  csv += "\n\nDisclaimer\n" + escapeCSV(DISCLAIMER) + "\n";
   return csv;
 }
 

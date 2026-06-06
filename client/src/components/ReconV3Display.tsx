@@ -85,7 +85,7 @@ function MetricRow({
     ? ` (${compare} ${threshold.toFixed(4)})`
     : "";
 
-  // V1 metric row with strength bar
+  // V1 metric row with strength bar (2-row layout to fit Marginal Human badge)
   const hasStrength = threshold !== undefined && compare !== undefined && !isV3Extended;
   if (hasStrength) {
     const direction: Direction = compare === "<" ? "<" : ">=";
@@ -93,36 +93,41 @@ function MetricRow({
     const color = strengthColor(strength);
     const barPos = marginToBarPosition(margin);
     return (
-      <div className="px-3 py-2 hover:bg-muted/20 rounded space-y-1">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs text-muted-foreground flex-shrink-0">{label}</span>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="font-mono text-xs text-foreground">{formattedValue}</span>
-            <span className="text-muted-foreground/70 text-[10px] font-mono">{thresholdText}</span>
-            <span
-              className={cn("font-mono text-[10px] font-semibold tabular-nums", color.text)}
-              style={{ minWidth: "44px", textAlign: "right" }}
-            >
-              {formatMarginPct(margin)}
-            </span>
-            <span
-              className={cn(
-                "text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border",
-                color.bg, color.text, color.border,
-              )}
-              style={{ minWidth: "82px", textAlign: "center" }}
-            >
-              {strengthLabel(strength)}
-            </span>
-          </div>
+      <div className="px-3 py-2 hover:bg-muted/20 rounded space-y-1.5">
+        {/* Row 1: label (left) + measured value & threshold (right) */}
+        <div className="flex items-baseline justify-between gap-2 min-w-0">
+          <span className="text-xs text-muted-foreground truncate">{label}</span>
+          <span className="font-mono text-xs text-foreground flex-shrink-0">
+            {formattedValue}
+            <span className="text-muted-foreground/70 text-[10px] ml-1">{thresholdText}</span>
+          </span>
         </div>
-        <div className="relative w-full h-1.5 rounded-full overflow-hidden"
-             style={{ background: "linear-gradient(to right, rgba(16,185,129,0.18) 0%, rgba(148,163,184,0.12) 50%, rgba(239,68,68,0.18) 100%)" }}>
-          <div className="absolute top-0 bottom-0 w-px bg-muted-foreground/50" style={{ left: "50%" }} />
+        {/* Row 2: bar (flex) + margin + strength badge (fixed) */}
+        <div className="flex items-center gap-2 min-w-0">
           <div
-            className="absolute top-[-2px] h-[10px] w-[3px] rounded"
-            style={{ left: `${barPos.toFixed(1)}%`, transform: "translateX(-1.5px)", background: color.hex }}
-          />
+            className="relative flex-1 h-1.5 rounded-full overflow-hidden min-w-0"
+            style={{ background: "linear-gradient(to right, rgba(16,185,129,0.18) 0%, rgba(148,163,184,0.12) 50%, rgba(239,68,68,0.18) 100%)" }}
+          >
+            <div className="absolute top-0 bottom-0 w-px bg-muted-foreground/50" style={{ left: "50%" }} />
+            <div
+              className="absolute top-[-2px] h-[10px] w-[3px] rounded"
+              style={{ left: `${barPos.toFixed(1)}%`, transform: "translateX(-1.5px)", background: color.hex }}
+            />
+          </div>
+          <span
+            className={cn("font-mono text-[10px] font-semibold tabular-nums flex-shrink-0", color.text)}
+            style={{ minWidth: "44px", textAlign: "right" }}
+          >
+            {formatMarginPct(margin)}
+          </span>
+          <span
+            className={cn(
+              "text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border whitespace-nowrap flex-shrink-0",
+              color.bg, color.text, color.border,
+            )}
+          >
+            {strengthLabel(strength)}
+          </span>
         </div>
       </div>
     );

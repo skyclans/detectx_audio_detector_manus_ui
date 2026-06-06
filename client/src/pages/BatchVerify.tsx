@@ -27,11 +27,31 @@ import {
 } from "lucide-react";
 import { cn, toLocalTimestamp } from "@/lib/utils";
 import JSZip from "jszip";
+import {
+  computeMetricStrength,
+  summarizeStrengths,
+  formatStrengthSummary,
+  strengthLabel,
+  formatMarginPct,
+  type Strength,
+  type Direction,
+} from "@/lib/recon_strength";
 
 const DETECTX_API_URL = (import.meta.env.VITE_DETECTX_API_URL
   || "https://emjvw2an6oynf9-8000.proxy.runpod.net") + "/api";
 
 type FileStatus = "waiting" | "processing" | "done" | "skipped" | "error";
+
+interface ReconMetricsLite {
+  ai_signals?: number | null;
+  band_bass_diff?: number | null;
+  band_low_mid_diff?: number | null;
+  l1_diff?: number | null;
+  snr?: number | null;
+  energy_ratio?: number | null;
+  phase_coherence?: number | null;
+  band_high_ratio?: number | null;
+}
 
 interface BatchFileItem {
   id: string;
@@ -42,9 +62,72 @@ interface BatchFileItem {
   status: FileStatus;
   verdict?: string | null;
   duration?: number | null;
+  cnnScore?: number | null;
+  finalScore?: number | null;
+  finalScoreSource?: string | null;
+  reconMetrics?: ReconMetricsLite | null;
   errorMessage?: string;
   uploadProgress?: number;
   recordId?: string;
+}
+
+// RECON V1 thresholds — mirror server crg_runner.RECON_DECISION_TABLE
+const V1_THRESHOLDS: Array<{ key: keyof ReconMetricsLite; label: string; threshold: number; direction: Direction; format: (v: number) => string }> = [
+  { key: "band_bass_diff",    label: "Bass Diff",       threshold: 0.3991, direction: "<",  format: (v) => v.toFixed(4) },
+  { key: "band_low_mid_diff", label: "Low-Mid Diff",    threshold: 0.2967, direction: "<",  format: (v) => v.toFixed(4) },
+  { key: "l1_diff",           label: "L1 Diff",         threshold: 0.0029, direction: "<",  format: (v) => v.toFixed(6) },
+  { key: "snr",               label: "SNR (dB)",        threshold: 30.84,  direction: ">=", format: (v) => v.toFixed(2) },
+  { key: "energy_ratio",      label: "Energy Ratio",    threshold: 0.9690, direction: ">=", format: (v) => v.toFixed(4) },
+  { key: "phase_coherence",   label: "Phase Coherence", threshold: 0.7231, direction: ">=", format: (v) => v.toFixed(4) },
+  { key: "band_high_ratio",   label: "High Ratio",      threshold: 0.9471, direction: ">=", format: (v) => v.toFixed(4) },
+];
+
+type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
+
+function deriveTier(cnnScore: number | null | undefined, backendVerdict: string | null | undefined): VerdictTier {
+  if (backendVerdict == null) return "unknown";
+  if (cnnScore == null) return backendVerdict.includes("was observed") ? "ai" : "human";
+  if (cnnScore < 0.5) return "human";
+  if (cnnScore < 0.8) return backendVerdict.includes("was observed") ? "mixed-ai" : "mixed-human";
+  return "ai";
+}
+
+function tierLabel(tier: VerdictTier): string {
+  switch (tier) {
+    case "human":       return "AI Signal Not Observed";
+    case "mixed-human": return "AI Signal Not Observed — Recovered by Deep Scan";
+    case "mixed-ai":    return "AI Signal Observed — Confirmed by Deep Scan";
+    case "ai":          return "AI Signal Observed";
+    case "unknown":     return "Pending";
+  }
+}
+
+function tierCode(tier: VerdictTier): string {
+  switch (tier) {
+    case "human":       return "AI_NOT_OBSERVED";
+    case "mixed-human": return "AI_NOT_OBSERVED_RECOVERED";
+    case "mixed-ai":    return "AI_OBSERVED_CONFIRMED";
+    case "ai":          return "AI_OBSERVED";
+    case "unknown":     return "PENDING";
+  }
+}
+
+function computeFileStrengths(metrics: ReconMetricsLite | null | undefined) {
+  if (!metrics) return null;
+  const strengths: Strength[] = [];
+  V1_THRESHOLDS.forEach(({ key, threshold, direction }) => {
+    const raw = metrics[key];
+    if (typeof raw === "number") {
+      strengths.push(computeMetricStrength(raw, threshold, direction).strength);
+    }
+  });
+  if (strengths.length === 0) return null;
+  return summarizeStrengths(strengths);
+}
+
+function displayScoreOf(item: BatchFileItem): number | null {
+  if (item.finalScore != null) return item.finalScore;
+  return item.cnnScore ?? null;
 }
 
 function formatFileSize(bytes: number): string {
@@ -88,18 +171,32 @@ function StatusBadge({ status, errorMessage }: { status: FileStatus; errorMessag
   );
 }
 
-function VerdictBadge({ verdict }: { verdict: string | null | undefined }) {
-  if (!verdict) return <span className="text-xs text-muted-foreground">—</span>;
-
-  const isAI = verdict.includes("was observed");
+function VerdictBadge({ item }: { item: BatchFileItem }) {
+  if (!item.verdict) return <span className="text-xs text-muted-foreground">—</span>;
+  const tier = deriveTier(item.cnnScore, item.verdict);
+  const score = displayScoreOf(item);
+  const pct = score != null ? `${(score * 100).toFixed(1)}%` : null;
+  const config: Record<VerdictTier, { label: string; cls: string; sub?: string }> = {
+    "ai":           { label: "AI Detected",        cls: "text-red-400 bg-red-500/10 border border-red-500/30" },
+    "mixed-ai":     { label: "AI (Deep Scan)",     cls: "text-amber-400 bg-amber-500/10 border border-amber-500/30", sub: "confirmed" },
+    "mixed-human":  { label: "Human (Deep Scan)",  cls: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/30", sub: "recovered" },
+    "human":        { label: "Human Verified",     cls: "text-forensic-green bg-forensic-green/10 border border-emerald-700/30" },
+    "unknown":      { label: "Pending",            cls: "text-muted-foreground bg-muted/30 border border-border/30" },
+  };
+  const { label, cls, sub } = config[tier];
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold",
-        isAI ? "text-red-400 bg-red-500/10" : "text-forensic-green bg-forensic-green/10"
+    <span className="inline-flex items-center gap-1 flex-wrap">
+      <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap", cls)}>
+        {label}
+      </span>
+      {pct && (
+        <span className="text-[10px] font-mono text-muted-foreground tabular-nums" title={item.finalScoreSource === "recon" ? "RECON-based final score (Deep Scan)" : "CNN-based score"}>
+          {pct}
+        </span>
       )}
-    >
-      {isAI ? "AI Detected" : "Human Verified"}
+      {sub && (
+        <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70">{sub}</span>
+      )}
     </span>
   );
 }
@@ -297,6 +394,10 @@ export default function BatchVerify() {
                   status: "done" as FileStatus,
                   verdict: result.verdict || null,
                   duration: result.metadata?.duration || null,
+                  cnnScore: result.cnn_score ?? null,
+                  finalScore: result.final_score ?? null,
+                  finalScoreSource: result.final_score_source ?? null,
+                  reconMetrics: result.recon_metrics ?? null,
                   uploadProgress: undefined,
                   recordId: result.record_id || undefined,
                 }
@@ -385,6 +486,17 @@ export default function BatchVerify() {
     (f) => f.status === "done" && f.verdict && !f.verdict.includes("was observed")
   ).length;
 
+  // Tier-aware counts (4-tier: CNN band x backend verdict)
+  const tierCounts = files.reduce(
+    (acc, f) => {
+      if (f.status !== "done") return acc;
+      const tier = deriveTier(f.cnnScore, f.verdict);
+      if (tier in acc) acc[tier]++;
+      return acc;
+    },
+    { human: 0, "mixed-human": 0, "mixed-ai": 0, ai: 0, unknown: 0 } as Record<VerdictTier, number>,
+  );
+
   const progressPct = totalFiles > 0 ? ((doneCount + errorCount + skippedCount) / totalFiles) * 100 : 0;
 
   // ── Export helpers ──
@@ -403,103 +515,210 @@ export default function BatchVerify() {
     return s;
   };
 
-  const verdictLabel = (v: string | null | undefined) =>
-    !v ? "" : v.includes("was observed") ? "AI Detected" : "Human Verified";
-
-  const verdictCode = (v: string | null | undefined) =>
-    !v ? "" : v.includes("was observed") ? "AI_OBSERVED" : "AI_NOT_OBSERVED";
-
   const generateBatchCSV = useCallback(() => {
     const done = getDoneFiles();
     const headers = [
       "#", "Filename", "Format", "File Size (bytes)", "Duration (sec)",
-      "Verdict", "Verdict Code", "Full Verdict Text",
+      "Tier", "Tier Code", "Tier Label", "Backend Verdict",
+      "CNN Score (AI)", "Final Score (AI)", "Final Score Source",
+      "RECON AI Signals (n/7)",
+      "Strong AI", "AI", "Human", "Strong Human", "Strength Summary",
       "Detection Mode", "Engine Version", "Analysis Timestamp",
     ];
-    const rows = done.map((f, i) =>
-      [
+    const rows = done.map((f, i) => {
+      const tier = deriveTier(f.cnnScore, f.verdict);
+      const sum = computeFileStrengths(f.reconMetrics);
+      const strengthSummary = sum ? formatStrengthSummary(sum) : "";
+      return [
         i + 1,
         escapeCSV(f.name),
         escapeCSV(f.format),
         f.size,
         f.duration?.toFixed(1) || "",
-        escapeCSV(verdictLabel(f.verdict)),
-        escapeCSV(verdictCode(f.verdict)),
+        escapeCSV(tier),
+        escapeCSV(tierCode(tier)),
+        escapeCSV(tierLabel(tier)),
         escapeCSV(f.verdict),
+        f.cnnScore != null ? f.cnnScore.toFixed(6) : "",
+        f.finalScore != null ? f.finalScore.toFixed(6) : "",
+        escapeCSV(f.finalScoreSource ?? ""),
+        f.reconMetrics?.ai_signals ?? "",
+        sum?.strongAi ?? "",
+        sum?.marginalAi ?? "",
+        sum?.marginalHuman ?? "",
+        sum?.strongHuman ?? "",
+        escapeCSV(strengthSummary),
         "Enhanced Mode",
         "v3",
         escapeCSV(batchTimestamp),
-      ].join(",")
-    );
+      ].join(",");
+    });
     return headers.join(",") + "\n" + rows.join("\n");
   }, [getDoneFiles, batchTimestamp]);
 
   const generateBatchJSON = useCallback(() => {
     const done = getDoneFiles();
     const report = {
-      reportVersion: "3.0.0",
+      reportVersion: "3.1.0",
       generatedAt: batchTimestamp,
       engine: { version: "v3", mode: "Enhanced Mode" },
       summary: {
         total: totalFiles,
         verified: doneCount,
-        aiDetected: aiCount,
-        humanVerified: humanCount,
         errors: errorCount,
         skipped: skippedCount,
+        // Backend binary breakdown (legacy)
+        aiDetected: aiCount,
+        humanVerified: humanCount,
+        // 4-tier display breakdown
+        tierBreakdown: {
+          ai: tierCounts.ai,
+          mixedAi: tierCounts["mixed-ai"],
+          mixedHuman: tierCounts["mixed-human"],
+          human: tierCounts.human,
+        },
       },
-      results: done.map((f, i) => ({
-        index: i + 1,
-        filename: f.name,
-        format: f.format,
-        fileSize: f.size,
-        duration: f.duration || null,
-        verdict: f.verdict || null,
-        verdictCode: verdictCode(f.verdict),
-        verdictLabel: verdictLabel(f.verdict),
-      })),
+      results: done.map((f, i) => {
+        const tier = deriveTier(f.cnnScore, f.verdict);
+        const sum = computeFileStrengths(f.reconMetrics);
+        const displayScore = displayScoreOf(f);
+        const reconRows = f.reconMetrics
+          ? V1_THRESHOLDS.map(({ key, label, threshold, direction, format }) => {
+              const raw = (f.reconMetrics as Record<string, unknown>)[key];
+              const value = typeof raw === "number" ? raw : null;
+              if (value == null) return { metric: label, value: null };
+              const { margin, strength } = computeMetricStrength(value, threshold, direction);
+              return {
+                metric: label,
+                value,
+                formatted: format(value),
+                threshold,
+                direction,
+                exceededAi: direction === "<" ? value < threshold : value >= threshold,
+                marginPercent: margin * 100,
+                strength,
+                strengthLabel: strengthLabel(strength),
+              };
+            })
+          : null;
+        return {
+          index: i + 1,
+          filename: f.name,
+          format: f.format,
+          fileSize: f.size,
+          duration: f.duration || null,
+          tier,
+          tierCode: tierCode(tier),
+          tierLabel: tierLabel(tier),
+          backendVerdict: f.verdict || null,
+          confidence: {
+            cnnAi: f.cnnScore,
+            cnnHuman: f.cnnScore != null ? 1 - f.cnnScore : null,
+            finalAi: f.finalScore,
+            finalHuman: f.finalScore != null ? 1 - f.finalScore : null,
+            finalSource: f.finalScoreSource,
+            displayAi: displayScore,
+            displayHuman: displayScore != null ? 1 - displayScore : null,
+          },
+          reconMetrics: f.reconMetrics
+            ? {
+                aiSignals: f.reconMetrics.ai_signals ?? null,
+                strengthSummary: sum
+                  ? {
+                      strongAi: sum.strongAi,
+                      ai: sum.marginalAi,
+                      human: sum.marginalHuman,
+                      strongHuman: sum.strongHuman,
+                      text: formatStrengthSummary(sum),
+                    }
+                  : null,
+                values: reconRows,
+              }
+            : null,
+        };
+      }),
       disclaimer:
         "DetectX does not determine authorship, intent, or ownership. Audio with extensive post-processing may exhibit AI-like signal characteristics.",
     };
     return JSON.stringify(report, null, 2);
-  }, [getDoneFiles, batchTimestamp, totalFiles, doneCount, aiCount, humanCount, errorCount, skippedCount]);
+  }, [getDoneFiles, batchTimestamp, totalFiles, doneCount, aiCount, humanCount, errorCount, skippedCount, tierCounts]);
 
   const generateBatchMarkdown = useCallback(() => {
     const done = getDoneFiles();
     let md = `# DetectX Batch Verification Report\n\n`;
     md += `**Generated:** ${batchTimestamp}  \n`;
     md += `**Detection Mode:** Enhanced Mode  \n`;
-    md += `**Engine Version:** v3\n\n`;
+    md += `**Engine Version:** v3  \n`;
+    md += `**Report Version:** 3.1.0\n\n`;
     md += `## Summary\n\n`;
     md += `| Metric | Count |\n|--------|-------|\n`;
     md += `| Total Files | ${totalFiles} |\n`;
-    md += `| AI Detected | ${aiCount} |\n`;
-    md += `| Human Verified | ${humanCount} |\n`;
+    md += `| Verified | ${doneCount} |\n`;
     md += `| Errors | ${errorCount} |\n`;
     md += `| Skipped | ${skippedCount} |\n\n`;
+    md += `### Verdict Distribution (4-tier)\n\n`;
+    md += `| Tier | Count |\n|------|-------|\n`;
+    md += `| AI Signal Observed (≥80%) | ${tierCounts.ai} |\n`;
+    md += `| AI Confirmed by Deep Scan (50-80%) | ${tierCounts["mixed-ai"]} |\n`;
+    md += `| Human Recovered by Deep Scan (50-80%) | ${tierCounts["mixed-human"]} |\n`;
+    md += `| AI Signal Not Observed (<50%) | ${tierCounts.human} |\n\n`;
     md += `## Results\n\n`;
-    md += `| # | Filename | Format | Size | Duration | Verdict |\n`;
-    md += `|---|----------|--------|------|----------|---------|\n`;
+    md += `| # | Filename | Format | Size | Duration | Tier | AI % | Score Source | RECON Strength |\n`;
+    md += `|---|----------|--------|------|----------|------|------|--------------|----------------|\n`;
     done.forEach((f, i) => {
+      const tier = deriveTier(f.cnnScore, f.verdict);
       const dur = f.duration ? `${Math.floor(f.duration / 60)}:${String(Math.floor(f.duration % 60)).padStart(2, "0")}` : "—";
-      md += `| ${i + 1} | ${f.name} | ${f.format} | ${formatFileSize(f.size)} | ${dur} | ${verdictLabel(f.verdict) || "—"} |\n`;
+      const score = displayScoreOf(f);
+      const pct = score != null ? `${(score * 100).toFixed(1)}%` : "—";
+      const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "CNN" : "—");
+      const sum = computeFileStrengths(f.reconMetrics);
+      const strength = sum ? formatStrengthSummary(sum) : "—";
+      md += `| ${i + 1} | ${f.name} | ${f.format} | ${formatFileSize(f.size)} | ${dur} | **${tierLabel(tier)}** | \`${pct}\` | ${source} | ${strength} |\n`;
     });
-    md += `\n## Disclaimer\n\n`;
+    md += `\n## Methodology\n\n`;
+    md += `- **Primary Engine:** CNN classifier (deep neural network) produces an AI probability score.\n`;
+    md += `- **Tier Bands:** Below 50% → Human. 50-80% → Reconstruction Engine (Deep Scan) is invoked. ≥80% → AI confirmed.\n`;
+    md += `- **Final Score Source:** For tracks in the 50-80% Mixed range the Verification Confidence is sourced from the Reconstruction Engine; outside that range it equals the CNN score.\n`;
+    md += `- **Signal Strength:** Each of the 7 reconstruction metrics carries a signed margin from its threshold. Strong = |margin| ≥ 30%. A high "AI Signal Count" of mostly-marginal crossings can still yield a Human-leaning final score, which the trained classifier weighs by magnitude rather than a binary yes/no.\n\n`;
+    md += `## Disclaimer\n\n`;
     md += `> DetectX does not determine authorship, intent, or ownership.\n`;
     md += `> Audio with extensive post-processing, synthesis, or heavy digital manipulation may exhibit AI-like signal characteristics.\n\n`;
-    md += `---\n\n*DetectX Audio AI Detector — Engine v3 (Enhanced Mode)*\n`;
+    md += `---\n\n*DetectX Audio AI Detector — Engine v3 (Enhanced Mode) — Report 3.1.0*\n`;
     return md;
-  }, [getDoneFiles, batchTimestamp, totalFiles, aiCount, humanCount, errorCount, skippedCount]);
+  }, [getDoneFiles, batchTimestamp, totalFiles, doneCount, errorCount, skippedCount, tierCounts]);
 
   const generateBatchPDFHTML = useCallback(() => {
     const done = getDoneFiles();
+    const tierClass = (t: VerdictTier): string => {
+      switch (t) {
+        case "ai":          return "tier-ai";
+        case "mixed-ai":    return "tier-mixed-ai";
+        case "mixed-human": return "tier-mixed-human";
+        case "human":       return "tier-human";
+        default:            return "";
+      }
+    };
     const rows = done
-      .map(
-        (f, i) =>
-          `<tr><td>${i + 1}</td><td>${f.name}</td><td>${f.format}</td><td>${formatFileSize(f.size)}</td><td>${
-            f.duration ? `${Math.floor(f.duration / 60)}:${String(Math.floor(f.duration % 60)).padStart(2, "0")}` : "—"
-          }</td><td class="${f.verdict?.includes("was observed") ? "ai" : "human"}">${verdictLabel(f.verdict) || "—"}</td></tr>`
-      )
+      .map((f, i) => {
+        const tier = deriveTier(f.cnnScore, f.verdict);
+        const dur = f.duration ? `${Math.floor(f.duration / 60)}:${String(Math.floor(f.duration % 60)).padStart(2, "0")}` : "—";
+        const score = displayScoreOf(f);
+        const pct = score != null ? `${(score * 100).toFixed(1)}%` : "—";
+        const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "CNN" : "—");
+        const sum = computeFileStrengths(f.reconMetrics);
+        const strength = sum ? formatStrengthSummary(sum) : "—";
+        return `<tr>
+          <td>${i + 1}</td>
+          <td>${f.name}</td>
+          <td>${f.format}</td>
+          <td>${formatFileSize(f.size)}</td>
+          <td>${dur}</td>
+          <td class="${tierClass(tier)}">${tierLabel(tier)}</td>
+          <td class="small-mono">${pct}</td>
+          <td class="small-mono">${source}</td>
+          <td class="small-mono">${strength}</td>
+        </tr>`;
+      })
       .join("\n");
 
     return `<!DOCTYPE html>
@@ -508,37 +727,72 @@ export default function BatchVerify() {
 <style>
   body{font-family:Arial,sans-serif;padding:40px;color:#333}
   h1{color:#0d9488;border-bottom:2px solid #0d9488;padding-bottom:10px}
-  h2{color:#555;margin-top:30px}
+  h2{color:#555;margin-top:30px;font-size:14px;border-left:3px solid #0d9488;padding-left:8px}
   table{width:100%;border-collapse:collapse;margin:20px 0}
-  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #ddd;font-size:13px}
-  th{background:#f5f5f5}
-  .summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:20px 0}
-  .summary-item{text-align:center;padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
-  .summary-item .num{font-size:28px;font-weight:bold}
-  .summary-item .label{font-size:11px;text-transform:uppercase;color:#888;margin-top:4px}
-  .ai{color:#ef4444;font-weight:600}
-  .human{color:#22c55e;font-weight:600}
-  .footer{margin-top:40px;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:20px}
-  .disclaimer{background:#fefce8;border:1px solid #fef08a;border-radius:4px;padding:12px;margin-top:20px;font-size:13px}
+  th,td{padding:6px 8px;text-align:left;border-bottom:1px solid #ddd;font-size:11px;vertical-align:top}
+  th{background:#f5f5f5;font-weight:600}
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+  .summary-item{text-align:center;padding:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
+  .summary-item .num{font-size:24px;font-weight:bold}
+  .summary-item .label{font-size:10px;text-transform:uppercase;color:#888;margin-top:4px;letter-spacing:0.5px}
+  .tier-ai{color:#ef4444;font-weight:600}
+  .tier-mixed-ai{color:#f59e0b;font-weight:600}
+  .tier-mixed-human{color:#10b981;font-weight:600}
+  .tier-human{color:#059669;font-weight:600}
+  .small-mono{font-family:monospace;font-size:10px}
+  .footer{margin-top:40px;font-size:11px;color:#888;border-top:1px solid #ddd;padding-top:20px}
+  .disclaimer{background:#fefce8;border:1px solid #fef08a;border-radius:4px;padding:12px;margin-top:20px;font-size:11px;line-height:1.5}
+  .meta{font-size:11px;color:#666;margin-bottom:6px}
+  .methodology{background:#f9fafb;border:1px solid #e5e7eb;border-radius:4px;padding:10px 14px;font-size:10.5px;line-height:1.55;margin-top:14px}
+  .methodology p{margin:4px 0}
 </style></head><body>
 <h1>DetectX Batch Verification Report</h1>
-<p><strong>Generated:</strong> ${batchTimestamp}</p>
-<p><strong>Detection Mode:</strong> Enhanced Mode &nbsp;|&nbsp; <strong>Engine:</strong> v3</p>
+<p class="meta"><strong>Generated:</strong> ${batchTimestamp} &nbsp;|&nbsp; <strong>Mode:</strong> Enhanced &nbsp;|&nbsp; <strong>Engine:</strong> v3 &nbsp;|&nbsp; <strong>Report:</strong> 3.1.0</p>
+
 <h2>Summary</h2>
 <div class="summary-grid">
   <div class="summary-item"><div class="num">${totalFiles}</div><div class="label">Total</div></div>
-  <div class="summary-item"><div class="num ai">${aiCount}</div><div class="label">AI Detected</div></div>
-  <div class="summary-item"><div class="num human">${humanCount}</div><div class="label">Human Verified</div></div>
+  <div class="summary-item"><div class="num">${doneCount}</div><div class="label">Verified</div></div>
   <div class="summary-item"><div class="num" style="color:#ef4444">${errorCount}</div><div class="label">Errors</div></div>
   <div class="summary-item"><div class="num" style="color:#f59e0b">${skippedCount}</div><div class="label">Skipped</div></div>
 </div>
+
+<h2>Verdict Distribution (4-tier)</h2>
+<div class="summary-grid">
+  <div class="summary-item"><div class="num tier-ai">${tierCounts.ai}</div><div class="label">AI Observed (≥80%)</div></div>
+  <div class="summary-item"><div class="num tier-mixed-ai">${tierCounts["mixed-ai"]}</div><div class="label">AI by Deep Scan</div></div>
+  <div class="summary-item"><div class="num tier-mixed-human">${tierCounts["mixed-human"]}</div><div class="label">Human Recovered</div></div>
+  <div class="summary-item"><div class="num tier-human">${tierCounts.human}</div><div class="label">Not Observed (&lt;50%)</div></div>
+</div>
+
 <h2>Results</h2>
-<table><thead><tr><th>#</th><th>Filename</th><th>Format</th><th>Size</th><th>Duration</th><th>Verdict</th></tr></thead>
-<tbody>${rows}</tbody></table>
-<div class="disclaimer"><strong>Disclaimer:</strong> DetectX does not determine authorship, intent, or ownership. Audio with extensive post-processing may exhibit AI-like signal characteristics.</div>
-<div class="footer"><p>DetectX Audio AI Detector — Engine v3 (Enhanced Mode)</p></div>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Filename</th>
+      <th>Format</th>
+      <th>Size</th>
+      <th>Duration</th>
+      <th>Verdict (4-tier)</th>
+      <th>AI %</th>
+      <th>Source</th>
+      <th>RECON Strength Summary</th>
+    </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>
+
+<div class="methodology">
+  <p><strong>Methodology.</strong> The primary CNN classifier produces an AI probability. Tier bands: below 50% → Human, 50–80% → Reconstruction Engine (Deep Scan) invoked, ≥80% → AI confirmed.</p>
+  <p>The <strong>AI %</strong> column reflects the Verification Confidence: when sourced from <em>Deep Scan</em> (50–80% Mixed range) it is the Reconstruction Engine's classifier output; outside that range it equals the CNN score.</p>
+  <p><strong>RECON Strength Summary</strong> counts each of the 7 reconstruction metrics by how far it sits from its threshold (|margin| ≥ 30% = Strong). A high crossing count of mostly-marginal metrics can still produce a Human-leaning final score, because the trained classifier weighs each metric by magnitude rather than a binary yes/no.</p>
+</div>
+
+<div class="disclaimer"><strong>Disclaimer:</strong> DetectX does not determine authorship, intent, or ownership. This verification is based solely on structural signal observations of the submitted audio files. Audio with extensive post-processing, synthesis, or heavy digital manipulation may exhibit signal characteristics similar to AI-generated music. Final adjudication is subject to the policies of the receiving institution, court, or authority.</div>
+<div class="footer"><p>DetectX Audio AI Detector — Engine v3 (Enhanced Mode) — Report 3.1.0</p></div>
 </body></html>`;
-  }, [getDoneFiles, batchTimestamp, batchDate, totalFiles, aiCount, humanCount, errorCount, skippedCount]);
+  }, [getDoneFiles, batchTimestamp, batchDate, totalFiles, doneCount, errorCount, skippedCount, tierCounts]);
 
   // ── Download functions ──
 
@@ -735,7 +989,7 @@ export default function BatchVerify() {
                           <StatusBadge status={item.status} errorMessage={item.errorMessage} />
                         </td>
                         <td className="px-4 py-2">
-                          <VerdictBadge verdict={item.verdict} />
+                          <VerdictBadge item={item} />
                         </td>
                         <td className="px-4 py-2">
                           {!isProcessing && item.status !== "processing" && (
@@ -762,19 +1016,15 @@ export default function BatchVerify() {
           <>
             <div className="forensic-panel">
               <div className="forensic-panel-header">Results Summary</div>
-              <div className="forensic-panel-content">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="forensic-panel-content space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-foreground">{totalFiles}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Files</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-red-400">{aiCount}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">AI Detected</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-forensic-green">{humanCount}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Human Verified</p>
+                    <p className="text-2xl font-bold text-foreground">{doneCount}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Verified</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-red-500">{errorCount}</p>
@@ -783,6 +1033,27 @@ export default function BatchVerify() {
                   <div className="text-center">
                     <p className="text-2xl font-bold text-amber-500">{skippedCount}</p>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Skipped</p>
+                  </div>
+                </div>
+                <div className="border-t border-border/30 pt-4">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Verdict Distribution (4-tier)</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center px-2 py-2 rounded bg-red-500/10 border border-red-500/30">
+                      <p className="text-xl font-bold text-red-400">{tierCounts.ai}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">AI Observed<br /><span className="text-muted-foreground/60">(≥80%)</span></p>
+                    </div>
+                    <div className="text-center px-2 py-2 rounded bg-amber-500/10 border border-amber-500/30">
+                      <p className="text-xl font-bold text-amber-400">{tierCounts["mixed-ai"]}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">AI by Deep Scan<br /><span className="text-muted-foreground/60">(50-80%)</span></p>
+                    </div>
+                    <div className="text-center px-2 py-2 rounded bg-emerald-500/10 border border-emerald-500/30">
+                      <p className="text-xl font-bold text-emerald-400">{tierCounts["mixed-human"]}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">Human Recovered<br /><span className="text-muted-foreground/60">(50-80%)</span></p>
+                    </div>
+                    <div className="text-center px-2 py-2 rounded bg-emerald-700/10 border border-emerald-700/30">
+                      <p className="text-xl font-bold text-emerald-500">{tierCounts.human}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">Not Observed<br /><span className="text-muted-foreground/60">(&lt;50%)</span></p>
+                    </div>
                   </div>
                 </div>
               </div>

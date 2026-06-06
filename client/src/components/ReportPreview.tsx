@@ -16,6 +16,13 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { FileText, AlertCircle, CheckCircle, Search } from "lucide-react";
+import {
+  computeMetricStrength,
+  summarizeStrengths,
+  formatStrengthSummary,
+  type Strength,
+  type Direction,
+} from "@/lib/recon_strength";
 
 interface VerdictResult {
   verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
@@ -44,9 +51,28 @@ interface ReportPreviewProps {
   onExport?: () => void;
   /** CNN confidence score (0.0-1.0) for 4-tier label derivation */
   cnnScore?: number | null;
+  /** Final AI probability; RECON-based in 50-80% Mixed range, CNN elsewhere */
+  finalScore?: number | null;
+  /** "cnn" or "recon" — source of finalScore */
+  finalScoreSource?: string | null;
   /** RECON 7-metric summary */
   reconMetrics?: ReconMetricsSummary | null;
 }
+
+// RECON V1 thresholds — mirror server/app/crg_runner.py RECON_DECISION_TABLE
+const V1_THRESHOLDS: Array<{
+  key: keyof ReconMetricsSummary;
+  threshold: number;
+  direction: Direction;
+}> = [
+  { key: "band_bass_diff",    threshold: 0.3991, direction: "<"  },
+  { key: "band_low_mid_diff", threshold: 0.2967, direction: "<"  },
+  { key: "l1_diff",           threshold: 0.0029, direction: "<"  },
+  { key: "snr",               threshold: 30.84,  direction: ">=" },
+  { key: "energy_ratio",      threshold: 0.9690, direction: ">=" },
+  { key: "phase_coherence",   threshold: 0.7231, direction: ">=" },
+  { key: "band_high_ratio",   threshold: 0.9471, direction: ">=" },
+];
 
 // -----------------------------------------------------------------------
 // Tier derivation (mirrors VerdictPanel.tsx semantics)
@@ -85,6 +111,8 @@ export function ReportPreview({
   isProcessing = false,
   onExport,
   cnnScore = null,
+  finalScore = null,
+  finalScoreSource = null,
   reconMetrics = null,
 }: ReportPreviewProps) {
   const { isAuthenticated } = useAuth();
@@ -148,6 +176,22 @@ export function ReportPreview({
 
   const aiSignals = reconMetrics?.ai_signals;
   const showReconSummary = aiSignals != null;
+  const displayScore = finalScore != null ? finalScore : cnnScore;
+  const isReconSource = finalScoreSource === "recon" && finalScore != null;
+
+  // Compute V1 strength distribution from measured metrics
+  const strengthSum = (() => {
+    if (!reconMetrics) return null;
+    const strengths: Strength[] = [];
+    V1_THRESHOLDS.forEach(({ key, threshold, direction }) => {
+      const raw = reconMetrics[key];
+      if (typeof raw === "number") {
+        strengths.push(computeMetricStrength(raw, threshold, direction).strength);
+      }
+    });
+    if (strengths.length === 0) return null;
+    return summarizeStrengths(strengths);
+  })();
 
   return (
     <div className="forensic-panel">
@@ -177,10 +221,22 @@ export function ReportPreview({
               {tierLabel}
             </p>
           </div>
-          {cnnScore != null && (
-            <div className="mt-2 ml-6 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
-              <span>AI: <span className="font-mono text-foreground/80">{(cnnScore * 100).toFixed(1)}%</span></span>
-              <span>Human: <span className="font-mono text-foreground/80">{((1 - cnnScore) * 100).toFixed(1)}%</span></span>
+          {displayScore != null && (
+            <div className="mt-2 ml-6 space-y-1">
+              <div className="flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
+                <span>AI: <span className="font-mono text-foreground/80">{(displayScore * 100).toFixed(1)}%</span></span>
+                <span>Human: <span className="font-mono text-foreground/80">{((1 - displayScore) * 100).toFixed(1)}%</span></span>
+                {isReconSource && (
+                  <span className="text-[9px] uppercase tracking-wider text-emerald-400/90">
+                    source: Deep Scan
+                  </span>
+                )}
+              </div>
+              {isReconSource && cnnScore != null && (
+                <p className="text-[9px] text-muted-foreground/70">
+                  Primary engine (CNN) flagged at {(cnnScore * 100).toFixed(1)}%; final score from Reconstruction Engine.
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -203,13 +259,45 @@ export function ReportPreview({
             <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
               Reconstruction Engine Summary
             </div>
-            <div className="py-2 px-3 bg-muted/20 rounded space-y-1">
+            <div className="py-2 px-3 bg-muted/20 rounded space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">AI Signal Count</span>
                 <span className="font-mono text-foreground">{aiSignals} / 7</span>
               </div>
-              <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
-                Full 7-metric measurement values and thresholds are available in the exported report.
+              {strengthSum && (strengthSum.strongAi + strengthSum.marginalAi + strengthSum.marginalHuman + strengthSum.strongHuman > 0) && (
+                <div className="space-y-1">
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    Signal Strength Distribution
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {strengthSum.strongAi > 0 && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded border border-red-500/40 bg-red-500/15 text-red-400 font-semibold">
+                        {strengthSum.strongAi} Strong AI
+                      </span>
+                    )}
+                    {strengthSum.marginalAi > 0 && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-400 font-semibold">
+                        {strengthSum.marginalAi} Marginal AI
+                      </span>
+                    )}
+                    {strengthSum.marginalHuman > 0 && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 font-semibold">
+                        {strengthSum.marginalHuman} Marginal Human
+                      </span>
+                    )}
+                    {strengthSum.strongHuman > 0 && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-700/40 bg-emerald-700/15 text-emerald-500 font-semibold">
+                        {strengthSum.strongHuman} Strong Human
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
+                    {formatStrengthSummary(strengthSum)}. The classifier weighs each metric by how far it sits from its threshold, not by a binary yes/no.
+                  </p>
+                </div>
+              )}
+              <p className="text-[10px] text-muted-foreground/60 leading-relaxed">
+                Full 7-metric measurement values, margins, and thresholds are available in the exported report.
               </p>
             </div>
           </div>

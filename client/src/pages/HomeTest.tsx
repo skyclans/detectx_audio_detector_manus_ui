@@ -981,6 +981,8 @@ export default function HomeTest() {
           fileHash={metadata?.fileHash || null}
           isProcessing={isVerifying}
           cnnScore={verificationResult?.cnnScore ?? null}
+          finalScore={verificationResult?.finalScore ?? null}
+          finalScoreSource={verificationResult?.finalScoreSource ?? null}
           reconMetrics={verificationResult?.reconMetrics ?? null}
         />
       </div>

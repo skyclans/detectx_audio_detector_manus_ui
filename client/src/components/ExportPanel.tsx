@@ -21,6 +21,16 @@
 import { Button } from "@/components/ui/button";
 import { FileJson, FileSpreadsheet, FileText, FileType, Download } from "lucide-react";
 import JSZip from "jszip";
+import {
+  computeMetricStrength,
+  formatMarginPct,
+  marginToBarPosition,
+  strengthLabel,
+  strengthColor,
+  summarizeStrengths,
+  formatStrengthSummary,
+  type Strength,
+} from "@/lib/recon_strength";
 
 const ENGINE_VERSION = "v3";
 const ENGINE_MODE = "Enhanced Mode";
@@ -160,6 +170,14 @@ interface ReconRow {
   direction: "<" | ">=";
   thresholdText: string;
   exceededAi: boolean;
+  /** Signed margin (AI-positive). Null when measurement is missing. */
+  margin: number | null;
+  /** Strength bucket. Null when measurement is missing. */
+  strength: Strength | null;
+  /** Formatted margin string ("+34.6%"). Empty when missing. */
+  marginText: string;
+  /** Bar position 0-100 (Human=0, AI=100). Null when missing. */
+  barPosition: number | null;
 }
 
 function buildReconRows(metrics: ReconMetricsData | null): ReconRow[] {
@@ -170,10 +188,22 @@ function buildReconRows(metrics: ReconMetricsData | null): ReconRow[] {
     const formatted = value == null ? "—" : format(value);
     const thresholdText = `${direction} ${threshold}`;
     let exceededAi = false;
+    let margin: number | null = null;
+    let strength: Strength | null = null;
+    let marginText = "";
+    let barPosition: number | null = null;
     if (value != null) {
       exceededAi = direction === "<" ? value < threshold : value >= threshold;
+      const s = computeMetricStrength(value, threshold, direction);
+      margin = s.margin;
+      strength = s.strength;
+      marginText = formatMarginPct(s.margin);
+      barPosition = marginToBarPosition(s.margin);
     }
-    return { label, value, formatted, threshold, direction, thresholdText, exceededAi };
+    return {
+      label, value, formatted, threshold, direction, thresholdText, exceededAi,
+      margin, strength, marginText, barPosition,
+    };
   });
 }
 
@@ -245,35 +275,63 @@ function generatePDFContent(data: ExportData): string {
     tier === "ai" ? "#fee2e2" :
     "#f1f5f9";
 
+  const strengthSummary = summarizeStrengths(
+    reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
+  );
+  const strengthSummaryText = formatStrengthSummary(strengthSummary);
   const reconTable = reconRows.length > 0 ? `
   <h2>RECON 7-Metric Structural Measurements</h2>
   <p class="desc">
     The reconstruction engine separates the input audio into source-component stems and
     reconstructs the signal by recombining them. The seven structural measurements below
-    quantify residual differences between the original and reconstructed signals.
-    A measurement that satisfies the inequality direction below indicates an AI-consistent
-    signal on that metric. The decision rule requires the number of AI-consistent metrics
-    to meet or exceed the predefined count for an AI determination.
+    quantify residual differences between the original and reconstructed signals. Each
+    measurement is reported with its <strong>signed margin</strong> from the threshold
+    (positive = AI-side, negative = Human-side) and a <strong>strength bucket</strong>
+    derived from that margin. The continuous DetectX classifier weighs each metric by
+    its margin, not by a binary yes/no &mdash; so a "6/7" count of border-crossings can
+    still yield a Human-leaning final confidence when most crossings are marginal.
   </p>
-  <table>
+  <table class="recon-table">
     <tr>
-      <th>Metric</th>
-      <th>Measured Value</th>
-      <th>Threshold</th>
-      <th>AI-consistent</th>
+      <th style="width: 110px;">Metric</th>
+      <th style="width: 70px;">Measured</th>
+      <th style="width: 70px;">Threshold</th>
+      <th style="width: 60px;">Margin</th>
+      <th style="width: 90px;">Strength</th>
+      <th>Human &larr;&nbsp;|&nbsp;&rarr; AI</th>
     </tr>
-    ${reconRows.map((r) => `
+    ${reconRows.map((r) => {
+      if (r.value == null || r.strength == null || r.barPosition == null) {
+        return `
+        <tr>
+          <td>${r.label}</td>
+          <td class="small-mono">&mdash;</td>
+          <td class="small-mono">${r.thresholdText}</td>
+          <td class="small-mono">&mdash;</td>
+          <td>&mdash;</td>
+          <td>&mdash;</td>
+        </tr>`;
+      }
+      const color = strengthColor(r.strength).hex;
+      return `
       <tr>
         <td>${r.label}</td>
-        <td style="font-family: monospace;">${r.formatted}</td>
-        <td style="font-family: monospace;">${r.thresholdText}</td>
-        <td>${r.value == null ? "—" : r.exceededAi ? "Yes" : "No"}</td>
-      </tr>
-    `).join("")}
+        <td class="small-mono">${r.formatted}</td>
+        <td class="small-mono">${r.thresholdText}</td>
+        <td class="small-mono" style="color: ${color}; font-weight: 600;">${r.marginText}</td>
+        <td><span class="strength-badge" style="background: ${color}22; color: ${color}; border: 1px solid ${color}55;">${strengthLabel(r.strength)}</span></td>
+        <td>
+          <div class="bar-track">
+            <div class="bar-mid"></div>
+            <div class="bar-marker" style="left: ${r.barPosition.toFixed(1)}%; background: ${color};"></div>
+          </div>
+        </td>
+      </tr>`;
+    }).join("")}
     ${signals ? `
       <tr style="background:#f8fafc;">
         <td colspan="3"><strong>AI Signal Count</strong></td>
-        <td style="font-family: monospace;"><strong>${signals.count} / ${signals.total}</strong></td>
+        <td colspan="3" class="small-mono"><strong>${signals.count} / ${signals.total}</strong>${strengthSummaryText ? ` &mdash; ${strengthSummaryText}` : ""}</td>
       </tr>` : ""}
   </table>
   ` : "";
@@ -302,6 +360,11 @@ function generatePDFContent(data: ExportData): string {
     .disclaimer { background: #fefce8; border: 1px solid #fde68a; border-radius: 4px; padding: 8px 10px; font-size: 9px; color: #4b5563; margin-bottom: 8px; line-height: 1.45; }
     .footer { font-size: 8.5px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 6px; text-align: center; margin-top: 14px; }
     .small-mono { font-family: monospace; font-size: 9.5px; }
+    .recon-table th, .recon-table td { padding: 4px 6px; }
+    .strength-badge { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 8px; font-weight: 600; letter-spacing: 0.2px; white-space: nowrap; }
+    .bar-track { position: relative; width: 100%; min-width: 120px; height: 10px; background: linear-gradient(to right, #ecfdf5 0%, #f3f4f6 50%, #fef2f2 100%); border: 1px solid #e5e7eb; border-radius: 5px; }
+    .bar-mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: #9ca3af; }
+    .bar-marker { position: absolute; top: -2px; width: 4px; height: 14px; border-radius: 2px; transform: translateX(-2px); box-shadow: 0 0 0 1px rgba(255,255,255,0.6); }
   </style>
 </head>
 <body>
@@ -445,21 +508,37 @@ function generateJSON(data: ExportData): string {
       finalScoreSource: data.finalScoreSource ?? (data.cnnScore != null ? "cnn" : null),
       exceededAxes: data.verdict?.exceeded_axes ?? [],
     },
-    reconMetrics: reconRows.length > 0 ? {
-      values: reconRows.map((r) => ({
-        metric: r.label,
-        measuredValue: r.value,
-        formattedValue: r.formatted,
-        threshold: r.threshold,
-        direction: r.direction,
-        thresholdText: r.thresholdText,
-        aiConsistent: r.value == null ? null : r.exceededAi,
-      })),
-      aiSignalCount: signals?.count ?? null,
-      aiSignalTotal: signals?.total ?? null,
-      reconVersion: data.reconMetrics?.recon_version ?? null,
-      v2Confidence: data.reconMetrics?.v2_confidence ?? null,
-    } : null,
+    reconMetrics: reconRows.length > 0 ? (() => {
+      const strengthSum = summarizeStrengths(
+        reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
+      );
+      return {
+        values: reconRows.map((r) => ({
+          metric: r.label,
+          measuredValue: r.value,
+          formattedValue: r.formatted,
+          threshold: r.threshold,
+          direction: r.direction,
+          thresholdText: r.thresholdText,
+          aiConsistent: r.value == null ? null : r.exceededAi,
+          margin: r.margin,
+          marginPercent: r.margin != null ? r.margin * 100 : null,
+          strength: r.strength,
+          strengthLabel: r.strength ? strengthLabel(r.strength) : null,
+        })),
+        aiSignalCount: signals?.count ?? null,
+        aiSignalTotal: signals?.total ?? null,
+        strengthSummary: {
+          strongAi: strengthSum.strongAi,
+          marginalAi: strengthSum.marginalAi,
+          marginalHuman: strengthSum.marginalHuman,
+          strongHuman: strengthSum.strongHuman,
+          text: formatStrengthSummary(strengthSum),
+        },
+        reconVersion: data.reconMetrics?.recon_version ?? null,
+        v2Confidence: data.reconMetrics?.v2_confidence ?? null,
+      };
+    })() : null,
     timelineEvents: data.timelineMarkers,
     disclaimer: DISCLAIMER,
   };
@@ -511,6 +590,9 @@ function generateCSV(data: ExportData): string {
     ...reconRows.map((r) => `${r.label} (value)`),
     ...reconRows.map((r) => `${r.label} (threshold)`),
     ...reconRows.map((r) => `${r.label} (AI-consistent)`),
+    ...reconRows.map((r) => `${r.label} (margin %)`),
+    ...reconRows.map((r) => `${r.label} (strength)`),
+    "Strength Summary (Strong AI / Marginal AI / Marginal Human / Strong Human)",
     "Detection Mode",
     "Engine Version",
     "Report Version",
@@ -543,6 +625,14 @@ function generateCSV(data: ExportData): string {
     ...reconRows.map((r) => (r.value != null ? r.value : "")),
     ...reconRows.map((r) => `${r.direction} ${r.threshold}`),
     ...reconRows.map((r) => (r.value == null ? "" : r.exceededAi ? "Yes" : "No")),
+    ...reconRows.map((r) => (r.margin != null ? (r.margin * 100).toFixed(2) : "")),
+    ...reconRows.map((r) => (r.strength ? escapeCSV(strengthLabel(r.strength)) : "")),
+    escapeCSV((() => {
+      const sum = summarizeStrengths(
+        reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
+      );
+      return formatStrengthSummary(sum);
+    })()),
     escapeCSV(ENGINE_MODE),
     escapeCSV(ENGINE_VERSION),
     escapeCSV(REPORT_VERSION),
@@ -620,20 +710,39 @@ ${isRecon && data.cnnScore != null ? `| Primary Engine (CNN) Score | \`${(data.c
   }
 
   if (reconRows.length > 0) {
+    const strengthSum = summarizeStrengths(
+      reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
+    );
+    const summaryText = formatStrengthSummary(strengthSum);
+    const asciiBar = (pos: number | null): string => {
+      if (pos == null) return "—";
+      const cells = 11;
+      const idx = Math.min(cells - 1, Math.max(0, Math.round((pos / 100) * (cells - 1))));
+      return Array.from({ length: cells }, (_, i) =>
+        i === Math.floor(cells / 2) ? (i === idx ? "X" : "|") : (i === idx ? "X" : "-")
+      ).join("");
+    };
     md += `
 ## RECON 7-Metric Structural Measurements
 
 The reconstruction engine separates the input audio into source-component stems and
 reconstructs the signal by recombining them. The seven structural measurements below
-quantify residual differences between the original and reconstructed signals. A
-measurement that satisfies the inequality direction below indicates an AI-consistent
-signal on that metric. The decision rule requires the number of AI-consistent metrics
-to meet or exceed the predefined count for an AI determination.
+quantify residual differences between the original and reconstructed signals. Each
+measurement is reported with its **signed margin** from the threshold (positive =
+AI-side, negative = Human-side) and a **strength bucket** derived from that margin.
+The continuous DetectX classifier weighs each metric by its margin, not by a binary
+yes/no — so a "6/7" count of border-crossings can still yield a Human-leaning final
+confidence when most crossings are marginal.
 
-| Metric | Measured Value | Threshold | AI-consistent |
-|--------|----------------|-----------|---------------|
-${reconRows.map((r) => `| ${r.label} | \`${r.formatted}\` | \`${r.thresholdText}\` | ${r.value == null ? "—" : r.exceededAi ? "Yes" : "No"} |`).join("\n")}
-${signals ? `\n**AI Signal Count: ${signals.count} / ${signals.total}**\n` : ""}`;
+| Metric | Measured | Threshold | Margin | Strength | Human ← │ → AI |
+|--------|----------|-----------|--------|----------|----------------|
+${reconRows.map((r) => {
+  if (r.value == null || r.strength == null) {
+    return `| ${r.label} | \`—\` | \`${r.thresholdText}\` | — | — | — |`;
+  }
+  return `| ${r.label} | \`${r.formatted}\` | \`${r.thresholdText}\` | \`${r.marginText}\` | **${strengthLabel(r.strength)}** | \`${asciiBar(r.barPosition)}\` |`;
+}).join("\n")}
+${signals ? `\n**AI Signal Count: ${signals.count} / ${signals.total}** ${summaryText ? `— ${summaryText}` : ""}\n` : ""}`;
   }
 
   if (data.timelineMarkers.length > 0) {

@@ -12,6 +12,17 @@
 
 import { Activity, Gauge, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  computeMetricStrength,
+  formatMarginPct,
+  marginToBarPosition,
+  strengthLabel,
+  strengthColor,
+  summarizeStrengths,
+  formatStrengthSummary,
+  type Strength,
+  type Direction,
+} from "@/lib/recon_strength";
 
 // RECON V3 metrics interface
 interface ReconMetrics {
@@ -51,29 +62,73 @@ const V1_THRESHOLDS = {
   band_high_ratio: { threshold: 0.9471, compare: ">=" },
 };
 
-function MetricRow({ 
-  label, 
-  value, 
-  threshold, 
+function MetricRow({
+  label,
+  value,
+  threshold,
   compare,
-  isV3Extended = false 
-}: { 
-  label: string; 
-  value: number | null | undefined; 
+  isV3Extended = false,
+}: {
+  label: string;
+  value: number | null | undefined;
   threshold?: number;
   compare?: string;
   isV3Extended?: boolean;
 }) {
   if (value === null || value === undefined) return null;
-  
-  const formattedValue = typeof value === "number" 
+
+  const formattedValue = typeof value === "number"
     ? (label === "SNR" ? `${value.toFixed(1)}dB` : value.toFixed(4))
     : String(value);
-  
-  const thresholdText = threshold !== undefined && compare 
+
+  const thresholdText = threshold !== undefined && compare
     ? ` (${compare} ${threshold.toFixed(4)})`
     : "";
-  
+
+  // V1 metric row with strength bar
+  const hasStrength = threshold !== undefined && compare !== undefined && !isV3Extended;
+  if (hasStrength) {
+    const direction: Direction = compare === "<" ? "<" : ">=";
+    const { margin, strength } = computeMetricStrength(value, threshold!, direction);
+    const color = strengthColor(strength);
+    const barPos = marginToBarPosition(margin);
+    return (
+      <div className="px-3 py-2 hover:bg-muted/20 rounded space-y-1">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs text-muted-foreground flex-shrink-0">{label}</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="font-mono text-xs text-foreground">{formattedValue}</span>
+            <span className="text-muted-foreground/70 text-[10px] font-mono">{thresholdText}</span>
+            <span
+              className={cn("font-mono text-[10px] font-semibold tabular-nums", color.text)}
+              style={{ minWidth: "44px", textAlign: "right" }}
+            >
+              {formatMarginPct(margin)}
+            </span>
+            <span
+              className={cn(
+                "text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border",
+                color.bg, color.text, color.border,
+              )}
+              style={{ minWidth: "82px", textAlign: "center" }}
+            >
+              {strengthLabel(strength)}
+            </span>
+          </div>
+        </div>
+        <div className="relative w-full h-1.5 rounded-full overflow-hidden"
+             style={{ background: "linear-gradient(to right, rgba(16,185,129,0.18) 0%, rgba(148,163,184,0.12) 50%, rgba(239,68,68,0.18) 100%)" }}>
+          <div className="absolute top-0 bottom-0 w-px bg-muted-foreground/50" style={{ left: "50%" }} />
+          <div
+            className="absolute top-[-2px] h-[10px] w-[3px] rounded"
+            style={{ left: `${barPos.toFixed(1)}%`, transform: "translateX(-1.5px)", background: color.hex }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback: V3 extended metric (no threshold) — original compact row
   return (
     <div className="flex items-center justify-between py-1.5 px-3 hover:bg-muted/20 rounded">
       <span className="text-xs text-muted-foreground">{label}</span>
@@ -82,9 +137,6 @@ function MetricRow({
         isV3Extended ? "text-forensic-cyan" : "text-foreground"
       )}>
         {formattedValue}
-        {thresholdText && (
-          <span className="text-muted-foreground/70 text-[10px]">{thresholdText}</span>
-        )}
       </span>
     </div>
   );
@@ -212,10 +264,65 @@ export function ReconV3Display({ metrics, isProcessing = false }: ReconV3Display
           </div>
         )}
 
+        {/* V1 Strength Summary — surfaces "6/7 yet 76% Human" inconsistency */}
+        {(() => {
+          const v1Strengths: Strength[] = [];
+          const v1Metrics: Array<{ value: number | null | undefined; threshold: number; direction: Direction }> = [
+            { value: metrics.band_bass_diff,    threshold: V1_THRESHOLDS.band_bass_diff.threshold,    direction: "<"  },
+            { value: metrics.band_low_mid_diff, threshold: V1_THRESHOLDS.band_low_mid_diff.threshold, direction: "<"  },
+            { value: metrics.l1_diff,           threshold: V1_THRESHOLDS.l1_diff.threshold,           direction: "<"  },
+            { value: metrics.snr,               threshold: V1_THRESHOLDS.snr.threshold,               direction: ">=" },
+            { value: metrics.energy_ratio,      threshold: V1_THRESHOLDS.energy_ratio.threshold,      direction: ">=" },
+            { value: metrics.phase_coherence,   threshold: V1_THRESHOLDS.phase_coherence.threshold,   direction: ">=" },
+            { value: metrics.band_high_ratio,   threshold: V1_THRESHOLDS.band_high_ratio.threshold,   direction: ">=" },
+          ];
+          v1Metrics.forEach(({ value, threshold, direction }) => {
+            if (value != null) {
+              v1Strengths.push(computeMetricStrength(value, threshold, direction).strength);
+            }
+          });
+          if (v1Strengths.length === 0) return null;
+          const sum = summarizeStrengths(v1Strengths);
+          const summaryText = formatStrengthSummary(sum);
+          return (
+            <div className="border-t border-border/30 pt-2 px-3">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">
+                Signal Strength Distribution
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {sum.strongAi > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border border-red-500/40 bg-red-500/15 text-red-400 font-semibold">
+                    {sum.strongAi} Strong AI
+                  </span>
+                )}
+                {sum.marginalAi > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-400 font-semibold">
+                    {sum.marginalAi} Marginal AI
+                  </span>
+                )}
+                {sum.marginalHuman > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 font-semibold">
+                    {sum.marginalHuman} Marginal Human
+                  </span>
+                )}
+                {sum.strongHuman > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border border-emerald-700/40 bg-emerald-700/15 text-emerald-500 font-semibold">
+                    {sum.strongHuman} Strong Human
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] text-muted-foreground/80 mt-1.5 leading-relaxed">
+                The classifier weighs each metric by how far it sits from its threshold,
+                not by a simple yes/no count. {summaryText}.
+              </p>
+            </div>
+          );
+        })()}
+
         {/* V1 Metrics Section */}
         <div className="border-t border-border/30 pt-2">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wide px-3 mb-1">
-            V1 Metrics
+            V1 Metrics (with signal strength)
           </p>
           <div className="space-y-0.5">
             <MetricRow 

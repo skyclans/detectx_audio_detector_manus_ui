@@ -124,6 +124,8 @@ interface VerdictResult {
   detailedAnalysis?: DetailedAnalysisData | null;
   reconMetrics?: ReconMetrics | null;  // V3 RECON metrics
   cnnScore?: number | null;  // CNN confidence score (0.0-1.0) for display
+  finalScore?: number | null;  // Final AI probability; RECON-based in 50-80% Mixed range
+  finalScoreSource?: string | null;  // "cnn" or "recon"
 }
 
 // Helper function to convert snake_case server response to camelCase for UI
@@ -848,6 +850,8 @@ export default function Home() {
         detailedAnalysis: convertDetailedAnalysis(result.detailedAnalysis || result.detailed_analysis),
         reconMetrics: result.recon_metrics || result.reconMetrics || null,  // V3 RECON metrics
         cnnScore: result.cnn_score ?? result.cnnScore ?? null,  // CNN confidence (0.0-1.0)
+        finalScore: result.final_score ?? result.finalScore ?? null,
+        finalScoreSource: result.final_score_source ?? result.finalScoreSource ?? null,
       });
       
       setScanComplete(true);
@@ -949,6 +953,8 @@ export default function Home() {
           <VerdictPanel
             verdict={verificationResult?.verdict ?? null}
             cnnScore={verificationResult?.cnnScore ?? null}
+            finalScore={verificationResult?.finalScore ?? null}
+            finalScoreSource={verificationResult?.finalScoreSource ?? null}
             isProcessing={isVerifying}
             progress={Math.round((scanLogs.length / 17) * 100)}
           />
@@ -1126,6 +1132,8 @@ export default function Home() {
             isrc: metadata?.isrc || null,
             verdict: verificationResult?.verdict ?? null,
             cnnScore: verificationResult?.cnnScore ?? null,
+            finalScore: verificationResult?.finalScore ?? null,
+            finalScoreSource: verificationResult?.finalScoreSource ?? null,
             reconMetrics: verificationResult?.reconMetrics ?? null,
             timelineMarkers: verificationResult?.timelineMarkers || [],
             analysisTimestamp: toLocalTimestamp(),

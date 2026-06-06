@@ -41,8 +41,13 @@ interface DetectXVerificationResult {
 interface VerdictPanelProps {
   /** DetectX verification result - render verbatim */
   verdict: DetectXVerificationResult | null;
-  /** CNN confidence score (0.0-1.0) - optional display layer override */
+  /** CNN confidence score (0.0-1.0) - drives 4-tier label boundary */
   cnnScore?: number | null;
+  /** Final score (0.0-1.0). In 50-80% Mixed range, sourced from RECON Deep Scan;
+   *  outside that range equals cnnScore. UI percentages use this when present. */
+  finalScore?: number | null;
+  /** "cnn" or "recon" — source of finalScore */
+  finalScoreSource?: string | null;
   /** Whether verification is in progress */
   isProcessing?: boolean;
   /** Scan progress 0-100 */
@@ -111,9 +116,15 @@ function getVerdictTier(
 export function VerdictPanel({
   verdict,
   cnnScore = null,
+  finalScore = null,
+  finalScoreSource = null,
   isProcessing = false,
   progress = 0,
 }: VerdictPanelProps) {
+  // Display score: prefer finalScore (RECON-based in Mixed range) over cnnScore.
+  // Backward compat: if finalScore not provided, fall back to cnnScore.
+  const displayScore = finalScore != null ? finalScore : cnnScore;
+  const isReconSource = finalScoreSource === "recon";
   // Processing state - progress bar with stage info
   if (isProcessing) {
     const clampedProgress = Math.min(Math.max(progress, 0), 100);
@@ -168,7 +179,6 @@ export function VerdictPanel({
   const displayLabel = getDisplayLabel(cnnScore, verdict.verdict);
   const tier = getVerdictTier(cnnScore, verdict.verdict);
 
-  const hasCnnScore = cnnScore != null;
   const isMixedHuman = tier === "mixed-human";
   const isMixedAi = tier === "mixed-ai";
   const isAiObserved = tier === "ai";
@@ -202,17 +212,22 @@ export function VerdictPanel({
             {displayLabel}
           </p>
 
-          {/* AI Signal / Human percentages (only when CNN score is available) */}
-          {hasCnnScore && (
+          {/* AI Signal / Human percentages — sourced from finalScore (RECON in Mixed range, CNN elsewhere) */}
+          {displayScore != null && (
             <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
               <span className="text-foreground/80">
                 AI Signal:{" "}
-                <span className="font-mono">{(cnnScore! * 100).toFixed(1)}%</span>
+                <span className="font-mono">{(displayScore * 100).toFixed(1)}%</span>
               </span>
               <span className="text-foreground/80">
                 Human:{" "}
-                <span className="font-mono">{((1 - cnnScore!) * 100).toFixed(1)}%</span>
+                <span className="font-mono">{((1 - displayScore) * 100).toFixed(1)}%</span>
               </span>
+              {isReconSource && (
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  source: Deep Scan
+                </span>
+              )}
             </div>
           )}
 
@@ -220,14 +235,16 @@ export function VerdictPanel({
           {isMixedHuman && (
             <p className="mt-2 text-xs text-emerald-400/90">
               Primary engine flagged at {(cnnScore! * 100).toFixed(1)}%.
-              Secondary reconstruction analysis recovered the result as Human signal.
+              Secondary reconstruction analysis recovered the result as Human signal
+              ({((displayScore ?? cnnScore!) * 100).toFixed(1)}% AI signal).
               Expert review recommended.
             </p>
           )}
           {isMixedAi && (
             <p className="mt-2 text-xs text-amber-400/90">
               Primary engine flagged at {(cnnScore! * 100).toFixed(1)}%.
-              Secondary reconstruction analysis confirmed AI signal.
+              Secondary reconstruction analysis confirmed AI signal
+              ({((displayScore ?? cnnScore!) * 100).toFixed(1)}% AI signal).
               Expert review recommended.
             </p>
           )}

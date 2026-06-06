@@ -83,6 +83,10 @@ interface ExportData {
   isrc: string | null;
   verdict: VerdictResult | null;
   cnnScore: number | null;
+  /** Final AI probability (0-1). RECON-based in 50-80% Mixed range; equals cnnScore elsewhere. */
+  finalScore?: number | null;
+  /** "cnn" or "recon" — source of finalScore */
+  finalScoreSource?: string | null;
   reconMetrics: ReconMetricsData | null;
   timelineMarkers: { timestamp: number; type: string }[];
   analysisTimestamp: string;
@@ -129,6 +133,19 @@ function deriveTierCode(tier: VerdictTier): string {
     case "ai":          return "AI_OBSERVED";
     case "unknown":     return "PENDING";
   }
+}
+
+// Display score = finalScore when provided (RECON-based in 50-80% Mixed range),
+// else falls back to cnnScore (CNN-based outside Mixed range or pre-final_score backends).
+function getDisplayScore(data: ExportData): number | null {
+  return data.finalScore != null ? data.finalScore : data.cnnScore;
+}
+
+function getDisplayScoreSourceLabel(data: ExportData): string {
+  if (data.finalScore == null) return "Primary Engine";
+  return data.finalScoreSource === "recon"
+    ? "Deep Scan (Reconstruction Engine)"
+    : "Primary Engine";
 }
 
 // -----------------------------------------------------------------------
@@ -320,16 +337,30 @@ function generatePDFContent(data: ExportData): string {
     ${tierLabel}
   </div>
   <p class="desc">${description}</p>
-  ${data.cnnScore != null ? `
+  ${(() => {
+    const displayScore = getDisplayScore(data);
+    if (displayScore == null) return "";
+    const sourceLabel = getDisplayScoreSourceLabel(data);
+    const isRecon = data.finalScoreSource === "recon" && data.finalScore != null;
+    return `
     <table>
       <tr>
-        <th style="width: 200px;">Primary Engine Confidence (AI)</th>
-        <td class="small-mono">${(data.cnnScore * 100).toFixed(2)}%</td>
+        <th style="width: 200px;">Verification Confidence (AI)</th>
+        <td class="small-mono">${(displayScore * 100).toFixed(2)}%</td>
       </tr>
       <tr>
-        <th>Primary Engine Confidence (Human)</th>
-        <td class="small-mono">${((1 - data.cnnScore) * 100).toFixed(2)}%</td>
+        <th>Verification Confidence (Human)</th>
+        <td class="small-mono">${((1 - displayScore) * 100).toFixed(2)}%</td>
       </tr>
+      <tr>
+        <th>Score Source</th>
+        <td>${sourceLabel}</td>
+      </tr>
+      ${isRecon && data.cnnScore != null ? `
+      <tr>
+        <th>Primary Engine (CNN) Score</th>
+        <td class="small-mono">${(data.cnnScore * 100).toFixed(2)}% &mdash; flagged for Deep Scan</td>
+      </tr>` : ""}
       <tr>
         <th>Backend Verdict (Binary)</th>
         <td>${getVerdictText(data.verdict) || "Pending"}</td>
@@ -338,7 +369,8 @@ function generatePDFContent(data: ExportData): string {
         <th>Verdict Code</th>
         <td class="small-mono">${deriveTierCode(tier)}</td>
       </tr>
-    </table>` : ""}
+    </table>`;
+  })()}
 
   ${reconTable}
 
@@ -408,6 +440,9 @@ function generateJSON(data: ExportData): string {
       backendVerdict: getVerdictText(data.verdict),
       cnnConfidenceAi: data.cnnScore,
       cnnConfidenceHuman: data.cnnScore != null ? 1 - data.cnnScore : null,
+      finalConfidenceAi: getDisplayScore(data),
+      finalConfidenceHuman: getDisplayScore(data) != null ? 1 - (getDisplayScore(data) as number) : null,
+      finalScoreSource: data.finalScoreSource ?? (data.cnnScore != null ? "cnn" : null),
       exceededAxes: data.verdict?.exceeded_axes ?? [],
     },
     reconMetrics: reconRows.length > 0 ? {
@@ -468,6 +503,9 @@ function generateCSV(data: ExportData): string {
     "Backend Verdict",
     "CNN Confidence AI",
     "CNN Confidence Human",
+    "Final Confidence AI",
+    "Final Confidence Human",
+    "Final Score Source",
     "RECON AI Signal Count",
     "RECON Total Measured",
     ...reconRows.map((r) => `${r.label} (value)`),
@@ -497,6 +535,9 @@ function generateCSV(data: ExportData): string {
     escapeCSV(getVerdictText(data.verdict)),
     data.cnnScore != null ? data.cnnScore.toFixed(6) : "",
     data.cnnScore != null ? (1 - data.cnnScore).toFixed(6) : "",
+    getDisplayScore(data) != null ? (getDisplayScore(data) as number).toFixed(6) : "",
+    getDisplayScore(data) != null ? (1 - (getDisplayScore(data) as number)).toFixed(6) : "",
+    escapeCSV(data.finalScoreSource ?? (data.cnnScore != null ? "cnn" : "")),
     signals ? signals.count : "",
     signals ? signals.total : "",
     ...reconRows.map((r) => (r.value != null ? r.value : "")),
@@ -561,15 +602,21 @@ ${data.artist ? `| Artist | ${data.artist} |\n` : ""}${data.title ? `| Title | $
 ${description}
 `;
 
-  if (data.cnnScore != null) {
-    md += `
+  {
+    const displayScore = getDisplayScore(data);
+    if (displayScore != null) {
+      const sourceLabel = getDisplayScoreSourceLabel(data);
+      const isRecon = data.finalScoreSource === "recon" && data.finalScore != null;
+      md += `
 | Confidence Field | Value |
 |------------------|-------|
-| Primary Engine — AI confidence | \`${(data.cnnScore * 100).toFixed(2)}%\` |
-| Primary Engine — Human confidence | \`${((1 - data.cnnScore) * 100).toFixed(2)}%\` |
-| Backend Verdict (binary) | ${getVerdictText(data.verdict) || "Pending"} |
+| Verification Confidence — AI | \`${(displayScore * 100).toFixed(2)}%\` |
+| Verification Confidence — Human | \`${((1 - displayScore) * 100).toFixed(2)}%\` |
+| Score Source | ${sourceLabel} |
+${isRecon && data.cnnScore != null ? `| Primary Engine (CNN) Score | \`${(data.cnnScore * 100).toFixed(2)}%\` — flagged for Deep Scan |\n` : ""}| Backend Verdict (binary) | ${getVerdictText(data.verdict) || "Pending"} |
 | Verdict Code | \`${deriveTierCode(tier)}\` |
 `;
+    }
   }
 
   if (reconRows.length > 0) {

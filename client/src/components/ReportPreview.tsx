@@ -277,12 +277,12 @@ export function ReportPreview({
                     )}
                     {strengthSum.marginalAi > 0 && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-400 font-semibold">
-                        {strengthSum.marginalAi} Marginal AI
+                        {strengthSum.marginalAi} AI
                       </span>
                     )}
                     {strengthSum.marginalHuman > 0 && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 font-semibold">
-                        {strengthSum.marginalHuman} Marginal Human
+                        {strengthSum.marginalHuman} Human
                       </span>
                     )}
                     {strengthSum.strongHuman > 0 && (

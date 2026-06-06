@@ -201,12 +201,12 @@ function AxisRow({ axis, index, statusInfo, extraNote, strengthBadges }: AxisRow
           )}
           {strengthBadges.marginalAi > 0 && (
             <span className="text-[9px] px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-400 font-semibold">
-              {strengthBadges.marginalAi} Marginal AI
+              {strengthBadges.marginalAi} AI
             </span>
           )}
           {strengthBadges.marginalHuman > 0 && (
             <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 font-semibold">
-              {strengthBadges.marginalHuman} Marginal Human
+              {strengthBadges.marginalHuman} Human
             </span>
           )}
           {strengthBadges.strongHuman > 0 && (

@@ -592,7 +592,7 @@ function generateCSV(data: ExportData): string {
     ...reconRows.map((r) => `${r.label} (AI-consistent)`),
     ...reconRows.map((r) => `${r.label} (margin %)`),
     ...reconRows.map((r) => `${r.label} (strength)`),
-    "Strength Summary (Strong AI / Marginal AI / Marginal Human / Strong Human)",
+    "Strength Summary (Strong AI / AI / Human / Strong Human)",
     "Detection Mode",
     "Engine Version",
     "Report Version",

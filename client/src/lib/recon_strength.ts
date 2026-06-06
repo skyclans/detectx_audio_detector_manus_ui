@@ -58,11 +58,21 @@ export function computeMetricStrength(
   return { margin, strength };
 }
 
+/**
+ * Display label for a strength bucket.
+ *
+ * Naming policy (2026-06-07): "Marginal" prefix removed.
+ * "Marginal AI" implied uncertainty even for clear AI-side signals
+ * (e.g. Suno 100% AI track with +25% margins). The bucket already
+ * carries the magnitude qualifier ("Strong" for >=30% margin); the
+ * weaker bucket is simply "AI" or "Human" — direction without
+ * connotation of weakness.
+ */
 export function strengthLabel(s: Strength): string {
   switch (s) {
     case "strong-ai":       return "Strong AI";
-    case "marginal-ai":     return "Marginal AI";
-    case "marginal-human":  return "Marginal Human";
+    case "marginal-ai":     return "AI";
+    case "marginal-human":  return "Human";
     case "strong-human":    return "Strong Human";
   }
 }
@@ -126,8 +136,8 @@ export function summarizeStrengths(strengths: Strength[]): StrengthSummary {
 export function formatStrengthSummary(s: StrengthSummary): string {
   const parts: string[] = [];
   if (s.strongAi)       parts.push(`${s.strongAi} Strong AI`);
-  if (s.marginalAi)     parts.push(`${s.marginalAi} Marginal AI`);
-  if (s.marginalHuman)  parts.push(`${s.marginalHuman} Marginal Human`);
+  if (s.marginalAi)     parts.push(`${s.marginalAi} AI`);
+  if (s.marginalHuman)  parts.push(`${s.marginalHuman} Human`);
   if (s.strongHuman)    parts.push(`${s.strongHuman} Strong Human`);
   return parts.join(" / ");
 }

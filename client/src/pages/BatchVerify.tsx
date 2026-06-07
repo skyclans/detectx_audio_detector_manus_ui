@@ -28,13 +28,11 @@ import {
 import { cn, toLocalTimestamp } from "@/lib/utils";
 import JSZip from "jszip";
 import {
-  computeMetricStrength,
-  summarizeStrengths,
   formatStrengthSummary,
   strengthLabel,
-  formatMarginPct,
   type Strength,
-  type Direction,
+  type ReconMetricEnriched,
+  type StrengthSummary,
 } from "@/lib/recon_strength";
 
 const DETECTX_API_URL = (import.meta.env.VITE_DETECTX_API_URL
@@ -42,15 +40,10 @@ const DETECTX_API_URL = (import.meta.env.VITE_DETECTX_API_URL
 
 type FileStatus = "waiting" | "processing" | "done" | "skipped" | "error";
 
+/** Lightweight RECON aggregate kept just for the count chip + v2 confidence. */
 interface ReconMetricsLite {
   ai_signals?: number | null;
-  band_bass_diff?: number | null;
-  band_low_mid_diff?: number | null;
-  l1_diff?: number | null;
-  snr?: number | null;
-  energy_ratio?: number | null;
-  phase_coherence?: number | null;
-  band_high_ratio?: number | null;
+  v2_confidence?: number | null;
 }
 
 interface BatchFileItem {
@@ -65,31 +58,26 @@ interface BatchFileItem {
   cnnScore?: number | null;
   finalScore?: number | null;
   finalScoreSource?: string | null;
+  /** Server-computed tier label (human | mixed-human | mixed-ai | ai). */
+  tier?: string | null;
   reconMetrics?: ReconMetricsLite | null;
+  reconMetricsEnriched?: ReconMetricEnriched[] | null;
+  strengthSummary?: StrengthSummary | null;
   errorMessage?: string;
   uploadProgress?: number;
   recordId?: string;
 }
 
-// RECON V1 thresholds — mirror server crg_runner.RECON_DECISION_TABLE
-const V1_THRESHOLDS: Array<{ key: keyof ReconMetricsLite; label: string; threshold: number; direction: Direction; format: (v: number) => string }> = [
-  { key: "band_bass_diff",    label: "Bass Diff",       threshold: 0.3991, direction: "<",  format: (v) => v.toFixed(4) },
-  { key: "band_low_mid_diff", label: "Low-Mid Diff",    threshold: 0.2967, direction: "<",  format: (v) => v.toFixed(4) },
-  { key: "l1_diff",           label: "L1 Diff",         threshold: 0.0029, direction: "<",  format: (v) => v.toFixed(6) },
-  { key: "snr",               label: "SNR (dB)",        threshold: 30.84,  direction: ">=", format: (v) => v.toFixed(2) },
-  { key: "energy_ratio",      label: "Energy Ratio",    threshold: 0.9690, direction: ">=", format: (v) => v.toFixed(4) },
-  { key: "phase_coherence",   label: "Phase Coherence", threshold: 0.7231, direction: ">=", format: (v) => v.toFixed(4) },
-  { key: "band_high_ratio",   label: "High Ratio",      threshold: 0.9471, direction: ">=", format: (v) => v.toFixed(4) },
-];
-
 type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
 
-function deriveTier(cnnScore: number | null | undefined, backendVerdict: string | null | undefined): VerdictTier {
-  if (backendVerdict == null) return "unknown";
-  if (cnnScore == null) return backendVerdict.includes("was observed") ? "ai" : "human";
-  if (cnnScore < 0.5) return "human";
-  if (cnnScore < 0.8) return backendVerdict.includes("was observed") ? "mixed-ai" : "mixed-human";
-  return "ai";
+function deriveTier(item: BatchFileItem): VerdictTier {
+  // Tier is server-authoritative. The bundle never compares cnn_score
+  // against the band boundary values.
+  const t = item.tier;
+  if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai") return t;
+  const v = item.verdict;
+  if (!v) return "unknown";
+  return v.includes("was observed") ? "ai" : "human";
 }
 
 function tierLabel(tier: VerdictTier): string {
@@ -112,17 +100,8 @@ function tierCode(tier: VerdictTier): string {
   }
 }
 
-function computeFileStrengths(metrics: ReconMetricsLite | null | undefined) {
-  if (!metrics) return null;
-  const strengths: Strength[] = [];
-  V1_THRESHOLDS.forEach(({ key, threshold, direction }) => {
-    const raw = metrics[key];
-    if (typeof raw === "number") {
-      strengths.push(computeMetricStrength(raw, threshold, direction).strength);
-    }
-  });
-  if (strengths.length === 0) return null;
-  return summarizeStrengths(strengths);
+function computeFileStrengths(item: BatchFileItem): StrengthSummary | null {
+  return item.strengthSummary ?? null;
 }
 
 function displayScoreOf(item: BatchFileItem): number | null {
@@ -173,7 +152,7 @@ function StatusBadge({ status, errorMessage }: { status: FileStatus; errorMessag
 
 function VerdictBadge({ item }: { item: BatchFileItem }) {
   if (!item.verdict) return <span className="text-xs text-muted-foreground">—</span>;
-  const tier = deriveTier(item.cnnScore, item.verdict);
+  const tier = deriveTier(item);
   const score = displayScoreOf(item);
   const pct = score != null ? `${(score * 100).toFixed(1)}%` : null;
   const config: Record<VerdictTier, { label: string; cls: string; sub?: string }> = {
@@ -490,7 +469,7 @@ export default function BatchVerify() {
   const tierCounts = files.reduce(
     (acc, f) => {
       if (f.status !== "done") return acc;
-      const tier = deriveTier(f.cnnScore, f.verdict);
+      const tier = deriveTier(f);
       if (tier in acc) acc[tier]++;
       return acc;
     },
@@ -526,8 +505,8 @@ export default function BatchVerify() {
       "Detection Mode", "Engine Version", "Analysis Timestamp",
     ];
     const rows = done.map((f, i) => {
-      const tier = deriveTier(f.cnnScore, f.verdict);
-      const sum = computeFileStrengths(f.reconMetrics);
+      const tier = deriveTier(f);
+      const sum = computeFileStrengths(f);
       const strengthSummary = sum ? formatStrengthSummary(sum) : "";
       return [
         i + 1,
@@ -543,10 +522,10 @@ export default function BatchVerify() {
         f.finalScore != null ? f.finalScore.toFixed(6) : "",
         escapeCSV(f.finalScoreSource ?? ""),
         f.reconMetrics?.ai_signals ?? "",
-        sum?.strongAi ?? "",
-        sum?.marginalAi ?? "",
-        sum?.marginalHuman ?? "",
-        sum?.strongHuman ?? "",
+        sum?.strong_ai ?? "",
+        sum?.ai ?? "",
+        sum?.human ?? "",
+        sum?.strong_human ?? "",
         escapeCSV(strengthSummary),
         "Enhanced Mode",
         "v3",
@@ -579,27 +558,19 @@ export default function BatchVerify() {
         },
       },
       results: done.map((f, i) => {
-        const tier = deriveTier(f.cnnScore, f.verdict);
-        const sum = computeFileStrengths(f.reconMetrics);
+        const tier = deriveTier(f);
+        const sum = computeFileStrengths(f);
         const displayScore = displayScoreOf(f);
-        const reconRows = f.reconMetrics
-          ? V1_THRESHOLDS.map(({ key, label, threshold, direction, format }) => {
-              const raw = (f.reconMetrics as Record<string, unknown>)[key];
-              const value = typeof raw === "number" ? raw : null;
-              if (value == null) return { metric: label, value: null };
-              const { margin, strength } = computeMetricStrength(value, threshold, direction);
-              return {
-                metric: label,
-                value,
-                formatted: format(value),
-                threshold,
-                direction,
-                exceededAi: direction === "<" ? value < threshold : value >= threshold,
-                marginPercent: margin * 100,
-                strength,
-                strengthLabel: strengthLabel(strength),
-              };
-            })
+        const reconRows = (f.reconMetricsEnriched && f.reconMetricsEnriched.length > 0)
+          ? f.reconMetricsEnriched.map((r) => ({
+              metric: r.label,
+              value: r.value ?? null,
+              formatted: r.formatted,
+              exceededAi: r.exceeded_ai ?? null,
+              marginPercent: r.margin != null ? r.margin * 100 : null,
+              strength: r.strength ?? null,
+              strengthLabel: r.strength ? strengthLabel(r.strength as Strength) : null,
+            }))
           : null;
         return {
           index: i + 1,
@@ -625,10 +596,10 @@ export default function BatchVerify() {
                 aiSignals: f.reconMetrics.ai_signals ?? null,
                 strengthSummary: sum
                   ? {
-                      strongAi: sum.strongAi,
-                      ai: sum.marginalAi,
-                      human: sum.marginalHuman,
-                      strongHuman: sum.strongHuman,
+                      strongAi: sum.strong_ai,
+                      ai: sum.ai,
+                      human: sum.human,
+                      strongHuman: sum.strong_human,
                       text: formatStrengthSummary(sum),
                     }
                   : null,
@@ -666,12 +637,12 @@ export default function BatchVerify() {
     md += `| # | Filename | Format | Size | Duration | Tier | AI % | Score Source | RECON Strength |\n`;
     md += `|---|----------|--------|------|----------|------|------|--------------|----------------|\n`;
     done.forEach((f, i) => {
-      const tier = deriveTier(f.cnnScore, f.verdict);
+      const tier = deriveTier(f);
       const dur = f.duration ? `${Math.floor(f.duration / 60)}:${String(Math.floor(f.duration % 60)).padStart(2, "0")}` : "—";
       const score = displayScoreOf(f);
       const pct = score != null ? `${(score * 100).toFixed(1)}%` : "—";
       const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "CNN" : "—");
-      const sum = computeFileStrengths(f.reconMetrics);
+      const sum = computeFileStrengths(f);
       const strength = sum ? formatStrengthSummary(sum) : "—";
       md += `| ${i + 1} | ${f.name} | ${f.format} | ${formatFileSize(f.size)} | ${dur} | **${tierLabel(tier)}** | \`${pct}\` | ${source} | ${strength} |\n`;
     });
@@ -700,12 +671,12 @@ export default function BatchVerify() {
     };
     const rows = done
       .map((f, i) => {
-        const tier = deriveTier(f.cnnScore, f.verdict);
+        const tier = deriveTier(f);
         const dur = f.duration ? `${Math.floor(f.duration / 60)}:${String(Math.floor(f.duration % 60)).padStart(2, "0")}` : "—";
         const score = displayScoreOf(f);
         const pct = score != null ? `${(score * 100).toFixed(1)}%` : "—";
         const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "CNN" : "—");
-        const sum = computeFileStrengths(f.reconMetrics);
+        const sum = computeFileStrengths(f);
         const strength = sum ? formatStrengthSummary(sum) : "—";
         return `<tr>
           <td>${i + 1}</td>

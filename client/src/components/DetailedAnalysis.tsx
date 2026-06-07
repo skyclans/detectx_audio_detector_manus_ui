@@ -27,21 +27,11 @@ interface DetailedAnalysisProps {
   isProcessing?: boolean;
 }
 
-// Display labels for axis IDs - DISPLAY ONLY, internal IDs unchanged
-const AXIS_DISPLAY_LABELS: Record<string, string> = {
-  "G1-A": "Temporal Pattern Analysis",
-  "G1-B": "Signal Persistence Analysis",
-  "G2-A": "Inter-track Correlation",
-  "G2-B": "Spectral Balance Analysis",
-  "G3-A": "Band Distribution Analysis",
-  "G3-B": "Cross-track Spectral Pattern",
-  "G3_A_BAND_GEOMETRY": "Band Distribution Analysis",
-  "G3_B_CROSS_STEM_BAND_GEOMETRY": "Cross-track Spectral Pattern",
-  "G1_B_RPL": "Signal Persistence Analysis",
-};
-
-function getAxisDisplayLabel(axisId: string): string {
-  return AXIS_DISPLAY_LABELS[axisId] || axisId;
+// Axis display labels are served by the backend (axis.name). When the
+// backend does not send a name we fall back to a generic label that
+// does not reveal the internal axis identifier.
+function getAxisDisplayLabel(_axisId: string): string {
+  return "Structural Axis";
 }
 
 // Dynamic axis card that displays any axis from server

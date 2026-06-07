@@ -9,13 +9,7 @@
 import { useState } from "react";
 import { Hexagon, ChevronDown, ChevronUp, CheckCircle2, XCircle, Activity, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  computeMetricStrength,
-  summarizeStrengths,
-  formatStrengthSummary,
-  type Strength,
-  type Direction,
-} from "@/lib/recon_strength";
+import { formatStrengthSummary, type StrengthSummary } from "@/lib/recon_strength";
 
 interface AxisMetric {
   name: string;
@@ -32,41 +26,22 @@ interface GeometryScanTraceData {
   axes: GeometryTraceAxis[];
 }
 
-interface ReconMetricsLite {
-  ai_signals?: number | null;
-  band_bass_diff?: number | null;
-  band_low_mid_diff?: number | null;
-  l1_diff?: number | null;
-  snr?: number | null;
-  energy_ratio?: number | null;
-  phase_coherence?: number | null;
-  band_high_ratio?: number | null;
-}
-
 interface GeometryScanTraceProps {
   data: GeometryScanTraceData | null;
   isProcessing?: boolean;
-  /** CNN score (0-1) for tier band derivation on "DetectX Engine" axis */
-  cnnScore?: number | null;
-  /** Final score (0-1) for narrative on "Reconstruction" axis */
-  finalScore?: number | null;
-  /** "cnn" or "recon" */
+  /** Server-computed tier label, drives the "Primary Engine" axis status. */
+  tier?: string | null;
+  /** "cnn" or "recon" — used to mark whether Deep Scan was invoked. */
   finalScoreSource?: string | null;
-  /** Backend binary verdict for verdict-aware status */
+  /** Backend binary verdict — used for the Reconstruction-axis status. */
   backendVerdict?: string | null;
-  /** RECON metrics for strength distribution on "Reconstruction" axis */
-  reconMetrics?: ReconMetricsLite | null;
+  /** Server-computed strength distribution for the Reconstruction axis. */
+  strengthSummary?: StrengthSummary | null;
+  /** Total signal count rendered in the inline note. */
+  aiSignals?: number | null;
+  /** Final score (0..1) used in the Reconstruction note when Deep Scan ran. */
+  finalScore?: number | null;
 }
-
-const V1_THRESHOLDS: Array<{ key: keyof ReconMetricsLite; threshold: number; direction: Direction }> = [
-  { key: "band_bass_diff",    threshold: 0.3991, direction: "<"  },
-  { key: "band_low_mid_diff", threshold: 0.2967, direction: "<"  },
-  { key: "l1_diff",           threshold: 0.0029, direction: "<"  },
-  { key: "snr",               threshold: 30.84,  direction: ">=" },
-  { key: "energy_ratio",      threshold: 0.9690, direction: ">=" },
-  { key: "phase_coherence",   threshold: 0.7231, direction: ">=" },
-  { key: "band_high_ratio",   threshold: 0.9471, direction: ">=" },
-];
 
 type AxisStatus = "ai-confirmed" | "deep-scan" | "human-recovered" | "human" | "exceeded" | "pass";
 
@@ -77,54 +52,44 @@ interface AxisStatusInfo {
   note?: string;
 }
 
-function computeReconStrengthSummary(metrics: ReconMetricsLite | null | undefined) {
-  if (!metrics) return null;
-  const strengths: Strength[] = [];
-  V1_THRESHOLDS.forEach(({ key, threshold, direction }) => {
-    const raw = metrics[key];
-    if (typeof raw === "number") {
-      strengths.push(computeMetricStrength(raw, threshold, direction).strength);
-    }
-  });
-  if (strengths.length === 0) return null;
-  return summarizeStrengths(strengths);
-}
-
-function deriveDetectXEngineStatus(cnnScore: number | null | undefined): AxisStatusInfo {
-  if (cnnScore == null) return { status: "pass", label: "PENDING" };
-  if (cnnScore < 0.5) {
-    return { status: "human", label: "BELOW 50% • HUMAN", note: "CNN score below intermediate band — no Deep Scan needed." };
+function derivePrimaryEngineStatus(tier: string | null | undefined): AxisStatusInfo {
+  switch (tier) {
+    case "human":
+      return { status: "human", label: "BELOW BAND • HUMAN", note: "Primary engine confidence below the intermediate band — no Deep Scan invoked." };
+    case "mixed-human":
+    case "mixed-ai":
+      return { status: "deep-scan", label: "INTERMEDIATE • DEEP SCAN", note: "Primary engine confidence within the intermediate decision band — Reconstruction Engine invoked for final adjudication." };
+    case "ai":
+      return { status: "ai-confirmed", label: "ABOVE BAND • AI CONFIRMED", note: "Primary engine confidence at or above the upper decision band — no Deep Scan required." };
+    default:
+      return { status: "pass", label: "PENDING" };
   }
-  if (cnnScore < 0.8) {
-    return { status: "deep-scan", label: "MIXED 50-80% • DEEP SCAN", note: "CNN score within intermediate decision range — Reconstruction Engine invoked for final adjudication." };
-  }
-  return { status: "ai-confirmed", label: "≥80% • AI CONFIRMED", note: "CNN score at or above upper decision threshold — no Deep Scan required." };
 }
 
 function deriveReconstructionStatus(
   backendVerdict: string | null | undefined,
-  cnnScore: number | null | undefined,
+  tier: string | null | undefined,
 ): AxisStatusInfo {
   if (backendVerdict == null) return { status: "pass", label: "PENDING" };
-  const inMixed = cnnScore != null && cnnScore >= 0.5 && cnnScore < 0.8;
+  const inMixed = tier === "mixed-ai" || tier === "mixed-human";
   if (!inMixed) {
     return {
       status: "pass",
       label: "NOT INVOKED",
-      note: "CNN reached a confident verdict on its own — Deep Scan not required.",
+      note: "Primary engine reached a confident verdict on its own — Deep Scan not required.",
     };
   }
   if (backendVerdict === "AI signal evidence was observed.") {
     return {
       status: "ai-confirmed",
       label: "AI CONFIRMED BY DEEP SCAN",
-      note: "Reconstruction Engine confirmed the intermediate-range CNN signal as AI.",
+      note: "Reconstruction Engine confirmed the intermediate-range primary signal as AI.",
     };
   }
   return {
     status: "human-recovered",
     label: "RECOVERED TO HUMAN",
-    note: "Reconstruction Engine recovered the intermediate-range CNN signal as Human.",
+    note: "Reconstruction Engine recovered the intermediate-range primary signal as Human.",
   };
 }
 
@@ -142,7 +107,7 @@ interface AxisRowProps {
   index: number;
   statusInfo: AxisStatusInfo;
   extraNote?: string | null;
-  strengthBadges?: { strongAi: number; marginalAi: number; marginalHuman: number; strongHuman: number } | null;
+  strengthBadges?: StrengthSummary | null;
 }
 
 function AxisRow({ axis, index, statusInfo, extraNote, strengthBadges }: AxisRowProps) {
@@ -194,24 +159,24 @@ function AxisRow({ axis, index, statusInfo, extraNote, strengthBadges }: AxisRow
       {/* Strength distribution badges (only when present) */}
       {strengthBadges && (
         <div className="px-4 pb-2 flex flex-wrap gap-1">
-          {strengthBadges.strongAi > 0 && (
+          {strengthBadges.strong_ai > 0 && (
             <span className="text-[9px] px-1.5 py-0.5 rounded border border-red-500/40 bg-red-500/15 text-red-400 font-semibold">
-              {strengthBadges.strongAi} Strong AI
+              {strengthBadges.strong_ai} Strong AI
             </span>
           )}
-          {strengthBadges.marginalAi > 0 && (
+          {strengthBadges.ai > 0 && (
             <span className="text-[9px] px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-400 font-semibold">
-              {strengthBadges.marginalAi} AI
+              {strengthBadges.ai} AI
             </span>
           )}
-          {strengthBadges.marginalHuman > 0 && (
+          {strengthBadges.human > 0 && (
             <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 font-semibold">
-              {strengthBadges.marginalHuman} Human
+              {strengthBadges.human} Human
             </span>
           )}
-          {strengthBadges.strongHuman > 0 && (
+          {strengthBadges.strong_human > 0 && (
             <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-700/40 bg-emerald-700/15 text-emerald-500 font-semibold">
-              {strengthBadges.strongHuman} Strong Human
+              {strengthBadges.strong_human} Strong Human
             </span>
           )}
         </div>
@@ -242,11 +207,12 @@ function AxisRow({ axis, index, statusInfo, extraNote, strengthBadges }: AxisRow
 export function GeometryScanTrace({
   data,
   isProcessing = false,
-  cnnScore = null,
+  tier: serverTier = null,
   finalScore = null,
   finalScoreSource = null,
   backendVerdict = null,
-  reconMetrics = null,
+  strengthSummary = null,
+  aiSignals = null,
 }: GeometryScanTraceProps) {
   // During Verification state
   if (isProcessing) {
@@ -352,33 +318,31 @@ export function GeometryScanTrace({
     );
   }
 
-  // Compute per-axis status using contextual props (CNN tier band, backend verdict, RECON strength)
-  const reconStrengthSum = computeReconStrengthSummary(reconMetrics);
+  // Compute per-axis status using server-supplied tier + strength summary.
   const axisEntries = data.axes.map((axis) => {
     const axisLower = axis.axis.toLowerCase();
     let statusInfo: AxisStatusInfo;
     let extraNote: string | null = null;
-    let strengthBadges = null;
+    let strengthBadges: StrengthSummary | null = null;
 
-    if (axisLower.includes("detectx") || axisLower.includes("cnn") || axisLower.includes("engine")) {
-      statusInfo = deriveDetectXEngineStatus(cnnScore);
+    if (axisLower.includes("detectx") || axisLower.includes("cnn") || axisLower.includes("engine") || axisLower.includes("primary")) {
+      statusInfo = derivePrimaryEngineStatus(serverTier);
     } else if (axisLower.includes("recon") || axisLower.includes("reconstruction")) {
-      statusInfo = deriveReconstructionStatus(backendVerdict, cnnScore);
-      strengthBadges = reconStrengthSum && (reconStrengthSum.strongAi + reconStrengthSum.marginalAi + reconStrengthSum.marginalHuman + reconStrengthSum.strongHuman > 0)
-        ? reconStrengthSum
+      statusInfo = deriveReconstructionStatus(backendVerdict, serverTier);
+      strengthBadges = strengthSummary && (strengthSummary.strong_ai + strengthSummary.ai + strengthSummary.human + strengthSummary.strong_human > 0)
+        ? strengthSummary
         : null;
-      if (reconStrengthSum) {
-        const inMixed = cnnScore != null && cnnScore >= 0.5 && cnnScore < 0.8;
-        const summary = formatStrengthSummary(reconStrengthSum);
+      if (strengthSummary) {
+        const inMixed = serverTier === "mixed-ai" || serverTier === "mixed-human";
+        const summary = formatStrengthSummary(strengthSummary);
         const finalNote = finalScore != null && finalScoreSource === "recon"
-          ? ` Final RECON score: ${(finalScore * 100).toFixed(1)}% AI / ${((1 - finalScore) * 100).toFixed(1)}% Human.`
+          ? ` Final secondary-engine score: ${(finalScore * 100).toFixed(1)}% AI / ${((1 - finalScore) * 100).toFixed(1)}% Human.`
           : "";
         if (inMixed) {
-          extraNote = `${summary}. The continuous classifier weighs each metric by how far it sits from its threshold, not by a binary yes/no — that is why a "${reconMetrics?.ai_signals ?? "X"}/7" count of crossings can still yield a Human-leaning verdict when most crossings are marginal.${finalNote}`;
+          extraNote = `${summary}. The continuous classifier weighs each metric by how far it sits from its decision line, not by a binary yes/no — that is why a "${aiSignals ?? "X"}/7" count of crossings can still yield a Human-leaning verdict when most crossings are marginal.${finalNote}`;
         }
       }
     } else {
-      // Fallback: use legacy exceeded/pass
       statusInfo = axis.exceeded
         ? { status: "exceeded", label: "EXCEEDED" }
         : { status: "pass", label: "PASS" };

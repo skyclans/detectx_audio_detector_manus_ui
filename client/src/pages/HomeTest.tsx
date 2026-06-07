@@ -24,6 +24,7 @@ import { useLocation } from "wouter";
 import { AudioRuntime } from "@/lib/audioRuntime";
 import { startDualTimeLoop } from "@/lib/timeLoop";
 import type { DetectXVerdictText, DetectXVerificationResult } from "@shared/detectx-verification";
+import type { ReconMetricEnriched, StrengthSummary } from "@/lib/recon_strength";
 
 /**
  * ANONYMOUS STATELESS VERIFICATION FLOW
@@ -116,10 +117,13 @@ interface VerdictResult {
   primaryExceededAxis?: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
   detailedAnalysis?: DetailedAnalysisData | null;
-  reconMetrics?: ReconMetrics | null;  // V3 RECON metrics
-  cnnScore?: number | null;  // CNN confidence score (0.0-1.0) for display
-  finalScore?: number | null;  // Final AI probability; RECON-based in 50-80% Mixed range
-  finalScoreSource?: string | null;  // "cnn" or "recon"
+  reconMetrics?: ReconMetrics | null;
+  reconMetricsEnriched?: ReconMetricEnriched[] | null;
+  strengthSummary?: StrengthSummary | null;
+  cnnScore?: number | null;
+  finalScore?: number | null;
+  finalScoreSource?: string | null;
+  tier?: string | null;
 }
 
 // Scan sequence stages for Enhanced Mode (DetectX Engine v3 + Reconstruction Engine)
@@ -706,10 +710,13 @@ export default function HomeTest() {
         primaryExceededAxis: result.primaryExceededAxis || result.primary_exceeded_axis,
         timelineMarkers: result.timelineMarkers || result.timeline_markers || [],
         detailedAnalysis: result.detailedAnalysis || result.detailed_analysis || null,
-        reconMetrics: result.recon_metrics || result.reconMetrics || null,  // V3 RECON metrics
+        reconMetrics: result.recon_metrics || result.reconMetrics || null,
+        reconMetricsEnriched: result.recon_metrics_enriched ?? result.reconMetricsEnriched ?? null,
+        strengthSummary: result.strength_summary ?? result.strengthSummary ?? null,
         cnnScore: result.cnn_score ?? result.cnnScore ?? null,  // CNN confidence (0.0-1.0)
         finalScore: result.final_score ?? result.finalScore ?? null,
         finalScoreSource: result.final_score_source ?? result.finalScoreSource ?? null,
+        tier: result.tier ?? null,
       });
       
       setScanComplete(true);
@@ -810,6 +817,7 @@ export default function HomeTest() {
             cnnScore={verificationResult?.cnnScore ?? null}
             finalScore={verificationResult?.finalScore ?? null}
             finalScoreSource={verificationResult?.finalScoreSource ?? null}
+            tier={verificationResult?.tier ?? null}
             isProcessing={isVerifying}
             progress={Math.round((scanLogs.length / 17) * 100)}
           />
@@ -900,7 +908,10 @@ export default function HomeTest() {
           />
           {/* RECON V3 Metrics Display */}
           <ReconV3Display
-            metrics={verificationResult?.reconMetrics || null}
+            enriched={verificationResult?.reconMetricsEnriched || null}
+            summary={verificationResult?.strengthSummary || null}
+            v2Confidence={verificationResult?.reconMetrics?.v2_confidence ?? null}
+            aiSignals={verificationResult?.reconMetrics?.ai_signals ?? null}
             isProcessing={isVerifying}
           />
         </div>
@@ -940,11 +951,12 @@ export default function HomeTest() {
             })),
           } : null}
           isProcessing={isVerifying}
-          cnnScore={verificationResult?.cnnScore ?? null}
+          tier={verificationResult?.tier ?? null}
           finalScore={verificationResult?.finalScore ?? null}
           finalScoreSource={verificationResult?.finalScoreSource ?? null}
           backendVerdict={verificationResult?.verdict?.verdict ?? null}
-          reconMetrics={verificationResult?.reconMetrics ?? null}
+          strengthSummary={verificationResult?.strengthSummary ?? null}
+          aiSignals={verificationResult?.reconMetrics?.ai_signals ?? null}
         />
       </div>
 
@@ -969,6 +981,9 @@ export default function HomeTest() {
             finalScore: verificationResult?.finalScore ?? null,
             finalScoreSource: verificationResult?.finalScoreSource ?? null,
             reconMetrics: verificationResult?.reconMetrics ?? null,
+            reconMetricsEnriched: verificationResult?.reconMetricsEnriched ?? null,
+            strengthSummary: verificationResult?.strengthSummary ?? null,
+            tier: verificationResult?.tier ?? null,
             timelineMarkers: verificationResult?.timelineMarkers || [],
             analysisTimestamp: toLocalTimestamp(),
           }}
@@ -983,7 +998,9 @@ export default function HomeTest() {
           cnnScore={verificationResult?.cnnScore ?? null}
           finalScore={verificationResult?.finalScore ?? null}
           finalScoreSource={verificationResult?.finalScoreSource ?? null}
-          reconMetrics={verificationResult?.reconMetrics ?? null}
+          tier={verificationResult?.tier ?? null}
+          strengthSummary={verificationResult?.strengthSummary ?? null}
+          aiSignals={verificationResult?.reconMetrics?.ai_signals ?? null}
         />
       </div>
     </ForensicLayout>

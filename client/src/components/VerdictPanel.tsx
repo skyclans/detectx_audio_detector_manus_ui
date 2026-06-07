@@ -41,13 +41,16 @@ interface DetectXVerificationResult {
 interface VerdictPanelProps {
   /** DetectX verification result - render verbatim */
   verdict: DetectXVerificationResult | null;
-  /** CNN confidence score (0.0-1.0) - drives 4-tier label boundary */
+  /** Primary engine confidence score (0.0-1.0). Display only. */
   cnnScore?: number | null;
-  /** Final score (0.0-1.0). In 50-80% Mixed range, sourced from RECON Deep Scan;
-   *  outside that range equals cnnScore. UI percentages use this when present. */
+  /** Final score (0.0-1.0). Sourced from the secondary engine when
+   *  it has been invoked; otherwise equals the primary engine score. */
   finalScore?: number | null;
   /** "cnn" or "recon" — source of finalScore */
   finalScoreSource?: string | null;
+  /** Server-computed tier label.
+   *  One of: "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown" */
+  tier?: string | null;
   /** Whether verification is in progress */
   isProcessing?: boolean;
   /** Scan progress 0-100 */
@@ -55,56 +58,38 @@ interface VerdictPanelProps {
 }
 
 /**
- * Derive 4-tier display label from CNN score + Backend verdict.
- *
- * 4-tier semantics (CNN score + Backend binary verdict):
- *   < 50%                              → "AI Signal Not Observed"
- *   50-80% + verdict "not observed"    → "AI Signal Not Observed — Recovered by Deep Scan Analysis"
- *   50-80% + verdict "observed"        → "AI Signal Observed — Confirmed by Deep Scan Analysis"
- *   >= 80%                             → "AI Signal Observed"
- *
- * Backend verdict text remains binary and authoritative; the 4-tier label
- * is a DISPLAY-ONLY enrichment that surfaces Deep Scan recovery / confirmation.
- */
-function getDisplayLabel(
-  cnnScore: number | null | undefined,
-  backendVerdict: string,
-): string {
-  if (cnnScore == null) return backendVerdict;
-  if (cnnScore < 0.5) return "AI Signal Not Observed";
-  if (cnnScore < 0.8) {
-    const isObserved = backendVerdict === "AI signal evidence was observed.";
-    return isObserved
-      ? "AI Signal Observed — Confirmed by Deep Scan Analysis"
-      : "AI Signal Not Observed — Recovered by Deep Scan Analysis";
-  }
-  return "AI Signal Observed";
-}
-
-/**
- * Derive tier bucket for visual styling.
- *   "human"          — CNN <50%
- *   "mixed-human"    — CNN 50-80% + backend "not observed" (RECON recovered)
- *   "mixed-ai"       — CNN 50-80% + backend "observed"     (RECON confirmed)
- *   "ai"             — CNN >=80%
- *   "unknown"        — CNN score missing
+ * 4-tier display label keyed off the server-computed tier. The bundle
+ * never compares scores against the band boundaries; the server is the
+ * authority on tier classification.
  */
 type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
 
-function getVerdictTier(
-  cnnScore: number | null | undefined,
-  backendVerdict: string,
-): VerdictTier {
-  if (cnnScore == null) {
-    return backendVerdict === "AI signal evidence was observed." ? "ai" : "human";
+function getDisplayLabelFromTier(tier: VerdictTier, backendVerdict: string): string {
+  switch (tier) {
+    case "human":
+      return "AI Signal Not Observed";
+    case "mixed-human":
+      return "AI Signal Not Observed — Recovered by Deep Scan Analysis";
+    case "mixed-ai":
+      return "AI Signal Observed — Confirmed by Deep Scan Analysis";
+    case "ai":
+      return "AI Signal Observed";
+    case "unknown":
+    default:
+      return backendVerdict || "Pending";
   }
-  if (cnnScore < 0.5) return "human";
-  if (cnnScore < 0.8) {
-    return backendVerdict === "AI signal evidence was observed."
-      ? "mixed-ai"
-      : "mixed-human";
+}
+
+function normalizeTier(tier: string | null | undefined): VerdictTier {
+  switch (tier) {
+    case "human":
+    case "mixed-human":
+    case "mixed-ai":
+    case "ai":
+      return tier;
+    default:
+      return "unknown";
   }
-  return "ai";
 }
 
 /**
@@ -118,6 +103,7 @@ export function VerdictPanel({
   cnnScore = null,
   finalScore = null,
   finalScoreSource = null,
+  tier: serverTier = null,
   isProcessing = false,
   progress = 0,
 }: VerdictPanelProps) {
@@ -173,11 +159,12 @@ export function VerdictPanel({
     );
   }
 
-  // DISPLAY layer: 4-tier label combining CNN score + Backend verdict.
-  // Backend verdict text remains binary and authoritative; the 4-tier label
-  // is a display-only enrichment that surfaces Deep Scan recovery / confirmation.
-  const displayLabel = getDisplayLabel(cnnScore, verdict.verdict);
-  const tier = getVerdictTier(cnnScore, verdict.verdict);
+  // 4-tier label is driven by the server-computed tier (no client-side
+  // threshold comparison). Backend verdict text remains binary and
+  // authoritative; the tier label is a display-only enrichment that
+  // surfaces Deep Scan recovery / confirmation.
+  const tier = normalizeTier(serverTier);
+  const displayLabel = getDisplayLabelFromTier(tier, verdict.verdict);
 
   const isMixedHuman = tier === "mixed-human";
   const isMixedAi = tier === "mixed-ai";

@@ -22,52 +22,25 @@ import { Button } from "@/components/ui/button";
 import { FileJson, FileSpreadsheet, FileText, FileType, Download } from "lucide-react";
 import JSZip from "jszip";
 import {
-  computeMetricStrength,
   formatMarginPct,
-  marginToBarPosition,
   strengthLabel,
   strengthColor,
-  summarizeStrengths,
   formatStrengthSummary,
   type Strength,
+  type ReconMetricEnriched,
+  type StrengthSummary,
 } from "@/lib/recon_strength";
 
-const ENGINE_VERSION = "v3";
 const ENGINE_MODE = "Enhanced Mode";
 const REPORT_VERSION = "3.1.0";
 
 /**
- * RECON 7-metric thresholds (patent-disclosed structural measurements).
- * Source: server/app/crg_runner.py RECON_DECISION_TABLE.
- * Direction: ">=" means AI when >= threshold; "<" means AI when < threshold.
+ * Server-derived summary used only for the RECON section (count chip,
+ * v2 confidence). The bundle no longer contains the raw key names or
+ * the threshold values.
  */
-const RECON_THRESHOLDS: Array<{
-  key: keyof ReconMetricsData;
-  label: string;
-  threshold: number;
-  direction: "<" | ">=";
-  format: (v: number) => string;
-}> = [
-  { key: "band_bass_diff",    label: "Bass Diff",       threshold: 0.3991, direction: "<",  format: (v) => v.toFixed(4) },
-  { key: "band_low_mid_diff", label: "Low-Mid Diff",    threshold: 0.2967, direction: "<",  format: (v) => v.toFixed(4) },
-  { key: "l1_diff",           label: "L1 Diff",         threshold: 0.0029, direction: "<",  format: (v) => v.toFixed(6) },
-  { key: "snr",               label: "SNR (dB)",        threshold: 30.84,  direction: ">=", format: (v) => v.toFixed(2) },
-  { key: "energy_ratio",      label: "Energy Ratio",    threshold: 0.9690, direction: ">=", format: (v) => v.toFixed(4) },
-  { key: "phase_coherence",   label: "Phase Coherence", threshold: 0.7231, direction: ">=", format: (v) => v.toFixed(4) },
-  { key: "band_high_ratio",   label: "High Ratio",      threshold: 0.9471, direction: ">=", format: (v) => v.toFixed(4) },
-];
-
-/** RECON metrics from backend (subset of schemas.ReconMetrics). */
 export interface ReconMetricsData {
-  band_bass_diff?: number | null;
-  band_low_mid_diff?: number | null;
-  l1_diff?: number | null;
-  snr?: number | null;
-  energy_ratio?: number | null;
-  phase_coherence?: number | null;
-  band_high_ratio?: number | null;
   ai_signals?: number | null;
-  recon_version?: string | null;
   v2_confidence?: number | null;
 }
 
@@ -92,12 +65,20 @@ interface ExportData {
   album: string | null;
   isrc: string | null;
   verdict: VerdictResult | null;
+  /** Primary engine confidence (0-1), display only. */
   cnnScore: number | null;
-  /** Final AI probability (0-1). RECON-based in 50-80% Mixed range; equals cnnScore elsewhere. */
+  /** Final AI probability (0-1) from the server. */
   finalScore?: number | null;
   /** "cnn" or "recon" — source of finalScore */
   finalScoreSource?: string | null;
+  /** Optional aggregate fields (count chip + secondary engine confidence). */
   reconMetrics: ReconMetricsData | null;
+  /** Server-computed enriched RECON rows. UI renders these verbatim. */
+  reconMetricsEnriched?: ReconMetricEnriched[] | null;
+  /** Server-computed strength bucket counts. */
+  strengthSummary?: StrengthSummary | null;
+  /** Server-computed tier label. */
+  tier?: string | null;
   timelineMarkers: { timestamp: number; type: string }[];
   analysisTimestamp: string;
 }
@@ -113,16 +94,16 @@ interface ExportPanelProps {
 
 type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
 
-function deriveTier(cnnScore: number | null, backendVerdict: string | null): VerdictTier {
-  if (backendVerdict == null) return "unknown";
-  if (cnnScore == null) {
-    return backendVerdict === "AI signal evidence was observed." ? "ai" : "human";
-  }
-  if (cnnScore < 0.5) return "human";
-  if (cnnScore < 0.8) {
-    return backendVerdict === "AI signal evidence was observed." ? "mixed-ai" : "mixed-human";
-  }
-  return "ai";
+function deriveTier(data: ExportData): VerdictTier {
+  // Tier is server-authoritative. The bundle does not compare cnn_score
+  // against the band boundary values.
+  const t = data.tier;
+  if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai") return t;
+  // Fallback: if no tier was sent, use the binary verdict to render
+  // something stable rather than leaking a boundary comparison.
+  const v = data.verdict?.verdict ?? null;
+  if (v == null) return "unknown";
+  return v === "AI signal evidence was observed." ? "ai" : "human";
 }
 
 function deriveTierLabel(tier: VerdictTier): string {
@@ -166,9 +147,6 @@ interface ReconRow {
   label: string;
   value: number | null;
   formatted: string;
-  threshold: number;
-  direction: "<" | ">=";
-  thresholdText: string;
   exceededAi: boolean;
   /** Signed margin (AI-positive). Null when measurement is missing. */
   margin: number | null;
@@ -180,42 +158,30 @@ interface ReconRow {
   barPosition: number | null;
 }
 
-function buildReconRows(metrics: ReconMetricsData | null): ReconRow[] {
-  if (!metrics) return [];
-  return RECON_THRESHOLDS.map(({ key, label, threshold, direction, format }) => {
-    const raw = (metrics as Record<string, unknown>)[key];
-    const value = typeof raw === "number" ? raw : null;
-    const formatted = value == null ? "—" : format(value);
-    const thresholdText = `${direction} ${threshold}`;
-    let exceededAi = false;
-    let margin: number | null = null;
-    let strength: Strength | null = null;
-    let marginText = "";
-    let barPosition: number | null = null;
-    if (value != null) {
-      exceededAi = direction === "<" ? value < threshold : value >= threshold;
-      const s = computeMetricStrength(value, threshold, direction);
-      margin = s.margin;
-      strength = s.strength;
-      marginText = formatMarginPct(s.margin);
-      barPosition = marginToBarPosition(s.margin);
-    }
-    return {
-      label, value, formatted, threshold, direction, thresholdText, exceededAi,
-      margin, strength, marginText, barPosition,
-    };
-  });
+function buildReconRows(data: ExportData): ReconRow[] {
+  const enriched = data.reconMetricsEnriched;
+  if (!enriched || enriched.length === 0) return [];
+  return enriched.map((row) => ({
+    label: row.label,
+    value: row.value ?? null,
+    formatted: row.formatted,
+    exceededAi: row.exceeded_ai ?? false,
+    margin: row.margin ?? null,
+    strength: (row.strength as Strength | null) ?? null,
+    marginText: row.margin != null ? formatMarginPct(row.margin) : "",
+    barPosition: row.bar_position ?? null,
+  }));
 }
 
-function getAiSignalsCount(metrics: ReconMetricsData | null): { count: number; total: number } | null {
-  if (!metrics) return null;
-  if (typeof metrics.ai_signals === "number") {
-    return { count: metrics.ai_signals, total: 7 };
+function getAiSignalsCount(data: ExportData): { count: number; total: number } | null {
+  const enriched = data.reconMetricsEnriched ?? [];
+  if (data.reconMetrics?.ai_signals != null) {
+    return { count: data.reconMetrics.ai_signals, total: enriched.length || 7 };
   }
-  const rows = buildReconRows(metrics);
-  const measured = rows.filter((r) => r.value != null);
+  if (enriched.length === 0) return null;
+  const measured = enriched.filter((r) => r.value != null);
   if (measured.length === 0) return null;
-  return { count: measured.filter((r) => r.exceededAi).length, total: measured.length };
+  return { count: measured.filter((r) => r.exceeded_ai).length, total: measured.length };
 }
 
 // -----------------------------------------------------------------------
@@ -259,11 +225,11 @@ const DISCLAIMER = "DetectX does not determine authorship, intent, or ownership.
 // -----------------------------------------------------------------------
 
 function generatePDFContent(data: ExportData): string {
-  const tier = deriveTier(data.cnnScore, data.verdict?.verdict ?? null);
+  const tier = deriveTier(data);
   const tierLabel = deriveTierLabel(tier);
   const description = describeTier(tier);
-  const reconRows = buildReconRows(data.reconMetrics);
-  const signals = getAiSignalsCount(data.reconMetrics);
+  const reconRows = buildReconRows(data);
+  const signals = getAiSignalsCount(data);
   const verdictColor =
     tier === "human" || tier === "mixed-human" ? "#22c55e" :
     tier === "mixed-ai" ? "#f59e0b" :
@@ -275,9 +241,7 @@ function generatePDFContent(data: ExportData): string {
     tier === "ai" ? "#fee2e2" :
     "#f1f5f9";
 
-  const strengthSummary = summarizeStrengths(
-    reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
-  );
+  const strengthSummary: StrengthSummary = data.strengthSummary ?? { strong_ai: 0, ai: 0, human: 0, strong_human: 0, text: "" };
   const strengthSummaryText = formatStrengthSummary(strengthSummary);
   const reconTable = reconRows.length > 0 ? `
   <h2>RECON 7-Metric Structural Measurements</h2>
@@ -293,11 +257,10 @@ function generatePDFContent(data: ExportData): string {
   </p>
   <table class="recon-table">
     <tr>
-      <th style="width: 110px;">Metric</th>
-      <th style="width: 70px;">Measured</th>
-      <th style="width: 70px;">Threshold</th>
-      <th style="width: 60px;">Margin</th>
-      <th style="width: 90px;">Strength</th>
+      <th style="width: 130px;">Metric</th>
+      <th style="width: 90px;">Measured</th>
+      <th style="width: 70px;">Margin</th>
+      <th style="width: 110px;">Strength</th>
       <th>Human &larr;&nbsp;|&nbsp;&rarr; AI</th>
     </tr>
     ${reconRows.map((r) => {
@@ -306,7 +269,6 @@ function generatePDFContent(data: ExportData): string {
         <tr>
           <td>${r.label}</td>
           <td class="small-mono">&mdash;</td>
-          <td class="small-mono">${r.thresholdText}</td>
           <td class="small-mono">&mdash;</td>
           <td>&mdash;</td>
           <td>&mdash;</td>
@@ -317,7 +279,6 @@ function generatePDFContent(data: ExportData): string {
       <tr>
         <td>${r.label}</td>
         <td class="small-mono">${r.formatted}</td>
-        <td class="small-mono">${r.thresholdText}</td>
         <td class="small-mono" style="color: ${color}; font-weight: 600;">${r.marginText}</td>
         <td><span class="strength-badge" style="background: ${color}22; color: ${color}; border: 1px solid ${color}55;">${strengthLabel(r.strength)}</span></td>
         <td>
@@ -375,7 +336,7 @@ function generatePDFContent(data: ExportData): string {
   <div class="meta">
     <span><strong>Generated:</strong> ${data.analysisTimestamp}</span>
     <span><strong>Mode:</strong> ${ENGINE_MODE}</span>
-    <span><strong>Engine:</strong> ${ENGINE_VERSION}</span>
+    
     <span><strong>Report:</strong> ${REPORT_VERSION}</span>
   </div>
 
@@ -449,7 +410,7 @@ function generatePDFContent(data: ExportData): string {
   </div>
 
   <div class="footer">
-    DetectX Audio AI Detector &mdash; Engine ${ENGINE_VERSION} (${ENGINE_MODE}) &bull; Report ${REPORT_VERSION} &bull; detectx.app
+    DetectX Audio AI Detector &mdash; ${ENGINE_MODE} &bull; Report ${REPORT_VERSION} &bull; detectx.app
   </div>
 </body>
 </html>`;
@@ -460,20 +421,19 @@ function generatePDFContent(data: ExportData): string {
 // -----------------------------------------------------------------------
 
 function generateJSON(data: ExportData): string {
-  const tier = deriveTier(data.cnnScore, data.verdict?.verdict ?? null);
-  const reconRows = buildReconRows(data.reconMetrics);
-  const signals = getAiSignalsCount(data.reconMetrics);
+  const tier = deriveTier(data);
+  const reconRows = buildReconRows(data);
+  const signals = getAiSignalsCount(data);
 
   const report = {
     reportVersion: REPORT_VERSION,
     generatedAt: data.analysisTimestamp,
     engine: {
-      version: ENGINE_VERSION,
       mode: ENGINE_MODE,
       primary: {
-        name: "DetectX Primary CNN Classifier",
+        name: "DetectX Primary Classifier",
         role: "Primary",
-        description: "Structural AI signal observation via deep neural network.",
+        description: "Structural AI signal observation.",
       },
       secondary: {
         name: "DetectX Reconstruction Engine",
@@ -509,17 +469,12 @@ function generateJSON(data: ExportData): string {
       exceededAxes: data.verdict?.exceeded_axes ?? [],
     },
     reconMetrics: reconRows.length > 0 ? (() => {
-      const strengthSum = summarizeStrengths(
-        reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
-      );
+      const strengthSum: StrengthSummary = data.strengthSummary ?? { strong_ai: 0, ai: 0, human: 0, strong_human: 0, text: "" };
       return {
         values: reconRows.map((r) => ({
           metric: r.label,
           measuredValue: r.value,
           formattedValue: r.formatted,
-          threshold: r.threshold,
-          direction: r.direction,
-          thresholdText: r.thresholdText,
           aiConsistent: r.value == null ? null : r.exceededAi,
           margin: r.margin,
           marginPercent: r.margin != null ? r.margin * 100 : null,
@@ -529,13 +484,12 @@ function generateJSON(data: ExportData): string {
         aiSignalCount: signals?.count ?? null,
         aiSignalTotal: signals?.total ?? null,
         strengthSummary: {
-          strongAi: strengthSum.strongAi,
-          marginalAi: strengthSum.marginalAi,
-          marginalHuman: strengthSum.marginalHuman,
-          strongHuman: strengthSum.strongHuman,
+          strongAi: strengthSum.strong_ai,
+          marginalAi: strengthSum.ai,
+          marginalHuman: strengthSum.human,
+          strongHuman: strengthSum.strong_human,
           text: formatStrengthSummary(strengthSum),
         },
-        reconVersion: data.reconMetrics?.recon_version ?? null,
         v2Confidence: data.reconMetrics?.v2_confidence ?? null,
       };
     })() : null,
@@ -559,9 +513,9 @@ function generateCSV(data: ExportData): string {
     return str;
   };
 
-  const tier = deriveTier(data.cnnScore, data.verdict?.verdict ?? null);
-  const reconRows = buildReconRows(data.reconMetrics);
-  const signals = getAiSignalsCount(data.reconMetrics);
+  const tier = deriveTier(data);
+  const reconRows = buildReconRows(data);
+  const signals = getAiSignalsCount(data);
 
   // Horizontal headers - one analysis = one row
   const headers = [
@@ -588,13 +542,11 @@ function generateCSV(data: ExportData): string {
     "RECON AI Signal Count",
     "RECON Total Measured",
     ...reconRows.map((r) => `${r.label} (value)`),
-    ...reconRows.map((r) => `${r.label} (threshold)`),
     ...reconRows.map((r) => `${r.label} (AI-consistent)`),
     ...reconRows.map((r) => `${r.label} (margin %)`),
     ...reconRows.map((r) => `${r.label} (strength)`),
     "Strength Summary (Strong AI / AI / Human / Strong Human)",
     "Detection Mode",
-    "Engine Version",
     "Report Version",
     "Analysis Timestamp",
   ];
@@ -623,18 +575,11 @@ function generateCSV(data: ExportData): string {
     signals ? signals.count : "",
     signals ? signals.total : "",
     ...reconRows.map((r) => (r.value != null ? r.value : "")),
-    ...reconRows.map((r) => `${r.direction} ${r.threshold}`),
     ...reconRows.map((r) => (r.value == null ? "" : r.exceededAi ? "Yes" : "No")),
     ...reconRows.map((r) => (r.margin != null ? (r.margin * 100).toFixed(2) : "")),
     ...reconRows.map((r) => (r.strength ? escapeCSV(strengthLabel(r.strength)) : "")),
-    escapeCSV((() => {
-      const sum = summarizeStrengths(
-        reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
-      );
-      return formatStrengthSummary(sum);
-    })()),
+    escapeCSV(formatStrengthSummary(data.strengthSummary ?? { strong_ai: 0, ai: 0, human: 0, strong_human: 0, text: "" })),
     escapeCSV(ENGINE_MODE),
-    escapeCSV(ENGINE_VERSION),
     escapeCSV(REPORT_VERSION),
     escapeCSV(data.analysisTimestamp),
   ];
@@ -658,17 +603,17 @@ function generateCSV(data: ExportData): string {
 // -----------------------------------------------------------------------
 
 function generateMarkdown(data: ExportData): string {
-  const tier = deriveTier(data.cnnScore, data.verdict?.verdict ?? null);
+  const tier = deriveTier(data);
   const tierLabel = deriveTierLabel(tier);
   const description = describeTier(tier);
-  const reconRows = buildReconRows(data.reconMetrics);
-  const signals = getAiSignalsCount(data.reconMetrics);
+  const reconRows = buildReconRows(data);
+  const signals = getAiSignalsCount(data);
 
   let md = `# DetectX Forensic Verification Report
 
 **Generated:** ${data.analysisTimestamp}
 **Detection Mode:** ${ENGINE_MODE}
-**Engine Version:** ${ENGINE_VERSION}
+
 **Report Version:** ${REPORT_VERSION}
 
 ## File Information
@@ -709,9 +654,7 @@ ${isRecon && data.cnnScore != null ? `| Primary Engine (CNN) Score | \`${(data.c
   }
 
   if (reconRows.length > 0) {
-    const strengthSum = summarizeStrengths(
-      reconRows.map((r) => r.strength).filter((s): s is Strength => s !== null),
-    );
+    const strengthSum: StrengthSummary = data.strengthSummary ?? { strong_ai: 0, ai: 0, human: 0, strong_human: 0, text: "" };
     const summaryText = formatStrengthSummary(strengthSum);
     const asciiBar = (pos: number | null): string => {
       if (pos == null) return "—";
@@ -722,24 +665,24 @@ ${isRecon && data.cnnScore != null ? `| Primary Engine (CNN) Score | \`${(data.c
       ).join("");
     };
     md += `
-## RECON 7-Metric Structural Measurements
+## Reconstruction Engine Structural Measurements
 
 The reconstruction engine separates the input audio into source-component stems and
-reconstructs the signal by recombining them. The seven structural measurements below
-quantify residual differences between the original and reconstructed signals. Each
-measurement is reported with its **signed margin** from the threshold (positive =
-AI-side, negative = Human-side) and a **strength bucket** derived from that margin.
-The continuous DetectX classifier weighs each metric by its margin, not by a binary
-yes/no — so a "6/7" count of border-crossings can still yield a Human-leaning final
+reconstructs the signal by recombining them. The measurements below quantify residual
+differences between the original and reconstructed signals. Each measurement is
+reported with its **signed margin** from the decision line (positive = AI-side,
+negative = Human-side) and a **strength bucket** derived from that margin. The
+continuous DetectX classifier weighs each metric by its margin, not by a binary
+yes/no — so a high count of border-crossings can still yield a Human-leaning final
 confidence when most crossings are marginal.
 
-| Metric | Measured | Threshold | Margin | Strength | Human ← │ → AI |
-|--------|----------|-----------|--------|----------|----------------|
+| Metric | Measured | Margin | Strength | Human ← │ → AI |
+|--------|----------|--------|----------|----------------|
 ${reconRows.map((r) => {
   if (r.value == null || r.strength == null) {
-    return `| ${r.label} | \`—\` | \`${r.thresholdText}\` | — | — | — |`;
+    return `| ${r.label} | \`—\` | — | — | — |`;
   }
-  return `| ${r.label} | \`${r.formatted}\` | \`${r.thresholdText}\` | \`${r.marginText}\` | **${strengthLabel(r.strength)}** | \`${asciiBar(r.barPosition)}\` |`;
+  return `| ${r.label} | \`${r.formatted}\` | \`${r.marginText}\` | **${strengthLabel(r.strength)}** | \`${asciiBar(r.barPosition)}\` |`;
 }).join("\n")}
 ${signals ? `\n**AI Signal Count: ${signals.count} / ${signals.total}** ${summaryText ? `— ${summaryText}` : ""}\n` : ""}`;
   }
@@ -769,7 +712,7 @@ ${data.timelineMarkers.map((m, i) => `| ${i + 1} | ${m.type} | ${formatDuration(
 
 ---
 
-*DetectX Audio AI Detector — Engine ${ENGINE_VERSION} (${ENGINE_MODE}) — Report ${REPORT_VERSION}*
+*DetectX Audio AI Detector — ${ENGINE_MODE} — Report ${REPORT_VERSION}*
 `;
 
   return md;

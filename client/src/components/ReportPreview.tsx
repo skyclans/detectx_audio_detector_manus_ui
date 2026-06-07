@@ -16,29 +16,12 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { FileText, AlertCircle, CheckCircle, Search } from "lucide-react";
-import {
-  computeMetricStrength,
-  summarizeStrengths,
-  formatStrengthSummary,
-  type Strength,
-  type Direction,
-} from "@/lib/recon_strength";
+import { formatStrengthSummary, type StrengthSummary } from "@/lib/recon_strength";
 
 interface VerdictResult {
   verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
   authority: "DetectX Forensic";
   exceeded_axes: string[];
-}
-
-interface ReconMetricsSummary {
-  ai_signals?: number | null;
-  band_bass_diff?: number | null;
-  band_low_mid_diff?: number | null;
-  l1_diff?: number | null;
-  snr?: number | null;
-  energy_ratio?: number | null;
-  phase_coherence?: number | null;
-  band_high_ratio?: number | null;
 }
 
 interface ReportPreviewProps {
@@ -49,47 +32,32 @@ interface ReportPreviewProps {
   fileHash: string | null;
   isProcessing?: boolean;
   onExport?: () => void;
-  /** CNN confidence score (0.0-1.0) for 4-tier label derivation */
+  /** Primary engine confidence score (0.0-1.0) for display only. */
   cnnScore?: number | null;
-  /** Final AI probability; RECON-based in 50-80% Mixed range, CNN elsewhere */
+  /** Final AI probability from the server. */
   finalScore?: number | null;
   /** "cnn" or "recon" — source of finalScore */
   finalScoreSource?: string | null;
-  /** RECON 7-metric summary */
-  reconMetrics?: ReconMetricsSummary | null;
+  /** Server-computed display tier. */
+  tier?: string | null;
+  /** Server-computed RECON signal strength summary. */
+  strengthSummary?: StrengthSummary | null;
+  /** AI signal count out of total measured. */
+  aiSignals?: number | null;
 }
-
-// RECON V1 thresholds — mirror server/app/crg_runner.py RECON_DECISION_TABLE
-const V1_THRESHOLDS: Array<{
-  key: keyof ReconMetricsSummary;
-  threshold: number;
-  direction: Direction;
-}> = [
-  { key: "band_bass_diff",    threshold: 0.3991, direction: "<"  },
-  { key: "band_low_mid_diff", threshold: 0.2967, direction: "<"  },
-  { key: "l1_diff",           threshold: 0.0029, direction: "<"  },
-  { key: "snr",               threshold: 30.84,  direction: ">=" },
-  { key: "energy_ratio",      threshold: 0.9690, direction: ">=" },
-  { key: "phase_coherence",   threshold: 0.7231, direction: ">=" },
-  { key: "band_high_ratio",   threshold: 0.9471, direction: ">=" },
-];
-
-// -----------------------------------------------------------------------
-// Tier derivation (mirrors VerdictPanel.tsx semantics)
-// -----------------------------------------------------------------------
 
 type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
 
-function deriveTier(cnnScore: number | null | undefined, backendVerdict: string | null): VerdictTier {
-  if (backendVerdict == null) return "unknown";
-  if (cnnScore == null) {
-    return backendVerdict === "AI signal evidence was observed." ? "ai" : "human";
+function normalizeTier(tier: string | null | undefined): VerdictTier {
+  switch (tier) {
+    case "human":
+    case "mixed-human":
+    case "mixed-ai":
+    case "ai":
+      return tier;
+    default:
+      return "unknown";
   }
-  if (cnnScore < 0.5) return "human";
-  if (cnnScore < 0.8) {
-    return backendVerdict === "AI signal evidence was observed." ? "mixed-ai" : "mixed-human";
-  }
-  return "ai";
 }
 
 function deriveTierLabel(tier: VerdictTier): string {
@@ -113,7 +81,9 @@ export function ReportPreview({
   cnnScore = null,
   finalScore = null,
   finalScoreSource = null,
-  reconMetrics = null,
+  tier: serverTier = null,
+  strengthSummary = null,
+  aiSignals: aiSignalsProp = null,
 }: ReportPreviewProps) {
   const { isAuthenticated } = useAuth();
 
@@ -150,7 +120,7 @@ export function ReportPreview({
     );
   }
 
-  const tier = deriveTier(cnnScore, verdict.verdict);
+  const tier = normalizeTier(serverTier);
   const tierLabel = deriveTierLabel(tier);
   const isAiTier = tier === "ai";
   const isMixedAi = tier === "mixed-ai";
@@ -174,24 +144,11 @@ export function ReportPreview({
         ? "text-amber-400"
         : "text-forensic-amber";
 
-  const aiSignals = reconMetrics?.ai_signals;
-  const showReconSummary = aiSignals != null;
+  const aiSignals = aiSignalsProp;
+  const showReconSummary = aiSignals != null || strengthSummary != null;
   const displayScore = finalScore != null ? finalScore : cnnScore;
   const isReconSource = finalScoreSource === "recon" && finalScore != null;
-
-  // Compute V1 strength distribution from measured metrics
-  const strengthSum = (() => {
-    if (!reconMetrics) return null;
-    const strengths: Strength[] = [];
-    V1_THRESHOLDS.forEach(({ key, threshold, direction }) => {
-      const raw = reconMetrics[key];
-      if (typeof raw === "number") {
-        strengths.push(computeMetricStrength(raw, threshold, direction).strength);
-      }
-    });
-    if (strengths.length === 0) return null;
-    return summarizeStrengths(strengths);
-  })();
+  const strengthSum = strengthSummary;
 
   return (
     <div className="forensic-panel">
@@ -260,34 +217,36 @@ export function ReportPreview({
               Reconstruction Engine Summary
             </div>
             <div className="py-2 px-3 bg-muted/20 rounded space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">AI Signal Count</span>
-                <span className="font-mono text-foreground">{aiSignals} / 7</span>
-              </div>
-              {strengthSum && (strengthSum.strongAi + strengthSum.marginalAi + strengthSum.marginalHuman + strengthSum.strongHuman > 0) && (
+              {aiSignals != null && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">AI Signal Count</span>
+                  <span className="font-mono text-foreground">{aiSignals} / 7</span>
+                </div>
+              )}
+              {strengthSum && (strengthSum.strong_ai + strengthSum.ai + strengthSum.human + strengthSum.strong_human > 0) && (
                 <div className="space-y-1">
                   <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
                     Signal Strength Distribution
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {strengthSum.strongAi > 0 && (
+                    {strengthSum.strong_ai > 0 && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded border border-red-500/40 bg-red-500/15 text-red-400 font-semibold">
-                        {strengthSum.strongAi} Strong AI
+                        {strengthSum.strong_ai} Strong AI
                       </span>
                     )}
-                    {strengthSum.marginalAi > 0 && (
+                    {strengthSum.ai > 0 && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-400 font-semibold">
-                        {strengthSum.marginalAi} AI
+                        {strengthSum.ai} AI
                       </span>
                     )}
-                    {strengthSum.marginalHuman > 0 && (
+                    {strengthSum.human > 0 && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 font-semibold">
-                        {strengthSum.marginalHuman} Human
+                        {strengthSum.human} Human
                       </span>
                     )}
-                    {strengthSum.strongHuman > 0 && (
+                    {strengthSum.strong_human > 0 && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded border border-emerald-700/40 bg-emerald-700/15 text-emerald-500 font-semibold">
-                        {strengthSum.strongHuman} Strong Human
+                        {strengthSum.strong_human} Strong Human
                       </span>
                     )}
                   </div>
@@ -297,7 +256,7 @@ export function ReportPreview({
                 </div>
               )}
               <p className="text-[10px] text-muted-foreground/60 leading-relaxed">
-                Full 7-metric measurement values, margins, and thresholds are available in the exported report.
+                Full structural measurement values and margins are available in the exported report.
               </p>
             </div>
           </div>

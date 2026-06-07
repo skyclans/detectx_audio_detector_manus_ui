@@ -746,7 +746,7 @@ export default function History() {
           <div className="forensic-panel-content">
             <div className="text-xs text-muted-foreground">
               <strong>Enhanced Mode v3</strong> — DetectX Engine v3 (trained on
-              millions of verified human samples) + Reconstruction Engine (Stem separation
+              millions of verified human samples) + DetectX Deep Forensic Engine (Stem separation
               analysis). History records are stored securely and can be exported for
               institutional reporting.
             </div>

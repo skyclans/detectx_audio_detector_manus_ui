@@ -58,7 +58,7 @@ function derivePrimaryEngineStatus(tier: string | null | undefined): AxisStatusI
       return { status: "human", label: "BELOW BAND • HUMAN", note: "Primary engine confidence below the intermediate band — no Deep Scan invoked." };
     case "mixed-human":
     case "mixed-ai":
-      return { status: "deep-scan", label: "INTERMEDIATE • DEEP SCAN", note: "Primary engine confidence within the intermediate decision band — Reconstruction Engine invoked for final adjudication." };
+      return { status: "deep-scan", label: "INTERMEDIATE • DEEP SCAN", note: "Primary engine confidence within the intermediate decision band — DetectX Deep Forensic Engine invoked for final adjudication." };
     case "ai":
       return { status: "ai-confirmed", label: "ABOVE BAND • AI CONFIRMED", note: "Primary engine confidence at or above the upper decision band — no Deep Scan required." };
     default:
@@ -83,13 +83,13 @@ function deriveReconstructionStatus(
     return {
       status: "ai-confirmed",
       label: "AI CONFIRMED BY DEEP SCAN",
-      note: "Reconstruction Engine confirmed the intermediate-range primary signal as AI.",
+      note: "DetectX Deep Forensic Engine confirmed the intermediate-range primary signal as AI.",
     };
   }
   return {
     status: "human-recovered",
     label: "RECOVERED TO HUMAN",
-    note: "Reconstruction Engine recovered the intermediate-range primary signal as Human.",
+    note: "DetectX Deep Forensic Engine recovered the intermediate-range primary signal as Human.",
   };
 }
 

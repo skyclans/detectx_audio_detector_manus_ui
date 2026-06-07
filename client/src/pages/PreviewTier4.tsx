@@ -39,9 +39,9 @@ const SCENARIO_OPTIONS: { value: MockMixScenario; label: string }[] = [
 ];
 
 const VERDICT_OPTIONS: { value: VerdictBucket; label: string }[] = [
-  { value: "human", label: "Human (CNN 2.7%)" },
-  { value: "mixed", label: "Mixed (CNN 76%)" },
-  { value: "ai", label: "AI (CNN 94.5%)" },
+  { value: "human", label: "Human (Primary Engine 2.7%)" },
+  { value: "mixed", label: "Mixed (Primary Engine 76%)" },
+  { value: "ai", label: "AI (Primary Engine 94.5%)" },
 ];
 
 export default function PreviewTier4() {
@@ -82,7 +82,7 @@ export default function PreviewTier4() {
                 htmlFor="verdict-select"
                 className="text-xs text-muted-foreground"
               >
-                Verdict scenario (CNN score)
+                Verdict scenario (Primary Engine score)
               </label>
               <select
                 id="verdict-select"
@@ -151,7 +151,7 @@ export default function PreviewTier4() {
             <strong>Notes:</strong>
           </p>
           <ul className="list-disc list-inside space-y-0.5">
-            <li>Backend verdict text remains binary. Display label is derived from CNN score (50-80% → Mixed).</li>
+            <li>Backend verdict text remains binary. Display label is derived from Primary Engine score (50-80% → Mixed).</li>
             <li>Stereo Imager bands dim when their source stems are absent in the mix scenario.</li>
             <li>Naturalness axis label adapts (Naturalness ↔ Instr. Texture) based on vocal presence.</li>
             <li>This page is for visual review only. No production data is used.</li>

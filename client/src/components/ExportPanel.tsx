@@ -135,7 +135,7 @@ function getDisplayScore(data: ExportData): number | null {
 function getDisplayScoreSourceLabel(data: ExportData): string {
   if (data.finalScore == null) return "Primary Engine";
   return data.finalScoreSource === "recon"
-    ? "Deep Scan (Reconstruction Engine)"
+    ? "Deep Scan (DetectX Deep Forensic Engine)"
     : "Primary Engine";
 }
 
@@ -206,13 +206,13 @@ function formatDuration(seconds: number): string {
 function describeTier(tier: VerdictTier): string {
   switch (tier) {
     case "human":
-      return "The DetectX dual-engine verification system did not record structural signal evidence of AI synthesis. The primary CNN classifier reported a confidence below the lower decision threshold; the reconstruction engine was not triggered.";
+      return "The DetectX dual-engine verification system did not record structural signal evidence of AI synthesis. The DetectX Engine reported a confidence below the lower decision threshold; the DetectX Deep Forensic Engine was not triggered.";
     case "mixed-human":
-      return "The primary CNN classifier reported confidence within the intermediate decision range (50%-80%). The reconstruction engine was invoked and its 7-metric stem-reconstruction analysis recovered the result as Human signal (insufficient AI signal count). Expert review is recommended for legal and forensic adjudication.";
+      return "The DetectX Engine reported confidence within the intermediate decision range (50%-80%). The DetectX Deep Forensic Engine was invoked and its 7-metric stem-reconstruction analysis recovered the result as Human signal (insufficient AI signal count). Expert review is recommended for legal and forensic adjudication.";
     case "mixed-ai":
-      return "The primary CNN classifier reported confidence within the intermediate decision range (50%-80%). The reconstruction engine was invoked and its 7-metric stem-reconstruction analysis confirmed AI signal (sufficient AI signal count). Expert review is recommended for legal and forensic adjudication.";
+      return "The DetectX Engine reported confidence within the intermediate decision range (50%-80%). The DetectX Deep Forensic Engine was invoked and its 7-metric stem-reconstruction analysis confirmed AI signal (sufficient AI signal count). Expert review is recommended for legal and forensic adjudication.";
     case "ai":
-      return "The primary CNN classifier reported confidence at or above the upper decision threshold. Structural signal evidence consistent with AI-generated audio was recorded. The reconstruction engine was not required for verdict determination.";
+      return "The DetectX Engine reported confidence at or above the upper decision threshold. Structural signal evidence consistent with AI-generated audio was recorded. The DetectX Deep Forensic Engine was not required for verdict determination.";
     case "unknown":
       return "Verification pending. No result available.";
   }
@@ -244,9 +244,9 @@ function generatePDFContent(data: ExportData): string {
   const strengthSummary: StrengthSummary = data.strengthSummary ?? { strong_ai: 0, ai: 0, human: 0, strong_human: 0, text: "" };
   const strengthSummaryText = formatStrengthSummary(strengthSummary);
   const reconTable = reconRows.length > 0 ? `
-  <h2>RECON 7-Metric Structural Measurements</h2>
+  <h2>Deep Forensic 7-Metric Structural Measurements</h2>
   <p class="desc">
-    The reconstruction engine separates the input audio into source-component stems and
+    The DetectX Deep Forensic Engine separates the input audio into source-component stems and
     reconstructs the signal by recombining them. The seven structural measurements below
     quantify residual differences between the original and reconstructed signals. Each
     measurement is reported with its <strong>signed margin</strong> from the threshold
@@ -382,7 +382,7 @@ function generatePDFContent(data: ExportData): string {
       </tr>
       ${isRecon && data.cnnScore != null ? `
       <tr>
-        <th>Primary Engine (CNN) Score</th>
+        <th>Primary Engine Score</th>
         <td class="small-mono">${(data.cnnScore * 100).toFixed(2)}% &mdash; flagged for Deep Scan</td>
       </tr>` : ""}
       <tr>
@@ -400,8 +400,8 @@ function generatePDFContent(data: ExportData): string {
 
   <h2>Verification Engine Details</h2>
   <div class="engine-box">
-    <div class="engine-item"><strong>Primary Engine:</strong> CNN classifier (deep neural network) trained for structural AI-signal observation.</div>
-    <div class="engine-item"><strong>Secondary Engine:</strong> Reconstruction (RECON) engine — source-component separation followed by 7-metric residual analysis. Invoked when primary confidence falls within the intermediate decision range (50%-80%).</div>
+    <div class="engine-item"><strong>Primary Engine:</strong> DetectX Engine (deep neural network) trained for structural AI-signal observation.</div>
+    <div class="engine-item"><strong>Secondary Engine:</strong> DetectX Deep Forensic Engine — source-component separation followed by 7-metric residual analysis. Invoked when primary confidence falls within the intermediate decision range (50%-80%).</div>
     <div class="engine-item"><strong>Verdict Determination:</strong> Backend produces a binary verdict (Observed / Not Observed). The display layer renders a 4-tier label indicating Deep Scan recovery or confirmation in the intermediate range.</div>
   </div>
 
@@ -436,7 +436,7 @@ function generateJSON(data: ExportData): string {
         description: "Structural AI signal observation.",
       },
       secondary: {
-        name: "DetectX Reconstruction Engine",
+        name: "DetectX Deep Forensic Engine",
         role: "Secondary",
         description: "Source-component separation + 7-metric residual analysis. Invoked at intermediate confidence range.",
       },
@@ -534,13 +534,13 @@ function generateCSV(data: ExportData): string {
     "Verdict (Tier Label)",
     "Verdict Code",
     "Backend Verdict",
-    "CNN Confidence AI",
-    "CNN Confidence Human",
+    "Primary Engine Confidence AI",
+    "Primary Engine Confidence Human",
     "Final Confidence AI",
     "Final Confidence Human",
     "Final Score Source",
-    "RECON AI Signal Count",
-    "RECON Total Measured",
+    "Deep Forensic AI Signal Count",
+    "Deep Forensic Total Measured",
     ...reconRows.map((r) => `${r.label} (value)`),
     ...reconRows.map((r) => `${r.label} (AI-consistent)`),
     ...reconRows.map((r) => `${r.label} (margin %)`),
@@ -647,7 +647,7 @@ ${description}
 | Verification Confidence — AI | \`${(displayScore * 100).toFixed(2)}%\` |
 | Verification Confidence — Human | \`${((1 - displayScore) * 100).toFixed(2)}%\` |
 | Score Source | ${sourceLabel} |
-${isRecon && data.cnnScore != null ? `| Primary Engine (CNN) Score | \`${(data.cnnScore * 100).toFixed(2)}%\` — flagged for Deep Scan |\n` : ""}| Backend Verdict (binary) | ${getVerdictText(data.verdict) || "Pending"} |
+${isRecon && data.cnnScore != null ? `| Primary Engine Score | \`${(data.cnnScore * 100).toFixed(2)}%\` — flagged for Deep Scan |\n` : ""}| Backend Verdict (binary) | ${getVerdictText(data.verdict) || "Pending"} |
 | Verdict Code | \`${deriveTierCode(tier)}\` |
 `;
     }
@@ -665,9 +665,9 @@ ${isRecon && data.cnnScore != null ? `| Primary Engine (CNN) Score | \`${(data.c
       ).join("");
     };
     md += `
-## Reconstruction Engine Structural Measurements
+## Deep Forensic Engine Structural Measurements
 
-The reconstruction engine separates the input audio into source-component stems and
+The DetectX Deep Forensic Engine separates the input audio into source-component stems and
 reconstructs the signal by recombining them. The measurements below quantify residual
 differences between the original and reconstructed signals. Each measurement is
 reported with its **signed margin** from the decision line (positive = AI-side,
@@ -702,8 +702,8 @@ ${data.timelineMarkers.map((m, i) => `| ${i + 1} | ${m.type} | ${formatDuration(
 
 ## Engine Details
 
-- **Primary Engine:** CNN classifier (deep neural network) trained for structural AI-signal observation.
-- **Secondary Engine:** Reconstruction (RECON) engine — source-component separation followed by 7-metric residual analysis. Invoked when primary confidence falls within the intermediate decision range (50%-80%).
+- **Primary Engine:** DetectX Engine (deep neural network) trained for structural AI-signal observation.
+- **Secondary Engine:** DetectX Deep Forensic Engine — source-component separation followed by 7-metric residual analysis. Invoked when primary confidence falls within the intermediate decision range (50%-80%).
 - **Verdict Determination:** Backend produces a binary verdict (Observed / Not Observed). The display layer renders a 4-tier label indicating Deep Scan recovery or confirmation in the intermediate range.
 
 ## Disclaimer

@@ -391,7 +391,7 @@ export default function Updates() {
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Design Philosophy</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The dual-engine approach prioritizes human safety as a hard constraint. By using the DetectX Engine as the primary filter, the system ensures that human creative work is never unfairly flagged. The Reconstruction Engine serves as a secondary check only when the primary engine indicates potential AI content.
+                  The dual-engine approach prioritizes human safety as a hard constraint. By using the DetectX Engine as the primary filter, the system ensures that human creative work is never unfairly flagged. The DetectX Deep Forensic Engine serves as a secondary check only when the primary engine indicates potential AI content.
                 </p>
 
                 <div className="mt-8 pt-6 border-t border-border">

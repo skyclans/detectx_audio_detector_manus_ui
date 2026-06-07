@@ -97,7 +97,7 @@ export function ReconV3Display({
         <div className="forensic-panel-header flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-forensic-cyan" />
-            <span>Reconstruction Engine</span>
+            <span>DetectX Deep Forensic Engine</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-forensic-cyan animate-pulse" />
@@ -120,7 +120,7 @@ export function ReconV3Display({
         <div className="forensic-panel-header flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-muted-foreground" />
-            <span>Reconstruction Engine</span>
+            <span>DetectX Deep Forensic Engine</span>
           </div>
         </div>
         <div className="forensic-panel-content">
@@ -128,7 +128,7 @@ export function ReconV3Display({
             <Activity className="w-8 h-8 text-muted-foreground/30 mb-2" />
             <p className="text-xs text-muted-foreground">Awaiting verification</p>
             <p className="text-[10px] text-muted-foreground/50 mt-1">
-              Reconstruction metrics will appear after scan
+              Deep Forensic metrics will appear after scan
             </p>
           </div>
         </div>
@@ -145,7 +145,7 @@ export function ReconV3Display({
       <div className="forensic-panel-header flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-forensic-cyan" />
-          <span>Reconstruction Engine</span>
+          <span>DetectX Deep Forensic Engine</span>
         </div>
         {aiSignals != null && (
           <span className="text-xs px-2 py-0.5 rounded bg-muted/30 text-muted-foreground">
@@ -163,7 +163,7 @@ export function ReconV3Display({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Gauge className={cn("w-4 h-4", isAI ? "text-red-400" : "text-emerald-400")} />
-                <span className="text-xs font-medium text-foreground">Reconstruction Confidence</span>
+                <span className="text-xs font-medium text-foreground">Deep Forensic Confidence</span>
               </div>
               <span className={cn("text-lg font-bold font-mono", isAI ? "text-red-400" : "text-emerald-400")}>
                 {confidencePercent}%

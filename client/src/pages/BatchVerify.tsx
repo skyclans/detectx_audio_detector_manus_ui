@@ -169,7 +169,7 @@ function VerdictBadge({ item }: { item: BatchFileItem }) {
         {label}
       </span>
       {pct && (
-        <span className="text-[10px] font-mono text-muted-foreground tabular-nums" title={item.finalScoreSource === "recon" ? "RECON-based final score (Deep Scan)" : "CNN-based score"}>
+        <span className="text-[10px] font-mono text-muted-foreground tabular-nums" title={item.finalScoreSource === "recon" ? "Deep Forensic-based final score (Deep Scan)" : "Primary Engine-based score"}>
           {pct}
         </span>
       )}
@@ -499,8 +499,8 @@ export default function BatchVerify() {
     const headers = [
       "#", "Filename", "Format", "File Size (bytes)", "Duration (sec)",
       "Tier", "Tier Code", "Tier Label", "Backend Verdict",
-      "CNN Score (AI)", "Final Score (AI)", "Final Score Source",
-      "RECON AI Signals (n/7)",
+      "Primary Engine Score (AI)", "Final Score (AI)", "Final Score Source",
+      "Deep Forensic AI Signals (n/7)",
       "Strong AI", "AI", "Human", "Strong Human", "Strength Summary",
       "Detection Mode", "Engine Version", "Analysis Timestamp",
     ];
@@ -634,22 +634,22 @@ export default function BatchVerify() {
     md += `| Human Recovered by Deep Scan (50-80%) | ${tierCounts["mixed-human"]} |\n`;
     md += `| AI Signal Not Observed (<50%) | ${tierCounts.human} |\n\n`;
     md += `## Results\n\n`;
-    md += `| # | Filename | Format | Size | Duration | Tier | AI % | Score Source | RECON Strength |\n`;
+    md += `| # | Filename | Format | Size | Duration | Tier | AI % | Score Source | Deep Forensic Strength |\n`;
     md += `|---|----------|--------|------|----------|------|------|--------------|----------------|\n`;
     done.forEach((f, i) => {
       const tier = deriveTier(f);
       const dur = f.duration ? `${Math.floor(f.duration / 60)}:${String(Math.floor(f.duration % 60)).padStart(2, "0")}` : "—";
       const score = displayScoreOf(f);
       const pct = score != null ? `${(score * 100).toFixed(1)}%` : "—";
-      const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "CNN" : "—");
+      const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "Primary Engine" : "—");
       const sum = computeFileStrengths(f);
       const strength = sum ? formatStrengthSummary(sum) : "—";
       md += `| ${i + 1} | ${f.name} | ${f.format} | ${formatFileSize(f.size)} | ${dur} | **${tierLabel(tier)}** | \`${pct}\` | ${source} | ${strength} |\n`;
     });
     md += `\n## Methodology\n\n`;
-    md += `- **Primary Engine:** CNN classifier (deep neural network) produces an AI probability score.\n`;
-    md += `- **Tier Bands:** Below 50% → Human. 50-80% → Reconstruction Engine (Deep Scan) is invoked. ≥80% → AI confirmed.\n`;
-    md += `- **Final Score Source:** For tracks in the 50-80% Mixed range the Verification Confidence is sourced from the Reconstruction Engine; outside that range it equals the CNN score.\n`;
+    md += `- **Primary Engine:** DetectX Engine (deep neural network) produces an AI probability score.\n`;
+    md += `- **Tier Bands:** Below 50% → Human. 50-80% → DetectX Deep Forensic Engine (Deep Scan) is invoked. ≥80% → AI confirmed.\n`;
+    md += `- **Final Score Source:** For tracks in the 50-80% Mixed range the Verification Confidence is sourced from the DetectX Deep Forensic Engine; outside that range it equals the Primary Engine score.\n`;
     md += `- **Signal Strength:** Each of the 7 reconstruction metrics carries a signed margin from its threshold. Strong = |margin| ≥ 30%. A high "AI Signal Count" of mostly-marginal crossings can still yield a Human-leaning final score, which the trained classifier weighs by magnitude rather than a binary yes/no.\n\n`;
     md += `## Disclaimer\n\n`;
     md += `> DetectX does not determine authorship, intent, or ownership.\n`;
@@ -675,7 +675,7 @@ export default function BatchVerify() {
         const dur = f.duration ? `${Math.floor(f.duration / 60)}:${String(Math.floor(f.duration % 60)).padStart(2, "0")}` : "—";
         const score = displayScoreOf(f);
         const pct = score != null ? `${(score * 100).toFixed(1)}%` : "—";
-        const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "CNN" : "—");
+        const source = f.finalScoreSource === "recon" ? "Deep Scan" : (f.cnnScore != null ? "Primary Engine" : "—");
         const sum = computeFileStrengths(f);
         const strength = sum ? formatStrengthSummary(sum) : "—";
         return `<tr>
@@ -748,16 +748,16 @@ export default function BatchVerify() {
       <th>Verdict (4-tier)</th>
       <th>AI %</th>
       <th>Source</th>
-      <th>RECON Strength Summary</th>
+      <th>Deep Forensic Strength Summary</th>
     </tr>
   </thead>
   <tbody>${rows}</tbody>
 </table>
 
 <div class="methodology">
-  <p><strong>Methodology.</strong> The primary CNN classifier produces an AI probability. Tier bands: below 50% → Human, 50–80% → Reconstruction Engine (Deep Scan) invoked, ≥80% → AI confirmed.</p>
-  <p>The <strong>AI %</strong> column reflects the Verification Confidence: when sourced from <em>Deep Scan</em> (50–80% Mixed range) it is the Reconstruction Engine's classifier output; outside that range it equals the CNN score.</p>
-  <p><strong>RECON Strength Summary</strong> counts each of the 7 reconstruction metrics by how far it sits from its threshold (|margin| ≥ 30% = Strong). A high crossing count of mostly-marginal metrics can still produce a Human-leaning final score, because the trained classifier weighs each metric by magnitude rather than a binary yes/no.</p>
+  <p><strong>Methodology.</strong> The DetectX Engine produces an AI probability. Tier bands: below 50% → Human, 50–80% → DetectX Deep Forensic Engine (Deep Scan) invoked, ≥80% → AI confirmed.</p>
+  <p>The <strong>AI %</strong> column reflects the Verification Confidence: when sourced from <em>Deep Scan</em> (50–80% Mixed range) it is the DetectX Deep Forensic Engine's classifier output; outside that range it equals the Primary Engine score.</p>
+  <p><strong>Deep Forensic Strength Summary</strong> counts each of the 7 reconstruction metrics by how far it sits from its threshold (|margin| ≥ 30% = Strong). A high crossing count of mostly-marginal metrics can still produce a Human-leaning final score, because the trained classifier weighs each metric by magnitude rather than a binary yes/no.</p>
 </div>
 
 <div class="disclaimer"><strong>Disclaimer:</strong> DetectX does not determine authorship, intent, or ownership. This verification is based solely on structural signal observations of the submitted audio files. Audio with extensive post-processing, synthesis, or heavy digital manipulation may exhibit signal characteristics similar to AI-generated music. Final adjudication is subject to the policies of the receiving institution, court, or authority.</div>

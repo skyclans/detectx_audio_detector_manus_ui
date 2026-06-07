@@ -191,7 +191,7 @@ export function ReportPreview({
               </div>
               {isReconSource && cnnScore != null && (
                 <p className="text-[9px] text-muted-foreground/70">
-                  Primary engine (CNN) flagged at {(cnnScore * 100).toFixed(1)}%; final score from Reconstruction Engine.
+                  Primary engine flagged at {(cnnScore * 100).toFixed(1)}%; final score from DetectX Deep Forensic Engine.
                 </p>
               )}
             </div>
@@ -214,7 +214,7 @@ export function ReportPreview({
         {showReconSummary && (
           <div className="space-y-2">
             <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-              Reconstruction Engine Summary
+              Deep Forensic Engine Summary
             </div>
             <div className="py-2 px-3 bg-muted/20 rounded space-y-2">
               {aiSignals != null && (

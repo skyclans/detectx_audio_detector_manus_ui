@@ -117,7 +117,7 @@ export function VerdictPanel({
     const stageLabel =
       clampedProgress < 20 ? "Initializing engines..." :
       clampedProgress < 50 ? "Running DetectX Engine..." :
-      clampedProgress < 75 ? "Reconstruction analysis..." :
+      clampedProgress < 75 ? "Deep Forensic analysis..." :
       clampedProgress < 95 ? "Evaluating constraints..." :
       "Finalizing verdict...";
 

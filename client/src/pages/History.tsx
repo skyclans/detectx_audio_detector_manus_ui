@@ -174,7 +174,7 @@ function generateRecordPDF(record: HistoryRecord): string {
   <h2>Verification Engine Details</h2>
   <div class="engine-box">
     <div class="engine-item"><strong>DetectX Engine v3 (Primary):</strong> Deep learning classifier optimized for human protection</div>
-    <div class="engine-item"><strong>Reconstruction Engine (Secondary):</strong> Stem separation and reconstruction analysis</div>
+    <div class="engine-item"><strong>DetectX Deep Forensic Engine (Secondary):</strong> Stem separation and reconstruction analysis</div>
     <div class="engine-item"><strong>Human False Positive Rate:</strong> Less than 1%</div>
   </div>
 
@@ -206,7 +206,7 @@ function generateRecordJSON(record: HistoryRecord): string {
         description: "Trained on millions of verified human samples",
       },
       reconstructionEngine: {
-        name: "Reconstruction Engine",
+        name: "DetectX Deep Forensic Engine",
         role: "Secondary",
         description: "Stem separation and reconstruction analysis",
       },
@@ -262,7 +262,7 @@ AI signal evidence was observed in the audio signal.`}
 ## Engine Details
 
 - **DetectX Engine v3 (Primary):** Deep learning classifier optimized for human protection
-- **Reconstruction Engine (Secondary):** Stem separation and reconstruction analysis
+- **DetectX Deep Forensic Engine (Secondary):** Stem separation and reconstruction analysis
 - **Human False Positive Rate:** Less than 1%
 
 ---
@@ -1101,7 +1101,7 @@ export default function History() {
           <div className="forensic-panel-content">
             <div className="text-xs text-muted-foreground">
               <strong>Enhanced Mode v3</strong> — DetectX Engine v3 (trained on
-              millions of verified human samples) + Reconstruction Engine (Stem separation
+              millions of verified human samples) + DetectX Deep Forensic Engine (Stem separation
               analysis). History records are stored securely and can be exported for
               institutional reporting.
             </div>

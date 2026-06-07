@@ -144,9 +144,11 @@ export default function Login() {
 
   const canLogin = termsAgreed && privacyAgreed;
 
-  // OAuth direct to RunPod backend (hardcoded — env-based caused detectx.app
-  // routing through nginx reverse-proxying to Google, breaking the form)
-  const RUNPOD_API_URL = "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+  // OAuth via detectx.app (Cloudflare → Nginx → Uvicorn). If OAuth callback
+  // breaks again, ensure Cloudflare passes /auth/* paths through to Nginx
+  // without modifying the request, and that Google OAuth callback URL is
+  // registered as https://detectx.app/auth/google/callback.
+  const RUNPOD_API_URL = "https://detectx.app";
 
   // Direct OAuth login handlers
   const handleGoogleLogin = () => {

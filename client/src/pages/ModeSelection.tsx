@@ -14,14 +14,6 @@ import { getLoginUrl } from "@/const";
 import { LogIn, Zap, Crown, Building2, Check, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 
-// Master emails with unlimited access
-const MASTER_EMAILS = [
-  "skyclans2@gmail.com",
-  "ceo@detectx.app",
-  "support@detectx.app",
-  "coolkimy@gmail.com",
-];
-
 interface ModeOption {
   id: "free" | "pro" | "enterprise";
   name: string;
@@ -85,13 +77,12 @@ export default function ModeSelection() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Check if user is a master user
-  const isMasterUser = user?.email && MASTER_EMAILS.includes(user.email);
-  
-  // Check if user has enterprise or master plan set by admin in DB
+  // Server is the authority for the "master" plan (set via DB by admin).
+  // Personal email allowlists belong on the server, not in the public bundle.
   const dbPlan = (user as any)?.plan as string | undefined;
   const isEnterpriseUser = dbPlan === "enterprise";
   const isMasterPlanUser = dbPlan === "master";
+  const isMasterUser = isMasterPlanUser;
 
   // Handle mode selection
   const handleModeSelect = (mode: ModeOption) => {

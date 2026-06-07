@@ -227,14 +227,9 @@ export default function HomeTest() {
   const [modeLimit, setModeLimit] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
 
-  // Master emails with unlimited access
-  const MASTER_EMAILS = [
-    "skyclans2@gmail.com",
-    "ceo@detectx.app",
-    "support@detectx.app",
-    "coolkimy@gmail.com",
-  ];
-  const isMasterUser = user?.email && MASTER_EMAILS.includes(user.email);
+  // Master plan is authoritative from the server (set via DB by admin).
+  // Personal email allowlists belong on the server, not in the public bundle.
+  const isMasterUser = (user as any)?.plan === "master";
 
   // Refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -243,8 +238,8 @@ export default function HomeTest() {
   const selectedFileRef = useRef<File | null>(null); // Store actual File object for direct upload
   const xhrRef = useRef<XMLHttpRequest | null>(null); // Store XHR for cancel functionality
 
-  // RunPod API URL for direct file upload (bypasses tRPC Base64 encoding)
-  const DETECTX_API_URL = "https://emjvw2an6oynf9-8001.proxy.runpod.net/api";
+  // Detection API (via detectx.app → Cloudflare → Nginx → Uvicorn).
+  const DETECTX_API_URL = "https://detectx.app/api";
 
   // Initialize AudioRuntime on mount
   useEffect(() => {
@@ -862,9 +857,9 @@ export default function HomeTest() {
               }
               // Set returnUrl in localStorage so AuthCallback knows where to redirect
               localStorage.setItem("detectx_return_url", "/verify-audio");
-              // OAuth direct to RunPod backend (hardcoded; env-based routes
-              // through detectx.app → nginx reverse-proxies to Google → form breaks)
-              window.location.href = "https://emjvw2an6oynf9-8000.proxy.runpod.net/auth/google";
+              // OAuth via detectx.app (Cloudflare → Nginx). Ensure /auth/*
+              // passes through Cloudflare unmodified.
+              window.location.href = "https://detectx.app/auth/google";
             }}>
               Sign in with Google
             </Button>

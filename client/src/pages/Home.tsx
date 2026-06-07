@@ -267,14 +267,9 @@ export default function Home() {
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   // incrementUsageMutation removed - server handles usage increment in /verify-audio
 
-  // Master emails with unlimited access
-  const MASTER_EMAILS = [
-    "skyclans2@gmail.com",
-    "ceo@detectx.app",
-    "support@detectx.app",
-    "coolkimy@gmail.com",
-  ];
-  const isMasterUser = user?.email && MASTER_EMAILS.includes(user.email);
+  // Master plan is authoritative from the server (set via DB by admin).
+  // Personal email allowlists belong on the server, not in the public bundle.
+  const isMasterUser = (user as any)?.plan === "master";
 
   // Refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -285,7 +280,7 @@ export default function Home() {
 
   // Direct file upload API URL (bypasses tRPC Base64 encoding)
   const DETECTX_API_URL = (import.meta.env.VITE_DETECTX_API_URL
-    || "https://emjvw2an6oynf9-8000.proxy.runpod.net") + "/api";
+    || "https://detectx.app") + "/api";
 
   // Initialize AudioRuntime on mount
   useEffect(() => {
@@ -1016,9 +1011,9 @@ export default function Home() {
               }
               // Set returnUrl in localStorage so AuthCallback knows where to redirect
               localStorage.setItem("detectx_return_url", "/verify-audio");
-              // OAuth direct to RunPod backend (hardcoded; env-based routes
-              // through detectx.app → nginx reverse-proxies to Google → form breaks)
-              window.location.href = "https://emjvw2an6oynf9-8000.proxy.runpod.net/auth/google";
+              // OAuth via detectx.app (Cloudflare → Nginx). Ensure Cloudflare
+              // passes /auth/* through without modification.
+              window.location.href = "https://detectx.app/auth/google";
             }}>
               Sign in with Google
             </Button>

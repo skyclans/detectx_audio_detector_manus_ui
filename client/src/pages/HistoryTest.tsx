@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://emjvw2an6oynf9-8001.proxy.runpod.net/api";
+const API_BASE = import.meta.env.VITE_API_URL || "https://detectx.app/api";
 
 interface HistoryRecord {
   id: string;

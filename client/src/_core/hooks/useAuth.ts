@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 const RUNPOD_API_URL = import.meta.env.VITE_DETECTX_API_URL
-  || "https://emjvw2an6oynf9-8000.proxy.runpod.net";
+  || "https://detectx.app";
 
 /**
  * User interface matching RunPod /auth/me response

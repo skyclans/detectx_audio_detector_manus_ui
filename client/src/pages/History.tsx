@@ -24,7 +24,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://emjvw2an6oynf9-8000.proxy.runpod.net/api";
+const API_BASE = import.meta.env.VITE_API_URL || "https://detectx.app/api";
 
 const ENGINE_VERSION = "v3";
 const ENGINE_MODE = "Enhanced Mode";
@@ -810,9 +810,9 @@ export default function History() {
             <Button size="lg" onClick={() => {
               // Set returnUrl cookie so OAuth callback knows where to redirect
               document.cookie = "returnUrl=/history; path=/; max-age=300";
-              // OAuth direct to RunPod backend (hardcoded; env-based routes
-              // through detectx.app → nginx reverse-proxies to Google → form breaks)
-              window.location.href = "https://emjvw2an6oynf9-8000.proxy.runpod.net/auth/google";
+              // OAuth via detectx.app (Cloudflare → Nginx). Ensure /auth/*
+              // passes through Cloudflare unmodified.
+              window.location.href = "https://detectx.app/auth/google";
             }}>
               Sign in with Google
             </Button>

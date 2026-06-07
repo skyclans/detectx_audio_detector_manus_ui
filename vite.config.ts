@@ -6,12 +6,19 @@ import { defineConfig } from "vite";
 
 const pkg = JSON.parse(readFileSync("package.json", "utf-8"));
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __BUILD_DATE__: JSON.stringify(new Date().toISOString().split("T")[0]),
   },
+  // Strip console.* and debugger from production bundles. Keeps logging
+  // available in dev (vite dev server) while preventing internal state,
+  // API paths, and verdict objects from leaking to visitor DevTools.
+  esbuild:
+    mode === "production"
+      ? { drop: ["console", "debugger"] }
+      : undefined,
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -26,4 +33,4 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
   },
-});
+}));

@@ -4,9 +4,10 @@
  * v2.0 PRICING STRUCTURE:
  *
  * FREE ($0/forever):
- * - 3 verifications per month
- * - Verdict only (AI/Human) — no detailed report
- * - No PDF export, No certificate
+ * - 3 verifications per day
+ * - Full forensic report — same engine output as paid plans
+ * - All export formats (PDF, JSON, CSV, Markdown)
+ * - Human Verification Certificate
  * - Standard processing queue
  *
  * PRO ($39.99/month):
@@ -48,16 +49,16 @@ const plans = [
     price: "$0",
     period: "forever",
     icon: Sparkles,
-    positioning: "Quick evaluation — verdict only.",
+    positioning: "Full forensic report — 3 verifications per day.",
     perSong: null,
     features: [
-      "3 verifications per month",
-      "AI / Human verdict",
+      "3 verifications per day",
+      "Full analysis report with dual-engine metrics",
+      "PDF export & Human Verification Certificate",
+      "All export formats (PDF, JSON, CSV, Markdown)",
       "Standard processing queue",
     ],
     restrictions: [
-      "Verdict only — no detailed report",
-      "No PDF export or certificate",
       "No API access",
       "No batch processing",
     ],

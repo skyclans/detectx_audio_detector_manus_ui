@@ -27,7 +27,9 @@ import {
   ChevronRight,
   Search,
   Server,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  ShieldAlert
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
 
@@ -55,6 +57,8 @@ interface Verification {
   id: number;
   fileName: string;
   verdict: string | null;
+  cnnScore?: number | null;
+  disputeStatus?: string | null;
   status: string;
   duration: number | null;
   fileSize: number | null;
@@ -484,10 +488,12 @@ export default function AdminUserDetail() {
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">ID</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">File</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Result</th>
+                        <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">AI / Human</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Status</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Duration</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Size</th>
                         <th className="py-3 px-4 text-left text-sm font-medium text-muted-foreground">Date (UTC)</th>
+                        <th className="py-3 px-4 text-right text-sm font-medium text-muted-foreground">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -518,6 +524,25 @@ export default function AdminUserDetail() {
                             ) : (
                               <span className="text-muted-foreground text-sm">-</span>
                             )}
+                            {v.disputeStatus === "open" && (
+                              <span className="ml-2 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">
+                                <ShieldAlert className="h-3 w-3" /> Disputed
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4">
+                            {typeof v.cnnScore === "number" ? (
+                              <div className="flex flex-col text-xs font-mono">
+                                <span className="text-red-400">
+                                  AI {(v.cnnScore * 100).toFixed(1)}%
+                                </span>
+                                <span className="text-green-400">
+                                  Human {((1 - v.cnnScore) * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">-</span>
+                            )}
                           </td>
                           <td className="py-3 px-4">
                             <span className={`text-sm px-2 py-1 rounded ${
@@ -538,6 +563,16 @@ export default function AdminUserDetail() {
                           </td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">
                             {formatDate(v.createdAt)}
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setLocation(`/admin/verifications/${v.id}`)}
+                              className="gap-1"
+                            >
+                              <Eye className="h-3 w-3" /> Investigate
+                            </Button>
                           </td>
                         </tr>
                       ))}

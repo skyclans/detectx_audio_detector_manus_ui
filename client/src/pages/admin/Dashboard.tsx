@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { fetchWithAuth } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,10 @@ import {
   Bot,
   User,
   TrendingUp,
-  Activity
+  Activity,
+  ShieldAlert,
+  Eye,
+  FileAudio
 } from "lucide-react";
 import {
   AreaChart,
@@ -47,11 +51,28 @@ interface DashboardData {
 
 type TrendPeriod = 7 | 30 | 90;
 
+interface DisputeSummaryRow {
+  id: number | string;
+  request_id?: string | number;
+  fileName?: string;
+  filename?: string;
+  user_email?: string | null;
+  userId?: string | null;
+  created_at?: string;
+  createdAt?: string;
+}
+
+interface DisputeSummary {
+  disputes: DisputeSummaryRow[];
+  total: number;
+}
+
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(7);
+  const [disputes, setDisputes] = useState<DisputeSummary | null>(null);
 
   const fetchDashboard = useCallback(async (days: TrendPeriod) => {
     try {
@@ -73,6 +94,30 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchDashboard(trendPeriod);
   }, [trendPeriod, fetchDashboard]);
+
+  // Fetch open disputes summary (5 most recent + total). Non-fatal on error.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await fetchWithAuth(
+          "/api/admin/disputes?status=open&limit=5",
+        );
+        if (!resp.ok) return;
+        const json = await resp.json();
+        if (cancelled) return;
+        setDisputes({
+          disputes: Array.isArray(json?.disputes) ? json.disputes : [],
+          total: Number(json?.total ?? 0),
+        });
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handlePeriodChange = (period: TrendPeriod) => {
     setTrendPeriod(period);
@@ -177,6 +222,79 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Open Disputes Card */}
+            {disputes && (
+              <Card
+                className={
+                  disputes.total > 0
+                    ? "border-amber-500/40 bg-amber-500/5"
+                    : undefined
+                }
+              >
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <ShieldAlert
+                        className={
+                          disputes.total > 0
+                            ? "h-5 w-5 text-amber-400"
+                            : "h-5 w-5 text-muted-foreground"
+                        }
+                      />
+                      Open Disputes
+                      <span className="ml-2 text-2xl font-bold">
+                        {disputes.total}
+                      </span>
+                    </CardTitle>
+                    <Link href="/admin/disputes">
+                      <a className="text-xs inline-flex items-center px-2 py-1 rounded border border-border hover:bg-muted/50 transition-colors">
+                        <Eye className="h-3 w-3 mr-1" />
+                        View All
+                      </a>
+                    </Link>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {disputes.disputes.length === 0 ? (
+                    <p className="text-sm text-muted-foreground italic">
+                      현재 진행 중인 분쟁이 없습니다.
+                    </p>
+                  ) : (
+                    <ul className="divide-y divide-border/40">
+                      {disputes.disputes.map((d) => {
+                        const reqId = d.request_id ?? d.id;
+                        return (
+                          <li
+                            key={String(d.id)}
+                            className="flex items-center justify-between py-2 text-sm"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <FileAudio className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                              <span
+                                className="truncate max-w-[260px]"
+                                title={d.fileName || d.filename}
+                              >
+                                {d.fileName || d.filename || `#${d.id}`}
+                              </span>
+                              <span className="text-xs text-muted-foreground ml-2 truncate max-w-[180px]">
+                                {d.user_email || d.userId || ""}
+                              </span>
+                            </div>
+                            <Link href={`/admin/verifications/${reqId}`}>
+                              <a className="text-xs inline-flex items-center px-2 py-1 rounded border border-border hover:bg-muted/50 transition-colors flex-shrink-0">
+                                <Eye className="h-3 w-3 mr-1" />
+                                Investigate
+                              </a>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Trend Chart with Recharts */}
             <Card>

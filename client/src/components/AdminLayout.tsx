@@ -2,14 +2,15 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { fetchWithAuth } from "@/lib/api";
-import { 
-  LayoutDashboard, 
-  Users, 
-  FileCheck, 
+import {
+  LayoutDashboard,
+  Users,
+  FileCheck,
   Settings,
   ArrowLeft,
   Shield,
-  ScrollText
+  ScrollText,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const [location] = useLocation();
   const [adminStatus, setAdminStatus] = useState<AdminStatus | null>(null);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+  const [openDisputeCount, setOpenDisputeCount] = useState<number>(0);
 
   // Check admin status from server
   useEffect(() => {
@@ -56,6 +58,28 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       checkAdminStatus();
     }
   }, [isAuthenticated, isAuthLoading]);
+
+  // Fetch open dispute count for sidebar badge. Non-fatal on failure.
+  useEffect(() => {
+    if (!adminStatus?.isAdmin) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await fetchWithAuth(
+          "/api/admin/disputes?status=open&limit=1",
+        );
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (cancelled) return;
+        setOpenDisputeCount(Number(data?.total ?? 0));
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [adminStatus?.isAdmin]);
 
   const isLoading = isAuthLoading || isCheckingAdmin;
   const isAdmin = adminStatus?.isAdmin ?? false;
@@ -112,10 +136,21 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  const navItems = [
+  const navItems: Array<{
+    href: string;
+    icon: typeof LayoutDashboard;
+    label: string;
+    badge?: number;
+  }> = [
     { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/verifications", icon: FileCheck, label: "Verifications" },
+    {
+      href: "/admin/disputes",
+      icon: ShieldAlert,
+      label: "Disputes",
+      badge: openDisputeCount,
+    },
     { href: "/admin/logs", icon: ScrollText, label: "Activity Logs" },
   ];
 
@@ -158,7 +193,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <aside className="w-64 border-r border-border min-h-[calc(100vh-4rem)] bg-card">
           <nav className="p-4 space-y-1">
             {navItems.map((item) => {
-              const isActive = location === item.href || 
+              const isActive = location === item.href ||
                 (item.href !== "/admin" && location.startsWith(item.href));
               return (
                 <Link key={item.href} href={item.href}>
@@ -171,7 +206,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     )}
                   >
                     <item.icon className="h-5 w-5" />
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {item.badge && item.badge > 0 ? (
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                        {item.badge}
+                      </span>
+                    ) : null}
                   </a>
                 </Link>
               );

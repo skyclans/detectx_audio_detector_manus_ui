@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "wouter";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,8 @@ import {
   FileAudio,
   Server,
   AlertCircle,
-  Download
+  Download,
+  Eye
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
 
@@ -390,6 +392,7 @@ export default function AdminVerifications() {
                         <th className="text-left py-3 px-4 font-medium text-muted-foreground">Duration</th>
                         <th className="text-left py-3 px-4 font-medium text-muted-foreground">Size</th>
                         <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date (UTC)</th>
+                        <th className="text-right py-3 px-4 font-medium text-muted-foreground">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -443,6 +446,14 @@ export default function AdminVerifications() {
                           </td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">
                             {formatDate(v.createdAt)}
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <Link href={`/admin/verifications/${v.id}`}>
+                              <a className="inline-flex items-center text-xs px-2 py-1 rounded border border-border hover:bg-muted/50 transition-colors">
+                                <Eye className="h-3 w-3 mr-1" />
+                                Investigate
+                              </a>
+                            </Link>
                           </td>
                         </tr>
                       ))}

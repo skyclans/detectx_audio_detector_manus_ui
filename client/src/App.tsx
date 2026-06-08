@@ -52,6 +52,8 @@ const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminUsers = lazy(() => import("./pages/admin/Users"));
 const AdminUserDetail = lazy(() => import("./pages/admin/UserDetail"));
 const AdminVerifications = lazy(() => import("./pages/admin/Verifications"));
+const AdminVerificationDetail = lazy(() => import("./pages/admin/VerificationDetail"));
+const AdminDisputes = lazy(() => import("./pages/admin/Disputes"));
 const AdminLogs = lazy(() => import("./pages/admin/Logs"));
 
 function Router() {
@@ -134,6 +136,8 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/users/:id" component={AdminUserDetail} />
       <Route path="/admin/verifications" component={AdminVerifications} />
+      <Route path="/admin/verifications/:id" component={AdminVerificationDetail} />
+      <Route path="/admin/disputes" component={AdminDisputes} />
       <Route path="/admin/logs" component={AdminLogs} />
       
       <Route path="/404" component={NotFound} />

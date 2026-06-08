@@ -13,7 +13,6 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -44,6 +43,11 @@ import {
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
 import { toast } from "sonner";
+import { RichTextEditor } from "@/components/email/RichTextEditor";
+import {
+  AttachmentPicker,
+  type Attachment,
+} from "@/components/email/AttachmentPicker";
 
 interface EmailTemplate {
   id: string;
@@ -145,6 +149,7 @@ export default function AdminUserDetail() {
   );
   const [emailCategory, setEmailCategory] = useState("custom");
   const [emailSending, setEmailSending] = useState(false);
+  const [emailAttachments, setEmailAttachments] = useState<Attachment[]>([]);
   
   // Check RunPod API health
   const checkHealth = useCallback(async () => {
@@ -271,27 +276,39 @@ export default function AdminUserDetail() {
   const handleSendEmail = async () => {
     if (!userId) return;
     if (!emailSubject.trim() || !emailBodyHtml.trim()) {
-      toast.error("Subject and HTML body are required.");
+      toast.error("Subject and body are required.");
       return;
     }
     setEmailSending(true);
     try {
+      const body: Record<string, any> = {
+        subject: emailSubject,
+        body_html: emailBodyHtml,
+        body_text: emailBodyText,
+        template_id: emailTemplateId || undefined,
+        email_type: emailType,
+        category: emailCategory,
+      };
+      if (emailAttachments.length > 0) {
+        body.attachments = emailAttachments.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+          content_type: a.content_type,
+          size: a.size,
+        }));
+      }
       const resp = await fetchWithAuth(
         `/api/admin/email/send-to-user/${userId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            subject: emailSubject,
-            body_html: emailBodyHtml,
-            body_text: emailBodyText,
-            template_id: emailTemplateId || undefined,
-            email_type: emailType,
-            category: emailCategory,
-          }),
+          body: JSON.stringify(body),
         },
       );
       if (!resp.ok) {
+        if (resp.status === 413) {
+          throw new Error("Attachments exceed 25 MB total");
+        }
         const err = await resp.json().catch(() => ({}));
         throw new Error(err.detail || `HTTP ${resp.status}`);
       }
@@ -301,6 +318,7 @@ export default function AdminUserDetail() {
       setEmailSubject("");
       setEmailBodyHtml("");
       setEmailBodyText("");
+      setEmailAttachments([]);
       // refresh stats / verifications (in case email triggers any state)
       fetchUser();
     } catch (err) {
@@ -742,97 +760,110 @@ export default function AdminUserDetail() {
         </Card>
       </div>
 
-      {/* Send Email modal */}
+      {/* Send Email modal — Gmail-style */}
       <Dialog open={emailModalOpen} onOpenChange={setEmailModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Send Email</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-primary" />
+              New Email
+            </DialogTitle>
             <DialogDescription>
-              Send a direct email to {user?.email}. Compliance footer is
-              appended automatically.
+              Sending to <span className="font-mono">{user?.email}</span>.
+              Compliance footer appended automatically.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>Template (optional)</Label>
-              <select
-                value={emailTemplateId}
-                onChange={(e) => setEmailTemplateId(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">— Blank —</option>
-                {emailTemplates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.id} {t.description ? `— ${t.description}` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Email type</Label>
-                <select
-                  value={emailType}
-                  onChange={(e) =>
-                    setEmailType(
-                      e.target.value as "transactional" | "marketing",
-                    )
-                  }
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="transactional">Transactional</option>
-                  <option value="marketing">Marketing</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <select
-                  value={emailCategory}
-                  onChange={(e) => setEmailCategory(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="announcement">Announcement</option>
-                  <option value="dispute_response">Dispute response</option>
-                  <option value="newsletter">Newsletter</option>
-                  <option value="billing">Billing</option>
-                  <option value="system">System</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Subject</Label>
+          <div className="space-y-3 py-2">
+            {/* Subject */}
+            <div className="flex items-center gap-3 border-b border-border pb-2">
+              <span className="text-xs font-medium text-muted-foreground w-16 shrink-0">
+                Subject
+              </span>
               <Input
                 value={emailSubject}
                 onChange={(e) => setEmailSubject(e.target.value)}
-                placeholder="Subject line"
+                placeholder="Subject"
+                className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-9"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Body (HTML)</Label>
-              <Textarea
-                value={emailBodyHtml}
-                onChange={(e) => setEmailBodyHtml(e.target.value)}
-                rows={8}
-                className="font-mono text-xs"
-                placeholder="<p>Hello {{name}}, ...</p>"
-              />
-            </div>
+            {/* Rich editor */}
+            <RichTextEditor
+              value={emailBodyHtml}
+              onChange={(html, text) => {
+                setEmailBodyHtml(html);
+                setEmailBodyText(text);
+              }}
+              placeholder="Write your message…"
+              minHeight="220px"
+              compact
+            />
 
-            <div className="space-y-2">
-              <Label>Plain text fallback</Label>
-              <Textarea
-                value={emailBodyText}
-                onChange={(e) => setEmailBodyText(e.target.value)}
-                rows={4}
-                className="font-mono text-xs"
-                placeholder="Hello {{name}}, ..."
-              />
-            </div>
+            {/* Attachments */}
+            <AttachmentPicker
+              attachments={emailAttachments}
+              onChange={setEmailAttachments}
+              compact
+            />
+
+            {/* Advanced options */}
+            <details className="text-xs">
+              <summary className="cursor-pointer text-muted-foreground hover:text-foreground py-1">
+                Options ({emailType} · {emailCategory}
+                {emailTemplateId ? ` · template: ${emailTemplateId}` : ""})
+              </summary>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Template</Label>
+                  <select
+                    value={emailTemplateId}
+                    onChange={(e) => setEmailTemplateId(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="">— Blank —</option>
+                    {emailTemplates.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.id}
+                        {t.description ? ` — ${t.description}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Type</Label>
+                  <select
+                    value={emailType}
+                    onChange={(e) =>
+                      setEmailType(
+                        e.target.value as "transactional" | "marketing",
+                      )
+                    }
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="transactional">Transactional</option>
+                    <option value="marketing">Marketing</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Category</Label>
+                  <select
+                    value={emailCategory}
+                    onChange={(e) => setEmailCategory(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="announcement">Announcement</option>
+                    <option value="dispute_response">Dispute response</option>
+                    <option value="newsletter">Newsletter</option>
+                    <option value="billing">Billing</option>
+                    <option value="system">System</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </div>
+              </div>
+            </details>
           </div>
+
           <DialogFooter>
             <Button
               variant="outline"

@@ -43,7 +43,7 @@ export default function Privacy() {
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
           <p className="text-sm text-muted-foreground mb-8">
-            Effective Date: January 17, 2026 | Last Updated: January 17, 2026
+            Effective Date: January 17, 2026 | Last Updated: June 9, 2026
           </p>
 
           <p className="text-muted-foreground leading-relaxed">
@@ -125,7 +125,77 @@ export default function Privacy() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">8. Your Rights</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">8. Email Communications and Marketing Consent</h2>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">a. Transactional Emails</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              DetectX sends transactional emails when reasonably necessary to operate the Service. These include, without limitation:
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4 mt-2">
+              <li>Account and billing notifications</li>
+              <li>Responses to forensic dispute submissions you have filed</li>
+              <li>Security and account-integrity alerts</li>
+              <li>Service announcements that materially affect your usage</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              Transactional emails are necessary to provide the Service. You cannot opt out of transactional emails without closing your account.
+            </p>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">b. Marketing Emails</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              DetectX may send product update announcements, feature release notices, and newsletters ("Marketing Emails"). DetectX will send Marketing Emails only to users who have explicitly opted in to marketing communications.
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4 mt-2">
+              <li>You can manage your marketing consent at any time at <Link href="/account/marketing-preferences" className="text-primary hover:underline">/account/marketing-preferences</Link>.</li>
+              <li>Every Marketing Email contains an unsubscribe link that is processed within 24 hours of receipt.</li>
+              <li>A single click on the unsubscribe link is sufficient to withdraw consent; no account login is required.</li>
+            </ul>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">c. Legal Bases (GDPR Articles 6 and 7)</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Marketing Emails are sent on the basis of your consent under Article 6(1)(a) of the General Data Protection Regulation; explicit opt-in is required and may be withdrawn at any time.</li>
+              <li>Transactional emails are sent on the basis of performance of a contract under Article 6(1)(b) and the legitimate interests of DetectX in operating the Service under Article 6(1)(f).</li>
+            </ul>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">d. Email Retention</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Email sending logs (recipient address, subject line, send timestamp, and delivery status) are retained for twelve (12) months for deliverability monitoring and compliance audits.</li>
+              <li>Email message content is not retained beyond thirty (30) days after send, unless the message is tied to an open dispute case, in which case it is retained for the duration of that case.</li>
+            </ul>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">e. Third-Party Email Processor</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              DetectX uses Resend, Inc. ("Resend") as its email service provider. Resend processes recipient email addresses and message content for the sole purpose of message delivery on behalf of DetectX.
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4 mt-2">
+              <li>Resend privacy policy: <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">https://resend.com/legal/privacy-policy</a></li>
+              <li>Resend is hosted in the United States. Personal data of recipients located in the EU or EEA is transferred under appropriate safeguards, including Standard Contractual Clauses (SCCs) approved by the European Commission.</li>
+            </ul>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">f. Right to Withdraw and Right to Erasure</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>You may withdraw marketing consent at any time and without providing any reason.</li>
+              <li>You may request deletion of your email log records by contacting <a href="mailto:support@detectx.app" className="text-primary hover:underline">support@detectx.app</a>.</li>
+              <li>Withdrawal of marketing consent does not affect your continued receipt of transactional emails necessary for the Service.</li>
+            </ul>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">g. Canada — Anti-Spam Legislation (CASL)</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>DetectX complies with Canada's Anti-Spam Legislation.</li>
+              <li>Express consent is required before DetectX sends any commercial electronic message to a recipient located in Canada.</li>
+              <li>Unsubscribe requests from Canadian recipients are honored within ten (10) business days of receipt; in practice most requests are processed instantly.</li>
+            </ul>
+
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">h. Contact for Email-Related Questions</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Privacy questions: <a href="mailto:support@detectx.app" className="text-primary hover:underline">support@detectx.app</a></li>
+              <li>Data Subject Requests (GDPR / CCPA): <a href="mailto:support@detectx.app" className="text-primary hover:underline">support@detectx.app</a> with the subject line "DSR Request"</li>
+              <li>Postal address: DetectX, Inc., c/o Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">9. Your Rights</h2>
             <p className="text-muted-foreground leading-relaxed">
               Depending on your jurisdiction, you may have rights to:
             </p>
@@ -140,23 +210,26 @@ export default function Privacy() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">9. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">10. Children's Privacy</h2>
             <p className="text-muted-foreground leading-relaxed">
               The Service is not intended for children under the age of 13. DetectX does not knowingly collect personal data from children.
             </p>
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">10. Changes to This Privacy Policy</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">11. Changes to This Privacy Policy</h2>
             <p className="text-muted-foreground leading-relaxed">
               We may update this Privacy Policy from time to time. Material changes will be communicated through the Service.
             </p>
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">11. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">12. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
               DetectX, Inc.<br />
+              c/o Legalinc Corporate Services Inc.<br />
+              131 Continental Dr, Suite 305<br />
+              Newark, DE 19713, USA<br />
               Email: <a href="mailto:support@detectx.app" className="text-primary hover:underline">support@detectx.app</a>
             </p>
           </section>

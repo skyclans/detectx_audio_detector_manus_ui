@@ -43,7 +43,7 @@ export default function Terms() {
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <h1 className="text-3xl font-bold text-foreground mb-2">Terms of Service</h1>
           <p className="text-sm text-muted-foreground mb-8">
-            Effective Date: January 17, 2026 | Last Updated: January 17, 2026
+            Effective Date: January 17, 2026 | Last Updated: June 9, 2026
           </p>
 
           <p className="text-muted-foreground leading-relaxed">
@@ -146,14 +146,26 @@ export default function Terms() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">9. Service Availability</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">9. Email Communications</h2>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>By creating an account, you consent to receive transactional emails necessary for the operation of the Service, including account, billing, security, dispute response, and service announcement messages.</li>
+              <li>Marketing emails, including product updates, feature releases, and newsletters, require separate explicit opt-in. DetectX will not send marketing emails to users who have not provided express consent.</li>
+              <li>You may withdraw marketing consent at any time, without effect on your account status or your continued access to the Service. Withdrawal does not affect transactional emails.</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              Additional details, including the legal bases for processing and the retention period for email logs, are provided in the <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+            </p>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">10. Service Availability</h2>
             <p className="text-muted-foreground leading-relaxed">
               The Service is provided on an "AS IS" and "AS AVAILABLE" basis. DetectX does not guarantee uninterrupted, error-free, or continuous operation.
             </p>
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">10. Limitation of Liability</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">11. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">To the maximum extent permitted by law:</p>
             <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4 mt-2">
               <li>DetectX shall not be liable for indirect, incidental, consequential, or special damages</li>
@@ -163,7 +175,7 @@ export default function Terms() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">11. Termination</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">12. Termination</h2>
             <p className="text-muted-foreground leading-relaxed">DetectX may suspend or terminate access to the Service at any time for:</p>
             <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4 mt-2">
               <li>Violation of these Terms</li>
@@ -173,14 +185,14 @@ export default function Terms() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">12. Governing Law</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">13. Governing Law</h2>
             <p className="text-muted-foreground leading-relaxed">
               These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict-of-law principles.
             </p>
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">13. Third-Party References & Trademarks</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">14. Third-Party References & Trademarks</h2>
             <p className="text-muted-foreground leading-relaxed">
               DetectX is an independent analysis tool. Any mention of third-party services, platforms, or products — including but not limited to Suno, Udio, ElevenLabs, OpenAI, ACRCloud, and Resemble AI — is for identification and interoperability purposes only and does not imply any affiliation, endorsement, or sponsorship by those parties.
             </p>
@@ -193,9 +205,12 @@ export default function Terms() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">14. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">15. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
               DetectX, Inc.<br />
+              c/o Legalinc Corporate Services Inc.<br />
+              131 Continental Dr, Suite 305<br />
+              Newark, DE 19713, USA<br />
               Email: <a href="mailto:support@detectx.app" className="text-primary hover:underline">support@detectx.app</a>
             </p>
           </section>

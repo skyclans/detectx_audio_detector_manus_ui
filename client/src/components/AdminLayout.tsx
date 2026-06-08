@@ -10,7 +10,8 @@ import {
   ArrowLeft,
   Shield,
   ScrollText,
-  ShieldAlert
+  ShieldAlert,
+  Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -151,6 +152,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       label: "Disputes",
       badge: openDisputeCount,
     },
+    { href: "/admin/email/compose", icon: Mail, label: "Email" },
     { href: "/admin/logs", icon: ScrollText, label: "Activity Logs" },
   ];
 
@@ -193,8 +195,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <aside className="w-64 border-r border-border min-h-[calc(100vh-4rem)] bg-card">
           <nav className="p-4 space-y-1">
             {navItems.map((item) => {
+              const isEmailGroup = item.href.startsWith("/admin/email");
               const isActive = location === item.href ||
-                (item.href !== "/admin" && location.startsWith(item.href));
+                (item.href !== "/admin" && location.startsWith(item.href)) ||
+                (isEmailGroup && location.startsWith("/admin/email"));
               return (
                 <Link key={item.href} href={item.href}>
                   <a

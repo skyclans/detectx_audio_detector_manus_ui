@@ -13,7 +13,17 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ArrowLeft,
   User,
   Mail,
@@ -29,9 +39,21 @@ import {
   Server,
   AlertCircle,
   Eye,
-  ShieldAlert
+  ShieldAlert,
+  Send,
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
+import { toast } from "sonner";
+
+interface EmailTemplate {
+  id: string;
+  type?: string;
+  category?: string;
+  description?: string;
+  subjects?: Record<string, string> | string;
+  body_html?: string;
+  body_text?: string;
+}
 
 // Types
 interface UserData {
@@ -110,6 +132,19 @@ export default function AdminUserDetail() {
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
+
+  // Send Email modal states
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
+  const [emailTemplateId, setEmailTemplateId] = useState("");
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBodyHtml, setEmailBodyHtml] = useState("");
+  const [emailBodyText, setEmailBodyText] = useState("");
+  const [emailType, setEmailType] = useState<"transactional" | "marketing">(
+    "transactional",
+  );
+  const [emailCategory, setEmailCategory] = useState("custom");
+  const [emailSending, setEmailSending] = useState(false);
   
   // Check RunPod API health
   const checkHealth = useCallback(async () => {
@@ -195,7 +230,86 @@ export default function AdminUserDetail() {
   useEffect(() => {
     fetchVerifications();
   }, [fetchVerifications]);
-  
+
+  // Fetch email templates once on mount (used by Send Email modal)
+  useEffect(() => {
+    (async () => {
+      try {
+        const resp = await fetchWithAuth("/api/admin/email/templates");
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const list: EmailTemplate[] = Array.isArray(data)
+          ? data
+          : data.templates || [];
+        setEmailTemplates(list);
+      } catch {
+        /* silent — feature still works without templates */
+      }
+    })();
+  }, []);
+
+  // Apply template selection
+  useEffect(() => {
+    if (!emailTemplateId) return;
+    const tpl = emailTemplates.find((t) => t.id === emailTemplateId);
+    if (!tpl) return;
+    let subj = "";
+    if (typeof tpl.subjects === "string") {
+      subj = tpl.subjects;
+    } else if (tpl.subjects && typeof tpl.subjects === "object") {
+      subj = tpl.subjects.en || Object.values(tpl.subjects)[0] || "";
+    }
+    if (subj) setEmailSubject(subj);
+    if (tpl.body_html) setEmailBodyHtml(tpl.body_html);
+    if (tpl.body_text) setEmailBodyText(tpl.body_text);
+    if (tpl.category) setEmailCategory(tpl.category);
+    if (tpl.type === "marketing" || tpl.type === "transactional") {
+      setEmailType(tpl.type);
+    }
+  }, [emailTemplateId, emailTemplates]);
+
+  const handleSendEmail = async () => {
+    if (!userId) return;
+    if (!emailSubject.trim() || !emailBodyHtml.trim()) {
+      toast.error("Subject and HTML body are required.");
+      return;
+    }
+    setEmailSending(true);
+    try {
+      const resp = await fetchWithAuth(
+        `/api/admin/email/send-to-user/${userId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: emailSubject,
+            body_html: emailBodyHtml,
+            body_text: emailBodyText,
+            template_id: emailTemplateId || undefined,
+            email_type: emailType,
+            category: emailCategory,
+          }),
+        },
+      );
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      toast.success("Email queued for delivery");
+      setEmailModalOpen(false);
+      setEmailTemplateId("");
+      setEmailSubject("");
+      setEmailBodyHtml("");
+      setEmailBodyText("");
+      // refresh stats / verifications (in case email triggers any state)
+      fetchUser();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to send email");
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
   const verifications = verificationsData?.verifications || [];
   const totalPages = verificationsData?.totalPages || 1;
   const totalVerifications = verificationsData?.total || 0;
@@ -305,11 +419,25 @@ export default function AdminUserDetail() {
         
         {/* User Info Card */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
               User Information
             </CardTitle>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setEmailCategory("custom");
+                  setEmailType("transactional");
+                  setEmailModalOpen(true);
+                }}
+              >
+                <Send className="h-4 w-4 mr-1" />
+                Send Email
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -613,6 +741,113 @@ export default function AdminUserDetail() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Send Email modal */}
+      <Dialog open={emailModalOpen} onOpenChange={setEmailModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Send Email</DialogTitle>
+            <DialogDescription>
+              Send a direct email to {user?.email}. Compliance footer is
+              appended automatically.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Template (optional)</Label>
+              <select
+                value={emailTemplateId}
+                onChange={(e) => setEmailTemplateId(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">— Blank —</option>
+                {emailTemplates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.id} {t.description ? `— ${t.description}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Email type</Label>
+                <select
+                  value={emailType}
+                  onChange={(e) =>
+                    setEmailType(
+                      e.target.value as "transactional" | "marketing",
+                    )
+                  }
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="transactional">Transactional</option>
+                  <option value="marketing">Marketing</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <select
+                  value={emailCategory}
+                  onChange={(e) => setEmailCategory(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="announcement">Announcement</option>
+                  <option value="dispute_response">Dispute response</option>
+                  <option value="newsletter">Newsletter</option>
+                  <option value="billing">Billing</option>
+                  <option value="system">System</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Subject</Label>
+              <Input
+                value={emailSubject}
+                onChange={(e) => setEmailSubject(e.target.value)}
+                placeholder="Subject line"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Body (HTML)</Label>
+              <Textarea
+                value={emailBodyHtml}
+                onChange={(e) => setEmailBodyHtml(e.target.value)}
+                rows={8}
+                className="font-mono text-xs"
+                placeholder="<p>Hello {{name}}, ...</p>"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Plain text fallback</Label>
+              <Textarea
+                value={emailBodyText}
+                onChange={(e) => setEmailBodyText(e.target.value)}
+                rows={4}
+                className="font-mono text-xs"
+                placeholder="Hello {{name}}, ..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEmailModalOpen(false)}
+              disabled={emailSending}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSendEmail} disabled={emailSending}>
+              <Send className="h-4 w-4 mr-2" />
+              {emailSending ? "Sending..." : "Send"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }

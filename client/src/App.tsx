@@ -55,6 +55,16 @@ const AdminVerifications = lazy(() => import("./pages/admin/Verifications"));
 const AdminVerificationDetail = lazy(() => import("./pages/admin/VerificationDetail"));
 const AdminDisputes = lazy(() => import("./pages/admin/Disputes"));
 const AdminLogs = lazy(() => import("./pages/admin/Logs"));
+const AdminEmailCompose = lazy(() => import("./pages/admin/EmailCompose"));
+const AdminEmailCampaigns = lazy(() => import("./pages/admin/EmailCampaigns"));
+const AdminEmailCampaignDetail = lazy(
+  () => import("./pages/admin/EmailCampaignDetail"),
+);
+
+// User-facing account pages (lazy)
+const AccountMarketingConsent = lazy(
+  () => import("./pages/account/MarketingConsent"),
+);
 
 function Router() {
   return (
@@ -139,6 +149,12 @@ function Router() {
       <Route path="/admin/verifications/:id" component={AdminVerificationDetail} />
       <Route path="/admin/disputes" component={AdminDisputes} />
       <Route path="/admin/logs" component={AdminLogs} />
+      <Route path="/admin/email/compose" component={AdminEmailCompose} />
+      <Route path="/admin/email/campaigns" component={AdminEmailCampaigns} />
+      <Route path="/admin/email/campaigns/:id" component={AdminEmailCampaignDetail} />
+
+      {/* User-facing account preferences */}
+      <Route path="/account/marketing-preferences" component={AccountMarketingConsent} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

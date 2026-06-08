@@ -281,7 +281,9 @@ export default function AdminEmailCompose() {
     setCountError(null);
     try {
       const params = new URLSearchParams();
-      params.set("mode", mode);
+      // Backend Literal expects "dispute_status" not "dispute".
+      const apiMode = mode === "dispute" ? "dispute_status" : mode;
+      params.set("mode", apiMode);
       params.set("type", emailType);
       if (mode === "plan" && planSel.length)
         params.set("plan", planSel.join(","));
@@ -315,10 +317,20 @@ export default function AdminEmailCompose() {
     }
   }, [mode, planSel, disputeSel, individualInput, csvInput, emailType]);
 
-  // Auto-refresh count when recipient inputs settle
+  // Auto-refresh count when recipient inputs settle.
+  // Use a ref to the latest fetchRecipientCount so the debounced function
+  // always invokes the current closure (which captures current mode,
+  // planSel, individualInput, etc.). Without this, the debounce captures
+  // the FIRST render's fetchRecipientCount and keeps calling it with the
+  // stale mode='all' state, returning every user in the DB.
+  const fetchRef = useRef(fetchRecipientCount);
+  useEffect(() => {
+    fetchRef.current = fetchRecipientCount;
+  }, [fetchRecipientCount]);
+
   const debouncedCount = useRef(
     debounce(() => {
-      void fetchRecipientCount();
+      void fetchRef.current();
     }, 600),
   ).current;
 

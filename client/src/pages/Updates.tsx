@@ -19,7 +19,7 @@ export default function Updates() {
       <SEO
         title="Updates"
         description="DetectX changelog: latest system updates, engine improvements, and feature releases. Track our AI music detection accuracy and capability evolution."
-        path="/updates"
+        path="/updates/"
       />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

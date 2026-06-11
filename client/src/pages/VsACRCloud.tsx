@@ -24,7 +24,7 @@ export default function VsACRCloud() {
       <SEO
         title="DetectX vs ACRCloud — AI Music Detection Comparison 2026"
         description="Compare DetectX and ACRCloud for AI music detection. Side-by-side comparison of accuracy, features, pricing, batch processing, and voice deepfake detection capabilities."
-        path="/vs/acrcloud"
+        path="/vs/acrcloud/"
       />
       {/* FAQPage Schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({

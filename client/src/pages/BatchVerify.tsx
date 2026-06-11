@@ -846,7 +846,7 @@ export default function BatchVerify() {
       <SEO
         title="Batch AI Music Detection — Scan Hundreds of Tracks at Once"
         description="Batch AI music detection for labels, publishers, and distributors. Upload hundreds of audio files and detect AI-generated music from Suno, Udio at scale. CSV/JSON export."
-        path="/batch-verify"
+        path="/batch-verify/"
       />
     <ForensicLayout title="Batch Verification" subtitle="Process multiple audio files at once">
       <div className="max-w-5xl space-y-6">

@@ -19,7 +19,7 @@ export default function About() {
       <SEO
         title="About"
         description="About DetectX: an independent AI detection platform for AI-generated content detection. Evidence-only approach — we report signals, not verdicts."
-        path="/about"
+        path="/about/"
       />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

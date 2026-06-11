@@ -15,13 +15,27 @@ const DIST = join(__dirname, "..", "dist", "public");
 
 const ROUTES = [
   "/",
-  "/technology",
-  "/research",
-  "/updates",
-  "/about",
-  "/contact",
-  "/terms",
-  "/privacy",
+  // Locale landing pages (8) — full translations in pages/Landing{XX}.tsx
+  "/en/", "/ko/", "/ja/", "/es/", "/de/", "/fr/", "/pt/", "/zh/",
+  // Money pages
+  "/verify-audio/",
+  "/verify-voice/",
+  "/batch-verify/",
+  "/plan/",
+  // Information pages
+  "/technology/",
+  "/research/",
+  "/updates/",
+  "/about/",
+  "/contact/",
+  // Legal
+  "/terms/",
+  "/privacy/",
+  // Blog
+  "/blog/how-to-detect-ai-generated-music/",
+  // Comparison (renamed to match real Wouter routes)
+  "/vs/acrcloud/",
+  "/vs/resemble-ai/",
 ];
 
 const MIME_TYPES = {
@@ -90,7 +104,7 @@ async function prerender() {
   try {
     browser = await puppeteer.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--lang=en-US"],
     });
   } catch (err) {
     console.warn(`[prerender] Chrome not available, skipping prerender: ${err.message}`);
@@ -99,6 +113,8 @@ async function prerender() {
   }
 
   let success = 0;
+  const failures = [];
+  let rootFailed = false;
 
   for (const route of ROUTES) {
     const page = await browser.newPage();
@@ -106,6 +122,15 @@ async function prerender() {
     // Suppress console noise from the page
     page.on("console", () => {});
     page.on("pageerror", () => {});
+
+    // Pin Puppeteer language to en-US so root "/" renders English regardless of
+    // the host machine's locale. Locale landing pages (/ko/, /ja/, ...) set
+    // their own language explicitly in-component, so this seed is harmless there.
+    await page.evaluateOnNewDocument(() => {
+      Object.defineProperty(navigator, "language", { get: () => "en-US" });
+      Object.defineProperty(navigator, "languages", { get: () => ["en-US"] });
+      try { localStorage.setItem("detectx-lang", "en"); } catch {}
+    });
 
     try {
       await page.goto(`http://localhost:${port}${route}`, {
@@ -130,7 +155,13 @@ async function prerender() {
       success++;
       console.log(`[prerender] ${route} — OK`);
     } catch (err) {
-      console.error(`[prerender] ${route} — FAILED: ${err.message}`);
+      if (route === "/") {
+        rootFailed = true;
+        console.error(`[prerender] ${route} — FAILED (root, fatal): ${err.message}`);
+      } else {
+        failures.push({ route, message: err.message });
+        console.warn(`[prerender] ${route} — FAILED (non-fatal): ${err.message}`);
+      }
     } finally {
       await page.close();
     }
@@ -143,7 +174,15 @@ async function prerender() {
     `[prerender] Done: ${success}/${ROUTES.length} pages prerendered`
   );
 
-  if (success < ROUTES.length) {
+  if (failures.length > 0) {
+    console.warn(`[prerender] ${failures.length} non-root route(s) failed:`);
+    for (const f of failures) {
+      console.warn(`  - ${f.route}: ${f.message}`);
+    }
+  }
+
+  if (rootFailed) {
+    console.error("[prerender] Root route failed — exiting with code 1");
     process.exit(1);
   }
 }

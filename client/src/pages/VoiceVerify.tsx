@@ -165,7 +165,7 @@ export default function VoiceVerify() {
       <SEO
         title="Voice Deepfake Detector — AI Voice Clone & Fraud Detection"
         description="Free voice deepfake detector with 97.8% accuracy. Detect AI-generated voices, voice cloning, and deepfake audio. Protect against voice phishing (vishing) and AI voice fraud."
-        path="/verify-voice"
+        path="/verify-voice/"
       />
     <ForensicLayout
       title="Voice Verification"

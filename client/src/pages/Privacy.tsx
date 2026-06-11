@@ -11,7 +11,7 @@ export default function Privacy() {
       <SEO
         title="Privacy Policy"
         description="DetectX Privacy Policy. How we handle your uploaded audio files, personal data, and analytics. Your files are processed in memory and never stored permanently."
-        path="/privacy"
+        path="/privacy/"
       />
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">

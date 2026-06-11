@@ -100,7 +100,7 @@ export default function Contact() {
       <SEO
         title="Contact"
         description="Contact DetectX for enterprise sales, billing inquiries, research collaboration, or technical support. Reach our team at support@detectx.app."
-        path="/contact"
+        path="/contact/"
       />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

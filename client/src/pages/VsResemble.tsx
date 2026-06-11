@@ -24,7 +24,7 @@ export default function VsResemble() {
       <SEO
         title="DetectX vs Resemble AI — AI Music & Audio Detection Comparison 2026"
         description="Compare DetectX and Resemble AI for AI-generated audio detection. Accuracy benchmarks, music vs voice focus, pricing, and feature comparison."
-        path="/vs/resemble-ai"
+        path="/vs/resemble-ai/"
       />
       {/* FAQPage Schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({

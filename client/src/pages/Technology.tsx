@@ -19,7 +19,7 @@ export default function Technology() {
       <SEO
         title="How AI Music Detection Works — Technology"
         description="How DetectX AI music detector works: multi-stage verification detects Suno, Udio, and AI-generated songs. Plus voice deepfake detection technology. 98.89% human protection accuracy."
-        path="/technology"
+        path="/technology/"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org",

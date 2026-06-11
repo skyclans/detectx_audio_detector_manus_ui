@@ -11,7 +11,7 @@ export default function Terms() {
       <SEO
         title="Terms of Service"
         description="DetectX Terms of Service. Read our terms for using the AI music and voice detection platform, including usage limits, data handling, and user responsibilities."
-        path="/terms"
+        path="/terms/"
       />
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">

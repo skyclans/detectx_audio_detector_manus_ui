@@ -24,7 +24,7 @@ export default function BlogHowToDetect() {
       <SEO
         title="How to Detect AI Generated Music in 2026: Complete Guide | DetectX"
         description="Learn how to detect AI-generated music from Suno, Udio, and other AI generators. Covers detection methods, accuracy benchmarks, free tools, and what labels need to know about AI music flooding streaming platforms."
-        path="/blog/how-to-detect-ai-generated-music"
+        path="/blog/how-to-detect-ai-generated-music/"
       />
 
       {/* Article Schema */}
@@ -267,7 +267,7 @@ export default function BlogHowToDetect() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-foreground mt-1">-</span>
-                <span><strong className="text-foreground">Copyright society burden:</strong> Organizations like ASCAP, BMI, and KOMCA must verify whether registered works are actually human-created</span>
+                <span><strong className="text-foreground">Copyright society burden:</strong> Major copyright collection societies worldwide must verify whether registered works are actually human-created</span>
               </li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mb-4">
@@ -326,14 +326,14 @@ export default function BlogHowToDetect() {
               This method converts audio into a visual representation and processes it through deep neural networks. The network is trained on large datasets of verified human and AI-generated music, learning to identify patterns unique to AI synthesis.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              Strengths: Fast processing (under 2 seconds per track), deterministic results, works across all genres. Limitations: Can produce ambiguous results on tracks in the 50-80% confidence range, requiring secondary verification.
+              Strengths: Fast processing (under 2 seconds per track), deterministic results, works across all genres. Limitations: Can produce ambiguous results in a defined uncertainty range, requiring secondary verification.
             </p>
 
             <h3 className="text-xl font-medium text-foreground mt-8 mb-3">
               Method 2: Source Separation + Reconstruction Analysis
             </h3>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              This technique separates audio into component layers and then analyzes multiple reconstruction metrics. AI-generated audio exhibits measurably different behavior when separated and analyzed compared to naturally recorded music. When 5 or more of the 7 metrics exceed thresholds, the track is flagged as AI-generated.
+              This technique separates audio into component layers and then analyzes multiple reconstruction metrics. AI-generated audio exhibits measurably different behavior when separated and analyzed compared to naturally recorded music. When a majority of reconstruction indicators cross their expected ranges, the track is flagged as AI-generated.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-4">
               Strengths: High accuracy on confirmed AI content, provides detailed secondary analysis. Limitations: Slower processing (requires audio separation), computationally intensive.

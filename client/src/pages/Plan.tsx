@@ -246,7 +246,7 @@ export default function Plan() {
       <SEO
         title="Pricing — AI Music Detection Plans | Free, Pro, Studio, Enterprise"
         description="DetectX pricing: Free AI music detection (5 scans/day), Pro ($39.99/mo, 100 scans), Studio ($399/mo, batch processing), Enterprise (unlimited, API access). Detect Suno, Udio AI-generated music."
-        path="/plan"
+        path="/plan/"
       />
       <div className="max-w-6xl">
         {/* Plan Cards - All badges aligned at same vertical position */}

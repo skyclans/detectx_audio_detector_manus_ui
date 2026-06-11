@@ -22,7 +22,7 @@ export default function LandingKO() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="AI 음악 감지기 | Suno, Udio AI 생성곡 무료 탐지"
-        description="96.8% 정확도의 무료 AI 음악 탐지 도구. Suno, Udio 등 AI 생성 음악을 multi-engine Deep Learning 기술로 판별합니다. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계되었습니다."
+        description="96.8% 정확도의 무료 AI 음악 탐지 도구. Suno, Udio 등 AI 생성 음악을 다중 엔진 딥러닝 기술로 판별합니다. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계되었습니다."
         path="/ko/"
       />
       {/* SoftwareApplication Schema */}
@@ -33,7 +33,7 @@ export default function LandingKO() {
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web",
         "url": "https://detectx.app/ko/",
-        "description": "Suno, Udio 등 AI 생성 음악을 96.8% 정확도로 탐지하는 multi-engine Deep Learning 도구. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계되었습니다.",
+        "description": "Suno, Udio 등 AI 생성 음악을 96.8% 정확도로 탐지하는 다중 엔진 딥러닝 도구. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계되었습니다.",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -51,7 +51,7 @@ export default function LandingKO() {
             "name": "DetectX는 AI 생성 음악을 어떻게 탐지하나요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX는 독자적인 multi-layer deep learning 분석 기술을 사용합니다. 여러 AI 모델이 사람의 귀로는 감지할 수 없는 AI 생성 오디오 고유의 미세 패턴과 아티팩트를 탐지합니다. 다중 분석 엔진 간 교차 검증으로 Suno v5.5 기준 96.8% 탐지율을 달성하며, 사람이 만든 음악에 대한 오탐지를 최소화합니다."
+              "text": "DetectX는 독자적인 다층 딥러닝 분석 기술을 사용합니다. 여러 AI 모델이 사람의 귀로는 감지할 수 없는 AI 생성 오디오 고유의 미세 패턴과 아티팩트를 탐지합니다. 다중 분석 엔진 간 교차 검증으로 Suno v5.5 기준 96.8% 탐지율을 달성하며, 사람이 만든 음악에 대한 오탐지를 최소화합니다."
             }
           },
           {
@@ -75,7 +75,7 @@ export default function LandingKO() {
             "name": "DetectX는 무료인가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "네, multi-engine 분석이 포함된 무료 플랜을 제공합니다. WAV, MP3, FLAC, AAC, OGG(최대 100MB) 파일을 업로드하면 즉시 AI 탐지 결과를 확인할 수 있습니다. 대량 처리(주당 최대 100만 곡)와 API 접근이 포함된 프로페셔널 플랜도 있습니다."
+              "text": "네, 다중 엔진 분석이 포함된 무료 플랜을 제공합니다. WAV, MP3, FLAC, AAC, OGG(최대 100MB) 파일을 업로드하면 즉시 AI 탐지 결과를 확인할 수 있습니다. 대량 처리(주당 최대 100만 곡)와 API 접근이 포함된 프로페셔널 플랜도 있습니다."
             }
           },
           {
@@ -91,7 +91,7 @@ export default function LandingKO() {
             "name": "다른 AI 음악 탐지 도구와 어떻게 다른가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "DetectX는 세 가지 핵심 차별점이 있습니다. (1) 단일 모델보다 높은 정확도를 제공하는 multi-engine 구조, (2) 음악과 음성 딥페이크 탐지를 하나의 플랫폼에서 제공, (3) 주당 100만 곡까지 처리하는 엔터프라이즈급 대량 스캔. 오탐지를 최소화하도록 설계되었습니다."
+              "text": "DetectX는 세 가지 핵심 차별점이 있습니다. (1) 단일 모델보다 높은 정확도를 제공하는 다중 엔진 구조, (2) 음악과 음성 딥페이크 탐지를 하나의 플랫폼에서 제공, (3) 주당 100만 곡까지 처리하는 엔터프라이즈급 대량 스캔. 오탐지를 최소화하도록 설계되었습니다."
             }
           }
         ]
@@ -249,7 +249,7 @@ export default function LandingKO() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
                   <Cpu className="h-6 w-6 text-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-2">2. Multi-Engine 분석</h3>
+                <h3 className="font-medium text-foreground mb-2">2. 다중 엔진 분석</h3>
                 <p className="text-sm text-muted-foreground">
                   여러 독자적 AI 모델이 오디오 패턴을 다차원으로 동시 분석합니다. 고속 병렬 처리로 빠르게 결과를 도출합니다.
                 </p>
@@ -274,20 +274,20 @@ export default function LandingKO() {
               DetectX가 가장 정확한 AI 음악 판별기인 이유
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              독자적 multi-engine 구조로 모든 장르, 수만 곡의 실전 AI 음악 테스트를 통과했습니다.
+              독자적 다중 엔진 구조로 모든 장르, 수만 곡의 실전 AI 음악 테스트를 통과했습니다.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="p-6 rounded-lg border border-border">
                 <Zap className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">Deep Learning 엔진</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">딥러닝 엔진</h3>
                 <p className="text-muted-foreground text-sm">
                   모든 장르의 AI 생성 음악으로 학습한 독자 신경망입니다. Suno, Udio, ElevenLabs Music 등 AI 음악 생성기 고유의 구조적 패턴을 식별합니다.
                 </p>
               </div>
               <div className="p-6 rounded-lg border border-border">
                 <BarChart3 className="h-8 w-8 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">Multi-Layer 검증</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">다층 검증</h3>
                 <p className="text-muted-foreground text-sm">
                   1차 분석 결과를 2차 엔진이 교차 검증합니다. 단일 모델로는 발견할 수 없는 아티팩트까지 감지하여 오탐지를 최소화합니다.
                 </p>
@@ -340,7 +340,7 @@ export default function LandingKO() {
                     <td className="p-3 text-center">90%+</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Multi-Engine 분석</td>
+                    <td className="p-3">다중 엔진 분석</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
                     <td className="p-3 text-center text-muted-foreground/50">-</td>
@@ -485,6 +485,38 @@ export default function LandingKO() {
                   </Button>
                 </Link>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Explore DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              DetectX 더 알아보기
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              지금 바로 곡을 검증하거나, 작동 원리를 읽거나, 다른 도구와 비교해 보세요.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link href="/verify-audio/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">지금 곡 검증하기</h3>
+                <p className="text-sm text-muted-foreground">
+                  WAV, MP3, FLAC 파일을 업로드하면 즉시 AI 탐지 결과를 확인할 수 있습니다. 무료 플랜 제공.
+                </p>
+              </Link>
+              <Link href="/blog/how-to-detect-ai-generated-music/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">AI 음악 탐지 가이드</h3>
+                <p className="text-sm text-muted-foreground">
+                  AI 생성 음악을 식별하는 방법, 단서 신호, 워크플로우 모범 사례에 대한 종합 가이드입니다.
+                </p>
+              </Link>
+              <Link href="/vs/acrcloud/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">비교: DetectX vs ACRCloud</h3>
+                <p className="text-sm text-muted-foreground">
+                  AI 음악 탐지에서 DetectX와 ACRCloud가 어떻게 다른지 기능별로 비교한 자료입니다.
+                </p>
+              </Link>
             </div>
           </div>
         </section>

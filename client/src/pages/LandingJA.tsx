@@ -489,6 +489,38 @@ export default function LandingJA() {
           </div>
         </section>
 
+        {/* Explore DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              DetectXをもっと知る
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              今すぐ楽曲を検証する、検出の仕組みを読む、他ツールと比較するなどの導線です。
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link href="/verify-audio/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">今すぐ楽曲を検証</h3>
+                <p className="text-sm text-muted-foreground">
+                  WAV・MP3・FLACファイルをアップロードすると、AI検出結果がすぐに表示されます。無料プランあり。
+                </p>
+              </Link>
+              <Link href="/blog/how-to-detect-ai-generated-music/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">AI音楽の検出ガイド</h3>
+                <p className="text-sm text-muted-foreground">
+                  AI生成音楽を見分ける方法、注目すべき手がかり、ワークフローのベストプラクティスをまとめたガイドです。
+                </p>
+              </Link>
+              <Link href="/vs/acrcloud/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">比較: DetectX vs ACRCloud</h3>
+                <p className="text-sm text-muted-foreground">
+                  AI音楽検出におけるDetectXとACRCloudの違いを機能ごとに比較した資料です。
+                </p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">

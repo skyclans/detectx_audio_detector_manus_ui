@@ -489,6 +489,38 @@ export default function LandingES() {
           </div>
         </section>
 
+        {/* Explore DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              Explora DetectX
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Verifica una canción ahora, lee cómo funciona el detector o compáralo con otras herramientas.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link href="/verify-audio/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Verificar una canción ahora</h3>
+                <p className="text-sm text-muted-foreground">
+                  Sube un archivo WAV, MP3 o FLAC y obtén resultados de detección de IA al instante. Plan gratuito disponible.
+                </p>
+              </Link>
+              <Link href="/blog/how-to-detect-ai-generated-music/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Cómo detectar música IA — guía</h3>
+                <p className="text-sm text-muted-foreground">
+                  Una guía práctica para identificar música generada por IA, señales clave y mejores prácticas de flujo de trabajo.
+                </p>
+              </Link>
+              <Link href="/vs/acrcloud/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Comparar: DetectX vs ACRCloud</h3>
+                <p className="text-sm text-muted-foreground">
+                  Comparación característica por característica de DetectX y ACRCloud para la detección de música IA.
+                </p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">

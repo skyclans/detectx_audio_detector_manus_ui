@@ -489,6 +489,38 @@ export default function LandingZH() {
           </div>
         </section>
 
+        {/* Explore DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              探索 DetectX
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              立即验证歌曲、了解检测原理，或与其他工具进行对比。
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link href="/verify-audio/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">立即验证歌曲</h3>
+                <p className="text-sm text-muted-foreground">
+                  上传 WAV、MP3 或 FLAC 文件,即可立即获取 AI 检测结果。提供免费方案。
+                </p>
+              </Link>
+              <Link href="/blog/how-to-detect-ai-generated-music/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">如何检测AI音乐 — 指南</h3>
+                <p className="text-sm text-muted-foreground">
+                  识别 AI 生成音乐的实用指南,涵盖关键信号与工作流程的最佳实践。
+                </p>
+              </Link>
+              <Link href="/vs/acrcloud/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">对比: DetectX vs ACRCloud</h3>
+                <p className="text-sm text-muted-foreground">
+                  AI 音乐检测领域中 DetectX 与 ACRCloud 的功能逐项对比。
+                </p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">

@@ -679,6 +679,38 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* Explore DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              Explore DetectX
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Verify a song now, read how the detector works, or compare it with other tools.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link href="/verify-audio/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Verify a song now</h3>
+                <p className="text-sm text-muted-foreground">
+                  Upload a WAV, MP3, or FLAC file and get instant AI detection results. Free tier available.
+                </p>
+              </Link>
+              <Link href="/blog/how-to-detect-ai-generated-music/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">How to detect AI music — guide</h3>
+                <p className="text-sm text-muted-foreground">
+                  A practical guide to identifying AI-generated music, key signals to look for, and workflow best practices.
+                </p>
+              </Link>
+              <Link href="/vs/acrcloud/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Compare: DetectX vs ACRCloud</h3>
+                <p className="text-sm text-muted-foreground">
+                  Feature-by-feature comparison of DetectX and ACRCloud for AI music detection.
+                </p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* 9. Newsletter Signup */}
         <section className="py-16 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl">

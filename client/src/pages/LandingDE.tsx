@@ -489,6 +489,38 @@ export default function LandingDE() {
           </div>
         </section>
 
+        {/* Explore DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              DetectX entdecken
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Song jetzt prüfen, Funktionsweise nachlesen oder mit anderen Tools vergleichen.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link href="/verify-audio/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Song jetzt prüfen</h3>
+                <p className="text-sm text-muted-foreground">
+                  Laden Sie eine WAV-, MP3- oder FLAC-Datei hoch und erhalten Sie sofort KI-Erkennungsergebnisse. Kostenloser Tarif verfügbar.
+                </p>
+              </Link>
+              <Link href="/blog/how-to-detect-ai-generated-music/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Wie man KI-Musik erkennt — Leitfaden</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ein praktischer Leitfaden zur Identifizierung KI-generierter Musik, wichtige Signale und bewährte Workflow-Praktiken.
+                </p>
+              </Link>
+              <Link href="/vs/acrcloud/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Vergleich: DetectX vs ACRCloud</h3>
+                <p className="text-sm text-muted-foreground">
+                  Funktionsvergleich von DetectX und ACRCloud für die KI-Musikerkennung.
+                </p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">

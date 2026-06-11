@@ -489,6 +489,38 @@ export default function LandingPT() {
           </div>
         </section>
 
+        {/* Explore DetectX */}
+        <section className="py-16 md:py-20 px-6 border-t border-border">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl md:text-3xl font-medium text-foreground text-center mb-4">
+              Explore o DetectX
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Verifique uma música agora, leia como o detector funciona ou compare com outras ferramentas.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Link href="/verify-audio/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Verificar uma música</h3>
+                <p className="text-sm text-muted-foreground">
+                  Envie um arquivo WAV, MP3 ou FLAC e receba resultados de detecção de IA na hora. Plano gratuito disponível.
+                </p>
+              </Link>
+              <Link href="/blog/how-to-detect-ai-generated-music/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Como detectar música IA</h3>
+                <p className="text-sm text-muted-foreground">
+                  Um guia prático para identificar música gerada por IA, sinais-chave e melhores práticas de fluxo de trabalho.
+                </p>
+              </Link>
+              <Link href="/vs/acrcloud/" className="block p-6 rounded-lg border border-border hover:border-cyan-500/50 transition-colors">
+                <h3 className="text-lg font-medium text-foreground mb-2">Comparar: DetectX vs ACRCloud</h3>
+                <p className="text-sm text-muted-foreground">
+                  Comparação funcionalidade a funcionalidade entre DetectX e ACRCloud para detecção de música IA.
+                </p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-20 md:py-28 px-6 border-t border-border">
           <div className="mx-auto max-w-3xl text-center">

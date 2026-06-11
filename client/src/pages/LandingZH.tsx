@@ -21,7 +21,7 @@ export default function LandingZH() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="即刻检测 Suno·Udio AI 生成音乐 | DetectX"
+        title="即刻检测 Suno·Udio AI 生成音乐"
         description="免费 AI 音乐检测工具，Suno v5.5 检测率 96.8%。Multi-Engine Deep Learning 分析，精准检测 AI 生成音乐。专为唱片公司、流媒体平台和版权组织打造。"
         path="/zh/"
       />
@@ -39,11 +39,6 @@ export default function LandingZH() {
           "price": "0",
           "priceCurrency": "USD",
           "description": "提供免费版本"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "156"
         }
       }) }} />
       {/* FAQPage Schema */}

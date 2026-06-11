@@ -22,7 +22,7 @@ export default function BlogHowToDetect() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="How to Detect AI Generated Music in 2026: Complete Guide | DetectX"
+        title="How to Detect AI Generated Music in 2026: Complete Guide"
         description="Learn how to detect AI-generated music from Suno, Udio, and other AI generators. Covers detection methods, accuracy benchmarks, free tools, and what labels need to know about AI music flooding streaming platforms."
         path="/blog/how-to-detect-ai-generated-music/"
       />

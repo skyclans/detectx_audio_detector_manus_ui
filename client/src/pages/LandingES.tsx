@@ -21,7 +21,7 @@ export default function LandingES() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="Detector de Música IA: Detecta Canciones de Suno y Udio | DetectX"
+        title="Detector de Música IA: Detecta Canciones de Suno y Udio"
         description="Detector de música IA gratuito con 96.8% de precisión en Suno v5.5. Análisis multi-motor para detectar música generada por inteligencia artificial. Diseñado para sellos discográficos y sociedades de derechos de autor."
         path="/es/"
       />
@@ -39,11 +39,6 @@ export default function LandingES() {
           "price": "0",
           "priceCurrency": "USD",
           "description": "Plan gratuito disponible"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "156"
         }
       }) }} />
       {/* FAQPage Schema */}

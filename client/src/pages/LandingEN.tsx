@@ -22,7 +22,7 @@ export default function LandingEN() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="Free AI Music Detector | Detect Suno & Udio Instantly | DetectX"
+        title="Free AI Music Detector | Detect Suno & Udio Instantly"
         description="Free AI music detector with 96.8% accuracy on Suno v5.5. Instantly detect AI-generated songs from Suno, Udio, and other AI music generators. Patent-pending multi-engine detection technology."
         path="/en/"
       />
@@ -40,11 +40,6 @@ export default function LandingEN() {
           "price": "0",
           "priceCurrency": "USD",
           "description": "Free tier available"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "156"
         }
       }) }} />
       {/* FAQPage Schema */}

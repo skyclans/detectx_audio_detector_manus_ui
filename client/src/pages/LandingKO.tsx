@@ -21,7 +21,7 @@ export default function LandingKO() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="AI 음악 감지기 | Suno, Udio AI 생성곡 무료 탐지 | DetectX"
+        title="AI 음악 감지기 | Suno, Udio AI 생성곡 무료 탐지"
         description="96.8% 정확도의 무료 AI 음악 탐지 도구. Suno, Udio 등 AI 생성 음악을 multi-engine Deep Learning 기술로 판별합니다. 음반사, 스트리밍 플랫폼, 저작권 단체를 위해 설계되었습니다."
         path="/ko/"
       />
@@ -39,11 +39,6 @@ export default function LandingKO() {
           "price": "0",
           "priceCurrency": "USD",
           "description": "무료 플랜 제공"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "156"
         }
       }) }} />
       {/* FAQPage Schema */}

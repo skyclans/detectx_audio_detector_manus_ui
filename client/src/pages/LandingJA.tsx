@@ -21,7 +21,7 @@ export default function LandingJA() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="Suno・Udio AI楽曲を瞬時に検出 | DetectX"
+        title="Suno・Udio AI楽曲を瞬時に検出"
         description="Suno v5.5検出率96.8%の無料AI音楽検出ツール。Multi-Engine Deep Learning分析でAI生成楽曲を判定。レコード会社・配信プラットフォーム・著作権管理団体向け。"
         path="/ja/"
       />
@@ -39,11 +39,6 @@ export default function LandingJA() {
           "price": "0",
           "priceCurrency": "USD",
           "description": "無料プランあり"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "156"
         }
       }) }} />
       {/* FAQPage Schema */}

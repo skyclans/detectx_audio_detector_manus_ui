@@ -88,17 +88,17 @@ export default function Updates() {
 
               <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
                 <p className="text-muted-foreground leading-relaxed">
-                  The v5 multi-bonafide training approach resolved the critical external false positive problem identified in v2. By training on diverse bonafide sources beyond the original ASVspoof VCTK corpus, the model now correctly identifies real human speech from previously unseen recording environments.
+                  The v5 multi-source training approach resolved the critical external false positive problem identified in v2. By training on diverse benchmark voice corpora beyond the original baseline, the model now correctly identifies real human speech from previously unseen recording environments.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Problem</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Voice SSL v2 achieved strong detection metrics (EER 1.0%, 99.54% detection rate) but exhibited ~49% false positive rate on external bonafide datasets — LibriSpeech, FLEURS, and CommonVoice recordings were frequently misclassified as AI-generated. Root cause: the model had only seen VCTK-environment bonafide during training.
+                  Voice SSL v2 achieved strong detection metrics (EER 1.0%, 99.54% detection rate) but exhibited a high false positive rate on external bonafide datasets — real human recordings from unseen environments were frequently misclassified as AI-generated. Root cause: the model had only seen a narrow recording environment during training.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Solution</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  v5 training incorporated bonafide samples from ASVspoof VCTK, LibriSpeech (~12,000), FLEURS (~7,000), and CommonVoice, totaling ~21,580 bonafide samples with domain-weighted sampling to maintain source balance.
+                  v5 training incorporated bonafide samples from multiple benchmark voice corpora, totaling tens of thousands of samples with domain-weighted sampling to maintain source balance.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Results</h3>
@@ -136,7 +136,7 @@ export default function Updates() {
 
                 <div className="mt-8 pt-6 border-t border-border">
                   <p className="text-sm text-muted-foreground italic">
-                    v5 trade-off: A18 (waveform filter VC) detection dropped from 97.5% to 90.5%. A18 is a specialized ASVspoof 2019 synthesis method with limited real-world relevance.
+                    v5 trade-off: one legacy benchmark synthesis method dropped from 97.5% to 90.5% detection. This particular attack type has limited real-world relevance.
                   </p>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function Updates() {
 
                 <div className="mt-8 pt-6 border-t border-border">
                   <p className="text-sm text-muted-foreground italic">
-                    This evaluation used the Voice SSL v2 model trained exclusively on ASVspoof 2019 data, detecting commercial TTS engines released in 2025–2026.
+                    This evaluation used the Voice SSL v2 model trained exclusively on benchmark voice corpora, detecting commercial TTS engines released in 2025–2026.
                   </p>
                 </div>
               </div>
@@ -231,12 +231,12 @@ export default function Updates() {
             </div>
             <div className="p-6">
               <h2 className="text-xl font-medium text-foreground mb-6">
-                Patent Application: Audio + Voice + Triple Engine
+                Patent Application: AI Music + Voice Unified Detection
               </h2>
 
               <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
                 <p className="text-muted-foreground leading-relaxed">
-                  USPTO provisional patent specification completed, covering three core inventions: the multi-stage Audio verification engine, the Voice deepfake detection engine, and the Triple Engine architecture that combines both for music containing vocal content.
+                  USPTO provisional patent specification completed, covering three core inventions: the multi-stage Audio verification engine, the Voice deepfake detection engine, and the unified detection architecture that combines both for music containing vocal content.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Coverage</h3>
@@ -251,7 +251,7 @@ export default function Updates() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-foreground mt-1">•</span>
-                    <span><strong className="text-foreground">Triple Engine:</strong> Unified architecture applying both audio and voice analysis to vocal-containing music for comprehensive verification</span>
+                    <span><strong className="text-foreground">AI Music + Voice Unified Detection:</strong> Combined architecture applying both audio and voice analysis to vocal-containing music for comprehensive verification</span>
                   </li>
                 </ul>
 
@@ -276,7 +276,7 @@ export default function Updates() {
 
               <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
                 <p className="text-muted-foreground leading-relaxed">
-                  The Voice deepfake detection engine reached production readiness, achieving EER 1.0% on the ASVspoof 2019 LA evaluation set.
+                  The Voice deepfake detection engine reached production readiness, achieving EER 1.0% on a standard benchmark voice evaluation set.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Architecture Decision</h3>
@@ -309,21 +309,21 @@ export default function Updates() {
                         <td className="py-2 font-medium text-foreground">99.54%</td>
                       </tr>
                       <tr className="border-b border-border/50">
-                        <td className="py-2 pr-4">Weakest System</td>
-                        <td className="py-2 pr-4">A17: 52%</td>
-                        <td className="py-2 pr-4">A17: 96.5%</td>
-                        <td className="py-2 font-medium text-foreground">A18: 97.5%</td>
+                        <td className="py-2 pr-4">Weakest Attack Type</td>
+                        <td className="py-2 pr-4">52%</td>
+                        <td className="py-2 pr-4">96.5%</td>
+                        <td className="py-2 font-medium text-foreground">97.5%</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
                 <p className="text-muted-foreground leading-relaxed">
-                  All 13 unseen attack systems in ASVspoof 2019 LA were detected at 97.5% or above. The AASIST graph attention backend (v3) was evaluated and rejected — it exhibited overfitting and worse performance than the simpler Attention Pooling + MLP approach.
+                  All 13 unseen attack systems in the benchmark voice evaluation set were detected at 97.5% or above. An alternative graph attention backend was evaluated and rejected — it exhibited overfitting and worse performance than the simpler Attention Pooling + MLP approach.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground mt-8 mb-4">Real-World TTS Validation</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Initial validation against 55 commercial TTS samples (ElevenLabs, OpenAI, Google Cloud — 13 voices, 2 languages) achieved 100% detection rate. The model was trained only on ASVspoof 2019 academic data but successfully generalized to 2025–2026 commercial TTS engines.
+                  Initial validation against 55 commercial TTS samples (ElevenLabs, OpenAI, Google Cloud — 13 voices, 2 languages) achieved 100% detection rate. The model was trained only on academic benchmark voice corpora but successfully generalized to 2025–2026 commercial TTS engines.
                 </p>
 
                 <div className="mt-8 pt-6 border-t border-border">

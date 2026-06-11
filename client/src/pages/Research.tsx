@@ -18,7 +18,7 @@ export default function Research() {
     <div className="min-h-screen bg-background text-foreground">
       <SEO
         title="Research"
-        description="DetectX research: design philosophy, accuracy benchmarks, and technical decisions behind our AI music detection system. Evidence-based evidence-based analysis approach."
+        description="DetectX research: design philosophy, accuracy benchmarks, and technical decisions behind our AI music detection system. Evidence-based analysis approach."
         path="/research/"
       />
       {/* Header */}

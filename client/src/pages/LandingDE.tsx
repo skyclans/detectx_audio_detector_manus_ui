@@ -21,7 +21,7 @@ export default function LandingDE() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SEO
-        title="KI-generierte Musik von Suno, Udio & Co. sofort erkennen | DetectX"
+        title="KI-generierte Musik von Suno, Udio & Co. sofort erkennen"
         description="Kostenloser KI-Musik-Detektor mit 96,8% Genauigkeit bei Suno v5.5. Multi-Engine-Deep-Learning-Analyse zur Erkennung von KI-generierter Musik. Entwickelt für Plattenfirmen und Verwertungsgesellschaften."
         path="/de/"
       />
@@ -39,11 +39,6 @@ export default function LandingDE() {
           "price": "0",
           "priceCurrency": "USD",
           "description": "Kostenlose Nutzung verfügbar"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "156"
         }
       }) }} />
       {/* FAQPage Schema */}

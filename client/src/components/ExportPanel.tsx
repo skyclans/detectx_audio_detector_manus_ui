@@ -18,9 +18,11 @@
  *  - Korean / Japanese / Chinese filenames preserved
  */
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileJson, FileSpreadsheet, FileText, FileType, Download } from "lucide-react";
 import JSZip from "jszip";
+import { ReportTypeModal } from "@/components/ReportTypeModal";
 import {
   formatMarginPct,
   strengthLabel,
@@ -86,6 +88,9 @@ interface ExportData {
 interface ExportPanelProps {
   data: ExportData | null;
   disabled?: boolean;
+  /** Optional record/request id used by the "Professional Forensic" CTA
+   *  to prefill the /forensic/request form with a related scan reference. */
+  recordId?: string | null;
 }
 
 // -----------------------------------------------------------------------
@@ -762,7 +767,9 @@ function printViaIframe(html: string) {
 // Component
 // -----------------------------------------------------------------------
 
-export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
+export function ExportPanel({ data, disabled = false, recordId = null }: ExportPanelProps) {
+  const [showReportTypeModal, setShowReportTypeModal] = useState(false);
+
   const getBaseFileName = (fileName: string): string => {
     const lastDotIndex = fileName.lastIndexOf(".");
     if (lastDotIndex > 0) return fileName.substring(0, lastDotIndex);
@@ -776,6 +783,13 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
   const handleExportPDF = () => {
     if (!data) return;
     printViaIframe(generatePDFContent(data));
+  };
+
+  // Phase 5: PDF button now opens the Standard / Professional chooser
+  // instead of jumping straight to the Standard PDF flow.
+  const handleOpenReportTypeModal = () => {
+    if (!data) return;
+    setShowReportTypeModal(true);
   };
 
   const handleExportJSON = () => {
@@ -837,7 +851,7 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
         </Button>
 
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="outline" className="h-auto py-3 flex flex-col items-center gap-2" onClick={handleExportPDF} disabled={isDisabled}>
+          <Button variant="outline" className="h-auto py-3 flex flex-col items-center gap-2" onClick={handleOpenReportTypeModal} disabled={isDisabled}>
             <FileType className="w-5 h-5" />
             <span className="text-xs">PDF</span>
           </Button>
@@ -861,6 +875,13 @@ export function ExportPanel({ data, disabled = false }: ExportPanelProps) {
           </p>
         )}
       </div>
+
+      <ReportTypeModal
+        open={showReportTypeModal}
+        onClose={() => setShowReportTypeModal(false)}
+        recordId={recordId}
+        onStandard={handleExportPDF}
+      />
     </div>
   );
 }

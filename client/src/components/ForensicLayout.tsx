@@ -24,6 +24,7 @@ import {
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
+import { CreditBalanceSidebar } from "./CreditBalanceSidebar";
 
 interface NavItem {
   label: string;
@@ -321,8 +322,10 @@ function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMob
           ))}
         </nav>
 
-        {/* Plan & Usage section */}
-        <PlanUsageDisplay />
+        {/* Credit / Plan / Trial section (Phase 5) */}
+        <CreditBalanceSidebar />
+        {/* Legacy fallback widget — kept for safe rollback. Comment out to disable. */}
+        {/* <PlanUsageDisplay /> */}
 
         {/* User section */}
         <div className="p-3 border-t border-sidebar-border">

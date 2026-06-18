@@ -43,7 +43,7 @@ export default function Terms() {
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <h1 className="text-3xl font-bold text-foreground mb-2">Terms of Service</h1>
           <p className="text-sm text-muted-foreground mb-8">
-            Effective Date: January 17, 2026 | Last Updated: June 9, 2026
+            Effective Date: June 18, 2026 | Last Updated: June 18, 2026
           </p>
 
           <p className="text-muted-foreground leading-relaxed">
@@ -205,7 +205,103 @@ export default function Terms() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">15. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">15. Credit System</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Access to detection features is metered through a credit-based system.
+            </p>
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">a. Credit Consumption</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>One (1) Music scan consumes one (1) credit.</li>
+              <li>Voice scans consume zero (0) credits while the Voice detection feature remains in Beta (see Section 18).</li>
+              <li>Stem Evidence generation (Demucs-based four-stem separation) consumes ten (10) credits per track. Studio tier users receive five (5) free Stem Evidence runs per billing cycle, after which the standard 10-credit rate applies.</li>
+              <li>Generator version identification (where available) consumes one (1) additional credit per scan and is offered to Pro tier and above.</li>
+            </ul>
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">b. Monthly Reset and Roll-Over</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Subscription credits are granted at the start of each billing cycle in the amount specified by your plan and reset at the start of the next billing cycle.</li>
+              <li>Top-up credits purchased outside of a subscription grant also reset at the start of each billing cycle and do not roll over.</li>
+              <li>Free tier users receive thirty (30) credits per calendar month, which reset on the same day each month.</li>
+              <li>Unused credits, whether from a subscription or a top-up pack, are forfeited at cycle end. DetectX does not provide a credit roll-over mechanism.</li>
+            </ul>
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">c. Top-Up Credits</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Top-up credit packs are one-time purchases applied to your account immediately upon successful payment.</li>
+              <li>Top-up credits are non-refundable except as required by applicable law or as described in Section 16(c).</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">16. Subscription, Billing, and Refunds</h2>
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">a. Plans</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              DetectX offers a tiered subscription model consisting of Free, Basic, Pro, Studio, and Enterprise plans. Credit allocations, included features, and pricing for each tier are published on the DetectX pricing page and may be revised from time to time with reasonable notice.
+            </p>
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">b. Billing Cycle</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Paid subscriptions are billed monthly in advance on the calendar day corresponding to your initial subscription date.</li>
+              <li>Credit grants are issued at the start of each billing cycle and expire at the end of that cycle as described in Section 15.</li>
+            </ul>
+            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">c. Cancellation and Refunds</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>You may cancel your subscription at any time. Cancellation takes effect at the end of the then-current billing cycle, and you retain access to the Service and unused credits until that date.</li>
+              <li>Unused credits at the time of cancellation are forfeited and are not refundable.</li>
+              <li>Top-up credit purchases are non-refundable.</li>
+              <li>Notwithstanding the foregoing, charges resulting from a verified billing system error (for example, duplicate charges, charges to a closed account, or charges in excess of the published plan price) are eligible for refund if reported to <a href="mailto:support@detectx.app" className="text-primary hover:underline">support@detectx.app</a> within thirty (30) days of the original charge date.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">17. Fair Use and Rate Limits</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              To protect platform stability and ensure equitable access for all users, DetectX enforces per-minute API rate limits that vary by subscription tier.
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4 mt-2">
+              <li>Pro tier: up to thirty (30) detection requests per minute.</li>
+              <li>Studio tier: up to one hundred (100) detection requests per minute.</li>
+              <li>Stem Evidence requests: up to five (5) requests per minute across all tiers.</li>
+              <li>Free and Basic tier rate limits are published on the pricing page and may be more restrictive.</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              Excessive automated scanning, distributed scraping, credential sharing, or other patterns that exceed reasonable single-user usage are prohibited. DetectX reserves the right to review suspicious activity and, where warranted, to throttle, suspend, or terminate access to the Service without prior notice. DetectX will use reasonable efforts to notify the affected account holder when feasible.
+            </p>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">18. Voice Detection Beta</h2>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>The Voice detection feature is provided as a Beta service. Models, thresholds, and accuracy characteristics are subject to ongoing improvement.</li>
+              <li>DetectX makes no representation or warranty regarding the accuracy, completeness, or fitness for any particular purpose of Voice detection outputs during the Beta period.</li>
+              <li>Voice scans are provided at no credit cost during the Beta period and are available to all tiers, subject to the rate limits described in Section 17.</li>
+              <li>DetectX will provide reasonable advance notice through the Service and via email before transitioning Voice detection from Beta to a paid feature. Pricing, credit consumption, and tier eligibility for the post-Beta Voice feature have not yet been determined.</li>
+              <li>Voice outputs must not be used as the sole basis for any legal, employment, financial, or accusatory decision. Section 4 applies in full to Voice outputs.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">19. Professional Forensic Reports</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Professional forensic reports prepared by DetectX personnel for evidentiary, regulatory, or litigation-support purposes ("Professional Forensic Reports") are not provided through the standard subscription tiers. Professional Forensic Reports are delivered exclusively under a separate written engagement agreement.
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4 mt-4">
+              <li>Engagements are scoped on a case-by-case basis. DetectX will respond to a Professional Forensic Report inquiry with a written quote within one (1) to seven (7) business days of receiving sufficient case information.</li>
+              <li>Pricing is determined per engagement and typically ranges from USD $500 to USD $50,000 depending on scope, evidentiary requirements, and turnaround time. The applicable fee, scope of work, and deliverables are set out in the engagement agreement.</li>
+              <li>DetectX's liability, refund eligibility, and scope of work for any Professional Forensic Report are limited to the terms set forth in the corresponding engagement agreement and are not governed by Section 16 of these Terms.</li>
+              <li>Submission of an inquiry does not create an engagement, an attorney-client relationship, or any expert-witness obligation until a written engagement agreement is executed by both parties.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">20. Stem Evidence Output Retention</h2>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Stem Evidence outputs (separated vocal, drums, bass, and other stems delivered in MP3 and WAV formats) are stored on DetectX servers for seven (7) days from the time of generation and are then automatically deleted.</li>
+              <li>You are responsible for downloading and retaining your own copies of Stem Evidence outputs within the retention window. DetectX is not obligated to regenerate expired outputs free of charge; regeneration consumes credits at the standard Stem Evidence rate.</li>
+              <li>Stem Evidence is not available on the Free tier. Free tier users will receive a prompt to upgrade when attempting to generate Stem Evidence.</li>
+              <li>Standard PDF reports are available to all paid tiers and to Free tier users with tier-appropriate redactions. Redacted data fields can be unlocked by upgrading the subscription tier and do not require a separate purchase.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">21. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
               DetectX, Inc.<br />
               c/o Legalinc Corporate Services Inc.<br />

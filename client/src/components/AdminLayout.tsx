@@ -11,6 +11,7 @@ import {
   Shield,
   ScrollText,
   ShieldAlert,
+  ShieldCheck,
   Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -151,6 +152,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       icon: ShieldAlert,
       label: "Disputes",
       badge: openDisputeCount,
+    },
+    {
+      href: "/admin/forensic-requests",
+      icon: ShieldCheck,
+      label: "Forensic Requests",
     },
     { href: "/admin/email/compose", icon: Mail, label: "Email" },
     { href: "/admin/logs", icon: ScrollText, label: "Activity Logs" },

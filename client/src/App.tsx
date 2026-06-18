@@ -34,6 +34,11 @@ const HomeTest = lazy(() => import("./pages/HomeTest"));
 const HistoryTest = lazy(() => import("./pages/HistoryTest"));
 const PreviewTier4 = lazy(() => import("./pages/PreviewTier4"));
 
+// Forensic Report custom-quote flow (Phase 5)
+const ForensicRequest = lazy(() => import("./pages/ForensicRequest"));
+const ForensicThankYou = lazy(() => import("./pages/ForensicThankYou"));
+const MyForensicRequests = lazy(() => import("./pages/MyForensicRequests"));
+
 // SEO landing pages (lazy)
 const LandingEN = lazy(() => import("./pages/LandingEN"));
 const LandingKO = lazy(() => import("./pages/LandingKO"));
@@ -59,6 +64,12 @@ const AdminEmailCompose = lazy(() => import("./pages/admin/EmailCompose"));
 const AdminEmailCampaigns = lazy(() => import("./pages/admin/EmailCampaigns"));
 const AdminEmailCampaignDetail = lazy(
   () => import("./pages/admin/EmailCampaignDetail"),
+);
+const AdminForensicRequests = lazy(
+  () => import("./pages/admin/ForensicRequests"),
+);
+const AdminForensicRequestDetail = lazy(
+  () => import("./pages/admin/ForensicRequestDetail"),
 );
 
 // User-facing account pages (lazy)
@@ -153,8 +164,17 @@ function Router() {
       <Route path="/admin/email/campaigns" component={AdminEmailCampaigns} />
       <Route path="/admin/email/campaigns/:id" component={AdminEmailCampaignDetail} />
 
+      {/* Admin: Forensic Requests (Phase 5) */}
+      <Route path="/admin/forensic-requests" component={AdminForensicRequests} />
+      <Route path="/admin/forensic-requests/:id" component={AdminForensicRequestDetail} />
+
       {/* User-facing account preferences */}
       <Route path="/account/marketing-preferences" component={AccountMarketingConsent} />
+
+      {/* Forensic Report custom-quote flow (Phase 5) */}
+      <Route path="/forensic/request" component={ForensicRequest} />
+      <Route path="/forensic/thank-you" component={ForensicThankYou} />
+      <Route path="/forensic/requests" component={MyForensicRequests} />
       
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

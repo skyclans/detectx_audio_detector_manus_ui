@@ -43,7 +43,7 @@ export default function Privacy() {
         <article className="prose prose-neutral dark:prose-invert max-w-none">
           <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
           <p className="text-sm text-muted-foreground mb-8">
-            Effective Date: January 17, 2026 | Last Updated: June 9, 2026
+            Effective Date: June 18, 2026 | Last Updated: June 18, 2026
           </p>
 
           <p className="text-muted-foreground leading-relaxed">
@@ -224,7 +224,46 @@ export default function Privacy() {
           </section>
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">12. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">12. Credit Transaction Records</h2>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>DetectX maintains records of credit grants, consumption, top-up purchases, and cycle resets associated with your account. These records are retained for audit, billing dispute resolution, fraud detection, tax reporting, and regulatory compliance purposes.</li>
+              <li>Credit transaction history is retained on an ongoing basis for as long as the account is active.</li>
+              <li>If your account is closed or you submit a verified deletion request, credit transaction records are anonymized so that the records can no longer be linked to you as an identifiable individual, while preserving the aggregate financial and operational data required for audit and compliance.</li>
+              <li>Pricing-page changes, plan changes, and refund events are recorded against your account in line with the same retention principles.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">13. Stem Evidence Files</h2>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Stem Evidence outputs (separated vocal, drums, bass, and other audio stems delivered in MP3 and WAV formats) are stored on DetectX servers for seven (7) days from the time of generation and are then automatically and permanently deleted.</li>
+              <li>During the seven-day retention window, Stem Evidence files are accessible only to the authenticated user account that generated them and to authorized DetectX personnel for incident response or compliance purposes.</li>
+              <li>The source audio file used to generate Stem Evidence is handled in accordance with Section 4 (Data Retention) and is not retained beyond the limits described there.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">14. Professional Forensic Inquiries</h2>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>Information submitted through Professional Forensic Report inquiry forms or related correspondence (including names, organizational affiliations, contact details, case descriptions, and any reference materials voluntarily submitted) is processed for the purposes of evaluating the inquiry, preparing a written quote, and, where applicable, performing the resulting engagement.</li>
+              <li>Inquiry records are retained for one (1) year after the inquiry is closed (whether the engagement was executed, declined, or withdrawn). After one year, inquiry records are anonymized and retained only in aggregate form for service-improvement purposes.</li>
+              <li>If a written engagement is executed, the engagement agreement governs the retention, confidentiality, and disposal of materials produced during the engagement.</li>
+              <li>Sensitive case materials voluntarily submitted with an inquiry are not used for model training or for any purpose outside of the inquiry evaluation and any resulting engagement.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">15. Payment Information</h2>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+              <li>DetectX uses Stripe, Inc. ("Stripe") as its payment processor. Stripe is responsible for collecting and processing payment-card data in accordance with the Payment Card Industry Data Security Standard (PCI DSS).</li>
+              <li>DetectX does not collect or store full payment-card numbers, expiration dates, or card verification values. These data elements are entered directly into Stripe-hosted form fields and are transmitted to Stripe without passing through DetectX systems.</li>
+              <li>DetectX stores the Stripe Customer ID, Stripe Subscription ID, payment status, billing currency, the last four digits and card brand returned by Stripe for display purposes, and the billing address required for invoicing and tax compliance. This information is retained for the duration of the account and for an additional period required by applicable accounting, tax, and anti-fraud regulations.</li>
+              <li>Stripe privacy policy: <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">https://stripe.com/privacy</a>. Stripe is hosted in the United States and transfers personal data of recipients located in the EU or EEA under Standard Contractual Clauses approved by the European Commission.</li>
+            </ul>
+          </section>
+
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">16. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
               DetectX, Inc.<br />
               c/o Legalinc Corporate Services Inc.<br />

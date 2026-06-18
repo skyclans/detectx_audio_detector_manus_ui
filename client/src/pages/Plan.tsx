@@ -23,7 +23,7 @@
  *   - + Bulk upload
  *   - + Forensic Report (DDEX)
  *   - + Digital signature audit
- *   - + 5 free Stem Evidence / month
+ *   - + 30 free Forensic Stem reports / month (Phase 8)
  *   - + Priority processing
  *
  * Enterprise (Custom):
@@ -157,7 +157,7 @@ const plans: Plan[] = [
       "Full PDF reports (no watermark)",
       "All export formats (PDF, JSON, CSV, Markdown)",
       "Full stem visualization",
-      "Stem Evidence — listen + download",
+      "Snapshot stems in PDF (high-res) + Forensic stems @ 100 cr/min",
       "Audit trail (millisecond precision)",
       "Priority email support",
     ],
@@ -181,8 +181,8 @@ const plans: Plan[] = [
       "Full PDF reports (no watermark)",
       "All export formats (PDF, JSON, CSV, Markdown)",
       "Full stem visualization",
-      "Stem Evidence — listen + download",
-      "5 free Stem Evidence reports / month",
+      "Snapshot stems in PDF (high-res)",
+      "30 free Forensic Stem reports / month (then 100 cr/min)",
       "Audit trail (millisecond precision)",
       "Bulk upload",
       "Forensic Report (DDEX disclosure codes)",
@@ -204,6 +204,7 @@ const plans: Plan[] = [
       "Custom credits (unlimited or tailored)",
       "Voice detection unlimited (Beta)",
       "All Basic, Pro, Studio features included",
+      "Unlimited Forensic Stem reports",
       "Dedicated cloud GPU (region-closest: Tokyo / Seoul / Singapore / Frankfurt / Virginia / São Paulo)",
       "Lowest latency for your team's location",
       "99.9% uptime SLA (financial-backed)",

@@ -100,7 +100,7 @@ export function CreditTopUpModal({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-5xl">
         <DialogHeader>
           <DialogTitle>Buy Credit Packs</DialogTitle>
           <DialogDescription>
@@ -121,18 +121,18 @@ export function CreditTopUpModal({ open, onOpenChange }: Props) {
                     : "border-border hover:border-purple-500/70"
                 }`}
               >
-                <div className="text-2xl font-bold text-foreground">
+                <div className="text-xl font-bold text-foreground whitespace-nowrap">
                   {pack.credits.toLocaleString()}
                 </div>
                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
                   credits
                 </div>
 
-                <div className="mt-3 flex items-baseline gap-2">
+                <div className="mt-3 flex items-baseline gap-2 whitespace-nowrap">
                   <span className="text-gray-400 line-through text-sm">
                     ${pack.anchor}
                   </span>
-                  <span className="text-3xl font-bold text-foreground">
+                  <span className="text-2xl font-bold text-foreground">
                     ${pack.price}
                   </span>
                 </div>
@@ -143,10 +143,10 @@ export function CreditTopUpModal({ open, onOpenChange }: Props) {
                 </div>
 
                 <div className="text-xs text-muted-foreground mt-3 space-y-0.5 flex-1">
-                  <div>
+                  <div className="whitespace-nowrap">
                     ≈ {pack.mp3Min.toLocaleString()} MP3 min
                   </div>
-                  <div>
+                  <div className="whitespace-nowrap">
                     ≈ {pack.losslessMin.toLocaleString()} Lossless min
                   </div>
                 </div>

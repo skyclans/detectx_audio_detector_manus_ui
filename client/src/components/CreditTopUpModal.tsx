@@ -100,7 +100,7 @@ export function CreditTopUpModal({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl">
+      <DialogContent className="max-w-6xl w-[95vw]">
         <DialogHeader>
           <DialogTitle>Buy Credit Packs</DialogTitle>
           <DialogDescription>
@@ -108,31 +108,31 @@ export function CreditTopUpModal({ open, onOpenChange }: Props) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-2 min-w-0">
           {packs.map((pack) => {
             const isLoading = loadingId === pack.id;
             const isFeatured = pack.id === "50k";
             return (
               <div
                 key={pack.id}
-                className={`border rounded-md p-4 flex flex-col transition-colors ${
+                className={`border rounded-md p-3 flex flex-col min-w-0 overflow-hidden transition-colors ${
                   isFeatured
                     ? "border-purple-500/70 bg-purple-500/5"
                     : "border-border hover:border-purple-500/70"
                 }`}
               >
-                <div className="text-xl font-bold text-foreground whitespace-nowrap">
+                <div className="text-lg font-bold text-foreground whitespace-nowrap">
                   {pack.credits.toLocaleString()}
                 </div>
                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
                   credits
                 </div>
 
-                <div className="mt-3 flex items-baseline gap-2 whitespace-nowrap">
-                  <span className="text-gray-400 line-through text-sm">
+                <div className="mt-2 flex items-baseline gap-1.5 whitespace-nowrap">
+                  <span className="text-gray-400 line-through text-xs">
                     ${pack.anchor}
                   </span>
-                  <span className="text-2xl font-bold text-foreground">
+                  <span className="text-xl font-bold text-foreground">
                     ${pack.price}
                   </span>
                 </div>

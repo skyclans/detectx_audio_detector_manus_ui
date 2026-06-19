@@ -64,7 +64,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
-import { CreditTopUpModal } from "@/components/CreditTopUpModal";
 
 // MP3 baseline: 50 credits per minute
 const MP3_CREDITS_PER_MIN = 50;
@@ -260,7 +259,33 @@ export default function Plan() {
   const [, setLocation] = useLocation();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [confirmUpgrade, setConfirmUpgrade] = useState<string | null>(null);
-  const [showTopUp, setShowTopUp] = useState(false);
+  const [topupLoading, setTopupLoading] = useState<string | null>(null);
+
+  const handleBuyTopup = async (packId: string) => {
+    if (!isAuthenticated) {
+      setLocation("/login?redirect=/plan");
+      return;
+    }
+    setTopupLoading(packId);
+    try {
+      const res = await fetchWithAuth("/api/stripe/create-topup-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pack: packId }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Failed to create top-up session");
+      }
+      const data = await res.json();
+      const url: string | undefined = data.checkout_url || data.url;
+      if (!url) throw new Error("No checkout URL returned");
+      window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message || "Top-up failed");
+      setTopupLoading(null);
+    }
+  };
 
   // Handle payment success/cancel URL params (return from Stripe Checkout)
   useEffect(() => {
@@ -655,12 +680,20 @@ export default function Plan() {
                   </div>
 
                   <Button
-                    onClick={() => setShowTopUp(true)}
+                    onClick={() => handleBuyTopup(pack.id)}
+                    disabled={topupLoading !== null}
                     className="w-full mt-4"
                     variant={pack.id === "50k" ? "default" : "outline"}
                     size="sm"
                   >
-                    Buy Now
+                    {topupLoading === pack.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Redirecting…
+                      </>
+                    ) : (
+                      "Buy Now"
+                    )}
                   </Button>
                 </div>
               ))}
@@ -934,8 +967,6 @@ export default function Plan() {
           </div>
         </div>
       )}
-
-      <CreditTopUpModal open={showTopUp} onOpenChange={setShowTopUp} />
     </ForensicLayout>
   );
 }

@@ -310,6 +310,30 @@ export default function Plan() {
     }
   }, [refreshUser]);
 
+  // Reset Stripe redirect loading state when the user navigates back from
+  // Checkout via bfcache (button would otherwise stay stuck on "Redirecting…").
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        setTopupLoading(null);
+        setLoadingPlan(null);
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
+  // Scroll to #topup section on hash navigation (e.g. from sidebar Top-up).
+  useEffect(() => {
+    if (window.location.hash === "#topup") {
+      const el = document.getElementById("topup");
+      if (el) {
+        // wait a tick so the layout has settled
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      }
+    }
+  }, []);
+
   const userPlan = (user as any)?.plan || "free";
   const planRank: Record<string, number> = {
     free: 0,
@@ -633,7 +657,7 @@ export default function Plan() {
         </div>
 
         {/* Top-up Section */}
-        <div className="forensic-panel mt-8">
+        <div id="topup" className="forensic-panel mt-8 scroll-mt-20">
           <div className="forensic-panel-header flex items-center gap-2">
             <CreditCard className="w-4 h-4" />
             Buy Credit Packs (One-time)

@@ -14,12 +14,10 @@
  * falls back to the legacy "plan + monthly_limit + usage_count" model.
  */
 
-import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { CreditCard, Gem, Gift, Sparkles, Zap } from "lucide-react";
-import { CreditTopUpModal } from "@/components/CreditTopUpModal";
 
 interface FreeUsage {
   mp3_used?: number;
@@ -42,7 +40,6 @@ function daysUntilReset(renewedAt?: string | null): number {
 export function CreditBalanceSidebar() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [showTopUp, setShowTopUp] = useState(false);
 
   if (!isAuthenticated || !user) return null;
 
@@ -174,7 +171,7 @@ export function CreditBalanceSidebar() {
             </div>
 
             <button
-              onClick={() => setShowTopUp(true)}
+              onClick={() => setLocation("/plan#topup")}
               className="w-full mt-2.5 px-2 py-1.5 text-xs bg-purple-600 text-white rounded font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-1"
             >
               <CreditCard className="w-3 h-3" />
@@ -182,7 +179,6 @@ export function CreditBalanceSidebar() {
             </button>
           </div>
         </div>
-        <CreditTopUpModal open={showTopUp} onOpenChange={setShowTopUp} />
       </>
     );
   }

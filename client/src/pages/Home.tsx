@@ -16,7 +16,7 @@ import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { SourceComponents } from "@/components/SourceComponents";
 import { GeometryScanTrace } from "@/components/GeometryScanTrace";
 import { ReconV3Display } from "@/components/ReconV3Display";
-import { AdvancedSignalAnalysis, getMockForensicData } from "@/components/AdvancedSignalAnalysis";
+import { AdvancedSignalAnalysis, type ForensicAnalysisData } from "@/components/AdvancedSignalAnalysis";
 import { ExportPanel } from "@/components/ExportPanel";
 import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
@@ -131,6 +131,13 @@ interface VerdictResult {
   finalScore?: number | null;  // Final AI probability
   finalScoreSource?: string | null;  // "cnn" or "recon"
   tier?: string | null;  // server tier label
+  generator?: {
+    generator?: string;
+    version_family?: string;
+    confidence_grade?: string;
+    family_probabilities?: Record<string, number>;
+  } | null;  // Suno version attribution (AI tracks only)
+  forensic?: ForensicAnalysisData | null;  // Advanced Signal Analysis (Phase A waveform)
 }
 
 // Helper function to convert snake_case server response to camelCase for UI
@@ -739,22 +746,49 @@ export default function Home() {
             setScanComplete(false);
             setUploadProgress(null);
             reject(new Error("Please sign in to use this feature."));
-          } else if (xhr.status === 429) {
+          } else if (xhr.status === 429 || xhr.status === 402 || xhr.status === 403) {
+            // Credit / free-trial / rate-limit gates. The backend sends a
+            // structured detail object ({error: "free_trial_exhausted", ...});
+            // map known codes to friendly copy and never render the raw object.
             setIsVerifying(false);
             setScanComplete(false);
             setUploadProgress(null);
+            let msg = "You've reached a usage limit. Please upgrade your plan.";
             try {
               const err = JSON.parse(xhr.responseText);
-              alert(err.detail || "Monthly limit reached. Please upgrade your plan.");
+              const d = err.detail;
+              const code = d && typeof d === "object" ? d.error || "" : "";
+              const FRIENDLY: Record<string, string> = {
+                free_trial_exhausted:
+                  "You've used all your free trial scans for this quality this month. Please upgrade your plan for more.",
+                insufficient_credits:
+                  "You don't have enough credits for this scan. Please top up or upgrade your plan.",
+                duration_exceeds_free_cap:
+                  "Free tier is limited to tracks up to 6 minutes. Please upgrade to scan longer tracks.",
+                rate_limit_exceeded:
+                  "Too many requests in a short time. Please wait a moment and try again.",
+              };
+              msg =
+                FRIENDLY[code] ||
+                (typeof d === "string" ? d : "") ||
+                msg;
             } catch {
-              alert("Monthly limit reached. Please upgrade your plan.");
+              /* keep default msg */
             }
+            alert(msg);
             setLocation("/plan");
-            reject(new Error("Monthly limit reached"));
+            reject(new Error(msg));
           } else {
             try {
               const err = JSON.parse(xhr.responseText);
-              reject(new Error(err.detail || `Server error: ${xhr.status}`));
+              const d = err.detail;
+              const m =
+                typeof d === "string"
+                  ? d
+                  : d && typeof d === "object"
+                    ? d.error || JSON.stringify(d)
+                    : "";
+              reject(new Error(m || `Server error: ${xhr.status}`));
             } catch {
               reject(new Error(`Server error: ${xhr.status}`));
             }
@@ -855,6 +889,8 @@ export default function Home() {
         finalScore: result.final_score ?? result.finalScore ?? null,
         finalScoreSource: result.final_score_source ?? result.finalScoreSource ?? null,
         tier: result.tier ?? null,
+        generator: result.generator ?? null,
+        forensic: result.forensic ?? null,
       });
       
       setScanComplete(true);
@@ -968,6 +1004,32 @@ export default function Home() {
             progress={Math.round((scanLogs.length / 17) * 100)}
           />
 
+          {/* Generator Attribution — which AI generator/version produced the track.
+              Only present for AI-flagged tracks (server runs it on the AI path). */}
+          {verificationResult?.generator?.version_family && (
+            <div className="forensic-panel mt-3">
+              <div className="forensic-panel-header">
+                Generator Attribution
+              </div>
+              <div className="forensic-panel-content space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Detected source</span>
+                  <span className="text-sm font-medium">
+                    {verificationResult.generator.version_family}
+                  </span>
+                </div>
+                {verificationResult.generator.confidence_grade && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Confidence</span>
+                    <span className="text-sm font-medium">
+                      {verificationResult.generator.confidence_grade}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Live Console with height limit - now below Verification Result */}
           <LiveScanConsole
             logs={scanLogs}
@@ -977,7 +1039,7 @@ export default function Home() {
 
           {/* Tier 4: Advanced Signal Analysis (corroborative forensic display) */}
           <AdvancedSignalAnalysis
-            data={getMockForensicData()}
+            data={verificationResult?.forensic ?? {}}
             isProcessing={isVerifying}
           />
 

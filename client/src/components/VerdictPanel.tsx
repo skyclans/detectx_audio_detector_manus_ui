@@ -279,8 +279,9 @@ export function VerdictPanel({
 
         {/* Measurement disclaimer (legal evidence tone) */}
         <p className="text-xs text-muted-foreground/80 leading-relaxed">
-          ※ DetectX 측정 결과는 구조적 신호 분석에 한정된 forensic 자료입니다.
-          최종 판단 및 적용은 소속 기관·법원·관계 당국의 정책에 따릅니다.
+          ※ DetectX results are forensic data limited to structural signal analysis.
+          Final determination and application are subject to the policies of the relevant
+          institution, court, or authority.
         </p>
       </div>
     </div>

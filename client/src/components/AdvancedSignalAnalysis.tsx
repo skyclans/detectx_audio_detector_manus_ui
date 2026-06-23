@@ -948,13 +948,6 @@ export function AdvancedSignalAnalysis({
         </span>
       </div>
 
-      {/* Top notice */}
-      <div className="px-4 py-2 bg-amber-500/5 border-b border-amber-500/20">
-        <p className="text-[11px] text-amber-300/90 flex items-center gap-1.5">
-          <Info className="w-3 h-3" />
-          Demo data (forensic mode in development)
-        </p>
-      </div>
 
       <div className="forensic-panel-content space-y-4">
         {/* ===== HERO: Radar + Breakdown ===== */}

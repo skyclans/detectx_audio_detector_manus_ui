@@ -249,6 +249,9 @@ export default function Home() {
   const [scanLogs, setScanLogs] = useState<ScanLog[]>([]);
   const [scanComplete, setScanComplete] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerdictResult | null>(null);
+  // Advanced Signal Analysis (separate, non-blocking — never gates the verdict)
+  const [forensicData, setForensicData] = useState<ForensicAnalysisData | null>(null);
+  const [forensicLoading, setForensicLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -456,6 +459,8 @@ export default function Home() {
 
     setSelectedFile(file);
     setVerificationResult(null);
+    setForensicData(null);
+    setForensicLoading(false);
     setScanLogs([]);
     setScanComplete(false);
     
@@ -890,10 +895,31 @@ export default function Home() {
         finalScoreSource: result.final_score_source ?? result.finalScoreSource ?? null,
         tier: result.tier ?? null,
         generator: result.generator ?? null,
-        forensic: result.forensic ?? null,
       });
-      
+
       setScanComplete(true);
+
+      // Advanced Signal Analysis — SEPARATE, non-blocking request. The verdict
+      // is already shown above; this CPU forensic pass (~3-12s) runs with its
+      // own loading state and NEVER delays or blocks the scan result. Any
+      // failure just leaves the panel hidden. (Isolated from the verdict path
+      // to avoid the 2026-06-23 poll-timeout regression.)
+      if (selectedFileRef.current) {
+        setForensicData(null);
+        setForensicLoading(true);
+        const ff = new FormData();
+        ff.append("file", selectedFileRef.current);
+        const ftoken = localStorage.getItem("detectx_token");
+        fetch(`${DETECTX_API_URL}/forensic`, {
+          method: "POST",
+          headers: ftoken ? { Authorization: `Bearer ${ftoken}` } : {},
+          body: ff,
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => setForensicData(d?.forensic ?? null))
+          .catch(() => setForensicData(null))
+          .finally(() => setForensicLoading(false));
+      }
 
 // Usage is incremented server-side in /verify-audio (single source of truth)
       // Update local state + sidebar from server response
@@ -1039,8 +1065,8 @@ export default function Home() {
 
           {/* Tier 4: Advanced Signal Analysis (corroborative forensic display) */}
           <AdvancedSignalAnalysis
-            data={verificationResult?.forensic ?? {}}
-            isProcessing={isVerifying}
+            data={forensicData ?? {}}
+            isProcessing={forensicLoading}
           />
 
           {/* Error Message Display */}

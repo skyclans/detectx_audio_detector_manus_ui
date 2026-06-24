@@ -35,7 +35,8 @@ import {
   Check,
   Users,
   CheckSquare,
-  Eye
+  Eye,
+  Coins
 } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
 
@@ -48,6 +49,15 @@ interface User {
   role: string;
   usageCount: number;
   monthlyLimit: number;
+  tier?: string | null;
+  creditsBalance?: number | null;
+  monthlyGrant?: number | null;
+  freeUsage?: {
+    mp3_used: number;
+    lossless_used: number;
+    hires_used: number;
+    limits: { standard: number; lossless: number; hires: number; audiophile: number };
+  } | null;
   usageResetDate: string | null;
   createdAt: string;
   lastSignedIn: string | null;
@@ -71,9 +81,10 @@ interface Admin {
 
 // Plan options with limits
 const PLAN_OPTIONS = [
-  { value: "free", label: "Free", limit: 3 },
-  { value: "pro", label: "Pro ($39.99)", limit: 50 },
-  { value: "studio", label: "Studio ($399)", limit: 1000 },
+  { value: "free", label: "Free (trial)", limit: 0 },
+  { value: "basic", label: "Basic — 5,000 cr/mo", limit: 5000 },
+  { value: "pro", label: "Pro — 30,000 cr/mo", limit: 30000 },
+  { value: "studio", label: "Studio — 150,000 cr/mo", limit: 150000 },
   { value: "enterprise", label: "Enterprise (Custom)", limit: -1 },
   { value: "master", label: "Master (Internal)", limit: -1 },
 ];
@@ -81,6 +92,7 @@ const PLAN_OPTIONS = [
 // Plan badge colors
 const PLAN_COLORS: Record<string, string> = {
   free: "bg-gray-500/20 text-gray-400",
+  basic: "bg-cyan-500/20 text-cyan-400",
   pro: "bg-blue-500/20 text-blue-400",
   studio: "bg-green-500/20 text-green-400",
   enterprise: "bg-purple-500/20 text-purple-400",
@@ -112,10 +124,13 @@ export default function AdminUsers() {
   const [editUsageModal, setEditUsageModal] = useState(false);
   const [adminModal, setAdminModal] = useState(false);
   const [bulkActionModal, setBulkActionModal] = useState(false);
+  const [creditModal, setCreditModal] = useState(false);
+  const [creditAmount, setCreditAmount] = useState(0);
+  const [creditReason, setCreditReason] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   
   // Edit form states
-  const [newPlan, setNewPlan] = useState<"free" | "pro" | "studio" | "enterprise" | "master">("free");
+  const [newPlan, setNewPlan] = useState<"free" | "basic" | "pro" | "studio" | "enterprise" | "master">("free");
   const [newUsageCount, setNewUsageCount] = useState(0);
   const [newMonthlyLimit, setNewMonthlyLimit] = useState(0);
   const [extensionDays, setExtensionDays] = useState(0);
@@ -125,7 +140,7 @@ export default function AdminUsers() {
   
   // Bulk action states
   const [bulkAction, setBulkAction] = useState<"plan" | "reset">("plan");
-  const [bulkPlan, setBulkPlan] = useState<"free" | "pro" | "studio" | "enterprise" | "master">("free");
+  const [bulkPlan, setBulkPlan] = useState<"free" | "basic" | "pro" | "studio" | "enterprise" | "master">("free");
   
   // Fetch users from REST API
   const fetchUsers = useCallback(async () => {
@@ -279,6 +294,49 @@ export default function AdminUsers() {
     }
   };
   
+  const openCreditModal = (userId: string) => {
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      setSelectedUserId(userId);
+      setCreditAmount(0);
+      setCreditReason("");
+      setCreditModal(true);
+    }
+  };
+
+  const handleGrantCredits = async () => {
+    if (!selectedUserId) return;
+    if (!creditAmount || creditAmount <= 0) {
+      alert("Enter a positive number of credits to grant.");
+      return;
+    }
+    try {
+      setIsSubmitting(true);
+      const response = await fetchWithAuth("/api/admin/users/adjust-credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: selectedUserId,
+          amount: creditAmount,
+          reason: creditReason || "admin grant",
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        await fetchUsers();
+        setCreditModal(false);
+        alert(`Granted ${creditAmount.toLocaleString()} credits. New balance: ${data.new_balance}`);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.detail || "Failed to grant credits"}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleResetUsage = async (userId: string) => {
     if (!confirm("Are you sure you want to reset this user's usage?")) return;
     try {
@@ -530,7 +588,7 @@ export default function AdminUsers() {
                       </th>
                       <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">User</th>
                       <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Plan</th>
-                      <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Usage</th>
+                      <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Credits</th>
                       <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Reset Date</th>
                       <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Joined</th>
                       <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground">Actions</th>
@@ -557,9 +615,22 @@ export default function AdminUsers() {
                           </span>
                         </td>
                         <td className="py-3 px-2">
-                          <span className="text-sm">
-                            {user.usageCount} / {user.monthlyLimit === -1 ? "∞" : user.monthlyLimit}
-                          </span>
+                          {user.freeUsage ? (
+                            <span
+                              className="text-xs font-mono text-muted-foreground"
+                              title={`Free trial scans remaining — MP3 ${Math.max(0, (user.freeUsage.limits?.standard ?? 2) - user.freeUsage.mp3_used)}/${user.freeUsage.limits?.standard ?? 2}, Lossless ${Math.max(0, (user.freeUsage.limits?.lossless ?? 1) - user.freeUsage.lossless_used)}/${user.freeUsage.limits?.lossless ?? 1}, Hi-Res ${Math.max(0, (user.freeUsage.limits?.hires ?? 1) - user.freeUsage.hires_used)}/${user.freeUsage.limits?.hires ?? 1}`}
+                            >
+                              Trial {Math.max(0, (user.freeUsage.limits?.standard ?? 2) - user.freeUsage.mp3_used)}·{Math.max(0, (user.freeUsage.limits?.lossless ?? 1) - user.freeUsage.lossless_used)}·{Math.max(0, (user.freeUsage.limits?.hires ?? 1) - user.freeUsage.hires_used)} left
+                            </span>
+                          ) : (
+                            <span className="text-sm font-mono">
+                              {user.creditsBalance === -1 || user.monthlyGrant === -1
+                                ? "∞"
+                                : user.monthlyGrant && user.monthlyGrant > 0
+                                  ? `${(user.creditsBalance ?? 0).toLocaleString()} / ${user.monthlyGrant.toLocaleString()}`
+                                  : (user.creditsBalance ?? 0).toLocaleString()}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-2">
                           <span className="text-sm text-muted-foreground">
@@ -596,6 +667,14 @@ export default function AdminUsers() {
                               title="Modify Usage"
                             >
                               <Users className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openCreditModal(user.id)}
+                              title="Grant Credits"
+                            >
+                              <Coins className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -745,6 +824,56 @@ export default function AdminUsers() {
         </DialogContent>
       </Dialog>
       
+      {/* Grant Credits Modal */}
+      <Dialog open={creditModal} onOpenChange={setCreditModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Grant Credits</DialogTitle>
+            <DialogDescription>
+              Add credits to {selectedUser?.email || "this user"} (e.g. complaint comp / goodwill).
+              {" "}Current balance:{" "}
+              {selectedUser?.creditsBalance === -1
+                ? "∞ (unlimited)"
+                : (selectedUser?.creditsBalance ?? 0).toLocaleString()}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label htmlFor="creditAmount">Credits to grant</Label>
+              <Input
+                id="creditAmount"
+                type="number"
+                min={0}
+                value={creditAmount}
+                onChange={(e) => setCreditAmount(parseInt(e.target.value) || 0)}
+                placeholder="e.g. 5000"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                MP3 ≈ 50 credits/min (5,000 ≈ 100 MP3-min).
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="creditReason">Reason (logged)</Label>
+              <Input
+                id="creditReason"
+                value={creditReason}
+                onChange={(e) => setCreditReason(e.target.value)}
+                placeholder="e.g. Complaint comp — failed scan"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreditModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleGrantCredits} disabled={isSubmitting}>
+              <Coins className="h-4 w-4 mr-2" />
+              {isSubmitting ? "Granting..." : "Grant Credits"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Admin Management Modal */}
       <Dialog open={adminModal} onOpenChange={setAdminModal}>
         <DialogContent className="max-w-lg">

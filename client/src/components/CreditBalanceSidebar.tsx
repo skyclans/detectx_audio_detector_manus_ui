@@ -77,9 +77,10 @@ export function CreditBalanceSidebar() {
 
   // Free tier — trial scan counts (only when backend reports tier=free with grant)
   if (tier === "free") {
-    const mp3 = freeUsage.mp3_used ?? 0;
-    const lossless = freeUsage.lossless_used ?? 0;
-    const hires = freeUsage.hires_used ?? 0;
+    // Show REMAINING scans (limit - used), not the used count
+    const mp3Left = Math.max(0, 2 - (freeUsage.mp3_used ?? 0));
+    const losslessLeft = Math.max(0, 1 - (freeUsage.lossless_used ?? 0));
+    const hiresLeft = Math.max(0, 1 - (freeUsage.hires_used ?? 0));
     return (
       <div className="px-3 py-3 border-t border-sidebar-border">
         <div className="p-3 rounded-lg bg-sidebar-accent/30">
@@ -92,20 +93,20 @@ export function CreditBalanceSidebar() {
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">MP3</span>
-              <span className={cn("font-mono", mp3 >= 2 && "text-red-500")}>
-                {mp3} / 2
+              <span className={cn("font-mono", mp3Left <= 0 && "text-red-500")}>
+                {mp3Left} / 2
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Lossless</span>
-              <span className={cn("font-mono", lossless >= 1 && "text-red-500")}>
-                {lossless} / 1
+              <span className={cn("font-mono", losslessLeft <= 0 && "text-red-500")}>
+                {losslessLeft} / 1
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Hi-Res</span>
-              <span className={cn("font-mono", hires >= 1 && "text-red-500")}>
-                {hires} / 1
+              <span className={cn("font-mono", hiresLeft <= 0 && "text-red-500")}>
+                {hiresLeft} / 1
               </span>
             </div>
           </div>

@@ -11,9 +11,25 @@ const SITE = "https://detectx.app";
 const SITE_NAME = "DetectX";
 const OG_IMAGE = `${SITE}/og-image.png`;
 
+// hreflang alternates — emitted only on the localized landing roots so Google
+// treats the 8 language versions as alternates (not duplicates). x-default -> /.
+const HREFLANGS = [
+  { code: "x-default", path: "/" },
+  { code: "en", path: "/en/" },
+  { code: "ko", path: "/ko/" },
+  { code: "ja", path: "/ja/" },
+  { code: "es", path: "/es/" },
+  { code: "de", path: "/de/" },
+  { code: "fr", path: "/fr/" },
+  { code: "pt", path: "/pt/" },
+  { code: "zh", path: "/zh/" },
+] as const;
+const LANG_ROOTS = new Set(HREFLANGS.map((h) => h.path)); // "/", "/en/", ...
+
 export default function SEO({ title, description, path, type = "website" }: SEOProps) {
   const url = `${SITE}${path}`;
   const fullTitle = path === "/" ? title : `${title} | ${SITE_NAME}`;
+  const showHreflang = LANG_ROOTS.has(path);
 
   return (
     <Helmet>
@@ -21,6 +37,11 @@ export default function SEO({ title, description, path, type = "website" }: SEOP
       <meta name="title" content={fullTitle} />
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
+
+      {showHreflang &&
+        HREFLANGS.map((h) => (
+          <link key={h.code} rel="alternate" hrefLang={h.code} href={`${SITE}${h.path}`} />
+        ))}
 
       <meta property="og:type" content={type} />
       <meta property="og:url" content={url} />

@@ -36,9 +36,6 @@ export default function Research() {
               <Link href="/research" className="text-sm text-foreground font-medium">
                 Research
               </Link>
-              <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
-              </Link>
               <Link href="/updates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Updates
               </Link>

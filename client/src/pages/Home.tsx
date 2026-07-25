@@ -673,17 +673,19 @@ export default function Home() {
     const dbPlan = (user as any)?.plan as string | undefined;
     const isEnterpriseOrMaster = dbPlan === "enterprise" || dbPlan === "master";
     
-    if (isAuthenticated && !isMasterUser && !isEnterpriseOrMaster && !selectedMode) {
-      setLocation("/select-mode");
-      return;
-    }
+    // 2026-07-26: mode-selection gate disabled — scans are free + unlimited for
+    // every logged-in user (login still required above). Pricing is master-only.
+    // if (isAuthenticated && !isMasterUser && !isEnterpriseOrMaster && !selectedMode) {
+    //   setLocation("/select-mode");
+    //   return;
+    // }
     
-    // Check mode limit (skip for master and enterprise users with high limits)
-    if (!isMasterUser && !isEnterpriseOrMaster && modeLimit !== null && usageCount >= modeLimit) {
-      alert(`You have reached your monthly limit of ${modeLimit} verifications. Please upgrade your plan.`);
-      setLocation("/plan");
-      return;
-    }
+    // 2026-07-26: monthly mode-limit gate disabled — unlimited free scans.
+    // if (!isMasterUser && !isEnterpriseOrMaster && modeLimit !== null && usageCount >= modeLimit) {
+    //   alert(`You have reached your monthly limit of ${modeLimit} verifications. Please upgrade your plan.`);
+    //   setLocation("/plan");
+    //   return;
+    // }
     
     // Immediate UI update
     setIsVerifying(true);

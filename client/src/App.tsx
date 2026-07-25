@@ -1,12 +1,13 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, Redirect } from "wouter";
 import { HelmetProvider } from "react-helmet-async";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CookieConsent } from "./components/CookieConsent";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 // Core pages (eagerly loaded)
 import Landing from "./pages/Landing";
@@ -33,6 +34,7 @@ const InviteAccept = lazy(() => import("./pages/InviteAccept"));
 const HomeTest = lazy(() => import("./pages/HomeTest"));
 const HistoryTest = lazy(() => import("./pages/HistoryTest"));
 const PreviewTier4 = lazy(() => import("./pages/PreviewTier4"));
+const VerifyAudioV2 = lazy(() => import("./pages/VerifyAudioV2")); // verify-audio 대공사 미리보기
 
 // Forensic Report custom-quote flow (Phase 5)
 const ForensicRequest = lazy(() => import("./pages/ForensicRequest"));
@@ -77,22 +79,51 @@ const AccountMarketingConsent = lazy(
   () => import("./pages/account/MarketingConsent"),
 );
 
+// "/" and the locale roots (/ko, /en, ...) are served as the WAISM static page
+// by nginx in production. This SPA route only fires on client-side navigation
+// (e.g. the in-app header logo). Force a full page load so the server returns
+// WAISM. Skipped during prerender (HeadlessChrome) to avoid a redirect loop and
+// keep the prerendered shell blank (no flash of the old landing).
+function RootRedirect() {
+  useEffect(() => {
+    // Skip on the prerender/static server (localhost) to avoid a redirect loop;
+    // on the real domain force a full load so the server returns WAISM.
+    const h = typeof window !== "undefined" ? window.location.hostname : "";
+    if (h && h !== "localhost" && h !== "127.0.0.1") {
+      window.location.replace("/");
+    }
+  }, []);
+  return null;
+}
+
+// Pricing/Plan page is master-account-only (2026-07-26). Non-master (and logged-out)
+// visitors are redirected home so pricing/billing stays hidden. Master accounts
+// (skyclans2@gmail.com, ceo@detectx.app — plan="master") keep full access + Stripe.
+function PlanGuard() {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null; // wait for auth to resolve before deciding
+  const isMaster = (user as any)?.plan === "master";
+  if (!isMaster) return <Redirect to="/" />;
+  return <Plan />;
+}
+
 function Router() {
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
     <Switch>
-      {/* Landing page (HOME) - main entry point */}
-      <Route path="/" component={Landing} />
+      {/* HOME — WAISM static page (served by nginx); redirect any client-side nav */}
+      <Route path="/" component={RootRedirect} />
       
       {/* Verify Audio tool */}
       <Route path="/verify-audio" component={Home} />
+      <Route path="/verify-audio-v2" component={VerifyAudioV2} />
       <Route path="/verify-voice" component={VoiceVerify} />
       <Route path="/batch-verify" component={BatchVerify} />
 
       {/* Account pages */}
       <Route path="/history" component={History} />
       <Route path="/settings" component={Settings} />
-      <Route path="/plan" component={Plan} />
+      <Route path="/plan" component={PlanGuard} />
       
       {/* Coming soon modalities */}
       <Route path="/image" component={ComingSoon} />
@@ -114,23 +145,23 @@ function Router() {
       {/* Team invite */}
       <Route path="/invite/:token" component={InviteAccept} />
 
-      {/* Multilingual SEO landing pages */}
-      <Route path="/en" component={LandingEN} />
-      <Route path="/en/" component={LandingEN} />
-      <Route path="/ko" component={LandingKO} />
-      <Route path="/ko/" component={LandingKO} />
-      <Route path="/ja" component={LandingJA} />
-      <Route path="/ja/" component={LandingJA} />
-      <Route path="/es" component={LandingES} />
-      <Route path="/es/" component={LandingES} />
-      <Route path="/de" component={LandingDE} />
-      <Route path="/de/" component={LandingDE} />
-      <Route path="/fr" component={LandingFR} />
-      <Route path="/fr/" component={LandingFR} />
-      <Route path="/pt" component={LandingPT} />
-      <Route path="/pt/" component={LandingPT} />
-      <Route path="/zh" component={LandingZH} />
-      <Route path="/zh/" component={LandingZH} />
+      {/* Locale roots — served as WAISM by nginx; redirect any client-side nav */}
+      <Route path="/en" component={RootRedirect} />
+      <Route path="/en/" component={RootRedirect} />
+      <Route path="/ko" component={RootRedirect} />
+      <Route path="/ko/" component={RootRedirect} />
+      <Route path="/ja" component={RootRedirect} />
+      <Route path="/ja/" component={RootRedirect} />
+      <Route path="/es" component={RootRedirect} />
+      <Route path="/es/" component={RootRedirect} />
+      <Route path="/de" component={RootRedirect} />
+      <Route path="/de/" component={RootRedirect} />
+      <Route path="/fr" component={RootRedirect} />
+      <Route path="/fr/" component={RootRedirect} />
+      <Route path="/pt" component={RootRedirect} />
+      <Route path="/pt/" component={RootRedirect} />
+      <Route path="/zh" component={RootRedirect} />
+      <Route path="/zh/" component={RootRedirect} />
 
       {/* Comparison pages */}
       <Route path="/vs/acrcloud" component={VsACRCloud} />

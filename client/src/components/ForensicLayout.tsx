@@ -244,6 +244,8 @@ function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMob
   const [location, setLocation] = useLocation();
   const { user, loading, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  // Plan/Pricing sidebar link is master-account-only (2026-07-26).
+  const isMaster = (user as any)?.plan === "master";
 
   return (
     <>
@@ -309,7 +311,7 @@ function Sidebar({ isMobileOpen, onMobileClose }: { isMobileOpen: boolean; onMob
                 {section.title}
               </div>
               <div className="space-y-1">
-                {section.items.map((item) => (
+                {section.items.filter((item) => isMaster || item.href !== "/plan").map((item) => (
                   <NavItemComponent
                     key={item.label}
                     item={item}
@@ -385,10 +387,13 @@ interface HeaderProps {
  * - Navigation feels clear, deliberate, and professional
  */
 function Header({ title, subtitle, onMenuClick }: HeaderProps) {
+  // Pricing link is master-account-only (2026-07-26).
+  const { user } = useAuth();
+  const isMaster = (user as any)?.plan === "master";
   const headerLinks = [
     { label: "Technology", href: "/technology" },
     { label: "Research", href: "/research" },
-    { label: "Pricing", href: "/plan" },
+    ...(isMaster ? [{ label: "Pricing", href: "/plan" }] : []),
     { label: "Updates", href: "/updates" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },

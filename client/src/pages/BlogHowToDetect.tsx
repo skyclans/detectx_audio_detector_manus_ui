@@ -115,7 +115,6 @@ export default function BlogHowToDetect() {
             <div className="hidden md:flex items-center gap-8">
               <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Technology</Link>
               <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Research</Link>
-              <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
               <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             </div>
@@ -162,7 +161,6 @@ export default function BlogHowToDetect() {
               <div className="flex flex-col gap-4">
                 <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Technology</Link>
                 <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Research</Link>
-                <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
                 <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>About</Link>
                 <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
               </div>
@@ -565,9 +563,9 @@ export default function BlogHowToDetect() {
           <div className="bg-muted/30 border border-border rounded-lg p-6 my-8 text-center">
             <p className="text-foreground font-medium mb-2">Need enterprise-grade detection?</p>
             <p className="text-muted-foreground text-sm mb-4">DetectX supports batch scanning up to 1M tracks/week with API integration and dedicated support.</p>
-            <Link href="/plan">
+            <Link href="/contact">
               <Button variant="outline" className="text-sm font-medium">
-                View Enterprise Plans
+                Contact Enterprise Sales
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -643,9 +641,9 @@ export default function BlogHowToDetect() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href="/plan">
+                <Link href="/contact">
                   <Button variant="outline" className="px-6">
-                    View Plans & Pricing
+                    Contact Enterprise Sales
                   </Button>
                 </Link>
               </div>

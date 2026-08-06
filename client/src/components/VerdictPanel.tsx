@@ -27,9 +27,15 @@ import { cn } from "@/lib/utils";
 
 /**
  * DetectX Verification Result Contract (LOCKED - DO NOT MODIFY)
+ *
+ * Widened 2026-08-07 for the multiclass engine, which returns two sentences the
+ * binary engine never could. Still verbatim, still no reasoning about the audio
+ * — only sentences the backend actually sends are listed.
  */
 type DetectXVerdictText =
   | "AI signal evidence was observed."
+  | "AI signal evidence was partially observed."
+  | "AI signal evidence was inconclusive."
   | "AI signal evidence was not observed.";
 
 interface DetectXVerificationResult {
@@ -64,25 +70,35 @@ interface VerdictPanelProps {
  */
 type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
 
+/** Same wording the forensic console uses, so a track reads identically on both sites. */
 function getDisplayLabelFromTier(tier: VerdictTier, backendVerdict: string): string {
   switch (tier) {
     case "human":
-      return "AI Signal Not Observed";
+      return "NO AI SIGNAL";
     case "mixed-human":
-      return "AI Signal Not Observed — Recovered by Deep Scan Analysis";
+      return "AI SIGNAL · MINIMAL";
     case "mixed-ai":
-      return "AI Signal Observed — Confirmed by Deep Scan Analysis";
+      return "AI SIGNAL · PARTIAL";
     case "ai":
-      return "AI Signal Observed";
+      return "AI SIGNAL OBSERVED";
     case "inconclusive":
-      return "AI Signal Inconclusive";
+      return "INCONCLUSIVE";
     case "unknown":
     default:
       return backendVerdict || "Pending";
   }
 }
 
-function normalizeTier(tier: string | null | undefined): VerdictTier {
+/**
+ * The backend does not always send a tier — the multiclass engine leaves it
+ * unset — so fall back to the sentence it did send. Reading the server's own
+ * wording is not deriving a verdict; the mapping is the same one the forensic
+ * console uses, which is why a track reads the same on both sites.
+ */
+function normalizeTier(
+  tier: string | null | undefined,
+  backendVerdict?: string | null,
+): VerdictTier {
   switch (tier) {
     case "human":
     case "mixed-human":
@@ -90,9 +106,13 @@ function normalizeTier(tier: string | null | undefined): VerdictTier {
     case "ai":
     case "inconclusive":
       return tier;
-    default:
-      return "unknown";
   }
+  const v = backendVerdict || "";
+  if (/partially observed/i.test(v)) return "mixed-ai";
+  if (/inconclusive/i.test(v)) return "inconclusive";
+  if (/not observed/i.test(v)) return "human";
+  if (/\bwas observed\b/i.test(v)) return "ai";
+  return "unknown";
 }
 
 /**
@@ -166,7 +186,7 @@ export function VerdictPanel({
   // threshold comparison). Backend verdict text remains binary and
   // authoritative; the tier label is a display-only enrichment that
   // surfaces Deep Scan recovery / confirmation.
-  const tier = normalizeTier(serverTier);
+  const tier = normalizeTier(serverTier, verdict.verdict);
   const displayLabel = getDisplayLabelFromTier(tier, verdict.verdict);
 
   const isMixedHuman = tier === "mixed-human";

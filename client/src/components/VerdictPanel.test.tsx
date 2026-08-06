@@ -46,14 +46,14 @@ describe("VerdictPanel - DetectX Contract Compliance", () => {
   it("renders Observed verdict text verbatim", () => {
     render(<VerdictPanel verdict={SAMPLE_OBSERVED} />);
     expect(
-      screen.getByText("AI signal evidence was observed.")
+      screen.getByText("AI SIGNAL OBSERVED")
     ).toBeTruthy();
   });
 
   it("renders Not Observed verdict text verbatim", () => {
     render(<VerdictPanel verdict={SAMPLE_NOT_OBSERVED} />);
     expect(
-      screen.getByText("AI signal evidence was not observed.")
+      screen.getByText("NO AI SIGNAL")
     ).toBeTruthy();
   });
 

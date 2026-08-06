@@ -19,7 +19,12 @@ import { FileText, AlertCircle, CheckCircle, Search } from "lucide-react";
 import { formatStrengthSummary, type StrengthSummary } from "@/lib/recon_strength";
 
 interface VerdictResult {
-  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+  verdict:
+    | "AI signal evidence was observed."
+    | "AI signal evidence was partially observed."
+    | "AI signal evidence was inconclusive."
+    | "AI signal evidence was not observed."
+    | null;
   authority: "DetectX Forensic";
   exceeded_axes: string[];
 }
@@ -48,7 +53,10 @@ interface ReportPreviewProps {
 
 type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
 
-function normalizeTier(tier: string | null | undefined): VerdictTier {
+function normalizeTier(
+  tier: string | null | undefined,
+  backendVerdict?: string | null,
+): VerdictTier {
   switch (tier) {
     case "human":
     case "mixed-human":
@@ -56,9 +64,15 @@ function normalizeTier(tier: string | null | undefined): VerdictTier {
     case "ai":
     case "inconclusive":
       return tier;
-    default:
-      return "unknown";
   }
+  // No tier sent — read the sentence the server chose, same mapping the
+  // verdict panel uses so a report never disagrees with the screen.
+  const v = backendVerdict || "";
+  if (/partially observed/i.test(v)) return "mixed-ai";
+  if (/inconclusive/i.test(v)) return "inconclusive";
+  if (/not observed/i.test(v)) return "human";
+  if (/\bwas observed\b/i.test(v)) return "ai";
+  return "unknown";
 }
 
 function deriveTierLabel(tier: VerdictTier): string {
@@ -122,7 +136,7 @@ export function ReportPreview({
     );
   }
 
-  const tier = normalizeTier(serverTier);
+  const tier = normalizeTier(serverTier, verdict?.verdict ?? null);
   const tierLabel = deriveTierLabel(tier);
   const isAiTier = tier === "ai";
   const isMixedAi = tier === "mixed-ai";

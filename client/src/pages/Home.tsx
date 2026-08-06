@@ -852,13 +852,25 @@ export default function Home() {
 
       console.log("[Verification] Result received:", result);
       
-      // Update result - API returns full verdict text directly
-      // e.g., "AI signal evidence was observed." or "AI signal evidence was not observed."
+      // Update result - API returns full verdict text directly.
+      // Four sentences since the multiclass engine took the verdict; the binary
+      // engine could only ever produce the first and last. Anything unlisted
+      // used to fall to null here, which dropped the panel back to its empty
+      // "upload a file" state and made a finished scan look like it had
+      // produced nothing at all.
+      const KNOWN_VERDICTS = [
+        "AI signal evidence was observed.",
+        "AI signal evidence was partially observed.",
+        "AI signal evidence was inconclusive.",
+        "AI signal evidence was not observed.",
+      ] as const;
       const verdictText: DetectXVerdictText | null =
-        result.verdict === "AI signal evidence was observed." ||
-        result.verdict === "AI signal evidence was not observed."
-          ? result.verdict
+        KNOWN_VERDICTS.includes(result.verdict)
+          ? (result.verdict as DetectXVerdictText)
           : null;
+      if (result.verdict && !verdictText) {
+        console.warn("[Verification] unrecognised verdict text:", result.verdict);
+      }
       
       // Update metadata with server response if available
       if (result.metadata) {

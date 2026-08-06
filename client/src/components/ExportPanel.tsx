@@ -47,7 +47,12 @@ export interface ReconMetricsData {
 }
 
 interface VerdictResult {
-  verdict: "AI signal evidence was observed." | "AI signal evidence was not observed." | null;
+  verdict:
+    | "AI signal evidence was observed."
+    | "AI signal evidence was partially observed."
+    | "AI signal evidence was inconclusive."
+    | "AI signal evidence was not observed."
+    | null;
   exceeded_axes: string[];
   cnn_score?: number;
   recon_metrics?: ReconMetricsData | null;
@@ -104,11 +109,16 @@ function deriveTier(data: ExportData): VerdictTier {
   // against the band boundary values.
   const t = data.tier;
   if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai" || t === "inconclusive") return t;
-  // Fallback: if no tier was sent, use the binary verdict to render
-  // something stable rather than leaking a boundary comparison.
+  // Fallback: if no tier was sent, read the sentence the server chose rather
+  // than leaking a boundary comparison. Same mapping the verdict panel uses,
+  // so an export never disagrees with the screen it was taken from.
   const v = data.verdict?.verdict ?? null;
   if (v == null) return "unknown";
-  return v === "AI signal evidence was observed." ? "ai" : "human";
+  if (/partially observed/i.test(v)) return "mixed-ai";
+  if (/inconclusive/i.test(v)) return "inconclusive";
+  if (/not observed/i.test(v)) return "human";
+  if (/\bwas observed\b/i.test(v)) return "ai";
+  return "unknown";
 }
 
 function deriveTierLabel(tier: VerdictTier): string {

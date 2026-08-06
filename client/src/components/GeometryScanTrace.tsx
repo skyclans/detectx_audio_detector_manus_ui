@@ -61,6 +61,8 @@ function derivePrimaryEngineStatus(tier: string | null | undefined): AxisStatusI
       return { status: "deep-scan", label: "INTERMEDIATE • DEEP SCAN", note: "Primary engine confidence within the intermediate decision band — DetectX Deep Forensic Engine invoked for final adjudication." };
     case "ai":
       return { status: "ai-confirmed", label: "ABOVE BAND • AI CONFIRMED", note: "Primary engine confidence at or above the upper decision band — no Deep Scan required." };
+    case "inconclusive":
+      return { status: "deep-scan", label: "INCONCLUSIVE • MANUAL REVIEW", note: "Verification result is inconclusive — structural measurements show mixed signals that do not clearly indicate AI synthesis or human origin. Manual forensic review recommended." };
     default:
       return { status: "pass", label: "PENDING" };
   }

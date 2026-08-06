@@ -68,15 +68,16 @@ interface BatchFileItem {
   recordId?: string;
 }
 
-type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
+type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
 
 function deriveTier(item: BatchFileItem): VerdictTier {
   // Tier is server-authoritative. The bundle never compares cnn_score
   // against the band boundary values.
   const t = item.tier;
-  if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai") return t;
+  if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai" || t === "inconclusive") return t;
   const v = item.verdict;
   if (!v) return "unknown";
+  if (v.includes("inconclusive")) return "inconclusive";
   return v.includes("was observed") ? "ai" : "human";
 }
 
@@ -86,6 +87,7 @@ function tierLabel(tier: VerdictTier): string {
     case "mixed-human": return "AI Signal Not Observed — Recovered by Deep Scan";
     case "mixed-ai":    return "AI Signal Observed — Confirmed by Deep Scan";
     case "ai":          return "AI Signal Observed";
+    case "inconclusive": return "AI Signal Inconclusive";
     case "unknown":     return "Pending";
   }
 }
@@ -96,6 +98,7 @@ function tierCode(tier: VerdictTier): string {
     case "mixed-human": return "AI_NOT_OBSERVED_RECOVERED";
     case "mixed-ai":    return "AI_OBSERVED_CONFIRMED";
     case "ai":          return "AI_OBSERVED";
+    case "inconclusive": return "AI_INCONCLUSIVE";
     case "unknown":     return "PENDING";
   }
 }
@@ -160,6 +163,7 @@ function VerdictBadge({ item }: { item: BatchFileItem }) {
     "mixed-ai":     { label: "AI (Deep Scan)",     cls: "text-amber-400 bg-amber-500/10 border border-amber-500/30", sub: "confirmed" },
     "mixed-human":  { label: "Human (Deep Scan)",  cls: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/30", sub: "recovered" },
     "human":        { label: "Human Verified",     cls: "text-forensic-green bg-forensic-green/10 border border-emerald-700/30" },
+    "inconclusive": { label: "Inconclusive",       cls: "text-amber-400 bg-amber-500/10 border border-amber-500/30", sub: "review needed" },
     "unknown":      { label: "Pending",            cls: "text-muted-foreground bg-muted/30 border border-border/30" },
   };
   const { label, cls, sub } = config[tier];
@@ -473,7 +477,7 @@ export default function BatchVerify() {
       if (tier in acc) acc[tier]++;
       return acc;
     },
-    { human: 0, "mixed-human": 0, "mixed-ai": 0, ai: 0, unknown: 0 } as Record<VerdictTier, number>,
+    { human: 0, "mixed-human": 0, "mixed-ai": 0, ai: 0, inconclusive: 0, unknown: 0 } as Record<VerdictTier, number>,
   );
 
   const progressPct = totalFiles > 0 ? ((doneCount + errorCount + skippedCount) / totalFiles) * 100 : 0;
@@ -631,6 +635,7 @@ export default function BatchVerify() {
     md += `| Tier | Count |\n|------|-------|\n`;
     md += `| AI Signal Observed (≥80%) | ${tierCounts.ai} |\n`;
     md += `| AI Confirmed by Deep Scan (50-80%) | ${tierCounts["mixed-ai"]} |\n`;
+    md += `| Inconclusive (Manual Review) | ${tierCounts.inconclusive} |\n`;
     md += `| Human Recovered by Deep Scan (50-80%) | ${tierCounts["mixed-human"]} |\n`;
     md += `| AI Signal Not Observed (<50%) | ${tierCounts.human} |\n\n`;
     md += `## Results\n\n`;
@@ -666,6 +671,7 @@ export default function BatchVerify() {
         case "mixed-ai":    return "tier-mixed-ai";
         case "mixed-human": return "tier-mixed-human";
         case "human":       return "tier-human";
+        case "inconclusive": return "tier-inconclusive";
         default:            return "";
       }
     };
@@ -708,6 +714,7 @@ export default function BatchVerify() {
   .summary-item .label{font-size:10px;text-transform:uppercase;color:#888;margin-top:4px;letter-spacing:0.5px}
   .tier-ai{color:#ef4444;font-weight:600}
   .tier-mixed-ai{color:#f59e0b;font-weight:600}
+  .tier-inconclusive{color:#f59e0b;font-weight:600}
   .tier-mixed-human{color:#10b981;font-weight:600}
   .tier-human{color:#059669;font-weight:600}
   .small-mono{font-family:monospace;font-size:10px}
@@ -732,6 +739,7 @@ export default function BatchVerify() {
 <div class="summary-grid">
   <div class="summary-item"><div class="num tier-ai">${tierCounts.ai}</div><div class="label">AI Observed (≥80%)</div></div>
   <div class="summary-item"><div class="num tier-mixed-ai">${tierCounts["mixed-ai"]}</div><div class="label">AI by Deep Scan</div></div>
+  <div class="summary-item"><div class="num tier-inconclusive">${tierCounts.inconclusive}</div><div class="label">Inconclusive</div></div>
   <div class="summary-item"><div class="num tier-mixed-human">${tierCounts["mixed-human"]}</div><div class="label">Human Recovered</div></div>
   <div class="summary-item"><div class="num tier-human">${tierCounts.human}</div><div class="label">Not Observed (&lt;50%)</div></div>
 </div>
@@ -828,10 +836,10 @@ export default function BatchVerify() {
             </div>
             <div className="forensic-panel-content text-center py-8">
               <p className="text-sm text-muted-foreground mb-4">
-                Batch processing is available on the Studio ($399/mo) and Enterprise plans.
+                Batch processing is available on the Studio and Enterprise plans.
               </p>
               <p className="text-xs text-muted-foreground mb-6">
-                Process up to 1,000 audio files per month with sequential verification, skip-on-error, and CSV export.
+                Process audio files in bulk with sequential verification, skip-on-error, and CSV export.
               </p>
               <Button onClick={() => setLocation("/plan")}>View Plans</Button>
             </div>

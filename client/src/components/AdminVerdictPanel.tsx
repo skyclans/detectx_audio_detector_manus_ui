@@ -57,7 +57,7 @@ interface AdminVerdictPanelProps {
   verificationRecord: any;
 }
 
-type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
+type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
 
 function normalizeTier(tier: string | null | undefined): VerdictTier {
   switch (tier) {
@@ -65,6 +65,7 @@ function normalizeTier(tier: string | null | undefined): VerdictTier {
     case "mixed-human":
     case "mixed-ai":
     case "ai":
+    case "inconclusive":
       return tier;
     default:
       return "unknown";
@@ -81,6 +82,8 @@ function getDisplayLabelFromTier(tier: VerdictTier, backendVerdict: string): str
       return "AI Signal Observed — Confirmed by Deep Scan Analysis";
     case "ai":
       return "AI Signal Observed";
+    case "inconclusive":
+      return "AI Signal Inconclusive";
     case "unknown":
     default:
       return backendVerdict || "Pending";
@@ -138,6 +141,7 @@ export function AdminVerdictPanel({
     tier === "human" ? "bg-forensic-green/10 border-forensic-green" :
     tier === "mixed-human" ? "bg-emerald-500/10 border-emerald-500" :
     tier === "mixed-ai" ? "bg-amber-500/10 border-amber-500" :
+    tier === "inconclusive" ? "bg-amber-500/10 border-amber-500" :
     tier === "ai" ? "bg-forensic-amber/10 border-forensic-amber" :
     "bg-muted/10 border-border";
 
@@ -145,6 +149,7 @@ export function AdminVerdictPanel({
     tier === "human" ? "text-forensic-green" :
     tier === "mixed-human" ? "text-emerald-400" :
     tier === "mixed-ai" ? "text-amber-400" :
+    tier === "inconclusive" ? "text-amber-400" :
     tier === "ai" ? "text-forensic-amber" :
     "text-muted-foreground";
 

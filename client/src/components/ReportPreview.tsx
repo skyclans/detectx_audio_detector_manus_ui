@@ -46,7 +46,7 @@ interface ReportPreviewProps {
   aiSignals?: number | null;
 }
 
-type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
+type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
 
 function normalizeTier(tier: string | null | undefined): VerdictTier {
   switch (tier) {
@@ -54,6 +54,7 @@ function normalizeTier(tier: string | null | undefined): VerdictTier {
     case "mixed-human":
     case "mixed-ai":
     case "ai":
+    case "inconclusive":
       return tier;
     default:
       return "unknown";
@@ -66,6 +67,7 @@ function deriveTierLabel(tier: VerdictTier): string {
     case "mixed-human": return "AI Signal Not Observed — Recovered by Deep Scan";
     case "mixed-ai":    return "AI Signal Observed — Confirmed by Deep Scan";
     case "ai":          return "AI Signal Observed";
+    case "inconclusive": return "AI Signal Inconclusive";
     case "unknown":     return "Pending";
   }
 }
@@ -130,17 +132,17 @@ export function ReportPreview({
   const verdictBoxClass =
     tier === "human" || isMixedHuman
       ? "bg-forensic-green/10 border-forensic-green"
-      : isMixedAi
+      : isMixedAi || tier === "inconclusive"
         ? "bg-amber-500/10 border-amber-500"
         : isAiTier
           ? "bg-forensic-amber/10 border-forensic-amber"
           : "bg-muted/10 border-muted";
 
-  const VerdictIcon = isAiTier || isMixedAi ? AlertCircle : isMixed ? Search : CheckCircle;
+  const VerdictIcon = isAiTier || isMixedAi ? AlertCircle : (isMixed || tier === "inconclusive") ? Search : CheckCircle;
   const verdictIconClass =
     tier === "human" || isMixedHuman
       ? "text-forensic-green"
-      : isMixedAi
+      : isMixedAi || tier === "inconclusive"
         ? "text-amber-400"
         : "text-forensic-amber";
 

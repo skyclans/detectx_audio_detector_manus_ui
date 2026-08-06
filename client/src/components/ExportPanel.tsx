@@ -97,13 +97,13 @@ interface ExportPanelProps {
 // Verdict tier derivation (mirrors VerdictPanel.tsx 4-tier semantics)
 // -----------------------------------------------------------------------
 
-type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "unknown";
+type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
 
 function deriveTier(data: ExportData): VerdictTier {
   // Tier is server-authoritative. The bundle does not compare cnn_score
   // against the band boundary values.
   const t = data.tier;
-  if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai") return t;
+  if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai" || t === "inconclusive") return t;
   // Fallback: if no tier was sent, use the binary verdict to render
   // something stable rather than leaking a boundary comparison.
   const v = data.verdict?.verdict ?? null;
@@ -117,6 +117,7 @@ function deriveTierLabel(tier: VerdictTier): string {
     case "mixed-human": return "AI Signal Not Observed — Recovered by Deep Scan Analysis";
     case "mixed-ai":    return "AI Signal Observed — Confirmed by Deep Scan Analysis";
     case "ai":          return "AI Signal Observed";
+    case "inconclusive": return "AI Signal Inconclusive";
     case "unknown":     return "Pending";
   }
 }
@@ -127,6 +128,7 @@ function deriveTierCode(tier: VerdictTier): string {
     case "mixed-human": return "AI_NOT_OBSERVED_RECOVERED";
     case "mixed-ai":    return "AI_OBSERVED_CONFIRMED";
     case "ai":          return "AI_OBSERVED";
+    case "inconclusive": return "AI_INCONCLUSIVE";
     case "unknown":     return "PENDING";
   }
 }
@@ -218,6 +220,8 @@ function describeTier(tier: VerdictTier): string {
       return "The DetectX Engine reported confidence within the intermediate decision range (50%-80%). The DetectX Deep Forensic Engine was invoked and its 7-metric stem-reconstruction analysis confirmed AI signal (sufficient AI signal count). Expert review is recommended for legal and forensic adjudication.";
     case "ai":
       return "The DetectX Engine reported confidence at or above the upper decision threshold. Structural signal evidence consistent with AI-generated audio was recorded. The DetectX Deep Forensic Engine was not required for verdict determination.";
+    case "inconclusive":
+      return "The DetectX verification system could not reach a definitive conclusion. Structural measurements show mixed or marginal signals that do not clearly indicate AI synthesis or human origin. Manual forensic review by a qualified analyst is recommended to determine authenticity.";
     case "unknown":
       return "Verification pending. No result available.";
   }
@@ -237,12 +241,12 @@ function generatePDFContent(data: ExportData): string {
   const signals = getAiSignalsCount(data);
   const verdictColor =
     tier === "human" || tier === "mixed-human" ? "#22c55e" :
-    tier === "mixed-ai" ? "#f59e0b" :
+    tier === "mixed-ai" || tier === "inconclusive" ? "#f59e0b" :
     tier === "ai" ? "#ef4444" :
     "#94a3b8";
   const verdictBg =
     tier === "human" || tier === "mixed-human" ? "#f0fdf4" :
-    tier === "mixed-ai" ? "#fef3c7" :
+    tier === "mixed-ai" || tier === "inconclusive" ? "#fef3c7" :
     tier === "ai" ? "#fee2e2" :
     "#f1f5f9";
 

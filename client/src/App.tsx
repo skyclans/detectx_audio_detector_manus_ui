@@ -79,15 +79,24 @@ const AccountMarketingConsent = lazy(
   () => import("./pages/account/MarketingConsent"),
 );
 
-// "/" and the locale roots (/ko, /en, ...) are served as the WAISM static page
-// by nginx in production. This SPA route only fires on client-side navigation
-// (e.g. the in-app header logo). Force a full page load so the server returns
-// WAISM. Skipped during prerender (HeadlessChrome) to avoid a redirect loop and
-// keep the prerendered shell blank (no flash of the old landing).
-function RootRedirect() {
+// This was written for a production where nginx answers "/" with the WAISM
+// static page and the SPA only ever reaches this route through in-app
+// navigation, in which case forcing a full load hands the request back to the
+// server. nginx does not do that: "/" returns this bundle's own index.html.
+//
+// So the redirect lands on the route that fires the redirect. Every load of the
+// homepage replaced itself with the homepage, forever — headers and JS arrived
+// fine and the document never finished, which is why the server looked healthy
+// from every angle while the page spun. /verify-audio and /admin were untouched
+// because they mount their own components.
+//
+// Kept for the locale roots below, where the premise does hold: /ko/ and the
+// rest are prerendered SEO shells, and bouncing a real visitor from one of them
+// to "/" now terminates at the landing page.
+function LocaleRootRedirect() {
   useEffect(() => {
-    // Skip on the prerender/static server (localhost) to avoid a redirect loop;
-    // on the real domain force a full load so the server returns WAISM.
+    // Skip on the prerender/static server (localhost) so the prerendered shell
+    // keeps whatever the crawler is meant to see.
     const h = typeof window !== "undefined" ? window.location.hostname : "";
     if (h && h !== "localhost" && h !== "127.0.0.1") {
       window.location.replace("/");
@@ -111,8 +120,9 @@ function Router() {
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
     <Switch>
-      {/* HOME — WAISM static page (served by nginx); redirect any client-side nav */}
-      <Route path="/" component={RootRedirect} />
+      {/* HOME — the landing page. Must render something: nginx answers "/" with
+          this bundle, so a redirect here only reloads into itself. */}
+      <Route path="/" component={Landing} />
       
       {/* Verify Audio tool */}
       <Route path="/verify-audio" component={Home} />
@@ -146,22 +156,22 @@ function Router() {
       <Route path="/invite/:token" component={InviteAccept} />
 
       {/* Locale roots — served as WAISM by nginx; redirect any client-side nav */}
-      <Route path="/en" component={RootRedirect} />
-      <Route path="/en/" component={RootRedirect} />
-      <Route path="/ko" component={RootRedirect} />
-      <Route path="/ko/" component={RootRedirect} />
-      <Route path="/ja" component={RootRedirect} />
-      <Route path="/ja/" component={RootRedirect} />
-      <Route path="/es" component={RootRedirect} />
-      <Route path="/es/" component={RootRedirect} />
-      <Route path="/de" component={RootRedirect} />
-      <Route path="/de/" component={RootRedirect} />
-      <Route path="/fr" component={RootRedirect} />
-      <Route path="/fr/" component={RootRedirect} />
-      <Route path="/pt" component={RootRedirect} />
-      <Route path="/pt/" component={RootRedirect} />
-      <Route path="/zh" component={RootRedirect} />
-      <Route path="/zh/" component={RootRedirect} />
+      <Route path="/en" component={LocaleRootRedirect} />
+      <Route path="/en/" component={LocaleRootRedirect} />
+      <Route path="/ko" component={LocaleRootRedirect} />
+      <Route path="/ko/" component={LocaleRootRedirect} />
+      <Route path="/ja" component={LocaleRootRedirect} />
+      <Route path="/ja/" component={LocaleRootRedirect} />
+      <Route path="/es" component={LocaleRootRedirect} />
+      <Route path="/es/" component={LocaleRootRedirect} />
+      <Route path="/de" component={LocaleRootRedirect} />
+      <Route path="/de/" component={LocaleRootRedirect} />
+      <Route path="/fr" component={LocaleRootRedirect} />
+      <Route path="/fr/" component={LocaleRootRedirect} />
+      <Route path="/pt" component={LocaleRootRedirect} />
+      <Route path="/pt/" component={LocaleRootRedirect} />
+      <Route path="/zh" component={LocaleRootRedirect} />
+      <Route path="/zh/" component={LocaleRootRedirect} />
 
       {/* Comparison pages */}
       <Route path="/vs/acrcloud" component={VsACRCloud} />

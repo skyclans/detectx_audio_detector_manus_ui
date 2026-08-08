@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -79,32 +79,6 @@ const AccountMarketingConsent = lazy(
   () => import("./pages/account/MarketingConsent"),
 );
 
-// This was written for a production where nginx answers "/" with the WAISM
-// static page and the SPA only ever reaches this route through in-app
-// navigation, in which case forcing a full load hands the request back to the
-// server. nginx does not do that: "/" returns this bundle's own index.html.
-//
-// So the redirect lands on the route that fires the redirect. Every load of the
-// homepage replaced itself with the homepage, forever — headers and JS arrived
-// fine and the document never finished, which is why the server looked healthy
-// from every angle while the page spun. /verify-audio and /admin were untouched
-// because they mount their own components.
-//
-// Kept for the locale roots below, where the premise does hold: /ko/ and the
-// rest are prerendered SEO shells, and bouncing a real visitor from one of them
-// to "/" now terminates at the landing page.
-function LocaleRootRedirect() {
-  useEffect(() => {
-    // Skip on the prerender/static server (localhost) so the prerendered shell
-    // keeps whatever the crawler is meant to see.
-    const h = typeof window !== "undefined" ? window.location.hostname : "";
-    if (h && h !== "localhost" && h !== "127.0.0.1") {
-      window.location.replace("/");
-    }
-  }, []);
-  return null;
-}
-
 // Pricing/Plan page is master-account-only (2026-07-26). Non-master (and logged-out)
 // visitors are redirected home so pricing/billing stays hidden. Master accounts
 // (skyclans2@gmail.com, ceo@detectx.app — plan="master") keep full access + Stripe.
@@ -155,23 +129,27 @@ function Router() {
       {/* Team invite */}
       <Route path="/invite/:token" component={InviteAccept} />
 
-      {/* Locale roots — served as WAISM by nginx; redirect any client-side nav */}
-      <Route path="/en" component={LocaleRootRedirect} />
-      <Route path="/en/" component={LocaleRootRedirect} />
-      <Route path="/ko" component={LocaleRootRedirect} />
-      <Route path="/ko/" component={LocaleRootRedirect} />
-      <Route path="/ja" component={LocaleRootRedirect} />
-      <Route path="/ja/" component={LocaleRootRedirect} />
-      <Route path="/es" component={LocaleRootRedirect} />
-      <Route path="/es/" component={LocaleRootRedirect} />
-      <Route path="/de" component={LocaleRootRedirect} />
-      <Route path="/de/" component={LocaleRootRedirect} />
-      <Route path="/fr" component={LocaleRootRedirect} />
-      <Route path="/fr/" component={LocaleRootRedirect} />
-      <Route path="/pt" component={LocaleRootRedirect} />
-      <Route path="/pt/" component={LocaleRootRedirect} />
-      <Route path="/zh" component={LocaleRootRedirect} />
-      <Route path="/zh/" component={LocaleRootRedirect} />
+      {/* Locale roots. These render their own landing page rather than bouncing to
+          "/". A redirect here deadlocks: something on "/" sends a Korean browser to
+          /ko/, so a /ko/ that redirects back to "/" ping-pongs forever and the user
+          sees a blank page. Rendering ends it, and it is what the last working build
+          did. */}
+      <Route path="/en" component={LandingEN} />
+      <Route path="/en/" component={LandingEN} />
+      <Route path="/ko" component={LandingKO} />
+      <Route path="/ko/" component={LandingKO} />
+      <Route path="/ja" component={LandingJA} />
+      <Route path="/ja/" component={LandingJA} />
+      <Route path="/es" component={LandingES} />
+      <Route path="/es/" component={LandingES} />
+      <Route path="/de" component={LandingDE} />
+      <Route path="/de/" component={LandingDE} />
+      <Route path="/fr" component={LandingFR} />
+      <Route path="/fr/" component={LandingFR} />
+      <Route path="/pt" component={LandingPT} />
+      <Route path="/pt/" component={LandingPT} />
+      <Route path="/zh" component={LandingZH} />
+      <Route path="/zh/" component={LandingZH} />
 
       {/* Comparison pages */}
       <Route path="/vs/acrcloud" component={VsACRCloud} />

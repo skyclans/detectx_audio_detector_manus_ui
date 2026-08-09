@@ -50,6 +50,7 @@ interface StatsData {
   totalVerifications: number;
   observedCount: number;
   notObservedCount: number;
+  inconclusiveCount?: number;
   pendingCount: number;
 }
 
@@ -258,7 +259,7 @@ export default function AdminVerifications() {
 
         {/* Stats Cards */}
         {statsData && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-4 pb-4">
                 <div className="text-2xl font-bold">{statsData.totalVerifications}</div>
@@ -275,6 +276,12 @@ export default function AdminVerifications() {
               <CardContent className="pt-4 pb-4">
                 <div className="text-2xl font-bold text-green-500">{statsData.notObservedCount}</div>
                 <div className="text-sm text-muted-foreground">Not Observed</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <div className="text-2xl font-bold text-amber-500">{statsData.inconclusiveCount ?? 0}</div>
+                <div className="text-sm text-muted-foreground">Inconclusive</div>
               </CardContent>
             </Card>
             <Card>
@@ -310,6 +317,7 @@ export default function AdminVerifications() {
                 <option value="all">All Results</option>
                 <option value="observed">AI Observed</option>
                 <option value="not_observed">Not Observed</option>
+                <option value="inconclusive">Inconclusive</option>
               </select>
               <select
                 value={statusFilter}
@@ -422,6 +430,11 @@ export default function AdminVerifications() {
                               <div className="flex items-center gap-2">
                                 <UserCheck className="h-4 w-4 text-green-500" />
                                 <span className="text-green-500 text-sm font-medium">Not Observed</span>
+                              </div>
+                            ) : v.verdict === "inconclusive" ? (
+                              <div className="flex items-center gap-2">
+                                <AlertCircle className="h-4 w-4 text-amber-500" />
+                                <span className="text-amber-500 text-sm font-medium">Inconclusive</span>
                               </div>
                             ) : (
                               <span className="text-muted-foreground text-sm">-</span>

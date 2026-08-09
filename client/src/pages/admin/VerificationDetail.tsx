@@ -160,6 +160,8 @@ export default function AdminVerificationDetail() {
     if (record.verdict === "observed") return "AI signal evidence was observed.";
     if (record.verdict === "not_observed")
       return "AI signal evidence was not observed.";
+    if (record.verdict === "inconclusive")
+      return "AI signal evidence was inconclusive.";
     return record.verdict ?? null;
   })();
 

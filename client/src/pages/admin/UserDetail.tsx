@@ -667,6 +667,11 @@ export default function AdminUserDetail() {
                                 <UserCheck className="h-4 w-4 text-green-500" />
                                 <span className="text-green-500 text-sm font-medium">Not Observed</span>
                               </div>
+                            ) : v.verdict === "inconclusive" ? (
+                              <div className="flex items-center gap-2">
+                                <AlertCircle className="h-4 w-4 text-amber-500" />
+                                <span className="text-amber-500 text-sm font-medium">Inconclusive</span>
+                              </div>
                             ) : (
                               <span className="text-muted-foreground text-sm">-</span>
                             )}

@@ -110,6 +110,7 @@ export default function LandingEN() {
             <div className="hidden md:flex items-center gap-8">
               <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Technology</Link>
               <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Research</Link>
+              <a href="/blog.html" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</a>
               <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
               <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
@@ -157,6 +158,7 @@ export default function LandingEN() {
               <div className="flex flex-col gap-4">
                 <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Technology</Link>
                 <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Research</Link>
+                <a href="/blog.html" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2">Blog</a>
                 <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
                 <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>About</Link>
                 <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
@@ -569,6 +571,7 @@ export default function LandingEN() {
               <div className="space-y-2">
                 <Link href="/technology" className="block text-sm text-muted-foreground hover:text-foreground">Technology</Link>
                 <Link href="/research" className="block text-sm text-muted-foreground hover:text-foreground">Research</Link>
+                <a href="/blog.html" className="block text-sm text-muted-foreground hover:text-foreground">Blog</a>
                 <Link href="/updates" className="block text-sm text-muted-foreground hover:text-foreground">Updates</Link>
               </div>
             </div>

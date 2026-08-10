@@ -109,6 +109,7 @@ export default function LandingJA() {
             <div className="hidden md:flex items-center gap-8">
               <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Technology</Link>
               <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Research</Link>
+              <a href="/blog.html" className="text-sm text-muted-foreground hover:text-foreground transition-colors">ブログ</a>
               <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
               <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
@@ -155,6 +156,7 @@ export default function LandingJA() {
               <div className="flex flex-col gap-4">
                 <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Technology</Link>
                 <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Research</Link>
+                <a href="/blog.html" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2">ブログ</a>
                 <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
                 <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>About</Link>
                 <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
@@ -567,6 +569,7 @@ export default function LandingJA() {
               <div className="space-y-2">
                 <Link href="/technology" className="block text-sm text-muted-foreground hover:text-foreground">テクノロジー</Link>
                 <Link href="/research" className="block text-sm text-muted-foreground hover:text-foreground">リサーチ</Link>
+                <a href="/blog.html" className="block text-sm text-muted-foreground hover:text-foreground">ブログ</a>
                 <Link href="/updates" className="block text-sm text-muted-foreground hover:text-foreground">アップデート</Link>
               </div>
             </div>

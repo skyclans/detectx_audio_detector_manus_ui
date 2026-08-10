@@ -109,6 +109,7 @@ export default function LandingKO() {
             <div className="hidden md:flex items-center gap-8">
               <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Technology</Link>
               <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Research</Link>
+              <a href="/blog.html" className="text-sm text-muted-foreground hover:text-foreground transition-colors">블로그</a>
               <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
               <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
@@ -155,6 +156,7 @@ export default function LandingKO() {
               <div className="flex flex-col gap-4">
                 <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Technology</Link>
                 <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Research</Link>
+                <a href="/blog.html" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2">블로그</a>
                 <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
                 <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>About</Link>
                 <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground px-2 py-2" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
@@ -567,6 +569,7 @@ export default function LandingKO() {
               <div className="space-y-2">
                 <Link href="/technology" className="block text-sm text-muted-foreground hover:text-foreground">기술</Link>
                 <Link href="/research" className="block text-sm text-muted-foreground hover:text-foreground">연구</Link>
+                <a href="/blog.html" className="block text-sm text-muted-foreground hover:text-foreground">블로그</a>
                 <Link href="/updates" className="block text-sm text-muted-foreground hover:text-foreground">업데이트</Link>
               </div>
             </div>

@@ -430,6 +430,7 @@ function Header({ title, subtitle, onMenuClick }: HeaderProps) {
             {link.label}
           </Link>
         ))}
+        <a href="/blog.html" className="text-sm font-medium transition-colors text-muted-foreground hover:text-foreground">Blog</a>
       </nav>
     </header>
   );

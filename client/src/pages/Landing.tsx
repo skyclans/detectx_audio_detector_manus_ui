@@ -171,9 +171,6 @@ export default function Landing() {
               <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Technology
               </Link>
-              <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Research
-              </Link>
               <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Pricing
               </Link>
@@ -276,13 +273,6 @@ export default function Landing() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Technology
-                </Link>
-                <Link 
-                  href="/research" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Research
                 </Link>
                 <Link
                   href="/plan"

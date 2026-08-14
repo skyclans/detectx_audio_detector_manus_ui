@@ -33,9 +33,6 @@ export default function About() {
               <Link href="/technology" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Technology
               </Link>
-              <Link href="/research" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Research
-              </Link>
               <Link href="/plan" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Pricing
               </Link>

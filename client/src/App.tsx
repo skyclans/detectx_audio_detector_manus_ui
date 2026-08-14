@@ -79,14 +79,13 @@ const AccountMarketingConsent = lazy(
   () => import("./pages/account/MarketingConsent"),
 );
 
-// Pricing/Plan page is master-account-only (2026-07-26). Non-master (and logged-out)
-// visitors are redirected home so pricing/billing stays hidden. Master accounts
-// (skyclans2@gmail.com, ceo@detectx.app — plan="master") keep full access + Stripe.
+// Pricing/Plan page reopened to all signed-in users (2026-08-15). The 2026-07-26
+// master-only lock is lifted so members can view plans and upgrade. Logged-out
+// visitors are still sent home; sign-in is required to see plans and checkout.
 function PlanGuard() {
   const { user, isLoading } = useAuth();
   if (isLoading) return null; // wait for auth to resolve before deciding
-  const isMaster = (user as any)?.plan === "master";
-  if (!isMaster) return <Redirect to="/" />;
+  if (!user) return <Redirect to="/" />;
   return <Plan />;
 }
 

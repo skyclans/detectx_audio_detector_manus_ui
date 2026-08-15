@@ -111,9 +111,6 @@ const plans: Plan[] = [
     monthlyCredits: null,
     freeTrial: { mp3: 2, lossless: 1, hires: 1 },
     features: [
-      "2 MP3 trial scans / month (up to 6 min each)",
-      "1 Lossless trial scan / month (up to 6 min)",
-      "1 Hi-Res trial scan / month (up to 6 min)",
       "Voice detection unlimited (Beta)",
       "Resets monthly",
     ],
@@ -523,51 +520,6 @@ export default function Plan() {
                       <p className="text-xs font-medium text-foreground text-center mb-1">
                         {fmt(plan.monthlyCredits)} credits / month
                       </p>
-                      <MinuteBreakdown credits={plan.monthlyCredits} />
-                    </div>
-                  )}
-
-                  {/* Free trial breakdown */}
-                  {plan.freeTrial && (
-                    <div className="bg-muted/30 rounded-md p-3 mb-3">
-                      <p className="font-medium text-foreground text-center mb-1 text-xs">
-                        Trial scans / month
-                      </p>
-                      <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-1 text-[11px] whitespace-nowrap">
-                        <span className="text-muted-foreground">MP3</span>
-                        <span className="font-mono text-foreground text-right">
-                          {plan.freeTrial.mp3}× ≤6min
-                        </span>
-                        <span className="text-muted-foreground">Lossless</span>
-                        <span className="font-mono text-foreground text-right">
-                          {plan.freeTrial.lossless}× ≤6min
-                        </span>
-                        <span className="text-muted-foreground">Hi-Res</span>
-                        <span className="font-mono text-foreground text-right">
-                          {plan.freeTrial.hires}× ≤6min
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Invisible box placeholder — keeps Enterprise feature list vertically aligned
-                      with other tiers that render either credits box or freeTrial box */}
-                  {plan.monthlyCredits == null && !plan.freeTrial && (
-                    <div
-                      className="rounded-md p-3 mb-3 opacity-0 select-none pointer-events-none"
-                      aria-hidden="true"
-                    >
-                      <p className="text-xs font-medium text-center mb-1">
-                        placeholder
-                      </p>
-                      <div className="grid grid-cols-[1fr_auto] gap-x-2 gap-y-1 text-[11px] whitespace-nowrap">
-                        <span>MP3</span>
-                        <span className="font-mono text-right">≈ 0 min</span>
-                        <span>Lossless</span>
-                        <span className="font-mono text-right">≈ 0 min</span>
-                        <span>Hi-Res 24/96</span>
-                        <span className="font-mono text-right">≈ 0 min</span>
-                      </div>
                     </div>
                   )}
 

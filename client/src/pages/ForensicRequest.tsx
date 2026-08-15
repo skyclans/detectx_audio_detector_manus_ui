@@ -24,9 +24,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { fetchWithAuth } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck, ArrowRight } from "lucide-react";
+import { format } from "date-fns";
+import { Loader2, ShieldCheck, ArrowRight, Calendar as CalendarIcon } from "lucide-react";
 
 const CASE_TYPES: Array<{ value: string; label: string }> = [
   { value: "ddex", label: "DDEX Dispute (DSP)" },
@@ -176,12 +179,36 @@ export default function ForensicRequest() {
                 <Label htmlFor="deadline" className="mb-1.5 block">
                   Submission Deadline
                 </Label>
-                <Input
-                  id="deadline"
-                  type="date"
-                  value={form.deadline}
-                  onChange={(e) => handleChange("deadline", e.target.value)}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="deadline"
+                      type="button"
+                      variant="outline"
+                      className="w-full h-10 justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
+                      {form.deadline ? (
+                        format(new Date(form.deadline + "T00:00:00"), "PPP")
+                      ) : (
+                        <span className="text-muted-foreground">Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={
+                        form.deadline
+                          ? new Date(form.deadline + "T00:00:00")
+                          : undefined
+                      }
+                      onSelect={(d) =>
+                        handleChange("deadline", d ? format(d, "yyyy-MM-dd") : "")
+                      }
+                    />
+                  </PopoverContent>
+                </Popover>
                 <p className="text-[11px] text-muted-foreground mt-1">
                   Optional — when you need to file or submit the evidence.
                 </p>

@@ -26,6 +26,7 @@ import {
   Lock,
 } from "lucide-react";
 import { cn, toLocalTimestamp } from "@/lib/utils";
+import { normalizeTier, getDisplayLabelFromTier, type VerdictTier } from "@/components/VerdictPanel";
 import JSZip from "jszip";
 import {
   formatStrengthSummary,
@@ -68,37 +69,26 @@ interface BatchFileItem {
   recordId?: string;
 }
 
-type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
-
 function deriveTier(item: BatchFileItem): VerdictTier {
-  // Tier is server-authoritative. The bundle never compares cnn_score
-  // against the band boundary values.
-  const t = item.tier;
-  if (t === "human" || t === "mixed-human" || t === "mixed-ai" || t === "ai" || t === "inconclusive") return t;
-  const v = item.verdict;
-  if (!v) return "unknown";
-  if (v.includes("inconclusive")) return "inconclusive";
-  return v.includes("was observed") ? "ai" : "human";
+  // Tier mapping is SHARED with the single-scan view (VerdictPanel.normalizeTier)
+  // so a track always reads identically in both modes. Tier is server-authoritative;
+  // the sentence fallback handles "partially observed" / "inconclusive" wording
+  // the old substring check silently misread as human (2026-08-16 fix).
+  return normalizeTier(item.tier, item.verdict);
 }
 
 function tierLabel(tier: VerdictTier): string {
-  switch (tier) {
-    case "human":       return "AI Signal Not Observed";
-    case "mixed-human": return "AI Signal Not Observed — Recovered by Deep Scan";
-    case "mixed-ai":    return "AI Signal Observed — Confirmed by Deep Scan";
-    case "ai":          return "AI Signal Observed";
-    case "inconclusive": return "AI Signal Inconclusive";
-    case "unknown":     return "Pending";
-  }
+  // Same wording as the single-scan view (VerdictPanel).
+  return getDisplayLabelFromTier(tier, "");
 }
 
 function tierCode(tier: VerdictTier): string {
   switch (tier) {
-    case "human":       return "AI_NOT_OBSERVED";
-    case "mixed-human": return "AI_NOT_OBSERVED_RECOVERED";
-    case "mixed-ai":    return "AI_OBSERVED_CONFIRMED";
-    case "ai":          return "AI_OBSERVED";
-    case "inconclusive": return "AI_INCONCLUSIVE";
+    case "human":       return "NO_AI_SIGNAL";
+    case "mixed-human": return "AI_SIGNAL_MINIMAL";
+    case "mixed-ai":    return "AI_SIGNAL_PARTIAL";
+    case "ai":          return "AI_SIGNAL_OBSERVED";
+    case "inconclusive": return "INCONCLUSIVE";
     case "unknown":     return "PENDING";
   }
 }
@@ -159,12 +149,13 @@ function VerdictBadge({ item }: { item: BatchFileItem }) {
   const score = displayScoreOf(item);
   const pct = score != null ? `${(score * 100).toFixed(1)}%` : null;
   const config: Record<VerdictTier, { label: string; cls: string; sub?: string }> = {
-    "ai":           { label: "AI Detected",        cls: "text-red-400 bg-red-500/10 border border-red-500/30" },
-    "mixed-ai":     { label: "AI (Deep Scan)",     cls: "text-amber-400 bg-amber-500/10 border border-amber-500/30", sub: "confirmed" },
-    "mixed-human":  { label: "Human (Deep Scan)",  cls: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/30", sub: "recovered" },
-    "human":        { label: "Human Verified",     cls: "text-forensic-green bg-forensic-green/10 border border-emerald-700/30" },
-    "inconclusive": { label: "Inconclusive",       cls: "text-amber-400 bg-amber-500/10 border border-amber-500/30", sub: "review needed" },
-    "unknown":      { label: "Pending",            cls: "text-muted-foreground bg-muted/30 border border-border/30" },
+    // Labels identical to the single-scan view (VerdictPanel.getDisplayLabelFromTier).
+    "ai":           { label: "AI SIGNAL OBSERVED",  cls: "text-red-400 bg-red-500/10 border border-red-500/30" },
+    "mixed-ai":     { label: "AI SIGNAL · PARTIAL", cls: "text-amber-400 bg-amber-500/10 border border-amber-500/30", sub: "deep scan" },
+    "mixed-human":  { label: "AI SIGNAL · MINIMAL", cls: "text-emerald-400 bg-emerald-500/10 border border-emerald-500/30", sub: "deep scan" },
+    "human":        { label: "NO AI SIGNAL",        cls: "text-forensic-green bg-forensic-green/10 border border-emerald-700/30" },
+    "inconclusive": { label: "INCONCLUSIVE",        cls: "text-amber-400 bg-amber-500/10 border border-amber-500/30", sub: "review needed" },
+    "unknown":      { label: "Pending",             cls: "text-muted-foreground bg-muted/30 border border-border/30" },
   };
   const { label, cls, sub } = config[tier];
   return (
@@ -376,11 +367,15 @@ export default function BatchVerify() {
                   ...f,
                   status: "done" as FileStatus,
                   verdict: result.verdict || null,
+                  // Server-computed tier — same field the single-scan view reads.
+                  tier: result.tier ?? null,
                   duration: result.metadata?.duration || null,
-                  cnnScore: result.cnn_score ?? null,
-                  finalScore: result.final_score ?? null,
-                  finalScoreSource: result.final_score_source ?? null,
+                  cnnScore: result.cnn_score ?? result.cnnScore ?? null,
+                  finalScore: result.final_score ?? result.finalScore ?? null,
+                  finalScoreSource: result.final_score_source ?? result.finalScoreSource ?? null,
                   reconMetrics: result.recon_metrics ?? null,
+                  reconMetricsEnriched: result.recon_metrics_enriched ?? null,
+                  strengthSummary: result.strength_summary ?? null,
                   uploadProgress: undefined,
                   recordId: result.record_id || undefined,
                 }
@@ -462,12 +457,18 @@ export default function BatchVerify() {
   const doneCount = files.filter((f) => f.status === "done").length;
   const errorCount = files.filter((f) => f.status === "error").length;
   const skippedCount = files.filter((f) => f.status === "skipped").length;
-  const aiCount = files.filter(
-    (f) => f.status === "done" && f.verdict?.includes("was observed")
-  ).length;
-  const humanCount = files.filter(
-    (f) => f.status === "done" && f.verdict && !f.verdict.includes("was observed")
-  ).length;
+  // AI/Human rollups derive from the SAME tier mapping as the single view —
+  // the old substring check misread "partially observed" as human.
+  const aiCount = files.filter((f) => {
+    if (f.status !== "done") return false;
+    const t = deriveTier(f);
+    return t === "ai" || t === "mixed-ai";
+  }).length;
+  const humanCount = files.filter((f) => {
+    if (f.status !== "done") return false;
+    const t = deriveTier(f);
+    return t === "human" || t === "mixed-human";
+  }).length;
 
   // Tier-aware counts (4-tier: CNN band x backend verdict)
   const tierCounts = files.reduce(
@@ -559,6 +560,7 @@ export default function BatchVerify() {
           mixedAi: tierCounts["mixed-ai"],
           mixedHuman: tierCounts["mixed-human"],
           human: tierCounts.human,
+          inconclusive: tierCounts.inconclusive,
         },
       },
       results: done.map((f, i) => {
@@ -631,13 +633,13 @@ export default function BatchVerify() {
     md += `| Verified | ${doneCount} |\n`;
     md += `| Errors | ${errorCount} |\n`;
     md += `| Skipped | ${skippedCount} |\n\n`;
-    md += `### Verdict Distribution (4-tier)\n\n`;
+    md += `### Signal Distribution\n\n`;
     md += `| Tier | Count |\n|------|-------|\n`;
-    md += `| AI Signal Observed (≥80%) | ${tierCounts.ai} |\n`;
-    md += `| AI Confirmed by Deep Scan (50-80%) | ${tierCounts["mixed-ai"]} |\n`;
+    md += `| AI Signal Observed | ${tierCounts.ai} |\n`;
+    md += `| AI Signal Partial (Deep Scan) | ${tierCounts["mixed-ai"]} |\n`;
     md += `| Inconclusive (Manual Review) | ${tierCounts.inconclusive} |\n`;
-    md += `| Human Recovered by Deep Scan (50-80%) | ${tierCounts["mixed-human"]} |\n`;
-    md += `| AI Signal Not Observed (<50%) | ${tierCounts.human} |\n\n`;
+    md += `| AI Signal Minimal (Deep Scan) | ${tierCounts["mixed-human"]} |\n`;
+    md += `| No AI Signal | ${tierCounts.human} |\n\n`;
     md += `## Results\n\n`;
     md += `| # | Filename | Format | Size | Duration | Tier | AI % | Score Source | Deep Forensic Strength |\n`;
     md += `|---|----------|--------|------|----------|------|------|--------------|----------------|\n`;
@@ -653,8 +655,8 @@ export default function BatchVerify() {
     });
     md += `\n## Methodology\n\n`;
     md += `- **Primary Engine:** DetectX Engine (deep neural network) produces an AI probability score.\n`;
-    md += `- **Tier Bands:** Below 50% → Human. 50-80% → DetectX Deep Forensic Engine (Deep Scan) is invoked. ≥80% → AI confirmed.\n`;
-    md += `- **Final Score Source:** For tracks in the 50-80% Mixed range the Verification Confidence is sourced from the DetectX Deep Forensic Engine; outside that range it equals the Primary Engine score.\n`;
+    md += `- **Tier Bands:** Clear tracks resolve on the Primary Engine alone; uncertain mid-band tracks are escalated to the DetectX Deep Forensic Engine (Deep Scan).\n`;
+    md += `- **Final Score Source:** For escalated tracks the Verification Confidence is sourced from the DetectX Deep Forensic Engine; otherwise it equals the Primary Engine score.\n`;
     md += `- **Signal Strength:** Each of the 7 reconstruction metrics carries a signed margin from its threshold. Strong = |margin| ≥ 30%. A high "AI Signal Count" of mostly-marginal crossings can still yield a Human-leaning final score, which the trained classifier weighs by magnitude rather than a binary yes/no.\n\n`;
     md += `## Disclaimer\n\n`;
     md += `> DetectX does not determine authorship, intent, or ownership.\n`;
@@ -735,13 +737,13 @@ export default function BatchVerify() {
   <div class="summary-item"><div class="num" style="color:#f59e0b">${skippedCount}</div><div class="label">Skipped</div></div>
 </div>
 
-<h2>Verdict Distribution (4-tier)</h2>
+<h2>Signal Distribution</h2>
 <div class="summary-grid">
-  <div class="summary-item"><div class="num tier-ai">${tierCounts.ai}</div><div class="label">AI Observed (≥80%)</div></div>
-  <div class="summary-item"><div class="num tier-mixed-ai">${tierCounts["mixed-ai"]}</div><div class="label">AI by Deep Scan</div></div>
+  <div class="summary-item"><div class="num tier-ai">${tierCounts.ai}</div><div class="label">AI Signal Observed</div></div>
+  <div class="summary-item"><div class="num tier-mixed-ai">${tierCounts["mixed-ai"]}</div><div class="label">AI Signal Partial</div></div>
   <div class="summary-item"><div class="num tier-inconclusive">${tierCounts.inconclusive}</div><div class="label">Inconclusive</div></div>
-  <div class="summary-item"><div class="num tier-mixed-human">${tierCounts["mixed-human"]}</div><div class="label">Human Recovered</div></div>
-  <div class="summary-item"><div class="num tier-human">${tierCounts.human}</div><div class="label">Not Observed (&lt;50%)</div></div>
+  <div class="summary-item"><div class="num tier-mixed-human">${tierCounts["mixed-human"]}</div><div class="label">AI Signal Minimal</div></div>
+  <div class="summary-item"><div class="num tier-human">${tierCounts.human}</div><div class="label">No AI Signal</div></div>
 </div>
 
 <h2>Results</h2>
@@ -763,8 +765,8 @@ export default function BatchVerify() {
 </table>
 
 <div class="methodology">
-  <p><strong>Methodology.</strong> The DetectX Engine produces an AI probability. Tier bands: below 50% → Human, 50–80% → DetectX Deep Forensic Engine (Deep Scan) invoked, ≥80% → AI confirmed.</p>
-  <p>The <strong>AI %</strong> column reflects the Verification Confidence: when sourced from <em>Deep Scan</em> (50–80% Mixed range) it is the DetectX Deep Forensic Engine's classifier output; outside that range it equals the Primary Engine score.</p>
+  <p><strong>Methodology.</strong> The DetectX Engine produces an AI probability. Clear tracks resolve on the Primary Engine alone; uncertain mid-band tracks are escalated to the DetectX Deep Forensic Engine (Deep Scan).</p>
+  <p>The <strong>AI %</strong> column reflects the Verification Confidence: when sourced from <em>Deep Scan</em> it is the DetectX Deep Forensic Engine's classifier output; otherwise it equals the Primary Engine score.</p>
   <p><strong>Deep Forensic Strength Summary</strong> counts each of the 7 reconstruction metrics by how far it sits from its threshold (|margin| ≥ 30% = Strong). A high crossing count of mostly-marginal metrics can still produce a Human-leaning final score, because the trained classifier weighs each metric by magnitude rather than a binary yes/no.</p>
 </div>
 
@@ -1015,23 +1017,27 @@ export default function BatchVerify() {
                   </div>
                 </div>
                 <div className="border-t border-border/30 pt-4">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Verdict Distribution (4-tier)</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Signal Distribution</p>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div className="text-center px-2 py-2 rounded bg-red-500/10 border border-red-500/30">
                       <p className="text-xl font-bold text-red-400">{tierCounts.ai}</p>
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">AI Observed<br /><span className="text-muted-foreground/60">(≥80%)</span></p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">AI Signal<br />Observed</p>
                     </div>
                     <div className="text-center px-2 py-2 rounded bg-amber-500/10 border border-amber-500/30">
                       <p className="text-xl font-bold text-amber-400">{tierCounts["mixed-ai"]}</p>
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">AI by Deep Scan<br /><span className="text-muted-foreground/60">(50-80%)</span></p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">AI Signal<br />Partial</p>
                     </div>
                     <div className="text-center px-2 py-2 rounded bg-emerald-500/10 border border-emerald-500/30">
                       <p className="text-xl font-bold text-emerald-400">{tierCounts["mixed-human"]}</p>
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">Human Recovered<br /><span className="text-muted-foreground/60">(50-80%)</span></p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">AI Signal<br />Minimal</p>
                     </div>
                     <div className="text-center px-2 py-2 rounded bg-emerald-700/10 border border-emerald-700/30">
                       <p className="text-xl font-bold text-emerald-500">{tierCounts.human}</p>
-                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">Not Observed<br /><span className="text-muted-foreground/60">(&lt;50%)</span></p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">No AI<br />Signal</p>
+                    </div>
+                    <div className="text-center px-2 py-2 rounded bg-amber-500/5 border border-amber-500/20">
+                      <p className="text-xl font-bold text-amber-300">{tierCounts.inconclusive}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">Inconclusive<br />Review</p>
                     </div>
                   </div>
                 </div>

@@ -68,10 +68,10 @@ interface VerdictPanelProps {
  * never compares scores against the band boundaries; the server is the
  * authority on tier classification.
  */
-type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
+export type VerdictTier = "human" | "mixed-human" | "mixed-ai" | "ai" | "inconclusive" | "unknown";
 
 /** Same wording the forensic console uses, so a track reads identically on both sites. */
-function getDisplayLabelFromTier(tier: VerdictTier, backendVerdict: string): string {
+export function getDisplayLabelFromTier(tier: VerdictTier, backendVerdict: string): string {
   switch (tier) {
     case "human":
       return "NO AI SIGNAL";
@@ -95,7 +95,7 @@ function getDisplayLabelFromTier(tier: VerdictTier, backendVerdict: string): str
  * wording is not deriving a verdict; the mapping is the same one the forensic
  * console uses, which is why a track reads the same on both sites.
  */
-function normalizeTier(
+export function normalizeTier(
   tier: string | null | undefined,
   backendVerdict?: string | null,
 ): VerdictTier {

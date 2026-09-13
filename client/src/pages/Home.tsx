@@ -9,7 +9,6 @@ import { WaveformVisualization } from "@/components/WaveformVisualization";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 import { type ScanLogEntry } from "@/components/LiveScanConsole";
 import { VerdictPanel } from "@/components/VerdictPanel";
-import { VerdictOrientationSlider } from "@/components/VerdictOrientationSlider";
 import { TimelineAnalysis } from "@/components/TimelineAnalysis";
 import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { SourceComponents } from "@/components/SourceComponents";
@@ -990,11 +989,6 @@ export default function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Left column - Upload and Metadata */}
         <div className="flex flex-col gap-4 lg:gap-6">
-          {/* Enhanced Mode Badge */}
-          <VerdictOrientationSlider
-            disabled={isVerifying}
-          />
-          
           <AudioUploadPanel
             onFileSelect={(fileInfo) => handleFileSelect(fileInfo.file)}
             onVerify={handleVerify}

@@ -194,15 +194,15 @@ export function StemEvidencePanel({
           <p className="text-xs text-muted-foreground mb-3">
             Separate this track into 4 stems (vocal / drums / bass / other) —
             forensic-grade analysis for catalog evidence and self-verification.
-            Available with Basic plan or higher.
+            Available on custom plans.
           </p>
           <Button
-            onClick={() => setLocation("/plan")}
+            onClick={() => setLocation("/contact?type=enterprise-sales")}
             size="sm"
             className="w-full"
           >
             <Sparkles className="w-3 h-3 mr-1" />
-            Upgrade to Basic
+            Contact us
           </Button>
         </div>
       </div>

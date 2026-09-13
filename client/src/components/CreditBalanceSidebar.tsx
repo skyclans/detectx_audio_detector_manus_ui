@@ -75,50 +75,37 @@ export function CreditBalanceSidebar() {
     );
   }
 
-  // Free tier — trial scan counts (only when backend reports tier=free with grant)
+  // Free tier — 5 scans per month (single + batch), monthly reset. Counts come
+  // from the users table (usage_count / monthly_limit) via /auth/me.
   if (tier === "free") {
-    // Show REMAINING scans (limit - used), not the used count
-    const mp3Left = Math.max(0, 2 - (freeUsage.mp3_used ?? 0));
-    const losslessLeft = Math.max(0, 1 - (freeUsage.lossless_used ?? 0));
-    const hiresLeft = Math.max(0, 1 - (freeUsage.hires_used ?? 0));
+    const limit: number =
+      typeof u.monthly_limit === "number" && u.monthly_limit > 0 ? u.monthly_limit : 5;
+    const used: number = u.usage_count ?? 0;
+    const left = Math.max(0, limit - used);
     return (
       <div className="px-3 py-3 border-t border-sidebar-border">
         <div className="p-3 rounded-lg bg-sidebar-accent/30">
           <div className="flex items-center gap-2 mb-2">
             <Gift className="w-4 h-4 text-muted-foreground" />
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Free Trial
+              Free Plan
             </span>
           </div>
-          <div className="space-y-1 text-xs">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">MP3</span>
-              <span className={cn("font-mono", mp3Left <= 0 && "text-red-500")}>
-                {mp3Left} / 2
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Lossless</span>
-              <span className={cn("font-mono", losslessLeft <= 0 && "text-red-500")}>
-                {losslessLeft} / 1
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Hi-Res</span>
-              <span className={cn("font-mono", hiresLeft <= 0 && "text-red-500")}>
-                {hiresLeft} / 1
-              </span>
-            </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Scans this month</span>
+            <span className={cn("font-mono", left <= 0 && "text-red-500")}>
+              {left} / {limit}
+            </span>
           </div>
           <div className="text-[10px] text-muted-foreground mt-2">
-            Resets in {resetDays} days
+            Resets monthly · single and batch scans count
           </div>
           <button
-            onClick={() => setLocation("/plan")}
+            onClick={() => setLocation("/contact?type=enterprise-sales")}
             className="w-full mt-2.5 px-2 py-1.5 text-xs bg-forensic-cyan text-background rounded font-medium hover:bg-forensic-cyan/90 transition-colors flex items-center justify-center gap-1"
           >
             <Sparkles className="w-3 h-3" />
-            Upgrade
+            Need more? Contact us
           </button>
         </div>
       </div>

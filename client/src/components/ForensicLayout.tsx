@@ -186,7 +186,7 @@ function PlanUsageDisplay() {
         {remaining === 0 && !isPaid && (
           <div className="mt-2 pt-2 border-t border-border/30">
             <span className="text-[10px] text-forensic-cyan font-medium">
-              Upgrade to Pro →
+              Contact us for more →
             </span>
           </div>
         )}

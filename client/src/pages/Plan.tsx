@@ -107,94 +107,24 @@ const plans: Plan[] = [
     price: "$0",
     period: "forever",
     icon: Sparkles,
-    positioning: "Try DetectX with a few free scans every month.",
+    positioning: "5 scans every month. Single and batch scanning included.",
     monthlyCredits: null,
-    freeTrial: { mp3: 2, lossless: 1, hires: 1 },
     features: [
+      "5 scans per month (single or batch)",
+      "Full verification result and report",
       "Voice detection unlimited (Beta)",
       "Resets monthly",
     ],
-    restrictions: ["No API access", "No batch processing"],
+    restrictions: ["No API access"],
     badgeText: "Get Started Free",
   },
   {
-    key: "basic",
-    name: "Basic",
-    price: "$4.99",
-    anchor: "$14.99",
-    discount: 67,
-    period: "month",
-    icon: Zap,
-    positioning: "For individuals who scan a few tracks per week.",
-    monthlyCredits: 5000,
-    features: [
-      "5,000 credits / month",
-      "Voice detection unlimited (Beta)",
-      "Full PDF reports (no watermark)",
-      "All export formats (PDF, JSON, CSV, Markdown)",
-      "5 Stem Evidence trial / month (listen-only, no download)",
-    ],
-    restrictions: ["No API access", "No batch processing"],
-    badgeText: "Upgrade to Basic",
-  },
-  {
-    key: "pro",
-    name: "Pro",
-    price: "$23",
-    anchor: "$79",
-    discount: 71,
-    period: "month",
-    icon: Music,
-    positioning: "Producers, writers, and small labels working at volume.",
-    monthlyCredits: 30000,
-    features: [
-      "30,000 credits / month",
-      "Voice detection unlimited (Beta)",
-      "Full PDF reports (no watermark)",
-      "All export formats (PDF, JSON, CSV, Markdown)",
-      "Full stem visualization",
-      "Snapshot stems in PDF (high-res) + Forensic stems @ 100 cr/min",
-      "Audit trail (millisecond precision)",
-      "Priority email support",
-    ],
-    restrictions: ["No API access", "No bulk upload (Studio only)"],
-    badgeText: "Upgrade to Pro",
-    recommended: true,
-  },
-  {
-    key: "studio",
-    name: "Studio",
-    price: "$89",
-    anchor: "$349",
-    discount: 74,
-    period: "month",
-    icon: Music,
-    positioning: "Production-grade volume for studios, labels, and catalogues.",
-    monthlyCredits: 150000,
-    features: [
-      "150,000 credits / month",
-      "Voice detection unlimited (Beta)",
-      "Full PDF reports (no watermark)",
-      "All export formats (PDF, JSON, CSV, Markdown)",
-      "Full stem visualization",
-      "Snapshot stems in PDF (high-res)",
-      "30 free Forensic Stem reports / month (then 100 cr/min)",
-      "Audit trail (millisecond precision)",
-      "Bulk upload",
-      "Forensic Report (DDEX disclosure codes)",
-      "Digital signature audit",
-      "Priority processing",
-    ],
-    restrictions: ["No API access"],
-    badgeText: "Upgrade to Studio",
-  },
-  {
     key: "enterprise",
-    name: "Enterprise",
+    name: "Custom",
     price: "Custom",
-    period: "Contact Sales",
+    period: "Contact us",
     icon: Building2,
-    positioning: "Associations, publishers, and rights organizations.",
+    positioning: "Associations, publishers, labels, and rights organizations.",
     monthlyCredits: null,
     features: [
       "Custom credits (unlimited or tailored)",
@@ -221,7 +151,7 @@ const plans: Plan[] = [
       "Custom integrations (Slack, Teams, JIRA, custom webhooks)",
     ],
     restrictions: [],
-    badgeText: "Contact Sales",
+    badgeText: "Contact Us",
   },
 ];
 
@@ -340,6 +270,8 @@ export default function Plan() {
     enterprise: 4,
   };
   const userRank = planRank[userPlan] ?? 0;
+  // Credit packs stay available only to existing paid credit tiers (grandfathered).
+  const hasCreditPlan = ["basic", "pro", "studio"].includes(userPlan);
 
   const handleUpgrade = async (planKey: string) => {
     if (planKey === "enterprise") {
@@ -422,13 +354,13 @@ export default function Plan() {
       subtitle="Credit-based plans. Pay for what you scan."
     >
       <SEO
-        title="Pricing — Credit-based AI Music & Voice Detection Plans"
-        description="DetectX credit pricing. Free trial, Basic $4.99 (5K credits), Pro $23 (30K), Studio $89 (150K). Voice detection unlimited on every plan. Top-up packages available."
+        title="Pricing — Free and Custom Plans | AI Music & Voice Detection"
+        description="DetectX pricing. Free: 5 scans per month with single and batch scanning. Custom plans for associations, labels, and platforms — contact us."
         path="/plan/"
       />
       <div className="max-w-7xl">
         {/* Plan Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {plans.map((plan) => {
             const IconComponent = plan.icon;
             const isCurrent = plan.key === userPlan;
@@ -609,6 +541,7 @@ export default function Plan() {
         </div>
 
         {/* Top-up Section */}
+        {hasCreditPlan && (
         <div id="topup" className="forensic-panel mt-8 scroll-mt-20">
           <div className="forensic-panel-header flex items-center gap-2">
             <CreditCard className="w-4 h-4" />
@@ -676,6 +609,7 @@ export default function Plan() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Standard vs Professional Report */}
         <div className="forensic-panel mt-6">

@@ -188,8 +188,10 @@ export default function BatchVerify() {
 
   // Check plan access
   const userPlan = (user as any)?.plan || "free";
-  const hasBatchAccess =
-    userPlan === "studio" || userPlan === "enterprise" || userPlan === "master";
+  // 2026-09-13: batch is open to every signed-in plan. The free tier's 5 scans /
+  // month are enforced server-side (429 -> LIMIT_REACHED below). `userPlan` is
+  // kept for the gate copy in case batch is ever restricted again.
+  const hasBatchAccess = true;
 
   const handleFilesAdded = useCallback((newFiles: File[]) => {
     const items: BatchFileItem[] = newFiles.map((file) => ({
@@ -401,7 +403,7 @@ export default function BatchVerify() {
               f.id === item.id ? { ...f, status: "error" as FileStatus, errorMessage: "Monthly limit reached", uploadProgress: undefined } : f
             )
           );
-          toast.error("Monthly verification limit reached. Upgrade your plan for more.");
+          toast.error("Monthly scan limit reached. Contact us for a custom plan.");
           break;
         }
 

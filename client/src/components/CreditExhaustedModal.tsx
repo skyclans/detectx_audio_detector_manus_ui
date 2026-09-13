@@ -147,15 +147,15 @@ export function CreditExhaustedModal({
             <div className="border border-border rounded-md p-3 hover:border-forensic-cyan/70 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <Zap className="w-4 h-4 text-forensic-cyan" />
-                <span className="text-sm font-semibold">Or upgrade your plan</span>
+                <span className="text-sm font-semibold">Or get a custom plan</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Pro — $23 / month for 30,000 credits.
+                Higher volume, batch and API access on a custom plan — contact us.
               </p>
               <Button
                 onClick={() => {
                   onClose();
-                  setLocation("/plan");
+                  setLocation("/contact?type=enterprise-sales");
                 }}
                 variant="outline"
                 className="w-full mt-2"

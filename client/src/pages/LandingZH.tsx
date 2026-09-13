@@ -461,9 +461,6 @@ export default function LandingZH() {
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
               * 各厂商基于自有测试数据自行公布的数值。竞品信息基于截至 2026 年 9 月的公开资料；“未公开”表示该厂商未披露。DetectX 的 Suno 数据基于 20 种类型、2,500 首以上 Suno v5.5 曲目测得。产品名称为各自所有者的商标。
             </p>
-            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
-              * 各厂商基于自有测试数据自行公布的数值。竞品信息基于截至 2026 年 9 月的公开资料；“未公开”表示该厂商未披露。DetectX 的 Suno 数据基于 16 种类型、1,000 首以上 Suno v5.5 曲目测得。产品名称为各自所有者的商标。
-            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

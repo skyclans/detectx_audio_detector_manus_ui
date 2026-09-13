@@ -461,9 +461,6 @@ export default function LandingDE() {
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
               * Vom jeweiligen Anbieter selbst veröffentlichte Werte, gemessen auf eigenen Testdaten. Angaben zu Wettbewerbern beruhen auf öffentlich verfügbaren Anbieterinformationen, Stand September 2026; „Nicht veröffentlicht“ bedeutet, dass der Anbieter dazu keine Angaben macht. Der Suno-Wert von DetectX wurde an über 2.500 Suno-v5.5-Titeln aus 20 Genres gemessen. Produktnamen sind Marken ihrer jeweiligen Eigentümer.
             </p>
-            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
-              * Vom jeweiligen Anbieter selbst veröffentlichte Werte, gemessen auf eigenen Testdaten. Angaben zu Wettbewerbern beruhen auf öffentlich verfügbaren Anbieterinformationen, Stand September 2026; „Nicht veröffentlicht“ bedeutet, dass der Anbieter dazu keine Angaben macht. Der Suno-Wert von DetectX wurde an über 1.000 Suno-v5.5-Titeln aus 16 Genres gemessen. Produktnamen sind Marken ihrer jeweiligen Eigentümer.
-            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

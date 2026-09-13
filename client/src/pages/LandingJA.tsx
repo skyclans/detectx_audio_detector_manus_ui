@@ -461,9 +461,6 @@ export default function LandingJA() {
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
               * 各社が自社テストデータで測定し公開している数値です。他社製品の情報は2026年9月時点の公開資料に基づき、「非公開」は各社が開示していない項目です。DetectXのSuno数値は20ジャンルのSuno v5.5楽曲2,500曲以上で測定しています。製品名は各所有者の商標です。
             </p>
-            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
-              * 各社が自社テストデータで測定し公開している数値です。他社製品の情報は2026年9月時点の公開資料に基づき、「非公開」は各社が開示していない項目です。DetectXのSuno数値は16ジャンルのSuno v5.5楽曲1,000曲以上で測定しています。製品名は各所有者の商標です。
-            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

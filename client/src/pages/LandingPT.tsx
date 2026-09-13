@@ -461,9 +461,6 @@ export default function LandingPT() {
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
               * Números divulgados por cada fornecedor, medidos em seus próprios dados de teste. As informações sobre concorrentes refletem materiais públicos em setembro de 2026; “Não divulgado” indica que o fornecedor não o informou. O número de Suno da DetectX foi medido em mais de 2.500 faixas Suno v5.5 em 20 gêneros. Os nomes de produtos são marcas de seus respectivos proprietários.
             </p>
-            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
-              * Números divulgados por cada fornecedor, medidos em seus próprios dados de teste. As informações sobre concorrentes refletem materiais públicos em setembro de 2026; “Não divulgado” indica que o fornecedor não o informou. O número de Suno da DetectX foi medido em mais de 1.000 faixas Suno v5.5 em 16 gêneros. Os nomes de produtos são marcas de seus respectivos proprietários.
-            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

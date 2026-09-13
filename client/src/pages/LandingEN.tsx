@@ -463,9 +463,6 @@ export default function LandingEN() {
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
               * Vendor-reported figures, measured on each vendor's own test data. Competitor details reflect publicly available vendor materials as of September 2026; “Not published” means the vendor has not disclosed it. DetectX Suno figure measured on over 2,500 Suno v5.5 tracks across 20 genres. Product names are trademarks of their respective owners.
             </p>
-            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
-              * Vendor-reported figures, measured on each vendor's own test data. Competitor details reflect publicly available vendor materials as of September 2026; “Not published” means the vendor has not disclosed it. DetectX Suno figure measured on over 1,000 Suno v5.5 tracks across 16 genres. Product names are trademarks of their respective owners.
-            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

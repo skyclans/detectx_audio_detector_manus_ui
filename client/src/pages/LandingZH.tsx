@@ -437,17 +437,9 @@ export default function LandingZH() {
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
               检测所有主流AI音乐生成器
             </h2>
-            <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-muted-foreground mb-4 max-w-2xl mx-auto">
               无论后处理还是格式转换，DetectX 均可识别来自各大 AI 音乐生成平台的音频。
             </p>
-
-            <div className="flex flex-wrap justify-center gap-3 mb-10">
-              {["Suno v5.5", "Udio", "ElevenLabs Music", "Seed Music", "MiniMax", "Mureka", "Riffusion", "Sonauto", "AIVA", "Boomy"].map((name) => (
-                <span key={name} className="px-4 py-2 bg-muted/30 rounded-full text-sm text-foreground border border-border/50">
-                  {name}
-                </span>
-              ))}
-            </div>
 
             <p className="text-sm text-muted-foreground">
               MP3 转码、变调、变速等规避手段均无法逃脱检测。

@@ -439,17 +439,9 @@ export default function LandingEN() {
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
               Detects All Major AI Music Generators
             </h2>
-            <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-muted-foreground mb-4 max-w-2xl mx-auto">
               DetectX identifies audio from any AI music generation platform, regardless of post-processing or format conversion.
             </p>
-
-            <div className="flex flex-wrap justify-center gap-3 mb-10">
-              {["Suno v5.5", "Udio", "ElevenLabs Music", "Seed Music", "MiniMax", "Mureka", "Riffusion", "Sonauto", "AIVA", "Boomy"].map((name) => (
-                <span key={name} className="px-4 py-2 bg-muted/30 rounded-full text-sm text-foreground border border-border/50">
-                  {name}
-                </span>
-              ))}
-            </div>
 
             <p className="text-sm text-muted-foreground">
               Detection works regardless of MP3 conversion, pitch shifting, tempo changes, or other evasion attempts.

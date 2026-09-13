@@ -437,17 +437,9 @@ export default function LandingKO() {
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
               모든 주요 AI 음악 생성기 탐지
             </h2>
-            <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-muted-foreground mb-4 max-w-2xl mx-auto">
               후처리나 포맷 변환에 관계없이 모든 AI 음악 생성 플랫폼의 출력물을 식별합니다.
             </p>
-
-            <div className="flex flex-wrap justify-center gap-3 mb-10">
-              {["Suno v5.5", "Udio", "ElevenLabs Music", "Seed Music", "MiniMax", "Mureka", "Riffusion", "Sonauto", "AIVA", "Boomy"].map((name) => (
-                <span key={name} className="px-4 py-2 bg-muted/30 rounded-full text-sm text-foreground border border-border/50">
-                  {name}
-                </span>
-              ))}
-            </div>
 
             <p className="text-sm text-muted-foreground">
               MP3 변환, 피치 변경, 템포 조절 등 우회 시도에도 탐지가 유지됩니다.

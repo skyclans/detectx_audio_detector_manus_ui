@@ -437,17 +437,9 @@ export default function LandingES() {
             <h2 className="text-2xl md:text-3xl font-medium text-foreground mb-4">
               Detecta Todos los Principales Generadores de Música IA
             </h2>
-            <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-muted-foreground mb-4 max-w-2xl mx-auto">
               DetectX identifica audio de cualquier generador de música IA, sin importar el postprocesamiento o la conversión de formato.
             </p>
-
-            <div className="flex flex-wrap justify-center gap-3 mb-10">
-              {["Suno v5.5", "Udio", "ElevenLabs Music", "Seed Music", "MiniMax", "Mureka", "Riffusion", "Sonauto", "AIVA", "Boomy"].map((name) => (
-                <span key={name} className="px-4 py-2 bg-muted/30 rounded-full text-sm text-foreground border border-border/50">
-                  {name}
-                </span>
-              ))}
-            </div>
 
             <p className="text-sm text-muted-foreground">
               La detección funciona independientemente de la conversión a MP3, cambio de tono, cambios de tempo u otros intentos de evasión.

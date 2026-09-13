@@ -459,6 +459,9 @@ export default function LandingFR() {
               </table>
             </div>
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
+              * Chiffres déclarés par chaque éditeur, mesurés sur ses propres données de test. Les informations sur les concurrents proviennent des documents publics disponibles en septembre 2026 ; « Non publié » signifie que l'éditeur ne l'a pas communiqué. Le chiffre Suno de DetectX a été mesuré sur plus de 2 500 morceaux Suno v5.5 dans 20 genres. Les noms de produits sont des marques de leurs propriétaires respectifs.
+            </p>
+            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
               * Chiffres déclarés par chaque éditeur, mesurés sur ses propres données de test. Les informations sur les concurrents proviennent des documents publics disponibles en septembre 2026 ; « Non publié » signifie que l'éditeur ne l'a pas communiqué. Le chiffre Suno de DetectX a été mesuré sur plus de 1 000 morceaux Suno v5.5 dans 16 genres. Les noms de produits sont des marques de leurs propriétaires respectifs.
             </p>
 

@@ -129,7 +129,7 @@ const plans: Plan[] = [
     features: [
       "Custom credits (unlimited or tailored)",
       "Voice detection unlimited (Beta)",
-      "All Basic, Pro, Studio features included",
+      "All advanced features included",
       "Unlimited Forensic Stem reports",
       "Dedicated cloud GPU (region-closest: Tokyo / Seoul / Singapore / Frankfurt / Virginia / São Paulo)",
       "Lowest latency for your team's location",
@@ -351,7 +351,7 @@ export default function Plan() {
   return (
     <ForensicLayout
       title="Pricing"
-      subtitle="Credit-based plans. Pay for what you scan."
+      subtitle="Free for 5 scans a month. Custom plans for organizations."
     >
       <SEO
         title="Pricing — Free and Custom Plans | AI Music & Voice Detection"
@@ -428,7 +428,7 @@ export default function Plan() {
                     )}
                     {plan.price === "Custom" && (
                       <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                        Contact Sales
+                        Contact us
                       </span>
                     )}
                     {plan.period === "forever" && (
@@ -774,28 +774,30 @@ export default function Plan() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">
-                  How do credits work?
+                  How does the Free plan work?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Each MP3 minute costs 50 credits. Higher-quality formats use a
-                  multiplier (Lossless 1.3x, Hi-Res 1.8x, Audiophile 2.5x).
+                  Every account gets 5 scans per calendar month. Single and batch
+                  scans both count, and the counter resets on the 1st.
                 </p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">
-                  Do unused credits roll over?
+                  What is a Custom plan?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Monthly grant credits reset every month. Top-up credits never
-                  expire while your account is active.
+                  Volume scanning, batch processing at scale, API access, forensic
+                  reports and on-premise options for associations, labels and
+                  platforms. Tell us your volume and we will quote it.
                 </p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">
-                  Can I top-up on any plan?
+                  I need more than 5 scans. What do I do?
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Top-up packages are available on Basic, Pro, and Studio plans.
+                  Contact us at support@detectx.app or use the Contact Us button
+                  above. Existing subscribers keep their current plan and credits.
                 </p>
               </div>
               <div>

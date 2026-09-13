@@ -7,18 +7,14 @@ import { MetadataPanel } from "@/components/MetadataPanel";
 import { Clock, Lock, X } from "lucide-react";
 import { WaveformVisualization } from "@/components/WaveformVisualization";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
-import { LiveScanConsole, type ScanLogEntry } from "@/components/LiveScanConsole";
+import { type ScanLogEntry } from "@/components/LiveScanConsole";
 import { VerdictPanel } from "@/components/VerdictPanel";
 import { VerdictOrientationSlider } from "@/components/VerdictOrientationSlider";
 import { TimelineAnalysis } from "@/components/TimelineAnalysis";
-import { TemporalAnalysis } from "@/components/TemporalAnalysis";
 import { DetailedAnalysis } from "@/components/DetailedAnalysis";
 import { SourceComponents } from "@/components/SourceComponents";
-import { GeometryScanTrace } from "@/components/GeometryScanTrace";
-import { ReconV3Display } from "@/components/ReconV3Display";
 import { AdvancedSignalAnalysis, type ForensicAnalysisData } from "@/components/AdvancedSignalAnalysis";
 import { ExportPanel } from "@/components/ExportPanel";
-import { ReportPreview } from "@/components/ReportPreview";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -1070,13 +1066,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Live Console with height limit - now below Verification Result */}
-          <LiveScanConsole
-            logs={scanLogs}
-            isVerifying={isVerifying}
-            isComplete={scanComplete}
-          />
-
           {/* Tier 4: Advanced Signal Analysis (corroborative forensic display) */}
           <AdvancedSignalAnalysis
             data={forensicData ?? {}}
@@ -1149,15 +1138,6 @@ export default function Home() {
             })) || null}
             isProcessing={isVerifying}
           />
-          <TemporalAnalysis
-            events={verificationResult?.detailedAnalysis?.timelineEvents?.map((e: TimelineEventData) => ({
-              time: e.time,
-              eventType: e.eventType,
-              axis: e.axis,
-              note: e.note || undefined,
-            })) || null}
-            isProcessing={isVerifying}
-          />
         </div>
         <div className="flex flex-col gap-4 lg:gap-6">
           <DetailedAnalysis
@@ -1167,14 +1147,6 @@ export default function Home() {
               status: a.status,
               metrics: a.metrics || [],
             })) || null}
-            isProcessing={isVerifying}
-          />
-          {/* Reconstruction Engine Metrics Display */}
-          <ReconV3Display
-            enriched={verificationResult?.reconMetricsEnriched || null}
-            summary={verificationResult?.strengthSummary || null}
-            v2Confidence={verificationResult?.reconMetrics?.v2_confidence ?? null}
-            aiSignals={verificationResult?.reconMetrics?.ai_signals ?? null}
             isProcessing={isVerifying}
           />
         </div>
@@ -1214,28 +1186,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Geometry Scan Trace */}
-      <div className="mt-6">
-        <GeometryScanTrace
-          data={verificationResult?.detailedAnalysis?.geometryTrace ? {
-            axes: verificationResult.detailedAnalysis.geometryTrace.map((g: GeometryTraceAxisData) => ({
-              axis: g.axis,
-              exceeded: g.exceeded,
-              metrics: g.metrics || [],
-            })),
-          } : null}
-          isProcessing={isVerifying}
-          tier={verificationResult?.tier ?? null}
-          finalScore={verificationResult?.finalScore ?? null}
-          finalScoreSource={verificationResult?.finalScoreSource ?? null}
-          backendVerdict={verificationResult?.verdict?.verdict ?? null}
-          strengthSummary={verificationResult?.strengthSummary ?? null}
-          aiSignals={verificationResult?.reconMetrics?.ai_signals ?? null}
-        />
-      </div>
-
       {/* Export section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 gap-6 mt-6">
         <ExportPanel
           data={{
             fileName: metadata?.fileName || "",
@@ -1261,20 +1213,6 @@ export default function Home() {
             timelineMarkers: verificationResult?.timelineMarkers || [],
             analysisTimestamp: toLocalTimestamp(),
           }}
-        />
-        <ReportPreview
-          verdict={verificationResult?.verdict ?? null}
-          crgStatus={verificationResult?.crgStatus || null}
-          primaryExceededAxis={verificationResult?.primaryExceededAxis || null}
-          fileName={metadata?.fileName || null}
-          fileHash={metadata?.fileHash || null}
-          isProcessing={isVerifying}
-          cnnScore={verificationResult?.cnnScore ?? null}
-          finalScore={verificationResult?.finalScore ?? null}
-          finalScoreSource={verificationResult?.finalScoreSource ?? null}
-          tier={verificationResult?.tier ?? null}
-          strengthSummary={verificationResult?.strengthSummary ?? null}
-          aiSignals={verificationResult?.reconMetrics?.ai_signals ?? null}
         />
       </div>
     </ForensicLayout>

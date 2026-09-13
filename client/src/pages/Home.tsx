@@ -11,7 +11,7 @@ import { type ScanLogEntry } from "@/components/LiveScanConsole";
 import { VerdictPanel } from "@/components/VerdictPanel";
 import { TimelineAnalysis } from "@/components/TimelineAnalysis";
 import { DetailedAnalysis } from "@/components/DetailedAnalysis";
-import { SourceComponents } from "@/components/SourceComponents";
+import { DeepForensicNotice } from "@/components/SourceComponents";
 import { AdvancedSignalAnalysis, type ForensicAnalysisData } from "@/components/AdvancedSignalAnalysis";
 import { ExportPanel } from "@/components/ExportPanel";
 import { Button } from "@/components/ui/button";
@@ -1032,6 +1032,7 @@ export default function Home() {
             tier={verificationResult?.tier ?? null}
             isProcessing={isVerifying}
             progress={Math.round((scanLogs.length / 17) * 100)}
+            footer={<DeepForensicNotice />}
           />
 
           {/* Generator Attribution — which AI generator/version produced the track.
@@ -1121,7 +1122,7 @@ export default function Home() {
       )}
 
       {/* Extended analysis sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mt-4 lg:mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mt-4 lg:mt-6">
         <div className="flex flex-col gap-4 lg:gap-6">
           <TimelineAnalysis
             events={verificationResult?.detailedAnalysis?.timelineEvents?.map((e: TimelineEventData) => ({
@@ -1142,40 +1143,6 @@ export default function Home() {
               metrics: a.metrics || [],
             })) || null}
             isProcessing={isVerifying}
-          />
-        </div>
-        <div className="flex flex-col gap-4 lg:gap-6">
-          <SourceComponents
-            data={verificationResult?.detailedAnalysis?.stemComponents ? {
-              components: verificationResult.detailedAnalysis.stemComponents.map((s: StemComponentData) => ({
-                id: s.id,
-                name: s.name,
-                available: s.available,
-                downloadUrl: s.downloadUrl || undefined,
-              })),
-            } : null}
-            isProcessing={isVerifying}
-            stemVolumes={{}}
-            onVolumeChange={(stemId, volume) => console.log(`Volume change: ${stemId} = ${volume}`)}
-            onDownload={(stemId) => {
-              // Find the stem component with the download URL
-              const stem = verificationResult?.detailedAnalysis?.stemComponents?.find(
-                (s: StemComponentData) => s.id === stemId
-              );
-              if (stem?.downloadUrl) {
-                // Build full URL: API base + download path
-                const fullUrl = DETECTX_API_URL.replace('/api', '') + stem.downloadUrl;
-                // Trigger download via anchor element
-                const link = document.createElement('a');
-                link.href = fullUrl;
-                link.download = `${stemId}.wav`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              } else {
-                console.warn(`No download URL available for stem: ${stemId}`);
-              }
-            }}
           />
         </div>
       </div>

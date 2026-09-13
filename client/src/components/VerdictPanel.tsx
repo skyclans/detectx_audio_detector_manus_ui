@@ -61,6 +61,9 @@ interface VerdictPanelProps {
   isProcessing?: boolean;
   /** Scan progress 0-100 */
   progress?: number;
+  /** Display-only content appended at the bottom of the panel (service
+   *  notice etc.). Not part of the verdict contract; never affects the result. */
+  footer?: React.ReactNode;
 }
 
 /**
@@ -129,6 +132,7 @@ export function VerdictPanel({
   tier: serverTier = null,
   isProcessing = false,
   progress = 0,
+  footer = null,
 }: VerdictPanelProps) {
   // Display score: prefer finalScore (RECON-based in Mixed range) over cnnScore.
   // Backward compat: if finalScore not provided, fall back to cnnScore.
@@ -177,6 +181,7 @@ export function VerdictPanel({
           <p className="text-sm text-muted-foreground text-center py-8">
             Upload and verify an audio file to see results
           </p>
+          {footer}
         </div>
       </div>
     );
@@ -308,6 +313,9 @@ export function VerdictPanel({
           Final determination and application are subject to the policies of the relevant
           institution, court, or authority.
         </p>
+
+        {/* Display-only footer slot (e.g. deep forensic service notice) */}
+        {footer}
       </div>
     </div>
   );

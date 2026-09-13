@@ -30,6 +30,27 @@ interface SourceComponentsProps {
 }
 
 const CONTACT_EMAIL = "support@detectx.app";
+const CONTACT_HREF = `mailto:${CONTACT_EMAIL}?subject=Deep%20forensic%20analysis%20request`;
+
+/**
+ * Compact inline variant of the notice, rendered inside the Verification
+ * Result panel (2026-09-14) instead of as a standalone panel.
+ */
+export function DeepForensicNotice() {
+  return (
+    <div className="pt-3 border-t border-border/50 flex items-start gap-2">
+      <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0 text-forensic-cyan/70" />
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        Deep forensic analysis is available on request. Per-instrument source
+        component analysis and forensic reports are provided as a dedicated
+        service.{" "}
+        <a href={CONTACT_HREF} className="text-forensic-cyan hover:underline">
+          Contact us at {CONTACT_EMAIL}
+        </a>
+      </p>
+    </div>
+  );
+}
 
 // Props are accepted but intentionally unused: the panel is a static notice now.
 export function SourceComponents(_props: SourceComponentsProps) {
@@ -54,7 +75,7 @@ export function SourceComponents(_props: SourceComponentsProps) {
             Per-instrument source component analysis and forensic reports are provided as a dedicated service.
           </p>
           <a
-            href={`mailto:${CONTACT_EMAIL}?subject=Deep%20forensic%20analysis%20request`}
+            href={CONTACT_HREF}
             className="mt-3 text-sm text-forensic-cyan hover:underline"
           >
             Contact us at {CONTACT_EMAIL}

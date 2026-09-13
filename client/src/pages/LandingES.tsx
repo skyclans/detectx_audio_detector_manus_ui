@@ -326,44 +326,122 @@ export default function LandingES() {
                   <tr className="border-b border-border">
                     <th className="text-left p-3 font-medium text-foreground">Característica</th>
                     <th className="text-center p-3 font-medium text-cyan-500">DetectX</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">ACRCloud</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">Resemble AI</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">SubmitHub</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">ACRCloud</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Deezer</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">IRCAM Amplify</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Mippia</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Resemble AI</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">SubmitHub</th>
                   </tr>
                 </thead>
                 <tbody className="text-muted-foreground">
                   <tr className="border-b border-border/50">
                     <td className="p-3">Precisión Detección Suno</td>
-                    <td className="p-3 text-center font-medium text-foreground">96.8%</td>
-                    <td className="p-3 text-center">Desconocido</td>
-                    <td className="p-3 text-center">94%</td>
-                    <td className="p-3 text-center">90%+</td>
+                    <td className="p-3 text-center font-medium text-foreground">99%+</td>
+                    <td className="p-3 text-center">99.7%*</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center">99%+*</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">Análisis Multi-Motor</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Detección Híbrida IA + Humano</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Identificación del Generador</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Análisis de Línea de Tiempo</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Análisis Profundo por Instrumento</td>
+                    <td className="p-3 text-center font-medium text-foreground">Bajo solicitud</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Resistencia a Evasión (MP3, Tono, Tempo)</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">Procesamiento Masivo</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">Detección de Deepfake de Voz</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">Plan Gratuito</td>
+                    <td className="p-3">Exportación de Informe (PDF / JSON / CSV)</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">Plan Gratuito / Prueba</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">No publicado</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
@@ -372,11 +450,17 @@ export default function LandingES() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
+              * Cifras declaradas por cada proveedor, medidas con sus propios datos de prueba. La información de la competencia refleja materiales públicos a septiembre de 2026; “No publicado” indica que el proveedor no lo ha divulgado. La cifra de Suno de DetectX se midió con más de 1.000 pistas de Suno v5.5 en 16 géneros. Los nombres de productos son marcas de sus respectivos propietarios.
+            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

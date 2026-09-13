@@ -326,44 +326,122 @@ export default function LandingJA() {
                   <tr className="border-b border-border">
                     <th className="text-left p-3 font-medium text-foreground">機能</th>
                     <th className="text-center p-3 font-medium text-cyan-500">DetectX</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">ACRCloud</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">Resemble AI</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">SubmitHub</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">ACRCloud</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Deezer</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">IRCAM Amplify</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Mippia</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Resemble AI</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">SubmitHub</th>
                   </tr>
                 </thead>
                 <tbody className="text-muted-foreground">
                   <tr className="border-b border-border/50">
                     <td className="p-3">Suno検出精度</td>
-                    <td className="p-3 text-center font-medium text-foreground">96.8%</td>
-                    <td className="p-3 text-center">非公開</td>
-                    <td className="p-3 text-center">94%</td>
-                    <td className="p-3 text-center">90%+</td>
+                    <td className="p-3 text-center font-medium text-foreground">99%+</td>
+                    <td className="p-3 text-center">99.7%*</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center">99%+*</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">マルチエンジン分析</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">AI＋人間ハイブリッド検出</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">生成器の識別</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">タイムライン分析</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">楽器別ディープ分析</td>
+                    <td className="p-3 text-center font-medium text-foreground">リクエスト対応</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">回避耐性（MP3・ピッチ・テンポ）</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">バッチ処理</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">ボイスディープフェイク検出</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">無料プラン</td>
+                    <td className="p-3">証拠レポート出力（PDF / JSON / CSV）</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">無料プラン / トライアル</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
@@ -372,11 +450,17 @@ export default function LandingJA() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
+              * 各社が自社テストデータで測定し公開している数値です。他社製品の情報は2026年9月時点の公開資料に基づき、「非公開」は各社が開示していない項目です。DetectXのSuno数値は16ジャンルのSuno v5.5楽曲1,000曲以上で測定しています。製品名は各所有者の商標です。
+            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

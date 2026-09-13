@@ -326,44 +326,122 @@ export default function LandingKO() {
                   <tr className="border-b border-border">
                     <th className="text-left p-3 font-medium text-foreground">기능</th>
                     <th className="text-center p-3 font-medium text-cyan-500">DetectX</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">ACRCloud</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">Resemble AI</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground">SubmitHub</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">ACRCloud</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Deezer</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">IRCAM Amplify</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Mippia</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Resemble AI</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">SubmitHub</th>
                   </tr>
                 </thead>
                 <tbody className="text-muted-foreground">
                   <tr className="border-b border-border/50">
                     <td className="p-3">Suno 탐지 정확도</td>
-                    <td className="p-3 text-center font-medium text-foreground">96.8%</td>
-                    <td className="p-3 text-center">미공개</td>
-                    <td className="p-3 text-center">94%</td>
-                    <td className="p-3 text-center">90%+</td>
+                    <td className="p-3 text-center font-medium text-foreground">99%+</td>
+                    <td className="p-3 text-center">99.7%*</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center">99%+*</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">다중 엔진 분석</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">AI + 사람 하이브리드 탐지</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">생성기 식별</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">타임라인 분석</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">악기별 심층 분석</td>
+                    <td className="p-3 text-center font-medium text-foreground">요청 시 제공</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">우회 내성 (MP3·피치·템포)</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">대량 처리</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">음성 딥페이크 탐지</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
                   </tr>
                   <tr className="border-b border-border/50">
-                    <td className="p-3">무료 플랜</td>
+                    <td className="p-3">증거 리포트 내보내기 (PDF / JSON / CSV)</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="p-3">무료 플랜 / 체험</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center text-xs text-muted-foreground/70">미공개</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
@@ -372,11 +450,17 @@ export default function LandingKO() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center text-muted-foreground/50">-</td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
+                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
+              * 각 업체가 자체 테스트 데이터로 측정해 공개한 수치입니다. 경쟁 제품 정보는 2026년 9월 기준 공개 자료를 바탕으로 하며, ‘미공개’는 해당 업체가 공개하지 않은 항목입니다. DetectX의 Suno 수치는 16개 장르 Suno v5.5 1,000곡 이상으로 측정했습니다. 제품명은 각 소유자의 상표입니다.
+            </p>
 
             <div className="text-center mt-8">
               <Link href="/verify-audio">

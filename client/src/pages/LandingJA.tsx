@@ -329,7 +329,6 @@ export default function LandingJA() {
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">ACRCloud</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Deezer</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">IRCAM Amplify</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Mippia</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Resemble AI</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">SubmitHub</th>
                   </tr>
@@ -342,7 +341,6 @@ export default function LandingJA() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center">99%+*</td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -351,7 +349,6 @@ export default function LandingJA() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
@@ -361,7 +358,6 @@ export default function LandingJA() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
@@ -371,7 +367,6 @@ export default function LandingJA() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
@@ -381,14 +376,12 @@ export default function LandingJA() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">楽器別ディープ分析</td>
                     <td className="p-3 text-center font-medium text-foreground">リクエスト対応</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
@@ -403,11 +396,9 @@ export default function LandingJA() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">バッチ処理</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
@@ -421,7 +412,6 @@ export default function LandingJA() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
@@ -431,7 +421,6 @@ export default function LandingJA() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                   </tr>
@@ -443,11 +432,9 @@ export default function LandingJA() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">非公開</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr>
                     <td className="p-3">APIアクセス</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
@@ -459,7 +446,7 @@ export default function LandingJA() {
               </table>
             </div>
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
-              * 各社が自社テストデータで測定し公開している数値です。他社製品の情報は2026年9月時点の公開資料に基づき、「非公開」は各社が開示していない項目です。DetectXのSuno数値は20ジャンルのSuno v5.5楽曲2,500曲以上で測定しています。製品名は各所有者の商標です。
+              * 各社が自社テストデータで測定し公開している数値です。他社製品の情報は2026年9月時点の公開資料に基づき、「非公開」は各社が開示していない項目です。製品名は各所有者の商標です。
             </p>
 
             <div className="text-center mt-8">

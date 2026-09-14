@@ -329,7 +329,6 @@ export default function LandingPT() {
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">ACRCloud</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Deezer</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">IRCAM Amplify</th>
-                    <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Mippia</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">Resemble AI</th>
                     <th className="text-center p-3 font-medium text-muted-foreground whitespace-nowrap">SubmitHub</th>
                   </tr>
@@ -342,7 +341,6 @@ export default function LandingPT() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center">99%+*</td>
                   </tr>
                   <tr className="border-b border-border/50">
@@ -351,7 +349,6 @@ export default function LandingPT() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
@@ -361,7 +358,6 @@ export default function LandingPT() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
@@ -371,7 +367,6 @@ export default function LandingPT() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                   </tr>
@@ -381,14 +376,12 @@ export default function LandingPT() {
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">Análise Profunda por Instrumento</td>
                     <td className="p-3 text-center font-medium text-foreground">Sob consulta</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
@@ -403,11 +396,9 @@ export default function LandingPT() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                   </tr>
                   <tr className="border-b border-border/50">
                     <td className="p-3">Análise em Lote</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
@@ -421,7 +412,6 @@ export default function LandingPT() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                   </tr>
@@ -431,7 +421,6 @@ export default function LandingPT() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                   </tr>
@@ -443,11 +432,9 @@ export default function LandingPT() {
                     <td className="p-3 text-center text-xs text-muted-foreground/70">Não divulgado</td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                   </tr>
                   <tr>
                     <td className="p-3">Acesso à API</td>
-                    <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
                     <td className="p-3 text-center"><CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" /></td>
@@ -459,7 +446,7 @@ export default function LandingPT() {
               </table>
             </div>
             <p className="mt-4 text-xs text-muted-foreground text-center max-w-4xl mx-auto">
-              * Números divulgados por cada fornecedor, medidos em seus próprios dados de teste. As informações sobre concorrentes refletem materiais públicos em setembro de 2026; “Não divulgado” indica que o fornecedor não o informou. O número de Suno da DetectX foi medido em mais de 2.500 faixas Suno v5.5 em 20 gêneros. Os nomes de produtos são marcas de seus respectivos proprietários.
+              * Números divulgados por cada fornecedor, medidos em seus próprios dados de teste. As informações sobre concorrentes refletem materiais públicos em setembro de 2026; “Não divulgado” indica que o fornecedor não o informou. Os nomes de produtos são marcas de seus respectivos proprietários.
             </p>
 
             <div className="text-center mt-8">
